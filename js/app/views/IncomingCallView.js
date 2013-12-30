@@ -107,7 +107,6 @@ define(function(require, exports, module) {
         this._add(this.headerLightBox);
         this._add(this.footerLightBox);
 
-        this.template();
         _.bindAll(this, 'template');
         this.collection.bind('add', this.template);
 

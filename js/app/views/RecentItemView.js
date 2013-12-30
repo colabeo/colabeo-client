@@ -1,0 +1,70 @@
+define(function(require, exports, module) {
+    // Import core Famous dependencies
+    var View         = require('famous/View');
+    var Surface      = require('famous/Surface');
+    var EventHandler = require('famous/EventHandler');
+    var Contact      = require('app/models/Contact');
+    var Templates    = require('app/custom/Templates');
+    var TimeAgo        = require('famous-utils/TimeAgo');
+
+    // Import app specific dependencies
+
+    function RecentItemView(options) {
+        View.call(this)
+
+        this.model = options.model;
+
+        // Set up event handlers
+        this.eventInput = new EventHandler();
+        EventHandler.setInputHandler(this, this.eventInput);
+        this.eventOutput = new EventHandler();
+        EventHandler.setOutputHandler(this, this.eventOutput);
+
+        this.surface = new Surface({
+            classes: ['contact-item', 'editable'],
+            size: [undefined, 51]
+        });
+
+//        // Bind click event to load new tweet
+        this.surface.on('click', function(e) {
+            var target = $(e.target);
+            if (target.hasClass("delete-button")) {
+                this.model.destroy();
+            }
+            else {
+                this.eventOutput.emit('outgoingCall', this.model);
+            }
+        }.bind(this));
+
+        this.template();
+
+        this.surface.pipe(this.eventOutput);
+        this._link(this.surface);
+    }
+
+    RecentItemView.prototype = Object.create(View.prototype);
+    RecentItemView.prototype.constructor = RecentItemView;
+
+    RecentItemView.prototype.template = function() {
+        var name;
+        if (this.model.get('firstname') && this.model.get('lastname')) {
+            name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
+        } else {
+            name = this.model.get('email');
+        }
+        var icon = ''; //'<i class="fa fa-sign-in"></i>';
+        var missed = '';
+        if (this.model.get('type') == 'outgoing')
+            icon = '<i class="fa fa-sign-out"></i>';
+        else {
+            if (!this.model.get('success'))
+                missed = "missed";
+        }
+        var contact = '<div class="source '+missed+'"><div class="call-type">'+icon+'</div>' + name;
+        contact += '<div class="call-time">' + TimeAgo.parse(this.model.get('time')) + ' ago</div></div>';
+        contact = Templates.deleteButton() + contact;
+        this.surface.setContent(contact);
+    }
+
+    module.exports = RecentItemView;
+});

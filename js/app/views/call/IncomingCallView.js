@@ -80,8 +80,6 @@ define(function(require, exports, module) {
 
         var remindMeButton = '<button class="remind-me-button"><i class="fa fa-clock-o fa-lg"></i> Remind Me</button>';
         var messageButton = '<button class="message-button"><i class="fa fa-comment fa-lg"></i> Message</button>';
-//        var endButton = '<button class="decline-button"> Decline </button>'
-//        var answerButton = '<button class="answer-button"> Answer </button>'
         var declineButton = Templates.button({
             classes:["decline-button"],
             checked:true,
@@ -134,7 +132,7 @@ define(function(require, exports, module) {
                 this.stopCalltone();
                 this.footerLightBox.hide();
                 this.headerLightBox.hide();
-                this.eventOutput.emit('showApp');
+                this.eventOutput.emit('connectedCall');
             }
         }.bind(this));
     }
@@ -143,10 +141,6 @@ define(function(require, exports, module) {
     IncomingCallView.prototype.constructor = IncomingCallView;
 
     IncomingCallView.prototype.template = function() {
-        var remindMeButton = '<button class="remind-me-button"><i class="fa fa-clock-o fa-lg"></i> Remind Me</button>';
-        var messageButton = '<button class="message-button"><i class="fa fa-comment fa-lg"></i> Message</button>';
-        var endButton = '<button class="decline-button"> Decline </button>';
-        var answerButton = '<button class="answer-button"> Answer </button>';
         this.model = this.collection.models[0];
         var html = '<div class="box">';
 
@@ -161,7 +155,6 @@ define(function(require, exports, module) {
 
         html += '<div class="caller-info">FamousTime...</div>';
 
-//        html += '<div class="box">' + remindMeButton + messageButton + endButton + answerButton + '</div>';
         this.header.setContent(html);
     };
 
@@ -176,8 +169,6 @@ define(function(require, exports, module) {
         var e = document.getElementById('ringtone');
         e && e.pause();
         e.currentTime = 0;
-        this.footerLightBox.hide();
-        this.headerLightBox.hide();
     };
 
     module.exports = IncomingCallView;

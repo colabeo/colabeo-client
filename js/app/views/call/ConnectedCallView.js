@@ -8,17 +8,19 @@ define(function(require, exports, module) {
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
 
-    function OutgoingCallView(options){
+    function ConnectedCallView(options){
 
         View.call(this);
         this.collection = options.collection;
 
-        this.headerLightBox = new LightBox({
-            inTransition:false,
-            outTransition:false,
-            showOrigin: [0.5, 0.1],
-            overlap:true
-        });
+        this.backSurface = new Surface({
+            size: [undefined,undefined],
+
+            properties:{
+                backgroundColor:'transparent',
+                zIndex:0
+            }
+        })
 
         this.footerLightBox = new LightBox({
             inTransform: Matrix.translate(0, 900, 0),
@@ -41,16 +43,6 @@ define(function(require, exports, module) {
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
 
-
-        this.header = new Surface({
-            classes:['outgoing-call-view'],
-            size: [undefined, 300],
-            _origin:[0.5,-0.5],
-            properties: {
-                backgroundColor: 'transparent'
-            }
-        });
-
         var videoButton = Templates.toggleButton({
             classes: ["video-button"],
             checked: true,
@@ -63,7 +55,7 @@ define(function(require, exports, module) {
         var endButton = Templates.button({
             classes: ["end-button"],
             checked: true,
-            content: 'End',
+            content: 'End_connect',
             size: [160,70]
         });
         var audioButton = Templates.toggleButton({
@@ -76,76 +68,54 @@ define(function(require, exports, module) {
             size: [70,70]
         });
         this.footer = new Surface({
-            classes: ['outgoing-call-view-buttons'],
+            classes: ['connected-call-view-buttons'],
             size: [undefined, 80],
             properties: {
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
+                zIndex:1,
+                opacity:0
             },
             content: '<div class="box">' + videoButton + endButton + audioButton + '</div>'
 //            content: '<div class="box"><button class="end-button"></button></div>'
         });
 
-        this._add(this.headerLightBox);
+        this._add(this.backSurface);
         this._add(this.footerLightBox);
-
-        _.bindAll(this, 'template');
-        this.collection.bind('add', this.template);
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("end-button")) {
                 var button = target;
                 button.addClass('exiting');
-                this.model.save({
-                    success: false
-                });
-                this.stopCalltone();
+//                this.model.save({
+//                    success: false
+//                });
                 setTimeout(function() {
                     this.footerLightBox.hide();
-                    this.headerLightBox.hide();
                     this.eventOutput.emit('showApp',function(){
                         button.removeClass('exiting');
                     });
                 }.bind(this), 1000);
             }
         }.bind(this));
+
+//        this.backSurface.on('click',function(e){
+//            if (targett.hasClass("connected"))
+//        })
     }
 
 
-    OutgoingCallView.prototype = Object.create(View.prototype);
-    OutgoingCallView.prototype.constructor = OutgoingCallView;
+    ConnectedCallView.prototype = Object.create(View.prototype);
+    ConnectedCallView.prototype.constructor = ConnectedCallView;
 
-    OutgoingCallView.prototype.template = function() {
-        this.model = this.collection.models[0];
-        var html = '<div class="box">';
-
-        html += '<div class="caller-name">' + this.model.get('firstname') + " " + this.model.get('lastname') + "</div>";
-
-        if (this.model.get('pictureUrl'))
-            html += '<img class="caller-picture" src="' + this.model.get('pictureUrl') + '"></img>';
-        else {
-            var initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
-            html += '<div class="initial">'+initial+'</div>';
-        }
-
-        html += '<div class="caller-info">FamousTime...</div>';
-
-        this.header.setContent(html);
-    };
-
-    OutgoingCallView.prototype.startCalltone = function() {
-        var e = document.getElementById('calltone');
-        e && e.play();
+    ConnectedCallView.prototype.startCall = function() {
         this.footerLightBox.show(this.footer);
-        this.headerLightBox.show(this.header);
     };
 
-    OutgoingCallView.prototype.stopCalltone = function() {
-        var e = document.getElementById('calltone');
-        e && e.pause();
-        e.currentTime = 0;
+    ConnectedCallView.prototype.stopCall = function() {
+
     };
 
-    module.exports = OutgoingCallView;
+    module.exports = ConnectedCallView;
 
 });

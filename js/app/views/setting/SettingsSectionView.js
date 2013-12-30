@@ -59,6 +59,10 @@ define(function(require, exports, module) {
         $('body').on('click', 'button.incoming-button', function(e){
             this.eventOutput.emit('incomingCall');
         }.bind(this));
+
+        $('body').on('click', 'button.connected-button', function(e){
+            this.eventOutput.emit('connectedCall');
+        }.bind(this));
     }
 
     SettingsSectionView.prototype = Object.create(View.prototype);
@@ -88,7 +92,7 @@ define(function(require, exports, module) {
         html += Templates.toggleSwitch("yammer", this.appSettings.get('linkAccounts').yammer) + '</div>';
 
         html += '<div class="desc">Testing</div>';
-        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button></div>';
+        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button></div>';
         html += '</div>';
 //        html += Templates.toggleButton({
 //            classes: ["test"],

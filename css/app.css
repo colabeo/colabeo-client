@@ -321,6 +321,81 @@ button.button {
     float: right;
     font-size: 20px;
 }
+
+ connected-call-view
+.connected-call-view .box {
+    width: 315px;
+    height: 100%;
+    position: relative;
+    margin: 30px auto;
+}
+
+.connected-call-view .initial {
+    background: rgba(255,255,255,0.7);
+    width: 70px;
+    height: 70px;
+    border-radius: 70px;
+    line-height: 70px;
+    text-align: center;
+    margin: -40px 20px;
+    color: rgba(0,0,0,0.5);
+    float: right;
+    font-size: 20px;
+}
+
+.connected-call-view .caller-picture {
+    width: 80px;
+    border-radius: 80px;
+    float: right;
+}
+
+.connected-call-view .caller-name {
+    font-size: 40px;
+    float: left;
+    width: 230px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.connected-call-view .caller-info {
+    font-size: 24px;
+    margin: 0px 20px;
+}
+
+.connected-call-view-buttons .box {
+    width: 330px;
+    height: 100%;
+    margin: auto;
+}
+
+.connected-call-view-buttons .onoffbutton {
+    float: left;
+    margin: 5px;
+}
+
+.connected-call-view-buttons .video-button{
+    font-size: 22px;
+}
+.connected-call-view-buttons .end-button .onoffbutton-on, .buttonsGroup .end-button .onoffbutton-off{
+    font-size: 37px;
+    color: white;
+}
+.connected-call-view-buttons .audio-button{
+    font-size: 22px;
+}
+
+.connected-call-view-buttons .end-button {
+    background-color: #c23635;
+    font-size: 30px;
+    color: white;
+}
+
+.connected-call-view-buttons .end-button.exiting {
+    background-color: #dadbd9;
+    opacity: 0.5;
+}
+
 /* favorites */
 .delete-button {
     float: left;

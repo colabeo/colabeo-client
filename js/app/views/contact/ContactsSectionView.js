@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var ContactItemView  = require('app/views/ContactItemView');
+    var ContactItemView  = require('app/views/contact/ContactItemView');
 
     function ContactsSection(options) {
 

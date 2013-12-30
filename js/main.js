@@ -15,13 +15,13 @@ define(function(require, exports, module) {
 
     // import views
     var CameraView = require("app/views/CameraView");
-    var AddContactView = require("app/views/AddContactView");
-    var OutgoingCallView = require("app/views/OutgoingCallView");
-    var IncomingCallView = require("app/views/IncomingCallView");
-    var FavoritesSectionView = require('app/views/FavoritesSectionView');
-    var RecentsSectionView = require('app/views/RecentsSectionView');
-    var ContactsSectionView = require('app/views/ContactsSectionView');
-    var SettingsSectionView = require('app/views/SettingsSectionView');
+    var AddContactView = require("app/views/contact/AddContactView");
+    var OutgoingCallView = require("app/views/call/OutgoingCallView");
+    var IncomingCallView = require("app/views/call/IncomingCallView");
+    var FavoritesSectionView = require('app/views/favorite/FavoritesSectionView');
+    var RecentsSectionView = require('app/views/recent/RecentsSectionView');
+    var ContactsSectionView = require('app/views/contact/ContactsSectionView');
+    var SettingsSectionView = require('app/views/setting/SettingsSectionView');
 
     // import app
     var config = require('app/config');

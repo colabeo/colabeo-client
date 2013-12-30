@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var RecentItemView   = require('app/views/RecentItemView');
+    var RecentItemView   = require('app/views/recent/RecentItemView');
     var Templates        = require('app/custom/Templates');
 
     function RecentsSectionView(options) {

@@ -15,7 +15,8 @@ define(function(require, exports, module) {
             },
             firstname: "Jeff",
             lastname: "Lin",
-            video: JSON.parse(localStorage.getItem('colabeo-settings-video'))
+            video: JSON.parse(localStorage.getItem('colabeo-settings-video')),
+            blur: JSON.parse(localStorage.getItem('colabeo-settings-blur'))
         }
     });
 });

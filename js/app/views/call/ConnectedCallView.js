@@ -20,7 +20,7 @@ define(function(require, exports, module) {
                 backgroundColor:'transparent',
                 zIndex:0
             }
-        })
+        });
 
         this.footerLightBox = new LightBox({
             inTransform: Matrix.translate(0, 900, 0),
@@ -44,7 +44,7 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         var videoButton = Templates.toggleButton({
-            classes: ["video-button"],
+            classes: ["video-button", "big-button"],
             checked: true,
             onContent: '<i class="fa fa-eye fa-lg"></i>',
             offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
@@ -53,13 +53,13 @@ define(function(require, exports, module) {
             size: [70,70]
         });
         var endButton = Templates.button({
-            classes: ["end-button"],
+            classes: ["end-button", "big-button"],
             checked: true,
-            content: 'End_connect',
+            content: 'End',
             size: [160,70]
         });
         var audioButton = Templates.toggleButton({
-            classes:["audio-button"],
+            classes:["audio-button", "big-button"],
             checked: true,
             onContent: '<i class="fa fa-microphone fa-lg"></i>',
             offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
@@ -76,7 +76,6 @@ define(function(require, exports, module) {
                 opacity:0
             },
             content: '<div class="box">' + videoButton + endButton + audioButton + '</div>'
-//            content: '<div class="box"><button class="end-button"></button></div>'
         });
 
         this._add(this.backSurface);
@@ -87,15 +86,12 @@ define(function(require, exports, module) {
             if (target.hasClass("end-button")) {
                 var button = target;
                 button.addClass('exiting');
-//                this.model.save({
-//                    success: false
-//                }); TODO: not sure about how to deal with the model.
                 setTimeout(function() {
                     this.footerLightBox.hide();
                     this.eventOutput.emit('showApp',function(){
                         button.removeClass('exiting');
                     });
-                }.bind(this), 1000);
+                }.bind(this), 500);
             }
         }.bind(this));
 

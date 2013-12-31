@@ -28,6 +28,8 @@ define(function(require, exports, module) {
     var config = require('app/config');
     var App = require('app/App');
     var MainController = require('app/MainController');
+    var mainController = new MainController();
+    mainController.init();
 
     // Set up event handlers
     this.eventInput = new EventHandler();
@@ -37,7 +39,7 @@ define(function(require, exports, module) {
 
     // Set up models and collections
     this.appSettings = new Settings();
-    this.appSettings.fetch();
+//    this.appSettings.fetch();
     this.contactCollection = new ContactCollection([], {
         firebase: 'https://koalalab-berry.firebaseio.com/users/'+this.appSettings.get('cid')+'/contacts'
     });
@@ -71,13 +73,12 @@ define(function(require, exports, module) {
     ];
 
     // create the App from the template
-    var mainController = new MainController();
     var myApp = new App(config);
     var myLightbox = new LightBox({overlap:true});
     var addContactView = new AddContactView({collection: this.contactCollection});
     var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
     var incomingCallView = new IncomingCallView({collection: this.recentCalls});
-    var connectedCallView = new ConnectedCallView({collection: this.recentCalls});  //TODO: Right collection?
+    var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
 
     outgoingCallView.pipe(this.eventOutput);
     incomingCallView.pipe(this.eventOutput);
@@ -108,6 +109,16 @@ define(function(require, exports, module) {
         }
         $('.camera').addClass('blur');
         myLightbox.show(myApp, true, callback);
+    }
+
+    function onConnectedCall(eventData) {
+        var callback;
+        if (eventData instanceof Function) {
+            callback = eventData;
+        }
+        connectedCallView.startCall();
+        $('.camera').removeClass('blur');
+        myLightbox.show(connectedCallView, true, callback);
     }
 
     function onOutgoingCall(eventData) {
@@ -151,28 +162,6 @@ define(function(require, exports, module) {
         incomingCallView.startCalltone();
         $('.camera').removeClass('blur');
         myLightbox.show(incomingCallView, true);
-    }
-
-    function onConnectedCall(eventData) {
-        var data;
-        if (eventData instanceof Contact || eventData instanceof Call) {
-            data = eventData.attributes;
-        } else {
-            data = this.curCall.attributes;
-        }
-        mainController.makeCall(data);
-        var newCall = {
-            firstname: data.firstname,
-            lastname: data.lastname,
-            email: data.email,
-            pictureUrl: false,
-            type: 'outgoing',
-            time: Date.now()
-        };
-        this.curCall = this.recentCalls.create(newCall);
-        connectedCallView.startCall();
-        $('.camera').removeClass('blur');
-        myLightbox.show(connectedCallView, true);
     }
 
     function onEditContact(eventData) {

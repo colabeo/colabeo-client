@@ -35,6 +35,7 @@ define(function(require, exports, module) {
         this._link(this.scrollview);
 
         mainController.setCamera();
+        mainController.setBlur();
 
         $( 'body' ).on( "change", ".box #video", function(event, ui) {
             localStorage.setItem('colabeo-settings-video', JSON.stringify($("#video").attr('checked')));
@@ -50,6 +51,11 @@ define(function(require, exports, module) {
 //            if ($(".camera")[0])
 //                $(".camera")[0].contentWindow.postMessage(JSON.stringify({type:"command",action:action}),"*");
 
+        }.bind(this));
+
+        $( 'body' ).on( "change", ".box #blur", function(event, ui) {
+            localStorage.setItem('colabeo-settings-blur', JSON.stringify($("#blur").attr('checked')));
+            mainController.setBlur();
         }.bind(this));
 
         $('body').on('click', 'button.call-button', function(e){
@@ -78,6 +84,8 @@ define(function(require, exports, module) {
         html += '<div class="desc"></div>';
         html += '<div class="info">Camera ';
         html += Templates.toggleSwitch("video", this.appSettings.get('video')) + '</div>';
+        html += '<div class="info">Blur ';
+        html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';
         html += '<div class="info">Facebook ';

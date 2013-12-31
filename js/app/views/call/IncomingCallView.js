@@ -78,16 +78,16 @@ define(function(require, exports, module) {
             }
         });
 
-        var remindMeButton = '<button class="remind-me-button"><i class="fa fa-clock-o fa-lg"></i> Remind Me</button>';
-        var messageButton = '<button class="message-button"><i class="fa fa-comment fa-lg"></i> Message</button>';
+        var remindMeButton = '<button class="remind-me-button big-button"><i class="fa fa-clock-o fa-lg"></i> Remind Me</button>';
+        var messageButton = '<button class="message-button big-button"><i class="fa fa-comment fa-lg"></i> Message</button>';
         var declineButton = Templates.button({
-            classes:["decline-button"],
+            classes:["decline-button", "big-button"],
             checked:true,
             content:'Decline',
             size:[160,70]
         })
         var answerButton = Templates.button({
-            classes:["answer-button"],
+            classes:["answer-button", "big-button"],
             checked:true,
             content:'Answer',
             size:[160,70]
@@ -95,11 +95,11 @@ define(function(require, exports, module) {
 
         this.footer = new Surface({
             classes: ['incoming-call-view-buttons'],
-            size: [330, 160],
+            size: [undefined, 80],
             properties: {
                 backgroundColor: 'transparent'
             },
-            content: '<div class="box">' + remindMeButton + messageButton + declineButton + answerButton + '</div>'
+            content: '<div class="box">' + declineButton + answerButton + '</div>'
         });
 
         this._add(this.headerLightBox);
@@ -123,16 +123,22 @@ define(function(require, exports, module) {
                     this.eventOutput.emit('showApp',function(){
                         button.removeClass('exiting');
                     });
-                }.bind(this), 1000);
+                }.bind(this), 500);
             }
             else if (target.hasClass("answer-button")) {
+                var button = target;
+                button.addClass('exiting');
                 this.model.save({
                     success: true
                 });
                 this.stopCalltone();
-                this.footerLightBox.hide();
-                this.headerLightBox.hide();
-                this.eventOutput.emit('connectedCall');
+                setTimeout(function() {
+                    this.footerLightBox.hide();
+                    this.headerLightBox.hide();
+                    this.eventOutput.emit('connectedCall', function(){
+                        button.removeClass('exiting');
+                    });
+                }.bind(this), 500);
             }
         }.bind(this));
     }

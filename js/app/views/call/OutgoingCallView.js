@@ -52,7 +52,7 @@ define(function(require, exports, module) {
         });
 
         var videoButton = Templates.toggleButton({
-            classes: ["video-button"],
+            classes: ["video-button", "big-button"],
             checked: true,
             onContent: '<i class="fa fa-eye fa-lg"></i>',
             offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
@@ -61,13 +61,13 @@ define(function(require, exports, module) {
             size: [70,70]
         });
         var endButton = Templates.button({
-            classes: ["end-button"],
+            classes: ["end-button", "big-button"],
             checked: true,
             content: 'End',
             size: [160,70]
         });
         var audioButton = Templates.toggleButton({
-            classes:["audio-button"],
+            classes:["audio-button", "big-button"],
             checked: true,
             onContent: '<i class="fa fa-microphone fa-lg"></i>',
             offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
@@ -106,7 +106,7 @@ define(function(require, exports, module) {
                     this.eventOutput.emit('showApp',function(){
                         button.removeClass('exiting');
                     });
-                }.bind(this), 1000);
+                }.bind(this), 500);
             }
         }.bind(this));
     }

@@ -2,9 +2,41 @@ define(function(require, exports, module) {
     var Utils       = require('famous-utils/Utils');
 
     function MainController(options) {
+
+    }
+
+    MainController.prototype.init = function() {
+        if (!localStorage.getItem('colabeo-settings-video'))
+            localStorage.setItem('colabeo-settings-video', 'true');
         if (Utils.isMobile()) {
             $('body').addClass('mobile');
+        } else {
+            if (!localStorage.getItem('colabeo-settings-blur'))
+                localStorage.setItem('colabeo-settings-blur', 'true');
         }
+    }
+
+    MainController.prototype.initVideo = function() {
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        console.log("initVideo");
+        var constraints = {audio: false, video: true};
+        var video = document.getElementById("webcam");
+
+        function successCallback(stream) {
+            window.stream = stream; // stream available to console
+            if (window.URL) {
+                video.src = window.URL.createObjectURL(stream);
+            } else {
+                video.src = stream;
+            }
+            video.play();
+        }
+
+        function errorCallback(error){
+            console.log("navigator.getUserMedia error: ", error);
+        }
+
+        navigator.getUserMedia(constraints, successCallback, errorCallback);
     }
 
     MainController.prototype.setCamera = function() {
@@ -15,8 +47,16 @@ define(function(require, exports, module) {
             this.cameraOff();
     }
 
+    MainController.prototype.setBlur = function() {
+        var on = JSON.parse(localStorage.getItem('colabeo-settings-blur'));
+        if (on)
+            $('.camera').removeClass('fakeblur');
+        else
+            $('.camera').addClass('fakeblur');
+    }
+
     MainController.prototype.cameraOn = function() {
-        $('.camera').attr('src', 'https://koalabearate.appspot.com');
+        $('.camera').attr('src', 'https://koalabearate.appspot.com/');
         $('.camera').show();
     }
 

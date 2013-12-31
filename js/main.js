@@ -18,6 +18,7 @@ define(function(require, exports, module) {
     var AddContactView = require("app/views/contact/AddContactView");
     var OutgoingCallView = require("app/views/call/OutgoingCallView");
     var IncomingCallView = require("app/views/call/IncomingCallView");
+    var ConnectedCallView = require('app/views/call/ConnectedCallView');
     var FavoritesSectionView = require('app/views/favorite/FavoritesSectionView');
     var RecentsSectionView = require('app/views/recent/RecentsSectionView');
     var ContactsSectionView = require('app/views/contact/ContactsSectionView');
@@ -76,8 +77,11 @@ define(function(require, exports, module) {
     var addContactView = new AddContactView({collection: this.contactCollection});
     var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
     var incomingCallView = new IncomingCallView({collection: this.recentCalls});
+    var connectedCallView = new ConnectedCallView({collection: this.recentCalls});  //TODO: Right collection?
+
     outgoingCallView.pipe(this.eventOutput);
     incomingCallView.pipe(this.eventOutput);
+    connectedCallView.pipe(this.eventOutput);
 //    var cameraView = new CameraView({});
 
     // create a display context and hook in the App
@@ -93,6 +97,7 @@ define(function(require, exports, module) {
     // events handling
     this.eventOutput.on('incomingCall', onIncomingCall);
     this.eventOutput.on('outgoingCall', onOutgoingCall);
+    this.eventOutput.on('connectedCall', onConnectedCall);
     this.eventOutput.on('editContact', onEditContact);
     this.eventOutput.on('showApp', onShowApp);
 
@@ -146,6 +151,28 @@ define(function(require, exports, module) {
         incomingCallView.startCalltone();
         $('.camera').removeClass('blur');
         myLightbox.show(incomingCallView, true);
+    }
+
+    function onConnectedCall(eventData) {
+        var data;
+        if (eventData instanceof Contact || eventData instanceof Call) {
+            data = eventData.attributes;
+        } else {
+            data = this.curCall.attributes;
+        }
+        mainController.makeCall(data);
+        var newCall = {
+            firstname: data.firstname,
+            lastname: data.lastname,
+            email: data.email,
+            pictureUrl: false,
+            type: 'outgoing',
+            time: Date.now()
+        };
+        this.curCall = this.recentCalls.create(newCall);
+        connectedCallView.startCall();
+        $('.camera').removeClass('blur');
+        myLightbox.show(connectedCallView, true);
     }
 
     function onEditContact(eventData) {

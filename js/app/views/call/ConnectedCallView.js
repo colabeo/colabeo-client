@@ -89,7 +89,7 @@ define(function(require, exports, module) {
                 button.addClass('exiting');
 //                this.model.save({
 //                    success: false
-//                });
+//                }); TODO: not sure about how to deal with the model.
                 setTimeout(function() {
                     this.footerLightBox.hide();
                     this.eventOutput.emit('showApp',function(){
@@ -99,9 +99,9 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-//        this.backSurface.on('click',function(e){
-//            if (targett.hasClass("connected"))
-//        })
+        this.backSurface.on('click',function(e){
+            $('.box').toggle();
+        })
     }
 
 

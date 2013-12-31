@@ -10,8 +10,8 @@ define(function(require, exports, module) {
 
     function IncomingCallView(options) {
         View.call(this);
-
         this.collection = options.collection;
+        var duration = 500;
 
         // Set up event handlers
         this.eventInput = new EventHandler();
@@ -57,13 +57,13 @@ define(function(require, exports, module) {
 
         this.footerLightBox = new LightBox({
             inTransform: Matrix.translate(0, 900, 0),
-            inTransition: {duration: 900, curve: Easing.inQuadNorm()},
+            inTransition: {duration: duration, curve: Easing.inQuadNorm()},
             inOpacity: 0,
             inOrigin: [0.5, 0.5],
             outTransform: Matrix.translate(0, 900, 0),
             outOpacity: 0,
             outOrigin: [0.5, 0.5],
-            outTransition: {duration:900, curve: Easing.outQuadNorm()},
+            outTransition: {duration:duration, curve: Easing.outQuadNorm()},
             showTransform: Matrix.identity,
             showOpacity: 1,
             showOrigin: [0.5, 0.9]
@@ -123,7 +123,7 @@ define(function(require, exports, module) {
                     this.eventOutput.emit('showApp',function(){
                         button.removeClass('exiting');
                     });
-                }.bind(this), 500);
+                }.bind(this), duration);
             }
             else if (target.hasClass("answer-button")) {
                 var button = target;
@@ -138,7 +138,7 @@ define(function(require, exports, module) {
                     this.eventOutput.emit('connectedCall', function(){
                         button.removeClass('exiting');
                     });
-                }.bind(this), 500);
+                }.bind(this), duration);
             }
         }.bind(this));
     }

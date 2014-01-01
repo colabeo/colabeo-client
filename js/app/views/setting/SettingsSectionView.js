@@ -10,8 +10,8 @@ define(function(require, exports, module) {
     function SettingsSectionView(options) {
         View.call(this);
         this.appSettings = options.model;
-        window.appSettings = this.appSettings;
-        var mainController = new MainController();
+        // TODO: seems like a hack
+        var mainController = new MainController({});
 
         // Set up navigation and title bar information
         this.title = '<div>Settings</div>';

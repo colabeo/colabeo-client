@@ -7,47 +7,19 @@ define(function(require, exports, module) {
     var LightBox     = require('app/custom/LightBox');
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
+    var Contact = require("app/models/Contact");
+    var Call = require("app/models/Call");
+    var duration = 500;
 
     function IncomingCallView(options) {
         View.call(this);
         this.collection = options.collection;
-        var duration = 500;
 
         // Set up event handlers
         this.eventInput = new EventHandler();
         EventHandler.setInputHandler(this, this.eventInput);
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
-
-//        this.headerLightBox = new LightBox({
-//            inTransform: Matrix.identity,//Matrix.scale(0.001,0.001,0.001),
-//            inTransition: Matrix.identity,
-//            inOpacity: 1,
-//            inOrigin: [0.5, 0.5],
-//            outTransform: Matrix.scale(0.001,0.001,0.001),
-//            outOpacity: 1,
-//            outOrigin: [0.5, 0.5],
-//            outTransition: Matrix.identity,
-//            showTransform: Matrix.identity,
-//            showOpacity: 1,
-//            showOrigin: [0.5, 0.1],
-//            overlap: true
-//        });
-//
-//        this.footerLightBox = new LightBox({
-//            inTransform: Matrix.scale(0.01,0.01,0.01),
-//            inTransition: {duration: 900, curve: Easing.inQuadNorm()},
-//            inOpacity: 1,
-//            inOrigin: [0.5, 0.5],
-//            outTransform: Matrix.scale(0.001,0.001,0.001),
-//            outOpacity: 1,
-//            outOrigin: [0.5, 0.5],
-//            outTransition: {duration: 900, curve: Easing.inQuadNorm()},
-//            showTransform: Matrix.identity,
-//            showOpacity: 1,
-//            showOrigin: [0.5, 0.9],
-//            overlap: true
-//        });
 
         this.headerLightBox = new LightBox({
             inTransition:false,
@@ -111,43 +83,23 @@ define(function(require, exports, module) {
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("decline-button")) {
-                var button = target;
-                button.addClass('exiting');
-                this.model.save({
-                    success: false
-                });
-                this.stopCalltone();
-                setTimeout(function() {
-                    this.footerLightBox.hide();
-                    this.headerLightBox.hide();
-                    this.eventOutput.emit('showApp',function(){
-                        button.removeClass('exiting');
-                    });
-                }.bind(this), duration);
+                this.stop(target);
             }
             else if (target.hasClass("answer-button")) {
-                var button = target;
-                button.addClass('exiting');
-                this.model.save({
-                    success: true
-                });
-                this.stopCalltone();
-                setTimeout(function() {
-                    this.footerLightBox.hide();
-                    this.headerLightBox.hide();
-                    this.eventOutput.emit('connectedCall', function(){
-                        button.removeClass('exiting');
-                    });
-                }.bind(this), duration);
+                this.accept(target);
             }
         }.bind(this));
+
+        this.eventInput.on('incomingCall', function() {
+            console.log("incomingCall");
+        });
     }
 
     IncomingCallView.prototype = Object.create(View.prototype);
     IncomingCallView.prototype.constructor = IncomingCallView;
 
     IncomingCallView.prototype.template = function() {
-        this.model = this.collection.models[0];
+        this.model = this.collection.models[0] || new Call();
         var html = '<div class="box">';
 
         html += '<div class="caller-name">' + this.model.get('firstname') + " " + this.model.get('lastname') + "</div>";
@@ -175,6 +127,72 @@ define(function(require, exports, module) {
         var e = document.getElementById('ringtone');
         e && e.pause();
         e.currentTime = 0;
+    };
+
+    IncomingCallView.prototype.start = function(eventData) {
+        this.on = true;
+        var data;
+        if (eventData instanceof Contact || eventData instanceof Call) {
+            data = eventData.attributes;
+        } else {
+            this.model = this.collection.models[0] || new Call();
+            data = this.model.attributes;
+        }
+        var newCall = {
+            firstname: data.firstname,
+            lastname: data.lastname,
+            email: data.email,
+            pictureUrl: false,
+            type: 'incoming',
+            time: Date.now(),
+            roomId: data.roomId
+        };
+        this.collection.create(newCall);
+        this.startCalltone();
+        $('.camera').removeClass('blur');
+    }
+
+    IncomingCallView.prototype.stop = function(button) {
+        if (!this.on) return;
+        this.on = false;
+        if (button) {
+            this.model.save({
+                success: false
+            });
+            button.addClass('exiting');
+        }
+        this.stopCalltone();
+        setTimeout(function() {
+            this.footerLightBox.hide();
+            this.headerLightBox.hide();
+            this.eventOutput.emit('showApp', function(){
+                if (button) button.removeClass('exiting');
+            });
+        }.bind(this), duration);
+        /* decline shouldn't remove the call
+        if (button) {
+            this.eventOutput.emit('incomingCallReject', this.model);
+        }
+        */
+    };
+
+    IncomingCallView.prototype.accept = function(button) {
+        this.on = false;
+        this.model.save({
+            success: true
+        });
+        if (button) button.addClass('exiting');
+        this.stopCalltone();
+        setTimeout(function() {
+            this.footerLightBox.hide();
+            this.headerLightBox.hide();
+            this.eventOutput.emit('connectedCall', function(){
+                if (button) button.removeClass('exiting');
+            });
+        }.bind(this), duration);
+        if (button) {
+            this.eventOutput.emit('incomingCallAnswer', this.model);
+        }
     };
 
     module.exports = IncomingCallView;

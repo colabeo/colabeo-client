@@ -40,6 +40,17 @@ define(function(require, exports, module) {
 
         this.surface.pipe(this.eventOutput);
         this._link(this.surface);
+
+        this.model.on('all', function(e) {
+            switch(e)
+            {
+                case 'change':
+                    console.log(e);
+                    this.template();
+                    break;
+
+            }
+        }.bind(this));
     }
 
     RecentItemView.prototype = Object.create(View.prototype);

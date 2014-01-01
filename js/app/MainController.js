@@ -1,11 +1,18 @@
 define(function(require, exports, module) {
     var Utils       = require('famous-utils/Utils');
+    var Settings    = require("app/models/Settings");
+    var Call = require("app/models/Call");
 
     function MainController(options) {
-
+        this.eventInput = options.eventInput;
+        this.eventOutput = options.eventOutput;
+        this.appSettings = options.appSettings;
+        this.collection = options.collection;
+        this.cameraUrl = 'https://koalabearate.appspot.com/webcam';
     }
 
     MainController.prototype.init = function() {
+        this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + this.appSettings.get('cid'));
         if (!localStorage.getItem('colabeo-settings-video'))
             localStorage.setItem('colabeo-settings-video', 'true');
         if (Utils.isMobile()) {
@@ -13,6 +20,51 @@ define(function(require, exports, module) {
         } else {
             if (!localStorage.getItem('colabeo-settings-blur'))
                 localStorage.setItem('colabeo-settings-blur', 'true');
+        }
+
+        this.setupCallListener();
+    }
+
+    MainController.prototype.setupCallListener = function() {
+        this.listenRef.on('child_added', onAdd.bind(this));
+        this.listenRef.on('child_changed', onChanged.bind(this));
+        this.listenRef.on('child_removed', onRemove.bind(this));
+        this.eventOutput.on('incomingCallReject', onIncomingCallReject.bind(this));
+        this.eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
+        function onAdd(snapshot) {
+            var f = snapshot.val().firstname || snapshot.val().person.split(' ')[0];
+            var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
+            var e = snapshot.val().email;
+            var p = snapshot.val().pictureUrl || false;
+            var r = snapshot.name();
+            var call = new Call({
+                firstname: f,
+                lastname: l,
+                email: e,
+                pictureUrl: p,
+                roomId: r
+            });
+            this.eventOutput.emit('incomingCall', call);
+        }
+        function onChanged(snapshot){
+
+        }
+        function onRemove(snapshot){
+            this.eventOutput.emit('incomingCallEnd');
+        }
+        function onIncomingCallReject(call) {
+            this.listenRef.remove();
+        }
+        function onIncomingCallAnswer(call) {
+            if (call instanceof Call) {
+                var roomId = call.get('roomId');
+                if (roomId) {
+                    this.listenRef.child(call.get('roomId')).update({
+                        state : "answered"
+                    });
+                    this.joinRoom(roomId);
+                }
+            }
         }
     }
 
@@ -55,8 +107,18 @@ define(function(require, exports, module) {
             $('.camera').addClass('fakeblur');
     }
 
+    MainController.prototype.joinRoom = function(roomId) {
+        if (roomId) {
+            this.cameraUrl = 'https://koalabearate.appspot.com?r='+roomId;
+        }
+        else {
+            this.cameraUrl = 'https://koalabearate.appspot.com/webcam';
+        }
+        this.cameraOn();
+    }
+
     MainController.prototype.cameraOn = function() {
-        $('.camera').attr('src', 'https://koalabearate.appspot.com/');
+        $('.camera').attr('src', this.cameraUrl);
         $('.camera').show();
     }
 

@@ -7,12 +7,12 @@ define(function(require, exports, module) {
     var LightBox     = require('app/custom/LightBox');
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
+    var duration = 500;
 
     function ConnectedCallView(options){
 
         View.call(this);
         this.collection = options.collection;
-        var duration = 500;
 
         this.backSurface = new Surface({
             size: [undefined,undefined],
@@ -85,14 +85,7 @@ define(function(require, exports, module) {
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("end-button")) {
-                var button = target;
-                button.addClass('exiting');
-                setTimeout(function() {
-                    this.footerLightBox.hide();
-                    this.eventOutput.emit('showApp',function(){
-                        button.removeClass('exiting');
-                    });
-                }.bind(this), duration);
+                this.stop(target);
             }
         }.bind(this));
 
@@ -105,12 +98,22 @@ define(function(require, exports, module) {
     ConnectedCallView.prototype = Object.create(View.prototype);
     ConnectedCallView.prototype.constructor = ConnectedCallView;
 
-    ConnectedCallView.prototype.startCall = function() {
+    ConnectedCallView.prototype.start = function() {
+        $('.camera').removeClass('blur');
         this.footerLightBox.show(this.footer);
     };
 
-    ConnectedCallView.prototype.stopCall = function() {
-
+    ConnectedCallView.prototype.stop = function(button) {
+        if (button) button.addClass('exiting');
+        setTimeout(function() {
+            this.footerLightBox.hide();
+            this.eventOutput.emit('showApp',function(){
+                if (button) button.removeClass('exiting');
+            });
+        }.bind(this), duration);
+        if (button) {
+            this.eventOutput.emit('incomingCallReject', this.model);
+        }
     };
 
     module.exports = ConnectedCallView;

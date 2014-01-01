@@ -35,7 +35,8 @@ define(function(require, exports, module) {
             switch(e)
             {
                 case 'remove':
-                case 'sync':
+                case 'add':
+                    console.log(e);
                     this.loadContacts();
                     break;
             }

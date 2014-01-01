@@ -7,12 +7,14 @@ define(function(require, exports, module) {
     var LightBox     = require('app/custom/LightBox');
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
+    var Contact = require("app/models/Contact");
+    var Call = require("app/models/Call");
+    var duration = 500;
 
     function OutgoingCallView(options){
 
         View.call(this);
         this.collection = options.collection;
-        var duration = 500;
 
         this.headerLightBox = new LightBox({
             inTransition:false,
@@ -146,6 +148,27 @@ define(function(require, exports, module) {
         e && e.pause();
         e.currentTime = 0;
     };
+
+    OutgoingCallView.prototype.start = function(eventData) {
+        var data;
+        if (eventData instanceof Contact || eventData instanceof Call) {
+            data = eventData.attributes;
+        } else {
+            this.model = this.collection.models[0] || new Call();
+            data = this.model.attributes;
+        }
+        var newCall = {
+            firstname: data.firstname,
+            lastname: data.lastname,
+            email: data.email,
+            pictureUrl: false,
+            type: 'outgoing',
+            time: Date.now()
+        };
+        this.collection.create(newCall);
+        this.startCalltone();
+        $('.camera').removeClass('blur');
+    }
 
     module.exports = OutgoingCallView;
 

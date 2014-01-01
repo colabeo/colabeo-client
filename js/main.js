@@ -28,8 +28,6 @@ define(function(require, exports, module) {
     var config = require('app/config');
     var App = require('app/App');
     var MainController = require('app/MainController');
-    var mainController = new MainController();
-    mainController.init();
 
     // Set up event handlers
     this.eventInput = new EventHandler();
@@ -41,10 +39,18 @@ define(function(require, exports, module) {
     this.appSettings = new Settings();
 //    this.appSettings.fetch();
     this.contactCollection = new ContactCollection([], {
-        firebase: 'https://koalalab-berry.firebaseio.com/users/'+this.appSettings.get('cid')+'/contacts'
+        firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
     });
     this.recentCalls = new CallCollection();
     this.curCall = new Call();
+
+    var mainController = new MainController({
+        eventInput: this.eventInput,
+        eventOutput: this.eventOutput,
+        appSettings: this.appSettings,
+        collection: this.recentCalls
+    });
+    mainController.init();
 
     // Set up views
     var favoritesSection = new FavoritesSectionView({
@@ -96,6 +102,7 @@ define(function(require, exports, module) {
     myApp.select(myApp.options.sections[2].title);
 
     // events handling
+    this.eventOutput.on('incomingCallEnd', onIncomingCallEnd);
     this.eventOutput.on('incomingCall', onIncomingCall);
     this.eventOutput.on('outgoingCall', onOutgoingCall);
     this.eventOutput.on('connectedCall', onConnectedCall);
@@ -116,52 +123,22 @@ define(function(require, exports, module) {
         if (eventData instanceof Function) {
             callback = eventData;
         }
-        connectedCallView.startCall();
-        $('.camera').removeClass('blur');
+        connectedCallView.start();
         myLightbox.show(connectedCallView, true, callback);
     }
 
     function onOutgoingCall(eventData) {
-        var data;
-        if (eventData instanceof Contact || eventData instanceof Call) {
-            data = eventData.attributes;
-        } else {
-            data = this.curCall.attributes;
-        }
-        mainController.makeCall(data);
-        var newCall = {
-            firstname: data.firstname,
-            lastname: data.lastname,
-            email: data.email,
-            pictureUrl: false,
-            type: 'outgoing',
-            time: Date.now()
-        };
-        this.curCall = this.recentCalls.create(newCall);
-        outgoingCallView.startCalltone();
-        $('.camera').removeClass('blur');
+        outgoingCallView.start(eventData);
         myLightbox.show(outgoingCallView, true);
     }
 
     function onIncomingCall(eventData) {
-        var data;
-        if (eventData instanceof Contact || eventData instanceof Call) {
-            data = eventData.attributes;
-        } else {
-            data = this.curCall.attributes;
-        }
-        var newCall = {
-            firstname: data.firstname,
-            lastname: data.lastname,
-            email: data.email,
-            pictureUrl: false,
-            type: 'incoming',
-            time: Date.now()
-        };
-        this.curCall = this.recentCalls.create(newCall);
-        incomingCallView.startCalltone();
-        $('.camera').removeClass('blur');
+        incomingCallView.start(eventData);
         myLightbox.show(incomingCallView, true);
+    }
+
+    function onIncomingCallEnd() {
+        incomingCallView.stop();
     }
 
     function onEditContact(eventData) {

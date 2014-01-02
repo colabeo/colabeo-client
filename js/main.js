@@ -85,7 +85,7 @@ define(function(require, exports, module) {
     var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
     var incomingCallView = new IncomingCallView({collection: this.recentCalls});
     var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
-
+    window.myLightbox = myLightbox;
     outgoingCallView.pipe(this.eventOutput);
     incomingCallView.pipe(this.eventOutput);
     connectedCallView.pipe(this.eventOutput);
@@ -102,10 +102,11 @@ define(function(require, exports, module) {
     myApp.select(myApp.options.sections[2].title);
 
     // events handling
-    this.eventOutput.on('incomingCallEnd', onIncomingCallEnd);
+    this.eventOutput.on('callEnd', onCallEnd);
     this.eventOutput.on('incomingCall', onIncomingCall);
     this.eventOutput.on('outgoingCall', onOutgoingCall);
     this.eventOutput.on('connectedCall', onConnectedCall);
+    this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept)
     this.eventOutput.on('editContact', onEditContact);
     this.eventOutput.on('showApp', onShowApp);
 
@@ -116,6 +117,10 @@ define(function(require, exports, module) {
         }
         $('.camera').addClass('blur');
         myLightbox.show(myApp, true, callback);
+    }
+
+    function onOutGoingCallAccept() {
+        outgoingCallView.accept();
     }
 
     function onConnectedCall(eventData) {
@@ -137,8 +142,12 @@ define(function(require, exports, module) {
         myLightbox.show(incomingCallView, true);
     }
 
-    function onIncomingCallEnd() {
-        incomingCallView.stop();
+    function onCallEnd() {
+        // ligntbox shown object stop
+        var curView = myLightbox.nodes[0].object;
+        if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
+            curView.stop();
+        }
     }
 
     function onEditContact(eventData) {

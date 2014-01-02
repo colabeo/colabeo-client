@@ -171,7 +171,7 @@ define(function(require, exports, module) {
         }.bind(this), duration);
         /* decline shouldn't remove the call
         if (button) {
-            this.eventOutput.emit('incomingCallReject', this.model);
+            this.eventOutput.emit('incomingCallEnd', this.model);
         }
         */
     };

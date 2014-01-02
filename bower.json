@@ -1,7 +1,7 @@
 {
-  "name": "famous-time",
+  "name": "colabeo-client",
   "version": "0.0.0",
-  "homepage": "https://github.com/FamousPrivateBeta/famous-time-by-colabeo",
+  "homepage": "https://github.com/colabeo/colabeo-client",
   "authors": [
     "Jeff Lin <jeff@colabeo.com>"
   ],

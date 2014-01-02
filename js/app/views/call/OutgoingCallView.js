@@ -97,19 +97,7 @@ define(function(require, exports, module) {
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("end-button")) {
-                var button = target;
-                button.addClass('exiting');
-                this.model.save({
-                    success: false
-                });
-                this.stopCalltone();
-                setTimeout(function() {
-                    this.footerLightBox.hide();
-                    this.headerLightBox.hide();
-                    this.eventOutput.emit('showApp',function(){
-                        button.removeClass('exiting');
-                    });
-                }.bind(this), duration);
+                this.stop(target);
             }
         }.bind(this));
     }
@@ -150,6 +138,7 @@ define(function(require, exports, module) {
     };
 
     OutgoingCallView.prototype.start = function(eventData) {
+        this.on = true;
         var data;
         if (eventData instanceof Contact || eventData instanceof Call) {
             data = eventData.attributes;
@@ -170,6 +159,43 @@ define(function(require, exports, module) {
         $('.camera').removeClass('blur');
     }
 
+    OutgoingCallView.prototype.stop = function(button) {
+        if (!this.on) return;
+        this.on = false;
+
+        if (button) {
+            this.model.save({
+                success: false
+            });
+            button.addClass('exiting');
+        }
+        this.stopCalltone();
+        setTimeout(function() {
+            this.footerLightBox.hide();
+            this.headerLightBox.hide();
+            this.eventOutput.emit('showApp', function(){
+                if (button) button.removeClass('exiting');
+            });
+        }.bind(this), duration);
+        if (button) {
+            this.eventOutput.emit('outgoingCallEnd', this.model);
+        }
+    };
+
+    OutgoingCallView.prototype.accept = function() {
+        this.on = false;
+        this.model.save({
+            success: true
+        });
+        this.stopCalltone();
+        setTimeout(function() {
+            this.footerLightBox.hide();
+            this.headerLightBox.hide();
+            this.eventOutput.emit('connectedCall', function(){
+
+            });
+        }.bind(this), duration);
+    };
     module.exports = OutgoingCallView;
 
 });

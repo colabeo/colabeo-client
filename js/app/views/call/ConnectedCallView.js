@@ -112,7 +112,8 @@ define(function(require, exports, module) {
             });
         }.bind(this), duration);
         if (button) {
-            this.eventOutput.emit('incomingCallReject', this.model);
+            this.eventOutput.emit('outgoingCallEnd', this.model);
+            this.eventOutput.emit('incomingCallEnd', this.model);
         }
     };
 

@@ -5,13 +5,10 @@ define(function(require, exports, module) {
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
-    var MainController   = require('app/MainController');
 
     function SettingsSectionView(options) {
         View.call(this);
         this.appSettings = options.model;
-        // TODO: seems like a hack
-        var mainController = new MainController({});
 
         // Set up navigation and title bar information
         this.title = '<div>Settings</div>';
@@ -31,15 +28,11 @@ define(function(require, exports, module) {
         this.template();
         this.surface.pipe(this.eventOutput);
         this.scrollview.sequenceFrom([this.surface]);
-
         this._link(this.scrollview);
-
-        mainController.setCamera();
-        mainController.setBlur();
 
         $( 'body' ).on( "change", ".box #video", function(event, ui) {
             localStorage.setItem('colabeo-settings-video', JSON.stringify($("#video").attr('checked')));
-            mainController.setCamera();
+            this.eventOutput.emit('setCamera');
 //            var action;
 //            if ($("#video").attr('checked')) {
 //                action = "onVideo";
@@ -55,7 +48,7 @@ define(function(require, exports, module) {
 
         $( 'body' ).on( "change", ".box #blur", function(event, ui) {
             localStorage.setItem('colabeo-settings-blur', JSON.stringify($("#blur").attr('checked')));
-            mainController.setBlur();
+            this.eventOutput.emit('setBlur');
         }.bind(this));
 
         $('body').on('click', 'button.call-button', function(e){
@@ -79,7 +72,7 @@ define(function(require, exports, module) {
         html += '<button class="logout-button">Log Out</button></div>';
 
         html += '<div class="desc"></div>';
-        html += '<div class="info">ID: ' + this.appSettings.get('accountId') + "</div>";
+        html += '<div class="info">ID: ' + this.appSettings.get('email') + "</div>";
 
         html += '<div class="desc"></div>';
         html += '<div class="info">Camera ';

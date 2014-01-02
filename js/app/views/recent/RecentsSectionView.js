@@ -36,7 +36,7 @@ define(function(require, exports, module) {
             {
                 case 'remove':
                 case 'add':
-                    console.log(e);
+//                    console.log(e);
                     this.loadContacts();
                     break;
             }

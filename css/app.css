@@ -489,6 +489,14 @@ input {
     font-size: 13px;
 }
 
+.searchButton{
+    border-radius: 5px;
+}
+
+.abcButton{
+    border-radius: 5px;
+}
+
 /* settings */
 .logout-button {
     float: right;

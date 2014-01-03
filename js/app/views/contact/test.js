@@ -15,11 +15,10 @@ define(function(require, exports, module) {
 
         View.call(this);
 
-        this.searchBarSize = 50;
-        this.abcSurfaceWidth = 25;
+        this.searchBarSize = 30;
 
         this.headerFooterLayout = new HeaderFooterLayout({
-            headerSize: this.searchBarSize,
+            headerSize: 30,
             footerSize: 0
         })
 
@@ -33,7 +32,7 @@ define(function(require, exports, module) {
         });
 
         this.abcSurface = new Surface({
-            size: [this.abcSurfaceWidth, window.innerHeight-102-this.searchBarSize],
+            size: [20, window.innerHeight-102-this.searchBarSize],
             classes: ['abcButton'],
             properties:{
                 backgroundColor: 'blue',
@@ -42,7 +41,7 @@ define(function(require, exports, module) {
         });
 
         this.abcMod = new Mod({
-            transform: Matrix.translate(0,this.searchBarSize),
+            transform: Matrix.translate(0,30),
             origin: [1.0, 0.0]
         })
 

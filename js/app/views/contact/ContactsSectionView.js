@@ -17,6 +17,8 @@ define(function(require, exports, module) {
 
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 25;
+        this.abcSurfaceHeight = 450;
+
 
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: this.searchBarSize,
@@ -25,18 +27,20 @@ define(function(require, exports, module) {
 
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
-            classes: ['searchButton'],
+            classes: ['contact-section'],
+            content: '<form class="contact-section"><div><i class="fa fa-search fa-spin"></i>   <input type="text" class="search-contact" placeholder="Search"></div></form>',
             properties:{
-                backgroundColor: 'red',
+                backgroundColor: 'rgba(15,15,15,0.9)',
+                color: 'white',
                 zIndex:2
             }
         });
 
         this.abcSurface = new Surface({
-            size: [this.abcSurfaceWidth, window.innerHeight-102-this.searchBarSize],
+            size: [this.abcSurfaceWidth, this.abcSurfaceHeight],
             classes: ['abcButton'],
             properties:{
-                backgroundColor: 'blue',
+                backgroundColor: 'rgba(160,160,160,0.5)',
                 zIndex:2
             }
         });

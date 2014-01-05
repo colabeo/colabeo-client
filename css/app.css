@@ -1,7 +1,7 @@
 body {
     font-family: open_sansregular, sans-serif;
     color: #fff;
-    background-color: #444;
+    background-color: #000;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -82,15 +82,31 @@ button.button {
     text-align: center;
 }
 
+/* webcam stuff */
 .camera {
-    height: 100%;
+    background-color: #000;
+    height: 90% !important;
     width: 100%;
-    -webkit-transform: scale3d(2.5,2.5,1) translate3d(0,0,-5px);
-    -moz-transform: scale3d(2.5,2.5,1) translate3d(0,0,-5px);
+    top: 5%;
+    /*-webkit-transform: translate3d(0,0,-5px) !important;*/
+    /*-moz-transform: translate3d(0,0,-5px) !important;*/
     overflow: hidden;
     position: absolute;
     pointer-events: none;
     z-index: -1;
+}
+
+.mobile .camera {
+    height: 100% !important;
+    top: 0%;
+}
+
+.camera video{
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    position: absolute;
+    height: 100%;
 }
 
 .blur {
@@ -99,25 +115,12 @@ button.button {
     -moz-filter: blur(20px) opacity(0.5);
 }
 
-.mobile .camera {
-    -webkit-transform: scale3d(1.8,1.9,1) translate3d(0,0,-5px);
-    -moz-transform: scale3d(1.8,1.9,1) translate3d(0,0,-5px);
-}
-
 .blur.fakeblur {
     -webkit-filter: opacity(0.2);
     -moz-filter: opacity(0.2);
 }
 
-
-#camera-pic {
-    background-color: black;
-    background-image: url(http://theinsightpictures.net/wp-content/uploads/2013/11/curly-hairstyles-for-round-faces-430.jpg);
-    background-size: 120%;
-    margin-left: -20%;
-    height: 100%;
-}
-
+/* header */
 .header button {
     position: absolute;
     color: #3398cd;

@@ -28,6 +28,8 @@ define(function(require, exports, module) {
         });
         this.pipe(this.scrollview);
         this._link(this.scrollview);
+        // TODO: hack
+        window.scrollview = this.scrollview;
 
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e) {

@@ -5,6 +5,7 @@ define(function(require, exports, module) {
         defaults: {
 //            cid: "tZNo7HwWLl",
             cid: "sMu7eW1QYY",
+//            cid: "3FQb25z8Dz",
             email: "jeff@colabeo.com",
             linkAccounts: {
                 facebook: false,

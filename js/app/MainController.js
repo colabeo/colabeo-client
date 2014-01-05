@@ -23,6 +23,8 @@ define(function(require, exports, module) {
         }
         this.setupSettingsListener();
         this.setupCallListener();
+        this.setupVideo();
+        window.appController = this;
     };
 
     MainController.prototype.setupSettingsListener = function() {
@@ -48,13 +50,15 @@ define(function(require, exports, module) {
             var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
             var e = snapshot.val().email;
             var p = snapshot.val().pictureUrl || false;
+            var c = snapshot.val()['name'];
             var r = snapshot.name();
             var call = new Call({
                 firstname: f,
                 lastname: l,
                 email: e,
                 pictureUrl: p,
-                roomId: r
+                roomId: r,
+                caller: c
             });
             this.eventOutput.emit('incomingCall', call);
         }
@@ -66,15 +70,18 @@ define(function(require, exports, module) {
         }
         function onIncomingCallEnd(call) {
             this.listenRef.remove();
+            this.exitRoom();
         }
         function onIncomingCallAnswer(call) {
             if (call instanceof Call) {
+                var caller = call.get('caller');
+                var callee = this.appSettings.get('cid');
                 var roomId = call.get('roomId');
                 if (roomId) {
                     this.listenRef.child(call.get('roomId')).update({
                         state : "answered"
                     });
-                    this.joinRoom(roomId);
+                    this.joinRoom(caller, callee, roomId);
                 }
             }
         }
@@ -85,27 +92,98 @@ define(function(require, exports, module) {
         }
     };
 
-    MainController.prototype.initVideo = function() {
+    /* start of peer call */
+    MainController.prototype.setupVideo = function() {
+        // Compatibility shim
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-        console.log("initVideo");
-        var constraints = {audio: false, video: true};
-        var video = document.getElementById("webcam");
+        this.startRoom();
+        this.initLocalMedia({audio: true, video: true});
+    };
 
-        function successCallback(stream) {
-            window.stream = stream; // stream available to console
-            if (window.URL) {
-                video.src = window.URL.createObjectURL(stream);
-            } else {
-                video.src = stream;
-            }
-            video.play();
+    MainController.prototype.initLocalMedia = function(options) {
+        var options = _.extend({audio: true, video: true},options);
+        // Get audio/video stream
+        navigator.getUserMedia(options,
+            function(stream){
+                // Set your video displays
+                $('.local-video video').prop('src', URL.createObjectURL(stream));
+                this.localStream = stream;
+                this.cleanRoom();
+            }.bind(this),
+            function(){
+                alert("Please allow camera access for Colabeo");
+            }.bind(this)
+        );
+    }
+
+    MainController.prototype.initRemoteMedia = function(call) {
+        // Hang up on an existing call if present
+        if (this.existingCall) {
+            this.existingCall.close();
         }
 
-        function errorCallback(error){
-            console.log("navigator.getUserMedia error: ", error);
-        }
+        // Wait for stream on the call, then set peer video display
+        call.on('stream', function(stream){
+            $('.remote-video video').prop('src', URL.createObjectURL(stream));
+        }.bind(this));
 
-        navigator.getUserMedia(constraints, successCallback, errorCallback);
+        // UI stuff
+        this.existingCall = call;
+//        console.log("Their ID:" + call.peer);
+        call.on('close', this.cleanRoom.bind(this));
+    }
+
+    MainController.prototype.startRoom = function(caller, callee, roomId)  {
+//        roomId = "A"+caller+callee+roomId+"Z";
+        if (roomId) roomId = "A"+roomId+"Z";
+        // PeerJS object
+        this.peer = new Peer(roomId, { key: '7bihidp9q86c4n29', debug: 0, config: {'iceServers': [
+            { url: 'stun:stun.l.google.com:19302' }
+        ]}});
+        this.peer.on('open', function(){
+//            console.log("my ID:" + this.peer.id);
+        }.bind(this));
+
+        // Receiving a call
+        this.peer.on('call', function(call){
+            call.answer(this.localStream);
+            this.initRemoteMedia(call);
+        }.bind(this));
+        this.peer.on('error', function(err){
+//            alert(err.message);
+        }.bind(this));
+    };
+
+    MainController.prototype.joinRoom = function(caller, callee, roomId) {
+//        roomId = "A"+caller+callee+roomId+"Z";
+        if (roomId) roomId = "A"+roomId+"Z";
+//        console.log("my ID:" + this.peer.id);
+        setTimeout(function(){
+            // Initiate a call!
+            var call = this.peer.call(roomId, this.localStream);
+            this.initRemoteMedia(call);
+        }.bind(this),1000);
+    };
+
+    MainController.prototype.exitRoom = function() {
+        this.existingCall.close();
+        this.cleanRoom();
+    };
+
+    MainController.prototype.cleanRoom = function() {
+
+    };
+
+    /* end of peer call */
+
+    MainController.prototype.joinRoomOld = function(roomId) {
+        if (roomId) {
+            this.cameraUrl = this.appSettings.get('webchatUrl') + '?r='+roomId;
+        }
+        else {
+            this.cameraUrl = this.appSettings.get('webcamUrl');
+        }
+        this.cameraOn();
     };
 
     MainController.prototype.setCamera = function() {
@@ -122,16 +200,6 @@ define(function(require, exports, module) {
             $('.camera').removeClass('fakeblur');
         else
             $('.camera').addClass('fakeblur');
-    };
-
-    MainController.prototype.joinRoom = function(roomId) {
-        if (roomId) {
-            this.cameraUrl = this.appSettings.get('webchatUrl') + '?r='+roomId;
-        }
-        else {
-            this.cameraUrl = this.appSettings.get('webcamUrl');
-        }
-        this.cameraOn();
     };
 
     MainController.prototype.cameraOn = function() {
@@ -173,30 +241,16 @@ define(function(require, exports, module) {
             state : "calling"
         });
 
-//        callRef.on('child_added', onAdd.bind(this));
         callRef.on('child_changed', onChanged.bind(this));
         callRef.on('child_removed', onRemove.bind(this));
         this.eventOutput.on('outgoingCallEnd', onOutgoingCallEnd.bind(this));
-//        function onAdd(snapshot) {
-//            var f = snapshot.val().firstname || snapshot.val().person.split(' ')[0];
-//            var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
-//            var e = snapshot.val().email;
-//            var p = snapshot.val().pictureUrl || false;
-//            var r = snapshot.name();
-//            var call = new Call({
-//                firstname: f,
-//                lastname: l,
-//                email: e,
-//                pictureUrl: p,
-//                roomId: r
-//            });
-//            this.eventOutput.emit('outgoingCall', call);
-//        }
         function onChanged(snapshot){
             var refCallState = snapshot.val()['state'];
             if (refCallState == "answered") {
+                var caller = this.appSettings.get('cid');
+                var callee = id;
                 var roomId = snapshot.name();
-                this.joinRoom(roomId);
+                this.startRoom(caller, callee, roomId);
                 this.eventOutput.emit('outGoingCallAccept', function(){
 
                 });
@@ -207,6 +261,7 @@ define(function(require, exports, module) {
         }
         function onOutgoingCallEnd(call) {
             callRef.remove();
+            this.exitRoom();
         }
     };
 

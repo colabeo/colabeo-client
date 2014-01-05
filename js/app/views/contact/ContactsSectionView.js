@@ -7,7 +7,7 @@ define(function(require, exports, module) {
     var ContactItemView  = require('app/views/contact/ContactItemView');
     var Matrix           = require('famous/Matrix');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
-    var Utility = require('famous/Utility');
+    var Utility          = require('famous/Utility');
     var ContainerSurface = require('famous/ContainerSurface');
     var Mod              = require('famous/Modifier');
 
@@ -49,7 +49,7 @@ define(function(require, exports, module) {
         this.abcMod = new Mod({
             transform: Matrix.translate(0,this.searchBarSize),
             origin: [1.0, 0.0]
-        })
+        });
 
         // Set up navigation and title bar information
 //        this.title = '<button class="left import-contacts">Import</button><div>All Contacts</div><button class="right add-contact"><i class="fa fa-plus"></i></button>';

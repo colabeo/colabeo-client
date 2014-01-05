@@ -138,6 +138,7 @@ define(function(require, exports, module) {
             this.model = this.collection.models[0] || new Call();
             data = this.model.attributes;
         }
+        // TODO: use extend instead
         var newCall = {
             firstname: data.firstname,
             lastname: data.lastname,
@@ -145,7 +146,8 @@ define(function(require, exports, module) {
             pictureUrl: false,
             type: 'incoming',
             time: Date.now(),
-            roomId: data.roomId
+            roomId: data.roomId,
+            caller: data.caller
         };
         this.collection.create(newCall);
         this.startCalltone();

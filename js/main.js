@@ -89,11 +89,11 @@ define(function(require, exports, module) {
     outgoingCallView.pipe(this.eventOutput);
     incomingCallView.pipe(this.eventOutput);
     connectedCallView.pipe(this.eventOutput);
-//    var cameraView = new CameraView({});
+    var cameraView = new CameraView({});
 
     // create a display context and hook in the App
     var mainDisplay = FamousEngine.createContext();
-//    mainDisplay.add(cameraView);
+    mainDisplay.add(cameraView);
     mainDisplay.add(myLightbox);
     myLightbox.show(myApp);
     FamousEngine.pipe(myApp);
@@ -109,6 +109,8 @@ define(function(require, exports, module) {
     this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept)
     this.eventOutput.on('editContact', onEditContact);
     this.eventOutput.on('showApp', onShowApp);
+    this.eventOutput.on('chatOn', onChatOn);
+    this.eventOutput.on('chatOff', onChatOff);
 
     function onShowApp(eventData) {
         var callback;
@@ -130,6 +132,7 @@ define(function(require, exports, module) {
         }
         connectedCallView.start();
         myLightbox.show(connectedCallView, true, callback);
+        this.eventOutput.emit('chatOn');
     }
 
     function onOutgoingCall(eventData) {
@@ -143,6 +146,7 @@ define(function(require, exports, module) {
     }
 
     function onCallEnd() {
+        this.eventOutput.emit('chatOff');
         // ligntbox shown object stop
         var curView = myLightbox.nodes[0].object;
         if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
@@ -157,6 +161,16 @@ define(function(require, exports, module) {
         } else {
             myLightbox.show(addContactView, true);
         }
+    }
+
+    function onChatOn() {
+        console.log("chatOn");
+        cameraView.turnOn();
+    }
+
+    function onChatOff() {
+        console.log("chatOff");
+        cameraView.turnOff();
     }
 
     // header buttons events

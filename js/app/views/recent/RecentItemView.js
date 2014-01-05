@@ -45,7 +45,7 @@ define(function(require, exports, module) {
             switch(e)
             {
                 case 'change':
-                    console.log(e);
+//                    console.log(e);
                     this.template();
                     break;
 

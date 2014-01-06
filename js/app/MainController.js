@@ -18,9 +18,9 @@ define(function(require, exports, module) {
             if (!localStorage.getItem('colabeo-settings-blur'))
                 localStorage.setItem('colabeo-settings-blur', 'true');
         }
-        this.setupSettingsListener();
         this.setupCallListener();
         this.setupVideo();
+        this.setupSettingsListener();
         // TODO: hack
         window.appController = this;
     };

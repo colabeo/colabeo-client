@@ -17,6 +17,7 @@ define(function(require, exports, module) {
             firstname: "Jeff",
             lastname: "Lin",
             video: JSON.parse(localStorage.getItem('colabeo-settings-video')),
+            audio: JSON.parse(localStorage.getItem('colabeo-settings-audio')),
             blur: JSON.parse(localStorage.getItem('colabeo-settings-blur')),
             userDatabaseUrl: "https://koalalab-berry.firebaseio.com/users/",
             callDatabaseUrl: "https://de-berry.firebaseio-demo.com/calls/"

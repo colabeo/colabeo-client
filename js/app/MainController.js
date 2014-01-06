@@ -12,6 +12,8 @@ define(function(require, exports, module) {
         this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + this.appSettings.get('cid'));
         if (!localStorage.getItem('colabeo-settings-video'))
             localStorage.setItem('colabeo-settings-video', 'true');
+        if (!localStorage.getItem('colabeo-settings-audio'))
+            localStorage.setItem('colabeo-settings-audio', 'true');
         if (Utils.isMobile()) {
             $('body').addClass('mobile');
         } else {
@@ -32,8 +34,9 @@ define(function(require, exports, module) {
         this.eventOutput.on('setBlur', function() {
             this.setBlur();
         }.bind(this));
-        this.setCamera();
-        this.setBlur();
+        this.eventOutput.on('setAudio', function() {
+            this.setAudio();
+        }.bind(this));
     };
 
     MainController.prototype.setupCallListener = function() {
@@ -97,7 +100,7 @@ define(function(require, exports, module) {
         // Compatibility shim
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
         this.startRoom();
-        this.initLocalMedia({audio: true, video: true});
+        this.setCamera();
     };
 
     MainController.prototype.initLocalMedia = function(options) {
@@ -109,6 +112,8 @@ define(function(require, exports, module) {
                 $('.local-video video').prop('src', URL.createObjectURL(stream));
                 this.localStream = stream;
                 this.cleanRoom();
+                this.setBlur();
+                this.setAudio();
             }.bind(this),
             function(){
                 alert("Please allow camera access for Colabeo");
@@ -179,11 +184,8 @@ define(function(require, exports, module) {
     /* end of peer call */
 
     MainController.prototype.setCamera = function() {
-        var on = JSON.parse(localStorage.getItem('colabeo-settings-video'));
-        if (on)
-            this.cameraOn();
-        else
-            this.cameraOff();
+        var video = JSON.parse(localStorage.getItem('colabeo-settings-video'));
+        this.initLocalMedia({video: video, audio: true});
     };
 
     MainController.prototype.setBlur = function() {
@@ -194,12 +196,24 @@ define(function(require, exports, module) {
             $('.camera').addClass('fakeblur');
     };
 
-    MainController.prototype.cameraOn = function() {
-        $('.camera').show();
+    MainController.prototype.setAudio = function() {
+        var audio = JSON.parse(localStorage.getItem('colabeo-settings-audio'));
+        if (this.localStream) {
+            var audioTracks = this.localStream.getAudioTracks();
+            for (var i = 0, l = audioTracks.length; i < l; i++) {
+                audioTracks[i].enabled = audio;
+            }
+        }
     };
 
-    MainController.prototype.cameraOff = function() {
-        $('.camera').hide();
+    MainController.prototype.setVideo = function() {
+        var video = JSON.parse(localStorage.getItem('colabeo-settings-video'));
+        if (this.localStream) {
+            var videoTracks = this.localStream.getVideoTracks();
+            for (var i = 0, l = videoTracks.length; i < l; i++) {
+                videoTracks[i].enabled = video;
+            }
+        }
     };
 
     MainController.prototype.callByContact = function(data) {

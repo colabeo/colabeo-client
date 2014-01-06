@@ -54,7 +54,6 @@ define(function(require, exports, module) {
         });
         this.recentCalls = new CallCollection();
         this.curCall = new Call();
-        mainController.init();
 
         // Set up views
         var favoritesSection = new FavoritesSectionView({
@@ -189,5 +188,8 @@ define(function(require, exports, module) {
             this.eventOutput.emit('showApp');
         }.bind(this));
 
+        mainController.init();
+        // TODO: hack
+        window.mainController = mainController;
     }.bind(this));
 });

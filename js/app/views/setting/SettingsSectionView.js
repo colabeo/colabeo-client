@@ -33,17 +33,10 @@ define(function(require, exports, module) {
         $( 'body' ).on( "change", ".box #video", function(event, ui) {
             localStorage.setItem('colabeo-settings-video', JSON.stringify($("#video").attr('checked')));
             this.eventOutput.emit('setCamera');
-//            var action;
-//            if ($("#video").attr('checked')) {
-//                action = "onVideo";
-//                $(".camera").show();
-//            } else {
-//                action = "offVideo";
-//                $(".camera").hide();
-//            }
-//            if ($(".camera")[0])
-//                $(".camera")[0].contentWindow.postMessage(JSON.stringify({type:"command",action:action}),"*");
-
+        }.bind(this));
+        $( 'body' ).on( "change", ".box #audio", function(event, ui) {
+            localStorage.setItem('colabeo-settings-audio', JSON.stringify($("#audio").attr('checked')));
+            this.eventOutput.emit('setAudio');
         }.bind(this));
 
         $( 'body' ).on( "change", ".box #blur", function(event, ui) {
@@ -81,6 +74,8 @@ define(function(require, exports, module) {
         html += '<div class="desc"></div>';
         html += '<div class="info">Camera ';
         html += Templates.toggleSwitch("video", this.appSettings.get('video')) + '</div>';
+        html += '<div class="info">Audio ';
+        html += Templates.toggleSwitch("audio", this.appSettings.get('audio')) + '</div>';
         html += '<div class="info">Blur ';
         html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
 

@@ -12,6 +12,7 @@ define(function(require, exports, module) {
     }
 
     MainController.prototype.init = function() {
+        this.loadUser();
         this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + this.appSettings.get('cid'));
         if (!localStorage.getItem('colabeo-settings-video'))
             localStorage.setItem('colabeo-settings-video', 'true');
@@ -24,6 +25,7 @@ define(function(require, exports, module) {
         this.setupSettingsListener();
         this.setupCallListener();
         this.setupVideo();
+        // TODO: hack
         window.appController = this;
     };
 
@@ -266,6 +268,21 @@ define(function(require, exports, module) {
             callRef.remove();
             this.exitRoom();
         }
+    };
+
+    MainController.prototype.loadUser = function(done) {
+        $.ajax({
+            url: '/me',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                console.log(JSON.stringify(data));
+                if (done) done(data);
+            },
+            error: function() {
+                console.log('error');
+            }
+        });
     };
 
     function userLookup(externalId, done) {

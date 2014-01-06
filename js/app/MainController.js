@@ -86,9 +86,11 @@ define(function(require, exports, module) {
             }
         }
         function onOutgoingCall(call) {
+            this.callByContact(call);
+
             // TODO: hardcode call id for now; will use callByContact soon
-            var callId = "3FQb25z8Dz";
-            this.callById(callId);
+//            var callId = "3FQb25z8Dz";
+//            this.callById(callId);
         }
     };
 
@@ -166,7 +168,9 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.exitRoom = function() {
-        this.existingCall.close();
+        if (this.existingCall) {
+            this.existingCall.close();
+        }
         this.cleanRoom();
     };
 
@@ -213,8 +217,7 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.callByContact = function(data) {
-        return;
-        var externalId = data.email;
+        var externalId = data.get('email');
         userLookup(externalId, function(result) {
             var callee = result.callee;
             if (callee) {
@@ -225,7 +228,7 @@ define(function(require, exports, module) {
                 console.log('The user you are calling is not an colabeo user, I don\'t know what to do.');
                 console.log(result);
             }
-        });
+        }.bind(this));
     };
 
     MainController.prototype.callById = function(id) {
@@ -267,18 +270,18 @@ define(function(require, exports, module) {
 
     function userLookup(externalId, done) {
         $.ajax({
-            url: '/user/lookup',
-            type: 'post',
+            url: '/finduser',
+            type: 'get',
             dataType: 'json',
-            data: { externalId : externalId },
+            data: { provider: "email", externalId : externalId },
             success: function(data) {
                 console.log(JSON.stringify(data));
                 done(data);
             },
             error: function() {
                 console.log('error');
-                var data = {"callee":{"lastname":"Lin","firstname":"Jay","username":"jeff@demobo.com","email":"jeff@demobo.com","emailVerified":true,"socialNetwork":{"__type":"Relation","className":"SocialNetworkAdaptor"},"profile":{"__type":"Relation","className":"Profile"},"contacts":{"__type":"Relation","className":"Contact"},"objectId":"3FQb25z8Dz","createdAt":"2013-12-12T19:53:24.792Z","updatedAt":"2013-12-15T09:44:21.854Z"}};
-                done(data);
+                // TODO: show default call for now
+                done(new Call());
             }
         });
     }

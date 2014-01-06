@@ -62,6 +62,10 @@ define(function(require, exports, module) {
         $('body').on('click', 'button.connected-button', function(e){
             this.eventOutput.emit('connectedCall');
         }.bind(this));
+
+        $('body').on('click', 'button.logout-button', function(e){
+            window.location = "/logout";
+        }.bind(this));
     }
 
     SettingsSectionView.prototype = Object.create(View.prototype);

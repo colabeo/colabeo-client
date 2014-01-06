@@ -19,9 +19,7 @@ define(function(require, exports, module) {
             video: JSON.parse(localStorage.getItem('colabeo-settings-video')),
             blur: JSON.parse(localStorage.getItem('colabeo-settings-blur')),
             userDatabaseUrl: "https://koalalab-berry.firebaseio.com/users/",
-            callDatabaseUrl: "https://de-berry.firebaseio-demo.com/calls/",
-            webcamUrl: 'https://koalabearate.appspot.com/webcam',
-            webchatUrl: 'https://koalabearate.appspot.com'
+            callDatabaseUrl: "https://de-berry.firebaseio-demo.com/calls/"
         }
     });
 });

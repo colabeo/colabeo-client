@@ -6,13 +6,9 @@ define(function(require, exports, module) {
     function MainController(options) {
         this.eventInput = options.eventInput;
         this.eventOutput = options.eventOutput;
-        this.appSettings = options.appSettings;
-        this.collection = options.collection;
-        this.cameraUrl = this.appSettings.get('webcamUrl');
     }
 
     MainController.prototype.init = function() {
-        this.loadUser();
         this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + this.appSettings.get('cid'));
         if (!localStorage.getItem('colabeo-settings-video'))
             localStorage.setItem('colabeo-settings-video', 'true');
@@ -182,16 +178,6 @@ define(function(require, exports, module) {
 
     /* end of peer call */
 
-    MainController.prototype.joinRoomOld = function(roomId) {
-        if (roomId) {
-            this.cameraUrl = this.appSettings.get('webchatUrl') + '?r='+roomId;
-        }
-        else {
-            this.cameraUrl = this.appSettings.get('webcamUrl');
-        }
-        this.cameraOn();
-    };
-
     MainController.prototype.setCamera = function() {
         var on = JSON.parse(localStorage.getItem('colabeo-settings-video'));
         if (on)
@@ -209,12 +195,10 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.cameraOn = function() {
-        $('.camera').attr('src', this.cameraUrl);
         $('.camera').show();
     };
 
     MainController.prototype.cameraOff = function() {
-        $('.camera').attr('src', null);
         $('.camera').hide();
     };
 
@@ -276,11 +260,12 @@ define(function(require, exports, module) {
             type: 'get',
             dataType: 'json',
             success: function(data) {
-                console.log(JSON.stringify(data));
                 if (done) done(data);
             },
             error: function() {
                 console.log('error');
+                // TODO: temp dev user
+                if (done) done({});
             }
         });
     };

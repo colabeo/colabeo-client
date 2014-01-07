@@ -27,13 +27,19 @@ define(function(require, exports, module) {
         this._link(this.scrollview);
 
         // When Firebase returns the data switch out of the loading screen
-        this.collection.on('all', function(e) {
-//            console.log(e);
+        this.collection.on('all', function(e, model, collection, options) {
+            console.log(e, model, collection, options);
             switch(e)
             {
+                case 'change:favorite':
+//                    if (model.changed.favorite)
+//                        this.loadFavorites();
+//                    else {
+//                        this.removeContact(model.collection.favorites().indexOf(model));
+//                    }
+//                    break;
                 case 'remove':
                 case 'sync':
-                case 'change:favorite':
                     this.loadFavorites();
                     break;
             }
@@ -50,6 +56,16 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
-    }
+    };
+
+    FavoritesSectionView.prototype.removeContact = function(index) {
+        if (this.scrollview.node) {
+            var removedNode = this.scrollview.node.array[index];
+            removedNode.collapse(function() {
+                this.scrollview.node.splice(index,1);
+            }.bind(this));
+        }
+    };
+
     module.exports = FavoritesSectionView;
 });

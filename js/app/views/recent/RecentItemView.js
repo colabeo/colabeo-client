@@ -22,10 +22,6 @@ define(function(require, exports, module) {
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
 
-        this.mod = new Mod({
-            transform: undefined
-        });
-
         this.surface = new Surface({
             classes: ['contact-item', 'editable'],
             size: [undefined, 51]
@@ -45,6 +41,10 @@ define(function(require, exports, module) {
         this.template();
 
         this.surface.pipe(this.eventOutput);
+
+        this.mod = new Mod({
+            transform: undefined
+        });
         this._link(this.mod);
         this._link(this.surface);
 
@@ -85,16 +85,15 @@ define(function(require, exports, module) {
     };
 
     RecentItemView.prototype.collapse = function(callback) {
-        this.mod.setOpacity(0,{duration:500}, callback);
-//        this.mod.setTransform(FM.scale(1,0.0000000001),{duration:1200});
+        this.mod.setOpacity(0,{duration:600}, callback);
     };
 
     RecentItemView.prototype.getSize = function() {
-        var sh = this.mod.opacityState.get()[1];
+        var sh = this.mod.opacityState.get();
         var size = this.surface.getSize();
         size[1] = Math.floor(size[1]*sh);
         return size;
-    }
+    };
 
     module.exports = RecentItemView;
 });

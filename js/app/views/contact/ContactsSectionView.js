@@ -18,6 +18,7 @@ define(function(require, exports, module) {
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 30;
         this.abcSurfaceHeight = 450;
+        this.curIndex = 0;
 
 
         this.headerFooterLayout = new HeaderFooterLayout({
@@ -73,11 +74,13 @@ define(function(require, exports, module) {
         this._add(this.headerFooterLayout);
 
         // When Firebase returns the data switch out of the loading screen
-        this.collection.on('all', function(e) {
+        this.collection.on('all', function(e, model, collection, options) {
 //            console.log(e);
             switch(e)
             {
                 case 'remove':
+//                    this.removeContact(options.index);
+//                    break;
                 case 'sync':
                     this.loadContacts();
                     break;
@@ -92,6 +95,7 @@ define(function(require, exports, module) {
 
     ContactsSection.prototype.loadContacts = function() {
         var firstChar;
+//        if (this.scrollview.node) this.curIndex = this.scrollview.node.index;
         this.scrollview.sequenceFrom(this.collection.map(function(item) {
             var isFirst = false;
             if (item.get('lastname') && firstChar != item.get('lastname')[0].toUpperCase()) {
@@ -102,7 +106,17 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
-    }
+//        if (this.scrollview.node) this.scrollview.node.index = this.curIndex;
+    };
+
+    ContactsSection.prototype.removeContact = function(index) {
+        if (this.scrollview.node) {
+            var removedNode = this.scrollview.node.array[index];
+            removedNode.collapse(function() {
+                this.scrollview.node.splice(index,1);
+            }.bind(this));
+        }
+    };
 
     module.exports = ContactsSection;
 });

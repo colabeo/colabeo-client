@@ -5,6 +5,8 @@ define(function(require, exports, module) {
     var EventHandler = require('famous/EventHandler');
     var Contact      = require('app/models/Contact');
     var Templates    = require('app/custom/Templates');
+    var Mod              = require("famous/Modifier");
+    var FM               = require("famous/Matrix");
 
     // Import app specific dependencies
 
@@ -49,6 +51,11 @@ define(function(require, exports, module) {
         this.template(isFirst);
 
         this.surface.pipe(this.eventOutput);
+
+        this.mod = new Mod({
+            transform: undefined
+        });
+        this._link(this.mod);
         this._link(this.surface);
 
         this.model.on('all', function(e) {
@@ -78,7 +85,18 @@ define(function(require, exports, module) {
         contact = Templates.deleteButton() + Templates.favoriteButton(this.model.get('favorite')) + contact;
         if (isFirst) contact = '<div class="first-char">' + isFirst + '</div>' + contact;
         this.surface.setContent(contact);
-    }
+    };
+
+    ContactItemView.prototype.collapse = function(callback) {
+        this.mod.setOpacity(0,{duration:600}, callback);
+    };
+
+    ContactItemView.prototype.getSize = function() {
+        var sh = this.mod.opacityState.get();
+        var size = this.surface.getSize();
+        size[1] = Math.floor(size[1]*sh);
+        return size;
+    };
 
     module.exports = ContactItemView;
 });

@@ -193,6 +193,8 @@ define(function(require, exports, module) {
         // TODO: hack
         window.colabeo = this;
         colabeo.recentsSection = recentsSection;
+        colabeo.contactsSection = contactsSection;
+        colabeo.favoritesSection = favoritesSection;
     }.bind(this));
 
 });

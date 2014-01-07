@@ -58,15 +58,6 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype = Object.create(View.prototype);
     RecentsSectionView.prototype.constructor = RecentsSectionView;
 
-    RecentsSectionView.prototype.removeContact = function(index) {
-        if (this.scrollview.node) {
-            var removedNode = this.scrollview.node.array[index];
-            removedNode.collapse(function() {
-                this.scrollview.node.splice(index,1);
-            }.bind(this));
-        }
-    }
-
     RecentsSectionView.prototype.loadContacts = function() {
         if (this.missedOnly) collection = this.collection.missed();
         else collection = this.collection;
@@ -75,7 +66,16 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
-    }
+    };
+
+    RecentsSectionView.prototype.removeContact = function(index) {
+        if (this.scrollview.node) {
+            var removedNode = this.scrollview.node.array[index];
+            removedNode.collapse(function() {
+                this.scrollview.node.splice(index,1);
+            }.bind(this));
+        }
+    };
 
     module.exports = RecentsSectionView;
 });

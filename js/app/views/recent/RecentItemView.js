@@ -6,11 +6,13 @@ define(function(require, exports, module) {
     var Contact      = require('app/models/Contact');
     var Templates    = require('app/custom/Templates');
     var TimeAgo        = require('famous-utils/TimeAgo');
+    var Mod              = require("famous/Modifier");
+    var FM               = require("famous/Matrix");
 
     // Import app specific dependencies
 
     function RecentItemView(options) {
-        View.call(this)
+        View.call(this);
 
         this.model = options.model;
 
@@ -19,6 +21,10 @@ define(function(require, exports, module) {
         EventHandler.setInputHandler(this, this.eventInput);
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
+
+        this.mod = new Mod({
+            transform: undefined
+        });
 
         this.surface = new Surface({
             classes: ['contact-item', 'editable'],
@@ -39,6 +45,7 @@ define(function(require, exports, module) {
         this.template();
 
         this.surface.pipe(this.eventOutput);
+        this._link(this.mod);
         this._link(this.surface);
 
         this.model.on('all', function(e) {
@@ -75,6 +82,18 @@ define(function(require, exports, module) {
         contact += '<div class="call-time">' + TimeAgo.parse(this.model.get('time')) + ' ago</div></div>';
         contact = Templates.deleteButton() + contact;
         this.surface.setContent(contact);
+    };
+
+    RecentItemView.prototype.collapse = function(callback) {
+        this.mod.setOpacity(0,{duration:500}, callback);
+//        this.mod.setTransform(FM.scale(1,0.0000000001),{duration:1200});
+    };
+
+    RecentItemView.prototype.getSize = function() {
+        var sh = this.mod.opacityState.get()[1];
+        var size = this.surface.getSize();
+        size[1] = Math.floor(size[1]*sh);
+        return size;
     }
 
     module.exports = RecentItemView;

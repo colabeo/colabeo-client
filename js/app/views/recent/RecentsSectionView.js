@@ -11,7 +11,6 @@ define(function(require, exports, module) {
 
         View.call(this);
         this.missedOnly = false;
-        this.curIndex = 0;
 
         // Set up navigation and title bar information
         this.title = '<button class="left clear-button"></button>';
@@ -29,17 +28,16 @@ define(function(require, exports, module) {
         });
         this.pipe(this.scrollview);
         this._link(this.scrollview);
-        // TODO: hack
-        window.scrollview = this.scrollview;
 
         // When Firebase returns the data switch out of the loading screen
-        this.collection.on('all', function(e) {
-//            console.log(e, this.collection);
+        this.collection.on('all', function(e, model, collection, options) {
+//            console.log(e, model, collection, options);
             switch(e)
             {
                 case 'remove':
+                    this.removeContact(options.index);
+                    break;
                 case 'add':
-//                    console.log(e);
                     this.loadContacts();
                     break;
             }
@@ -51,7 +49,6 @@ define(function(require, exports, module) {
 
         $('body').on('click', '.header input[name=recents-toggle]', function(e){
             this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');
-            if (this.scrollview.getCurrentNode()) this.scrollview.getCurrentNode().index = 0;
             this.loadContacts();
         }.bind(this));
 
@@ -61,8 +58,16 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype = Object.create(View.prototype);
     RecentsSectionView.prototype.constructor = RecentsSectionView;
 
+    RecentsSectionView.prototype.removeContact = function(index) {
+        if (this.scrollview.node) {
+            var removedNode = this.scrollview.node.array[index];
+            removedNode.collapse(function() {
+                this.scrollview.node.splice(index,1);
+            }.bind(this));
+        }
+    }
+
     RecentsSectionView.prototype.loadContacts = function() {
-        if (this.scrollview.getCurrentNode()) this.curIndex = this.scrollview.getCurrentNode().index;
         if (this.missedOnly) collection = this.collection.missed();
         else collection = this.collection;
         this.scrollview.sequenceFrom(collection.map(function(item) {
@@ -70,8 +75,6 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
-        // maintain the index
-        if (this.scrollview.getCurrentNode()) this.scrollview.getCurrentNode().index = this.curIndex;
     }
 
     module.exports = RecentsSectionView;

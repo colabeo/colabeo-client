@@ -47,10 +47,12 @@ define(function(require, exports, module) {
     CameraView.prototype.constructor = CameraView;
 
     CameraView.prototype.turnOn = function() {
+        $('.remote-video').hide();
         this.transform.setTransform(FM.scale(.25,.25), { duration: 500 });
     };
 
     CameraView.prototype.turnOff = function() {
+        $('.remote-video').show();
         this.transform.setTransform(FM.scale(1, 1), { duration: 500 });
     };
 

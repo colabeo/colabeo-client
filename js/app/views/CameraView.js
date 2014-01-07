@@ -37,7 +37,7 @@ define(function(require, exports, module) {
         this.endPos = FM.scale(0.25, 0.25);
         this.transform = new Mod({
             transform: this.startPos,
-            origin: [0.9, 0.0]
+            origin: [0.9, 0.1]
         });
         this._add(new Mod({
             transform: this.startPos

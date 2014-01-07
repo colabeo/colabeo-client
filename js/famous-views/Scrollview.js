@@ -18,17 +18,17 @@ define(function(require, exports, module) {
      * @description
      * @name Scrollview
      * @constructor
-     * @example 
+     * @example
      * define(function(require, exports, module) {
      *     var Engine = require('famous/Engine');
      *     var Scrollview = require('famous-views/Scrollview');
      *     var Surface = require('famous/Surface');
-     * 
+     *
      *     var Context = Engine.createContext();
      *     var scrollview = new Scrollview({
      *         itemSpacing: 20
      *     });
-     * 
+     *
      *     var surfaces = [];
      *     for (var index = 0; index < 50; index++) {
      *         surfaces.push(
@@ -42,7 +42,7 @@ define(function(require, exports, module) {
      *             })
      *         );
      *     }
-     * 
+     *
      *     scrollview.sequenceFrom(surfaces);
      *     Engine.pipe(scrollview);
      *     Context.link(scrollview);
@@ -78,7 +78,7 @@ define(function(require, exports, module) {
         this.sync = new GenericSync((function() {
             return -this.getPosition();
         }).bind(this), {direction: (this.options.direction == Utility.Direction.X) ? GenericSync.DIRECTION_X : GenericSync.DIRECTION_Y});
-        
+
         this.eventInput = new EventHandler();
         this.eventOutput = new EventHandler();
         this.sync.pipe(this.eventInput);
@@ -100,7 +100,7 @@ define(function(require, exports, module) {
 
         this._masterOffset = 0; // minimize writes
         this._lastFrameNode = undefined;
-        
+
         if(options) this.setOptions(options);
         else this.setOptions({});
 
@@ -118,7 +118,7 @@ define(function(require, exports, module) {
     function _handleStart(event) {
         this.touchCount = event.count;
         if(event.count === undefined) this.touchCount = 1;
-        
+
         _detachAgents.call(this);
         this.setVelocity(0);
         this._touchVelocity = 0;
@@ -344,7 +344,7 @@ define(function(require, exports, module) {
         });
 
         this.sync.setOptions({
-            rails: this.options.rails, 
+            rails: this.options.rails,
             direction: (this.options.direction == Utility.Direction.X) ? GenericSync.DIRECTION_X : GenericSync.DIRECTION_Y
         });
     }

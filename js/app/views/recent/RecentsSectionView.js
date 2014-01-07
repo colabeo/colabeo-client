@@ -11,6 +11,7 @@ define(function(require, exports, module) {
 
         View.call(this);
         this.missedOnly = false;
+        this.curIndex = 0;
 
         // Set up navigation and title bar information
         this.title = '<button class="left clear-button"></button>';
@@ -50,6 +51,7 @@ define(function(require, exports, module) {
 
         $('body').on('click', '.header input[name=recents-toggle]', function(e){
             this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');
+            if (this.scrollview.getCurrentNode()) this.scrollview.getCurrentNode().index = 0;
             this.loadContacts();
         }.bind(this));
 
@@ -60,6 +62,7 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype.constructor = RecentsSectionView;
 
     RecentsSectionView.prototype.loadContacts = function() {
+        if (this.scrollview.getCurrentNode()) this.curIndex = this.scrollview.getCurrentNode().index;
         if (this.missedOnly) collection = this.collection.missed();
         else collection = this.collection;
         this.scrollview.sequenceFrom(collection.map(function(item) {
@@ -67,6 +70,8 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
+        // maintain the index
+        if (this.scrollview.getCurrentNode()) this.scrollview.getCurrentNode().index = this.curIndex;
     }
 
     module.exports = RecentsSectionView;

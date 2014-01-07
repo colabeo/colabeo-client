@@ -35,11 +35,11 @@ define(function(require, exports, module) {
     this.eventOutput = new EventHandler();
     EventHandler.setOutputHandler(this, this.eventOutput);
 
-    var mainController = new MainController({
+    this.mainController = new MainController({
         eventInput: this.eventInput,
         eventOutput: this.eventOutput
     });
-    mainController.loadUser(function(data) {
+    this.mainController.loadUser(function(data) {
         // Set up models and collections
         this.appSettings = new Settings({
             cid: data.objectId,
@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             lastname: data.lastname,
             username: data.username
         });
-        mainController.appSettings = this.appSettings;
+        this.mainController.appSettings = this.appSettings;
         this.contactCollection = new ContactCollection([], {
             firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
         });
@@ -188,8 +188,11 @@ define(function(require, exports, module) {
             this.eventOutput.emit('showApp');
         }.bind(this));
 
-        mainController.init();
+        this.mainController.init();
+
         // TODO: hack
-        window.mainController = mainController;
+        window.colabeo = this;
+        colabeo.recentsSection = recentsSection;
     }.bind(this));
+
 });

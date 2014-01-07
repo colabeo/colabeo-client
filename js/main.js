@@ -195,6 +195,7 @@ define(function(require, exports, module) {
         colabeo.recentsSection = recentsSection;
         colabeo.contactsSection = contactsSection;
         colabeo.favoritesSection = favoritesSection;
+        colabeo.cameraView = cameraView;
     }.bind(this));
 
 });

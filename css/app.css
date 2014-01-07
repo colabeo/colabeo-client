@@ -109,6 +109,9 @@ button.button {
     height: 100%;
 }
 
+.camera.local-video video {
+    -webkit-transform: translate(-50%, -50%) scale(-1,1);
+}
 .blur {
     background-color: #000;
     -webkit-filter: blur(20px) opacity(0.5);

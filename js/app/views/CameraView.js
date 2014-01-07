@@ -33,28 +33,25 @@ define(function(require, exports, module) {
         this.localVideoSurface.pipe(this.eventOutput);
         this.remoteVideoSurface.pipe(this.eventOutput);
 
-        this.startPos = FM.translate(0,0,-5);
-        this.endPos = FM.scale(0.25, 0.25);
         this.transform = new Mod({
-            transform: this.startPos,
             origin: [0.9, 0.1]
         });
         this._add(new Mod({
-            transform: this.startPos
+            transform: FM.translate(0,0,-5)
         })).link(this.remoteVideoSurface);
         this._add(this.transform).link(this.localVideoSurface);
-
+        this.turnOff();
     }
 
     CameraView.prototype = Object.create(View.prototype);
     CameraView.prototype.constructor = CameraView;
 
     CameraView.prototype.turnOn = function() {
-        this.transform.setTransform(this.endPos, { duration: 500 });
+        this.transform.setTransform(FM.scale(.25,.25), { duration: 500 });
     };
 
     CameraView.prototype.turnOff = function() {
-        this.transform.setTransform(this.startPos, { duration: 100 });
+        this.transform.setTransform(FM.scale(1, 1), { duration: 500 });
     };
 
     module.exports = CameraView;

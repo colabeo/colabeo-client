@@ -9,7 +9,10 @@ define(function(require, exports, module) {
     }
 
     MainController.prototype.init = function() {
-        this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + this.appSettings.get('cid'));
+        this.disableNow = false;
+        var userId = this.appSettings.get('cid');
+        var userFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
+        this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + userId);
         if (!localStorage.getItem('colabeo-settings-video'))
             localStorage.setItem('colabeo-settings-video', 'true');
         if (!localStorage.getItem('colabeo-settings-audio'))
@@ -23,8 +26,14 @@ define(function(require, exports, module) {
         this.setupCallListener();
         this.setupVideo();
         this.setupSettingsListener();
-        // TODO: hack
-        window.appController = this;
+
+        // TODO: hack for chrome DATAconnection
+//        util.supports.sctp = false;
+        sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
+
+//        window.addEventListener("message", onMessage.bind(this), false);
+        if (window.demoboBody)
+            window.demoboBody.addEventListener("FromExtension", onExtensionMessage.bind(this));
     };
 
     MainController.prototype.setupSettingsListener = function() {
@@ -46,6 +55,7 @@ define(function(require, exports, module) {
         this.eventOutput.on('incomingCallEnd', onIncomingCallEnd.bind(this));
         this.eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
         this.eventOutput.on('outgoingCall', onOutgoingCall.bind(this));
+        this.eventOutput.on('sync', onSync.bind(this));
         function onAdd(snapshot) {
             var f = snapshot.val().firstname || snapshot.val().person.split(' ')[0];
             var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
@@ -88,10 +98,9 @@ define(function(require, exports, module) {
         }
         function onOutgoingCall(call) {
             this.callByContact(call);
-
-            // TODO: hardcode call id for now; will use callByContact soon
-//            var callId = "3FQb25z8Dz";
-//            this.callById(callId);
+        }
+        function onSync() {
+            this.onSyncButton();
         }
     };
 
@@ -99,7 +108,7 @@ define(function(require, exports, module) {
     MainController.prototype.setupVideo = function() {
         // Compatibility shim
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-        this.startRoom();
+//        this.startRoom();
         this.setCamera();
     };
 
@@ -146,14 +155,21 @@ define(function(require, exports, module) {
             { url: 'stun:stun.l.google.com:19302' }
         ]}});
         this.peer.on('open', function(){
-//            console.log("my ID:" + this.peer.id);
+            console.log("my ID:" + this.peer.id);
         }.bind(this));
 
         // Receiving a call
         this.peer.on('call', function(call){
             call.answer(this.localStream);
             this.initRemoteMedia(call);
+            sendMessage("event", {data: {action:"setProperty", roomId: roomId}});
         }.bind(this));
+
+        // Receiving data
+        this.peer.on('connection', function(conn){
+            this.setupPeerConn(conn);
+        }.bind(this));
+
         this.peer.on('error', function(err){
 //            alert(err.message);
         }.bind(this));
@@ -162,23 +178,51 @@ define(function(require, exports, module) {
     MainController.prototype.joinRoom = function(caller, callee, roomId) {
 //        roomId = "A"+caller+callee+roomId+"Z";
         if (roomId) roomId = "A"+roomId+"Z";
+        // PeerJS object
+        this.peer = new Peer({ key: '7bihidp9q86c4n29', debug: 0, config: {'iceServers': [
+            { url: 'stun:stun.l.google.com:19302' }
+        ]}});
 //        console.log("my ID:" + this.peer.id);
         setTimeout(function(){
             // Initiate a call!
             var call = this.peer.call(roomId, this.localStream);
             this.initRemoteMedia(call);
+            sendMessage("event", {data: {action:"setProperty", roomId: roomId}});
+
+            var conn = this.peer.connect(roomId, {
+                label: 'chat',
+//                serialization: 'none',
+                reliable: false
+            });
+            this.setupPeerConn(conn);
+
         }.bind(this),1000);
     };
 
+    MainController.prototype.setupPeerConn = function(conn) {
+        console.log("setup peer connection",conn);
+        this.conn = conn;
+        this.conn.on('open', function() {
+            console.log("on connection open");
+            // Receive messages
+            this.conn.on('data', onMessage.bind(this));
+        }.bind(this));
+    }
+
     MainController.prototype.exitRoom = function() {
+        console.log("exitRoom");
         if (this.existingCall) {
             this.existingCall.close();
         }
+        sendMessage("event", {data: {action:"setProperty", roomId: null}});
+        sendMessage("event", {data: {action:"endCall"}});
         this.cleanRoom();
     };
 
     MainController.prototype.cleanRoom = function() {
-
+        if (this.peer) this.peer.destroy();
+        delete this.peer;
+        delete this.conn;
     };
 
     /* end of peer call */
@@ -265,6 +309,7 @@ define(function(require, exports, module) {
         function onOutgoingCallEnd(call) {
             callRef.remove();
             this.exitRoom();
+            this.eventOutput.unbind('outgoingCallEnd', onOutgoingCallEnd.bind(this));
         }
     };
 
@@ -284,6 +329,10 @@ define(function(require, exports, module) {
         });
     };
 
+    MainController.prototype.onSyncButton = function() {
+        sendMessage("event", {data: {action:"sync"}});
+    };
+
     function userLookup(externalId, done) {
         $.ajax({
             url: '/finduser',
@@ -291,7 +340,7 @@ define(function(require, exports, module) {
             dataType: 'json',
             data: { provider: "email", externalId : externalId },
             success: function(data) {
-                console.log(JSON.stringify(data));
+//                console.log(JSON.stringify(data));
                 done(data);
             },
             error: function() {
@@ -300,6 +349,54 @@ define(function(require, exports, module) {
                 done(new Call());
             }
         });
+    }
+    function sendMessage(type, data) {
+        if (Utils.isMobile()) return;
+        if (!window.demoboBody)
+            return;
+        var evt = new CustomEvent("FromKoala", {
+            detail : {
+                type : type,
+                data : data
+            }
+        });
+        window.demoboBody.dispatchEvent(evt);
+    }
+    function onExtensionMessage(e) {
+        if (this.disableNow) return;
+        console.log("onExtensionMessage: ", e.detail);
+        if (e.detail.type == "urlUpdate") {
+            this.curUrl = e.detail.data.url;
+        }
+        else if (e.detail.action == "incoming")	{
+            console.log("incoming", e.detail);
+            var call = new Call({
+                firstname: e.detail.firstname,
+                lastname: e.detail.lastname,
+                email: e.detail.email,
+                pictureUrl: null,
+                roomId: e.detail.room,
+                caller: e.detail.caller
+            });
+            this.eventOutput.emit('incomingCall', call);
+        }
+        else if (this.conn) {
+            // peer message forward
+            this.conn.send(e.detail);
+        }
+    }
+    function onMessage(e) {
+        console.log('onMessage: 1 Peer Received', e);
+        this.disableNow = true;
+        setTimeout(function(){
+            this.disableNow = false;
+        }.bind(this),1000);
+
+        var evt = e;
+        if (Utils.isMobile() && evt.data.url && evt.data.action == "urlChange") {
+            window.open(evt.data.url);
+        }
+        sendMessage("event", evt);
     }
 
     module.exports = MainController;

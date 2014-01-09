@@ -53,9 +53,13 @@ define(function(require, exports, module) {
             offBackgroundColor: '#dadbd9',
             size: [70,70]
         });
+        var syncButton = Templates.button({
+            classes: ["sync-button", "big-button"],
+            content: 'Sync',
+            size: [70,70]
+        });
         var endButton = Templates.button({
             classes: ["end-button", "big-button"],
-            checked: true,
             content: 'End',
             size: [160,70]
         });
@@ -76,7 +80,7 @@ define(function(require, exports, module) {
                 zIndex:1,
                 opacity:0
             },
-            content: '<div class="box">' + videoButton + endButton + audioButton + '</div>'
+            content: '<div class="box">' + syncButton + endButton + audioButton + '</div>'
         });
 
         this._add(this.backSurface);
@@ -86,6 +90,9 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass("end-button")) {
                 this.stop(target);
+            }
+            else if (target.hasClass("sync-button")) {
+                this.eventOutput.emit('sync');
             }
         }.bind(this));
 

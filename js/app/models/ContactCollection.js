@@ -10,8 +10,18 @@ define(function(require, exports, module) {
         return this.filter(function(item){ return item.get('favorite'); });
       },
 
+//      search: function(keyword) {
+//        return this.filter(function(item){
+//            return item.get('firstname').has(keyword) || item.get('lastname').has(keyword);
+//        });
+//      },
+
       comparator: function(model) {
-        return model.get('lastname');
+          var l = model.get('lastname');
+          var f = model.get('firstname');
+          if (!/^[a-zA-Z]+$/.test(l[0]))
+            l = "zzzz" + l;
+          return l + " " + f;
       }
     });
 });

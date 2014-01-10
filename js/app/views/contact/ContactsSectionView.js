@@ -18,7 +18,7 @@ define(function(require, exports, module) {
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 30;
         this.abcSurfaceHeight = 450;
-        this.a2zIndexArray = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+        this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
         this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
 
@@ -129,12 +129,7 @@ define(function(require, exports, module) {
         }.bind(this)));
 //        if (this.scrollview.node) this.scrollview.node.index = this.curIndex;
 
-        // Set the initial indexs to be 0.
-        var a2zIndex = _.filter(this.a2zIndexArray, function (a) {return a > -1;});
-        for (var jj = 0; jj < this.a2zIndexArray.indexOf(a2zIndex[1]); jj++){
-            this.a2zIndexArray[jj] = 0;
-        }
-        // Set the other indexs equal to the previous index.
+        // provide the values for index if they dont have one.
         while (this.a2zIndexArray.indexOf(-1) != -1){
             this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
         }

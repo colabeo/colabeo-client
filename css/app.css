@@ -1,7 +1,7 @@
 body {
     font-family: open_sansregular, sans-serif;
     color: #fff;
-    background-color: #000;
+    background-color: #555;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -84,7 +84,7 @@ button.button {
 
 /* webcam stuff */
 .camera {
-    background-color: #000;
+    /*background-color: rgba(255,255,255,0.5);*/
     height: 90% !important;
     width: 100%;
     top: 5%;
@@ -113,7 +113,7 @@ button.button {
     -webkit-transform: translate(-50%, -50%) scale(-1,1);
 }
 .blur {
-    background-color: #000;
+    /*background-color: #000;*/
     -webkit-filter: blur(20px) opacity(0.5);
     -moz-filter: blur(20px) opacity(0.5);
 }

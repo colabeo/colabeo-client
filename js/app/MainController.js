@@ -28,7 +28,7 @@ define(function(require, exports, module) {
         this.setupSettingsListener();
 
         // TODO: hack for chrome DATAconnection
-//        util.supports.sctp = false;
+        util.supports.sctp = false;
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
 //        window.addEventListener("message", onMessage.bind(this), false);
@@ -52,6 +52,7 @@ define(function(require, exports, module) {
         this.listenRef.on('child_added', onAdd.bind(this));
         this.listenRef.on('child_changed', onChanged.bind(this));
         this.listenRef.on('child_removed', onRemove.bind(this));
+        this.eventOutput.on('outgoingCallEnd', onOutgoingCallEnd.bind(this));
         this.eventOutput.on('incomingCallEnd', onIncomingCallEnd.bind(this));
         this.eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
         this.eventOutput.on('outgoingCall', onOutgoingCall.bind(this));
@@ -79,8 +80,12 @@ define(function(require, exports, module) {
         function onRemove(snapshot){
             this.eventOutput.emit('callEnd');
         }
+        function onOutgoingCallEnd(call) {
+            if (this.callRef) this.callRef.remove();
+            this.exitRoom();
+        }
         function onIncomingCallEnd(call) {
-            this.listenRef.remove();
+            if (this.listenRef) this.listenRef.remove();
             this.exitRoom();
         }
         function onIncomingCallAnswer(call) {
@@ -221,8 +226,7 @@ define(function(require, exports, module) {
 
     MainController.prototype.cleanRoom = function() {
         if (this.peer) this.peer.destroy();
-        delete this.peer;
-        delete this.conn;
+        if (this.conn) this.conn.close();
     };
 
     /* end of peer call */
@@ -277,9 +281,9 @@ define(function(require, exports, module) {
 
     MainController.prototype.callById = function(id) {
         if (!id) return;
-        callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
+        this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
         var callerFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
-        callRef.push({
+        this.callRef.push({
             name : this.appSettings.get('cid'),
             person : callerFullName,
             firstname : this.appSettings.get('firstname'),
@@ -288,9 +292,9 @@ define(function(require, exports, module) {
             state : "calling"
         });
 
-        callRef.on('child_changed', onChanged.bind(this));
-        callRef.on('child_removed', onRemove.bind(this));
-        this.eventOutput.on('outgoingCallEnd', onOutgoingCallEnd.bind(this));
+        this.callRef.on('child_changed', onChanged.bind(this));
+        this.callRef.on('child_removed', onRemove.bind(this));
+
         function onChanged(snapshot){
             var refCallState = snapshot.val()['state'];
             if (refCallState == "answered") {
@@ -305,11 +309,6 @@ define(function(require, exports, module) {
         }
         function onRemove(snapshot){
             this.eventOutput.emit('callEnd');
-        }
-        function onOutgoingCallEnd(call) {
-            callRef.remove();
-            this.exitRoom();
-            this.eventOutput.unbind('outgoingCallEnd', onOutgoingCallEnd.bind(this));
         }
     };
 
@@ -375,8 +374,7 @@ define(function(require, exports, module) {
                 lastname: e.detail.lastname,
                 email: e.detail.email,
                 pictureUrl: null,
-                roomId: e.detail.room,
-                caller: e.detail.caller
+                roomId: e.detail.room
             });
             this.eventOutput.emit('incomingCall', call);
         }
@@ -393,7 +391,7 @@ define(function(require, exports, module) {
         }.bind(this),1000);
 
         var evt = e;
-        if (Utils.isMobile() && evt.data.url && evt.data.action == "urlChange") {
+        if (Utils.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
             window.open(evt.data.url);
         }
         sendMessage("event", evt);

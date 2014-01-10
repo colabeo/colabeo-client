@@ -30,7 +30,8 @@ define(function(require, exports, module) {
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
             classes: ['contact-section-search-bar'],
-            content: '<form class="contact-section-search-bar"><div><i class="fa fa-search"></i>   <input type="search" class="search-contact" placeholder="Search"></div></form>',
+            content: '<div class="contact-section-search-bar"><div><i class="fa fa-search"></i>   ' +
+                '<input type="text" class="search-contact" placeholder = "Search" ></div></div>',
             properties:{
                 backgroundColor: 'rgba(15,15,15,0.9)',
                 color: 'white',
@@ -90,12 +91,13 @@ define(function(require, exports, module) {
         }.bind(this));
 
         $('body').on('click', '.abcButton button', function(e){
-            if (this.a2zIndexArray[this.a2zString.indexOf(e.target.id)] != -1){
-                this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
-            }
+            this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
         }.bind(this));
 
-        $('body').on('change', '.search')
+        $('body').on('keyup', '.search-contact', function(e){
+            this.searchFunction(e.target.value);
+        }.bind(this));
+
     }
 
     ContactsSection.prototype = Object.create(View.prototype);
@@ -103,14 +105,14 @@ define(function(require, exports, module) {
 
     ContactsSection.prototype.loadContacts = function() {
 
+        this.getIndex = function(item, firstChar){
+            var index = item.collection.indexOf(item);
+            this.a2zIndexArray[this.a2zString.indexOf(firstChar)] = index;
+        }
+
         var firstChar;
 //        if (this.scrollview.node) this.curIndex = this.scrollview.node.index;
         this.scrollview.sequenceFrom(this.collection.map(function(item) {
-
-            this.getIndex = function(item, firstChar){
-                var index = item.collection.indexOf(item);
-                this.a2zIndexArray[this.a2zString.indexOf(firstChar)] = index;
-            }
 
             var isFirst = false;
             if (!/^[a-zA-Z]+$/.test(item.get('lastname'))){
@@ -144,6 +146,16 @@ define(function(require, exports, module) {
                 this.scrollview.node.splice(index,1);
             }.bind(this));
         }
+    };
+
+    ContactsSection.prototype.searchFunction = function(searchKey){
+        console.log(searchKey);
+        var searchCollection = this.collection.searchContact(searchKey.toUpperCase());
+        this.scrollview.sequenceFrom(searchCollection.map(function(item){
+            var surface = new ContactItemView({model: item});
+            surface.pipe(this.eventOutput);
+            return surface;
+        }.bind(this)));
     };
 
     module.exports = ContactsSection;

@@ -10,11 +10,12 @@ define(function(require, exports, module) {
         return this.filter(function(item){ return item.get('favorite'); });
       },
 
-//      search: function(keyword) {
-//        return this.filter(function(item){
-//            return item.get('firstname').has(keyword) || item.get('lastname').has(keyword);
-//        });
-//      },
+      searchContact: function(keyword) {
+        return this.filter(function(item){
+            if (item.get('firstname').toUpperCase().indexOf(keyword) != -1 || item.get('lastname').toUpperCase().indexOf(keyword) != -1)
+            return item.get('firstname');
+        });
+      },
 
       comparator: function(model) {
           var l = model.get('lastname');

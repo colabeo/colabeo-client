@@ -30,7 +30,7 @@ define(function(require, exports, module) {
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
             classes: ['contact-section-search-bar'],
-            content: '<form class="contact-section-search-bar"><div class="search"><i class="fa fa-search"></i>   <input type="text" class="search-contact" placeholder="Search"></div></form>',
+            content: '<form class="contact-section-search-bar"><div><i class="fa fa-search"></i>   <input type="search" class="search-contact" placeholder="Search"></div></form>',
             properties:{
                 backgroundColor: 'rgba(15,15,15,0.9)',
                 color: 'white',
@@ -94,6 +94,8 @@ define(function(require, exports, module) {
                 this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
             }
         }.bind(this));
+
+        $('body').on('change', '.search')
     }
 
     ContactsSection.prototype = Object.create(View.prototype);

@@ -18,8 +18,9 @@ define(function(require, exports, module) {
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 30;
         this.abcSurfaceHeight = 450;
-        this.curIndex = 0;
-        this.a2zindexArray = {};
+        this.a2zIndexArray = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+        this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
+
 
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: this.searchBarSize,
@@ -40,7 +41,7 @@ define(function(require, exports, module) {
         this.abcSurface = new Surface({
             size: [this.abcSurfaceWidth, this.abcSurfaceHeight],
             classes: ['abcButton'],
-            content: '<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="button">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>',
+            content: '<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>',
             properties:{
                 backgroundColor: 'rgba(160,160,160,0.0)',
                 zIndex:2
@@ -89,20 +90,10 @@ define(function(require, exports, module) {
         }.bind(this));
 
         $('body').on('click', '.abcButton button', function(e){
-            if (this.a2zindexArray[e.target.id] != undefined){
-                console.log(this.a2zindexArray[e.target.id]);
-                colabeo.contactsSection.scrollview.node.index= this.a2zindexArray[e.target.id];
+            if (this.a2zIndexArray[this.a2zString.indexOf(e.target.id)] != -1){
+                this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
             }
         }.bind(this));
-
-//        this.abcSurface.on('click', function(e) {
-//
-//            var target = $(e.target);
-//            if (this.a2zindexArray[target.id] != undefined){
-//                console.log(this.a2zindexArray[target.id]);
-//                colabeo.contactsSection.scrollview.node.index= this.a2zindexArray[target.id];
-//            }
-//        }.bind(this));
     }
 
     ContactsSection.prototype = Object.create(View.prototype);
@@ -113,26 +104,40 @@ define(function(require, exports, module) {
         var firstChar;
 //        if (this.scrollview.node) this.curIndex = this.scrollview.node.index;
         this.scrollview.sequenceFrom(this.collection.map(function(item) {
+
+            this.getIndex = function(item, firstChar){
+                var index = item.collection.indexOf(item);
+                this.a2zIndexArray[this.a2zString.indexOf(firstChar)] = index;
+            }
+
             var isFirst = false;
             if (!/^[a-zA-Z]+$/.test(item.get('lastname'))){
                 if (firstChar != "#"){
                     firstChar = "#";
                     isFirst = "#";
-                    var index = item.collection.indexOf(item);
-                    this.a2zindexArray[firstChar] = index;
+                    this.getIndex(item, firstChar);
                 }
             }
             else if (item.get('lastname') && firstChar != item.get('lastname')[0].toUpperCase()) {
                 firstChar = item.get('lastname')[0].toUpperCase();
                 isFirst = firstChar;
-                var index = item.collection.indexOf(item);
-                this.a2zindexArray[firstChar] = index;
+                this.getIndex(item, firstChar);
             }
             var surface = new ContactItemView({model: item}, isFirst);
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
 //        if (this.scrollview.node) this.scrollview.node.index = this.curIndex;
+
+        // Set the initial indexs to be 0.
+        var a2zIndex = _.filter(this.a2zIndexArray, function (a) {return a > -1;});
+        for (var jj = 0; jj < this.a2zIndexArray.indexOf(a2zIndex[1]); jj++){
+            this.a2zIndexArray[jj] = 0;
+        }
+        // Set the other indexs equal to the previous index.
+        while (this.a2zIndexArray.indexOf(-1) != -1){
+            this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
+        }
     };
 
     ContactsSection.prototype.removeContact = function(index) {

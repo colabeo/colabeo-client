@@ -103,7 +103,7 @@ define(function(require, exports, module) {
             if (!this.abcButtons) this.abcButtons = $('.abcButton button');
             var index = this.abcButtons.indexOf(e.target);
             index = this.a2zIndexArray[index];
-            if (!index || index == this.curAbcIndex) return;
+            if (index == undefined || index == this.curAbcIndex) return;
             this.curAbcIndex = index;
             this.scrollTo(index);
         }

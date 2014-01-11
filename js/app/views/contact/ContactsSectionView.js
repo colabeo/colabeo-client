@@ -137,12 +137,15 @@ define(function(require, exports, module) {
         
         // added empty item
         // TODO: extra height should be scrollview height - last group's height
+        // last group's height
+        var lastHeight = (this.collection.length - this.a2zIndexArray[this.a2zIndexArray.length-1])*51+26;
+        var extraHeight = this.scrollview.getSize()[1] - lastHeight;
         // media access bar messed up the height so add 40
-        var lastGroupIndex = _.last(this.a2zIndexArray);
-        var extraHeight = this.scrollview.getSize()[1] + 40;
-        for (var i = lastGroupIndex; i<sequence.length; i++) {
-            extraHeight -= sequence[i].getSize()[1];
-        }
+//        var lastGroupIndex = _.last(this.a2zIndexArray);
+//        var extraHeight = this.scrollview.getSize()[1] + 40;
+//        for (var i = lastGroupIndex; i<sequence.length; i++) {
+//            extraHeight -= sequence[i].getSize()[1];
+//        }
         var emptySurface = new Surface({
             size: [undefined, extraHeight]
         })

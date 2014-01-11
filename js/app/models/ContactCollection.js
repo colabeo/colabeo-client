@@ -22,7 +22,7 @@ define(function(require, exports, module) {
           var f = model.get('firstname');
           if (!/^[a-zA-Z]+$/.test(l[0]))
             l = "zzzz" + l;
-          return l + " " + f;
+          return (l + " " + f).toUpperCase();
       }
     });
 });

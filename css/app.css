@@ -1,7 +1,7 @@
 body {
     font-family: open_sansregular, sans-serif;
     color: #fff;
-    background-color: #555;
+    background-color: #000;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -84,16 +84,15 @@ button.button {
 
 /* webcam stuff */
 .camera {
-    /*background-color: rgba(255,255,255,0.5);*/
     height: 90% !important;
     width: 100%;
     top: 5%;
-    /*-webkit-transform: translate3d(0,0,-5px) !important;*/
-    /*-moz-transform: translate3d(0,0,-5px) !important;*/
     overflow: hidden;
     position: absolute;
     pointer-events: none;
     z-index: -1;
+    -webkit-filter: opacity(0.9);
+    -moz-filter: opacity(0.9);
 }
 
 .mobile .camera {
@@ -113,7 +112,6 @@ button.button {
     -webkit-transform: translate(-50%, -50%) scale(-1,1);
 }
 .blur {
-    /*background-color: #000;*/
     -webkit-filter: blur(20px) opacity(0.5);
     -moz-filter: blur(20px) opacity(0.5);
 }
@@ -394,7 +392,7 @@ button.button {
 }
 .editing .delete-button {
     width: 22px;
-    opacity: 0.7;
+    opacity: 0.88;
     margin: 16px 10px 0px 16px;
 }
 
@@ -414,7 +412,7 @@ button.button {
 }
 .editing .favorite-button {
     width: 30px;
-    opacity: 0.7;
+    opacity: 0.88;
     margin: 16px 10px 0px 3px;
 }
 
@@ -491,7 +489,6 @@ input {
     line-height: 35px;
     text-align: center;
     margin: 8px 5px 0px 0px;
-    color: rgba(255,255,255,0.5);
     font-size: 13px;
 }
 

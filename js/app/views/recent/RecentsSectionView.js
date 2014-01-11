@@ -35,7 +35,9 @@ define(function(require, exports, module) {
             switch(e)
             {
                 case 'remove':
-                    this.removeContact(options.index);
+                    var i = this.curCollection.indexOf(model);
+                    if (i<0) i = options.index;
+                    this.removeContact(i);
                     break;
                 case 'add':
                     this.loadContacts();
@@ -61,6 +63,7 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype.loadContacts = function() {
         if (this.missedOnly) collection = this.collection.missed();
         else collection = this.collection;
+        this.curCollection = collection;
         this.scrollview.sequenceFrom(collection.map(function(item) {
             var surface = new RecentItemView({model: item});
             surface.pipe(this.eventOutput);
@@ -69,6 +72,9 @@ define(function(require, exports, module) {
     };
 
     RecentsSectionView.prototype.removeContact = function(index) {
+        if (this.missedOnly) collection = this.collection.missed();
+        else collection = this.collection;
+        this.curCollection = collection;
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];
             removedNode.collapse(function() {

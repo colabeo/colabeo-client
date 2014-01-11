@@ -48,12 +48,12 @@ define(function(require, exports, module) {
 
     CameraView.prototype.turnOn = function() {
         $('.remote-video').show();
-        this.transform.setTransform(FM.scale(.25,.25), { duration: 500 });
+        this.transform.setTransform(FM.move(FM.scale(.25,.25), [0,0,-5]), { duration: 500 });
     };
 
     CameraView.prototype.turnOff = function() {
         $('.remote-video').hide();
-        this.transform.setTransform(FM.scale(1, 1), { duration: 500 });
+        this.transform.setTransform(FM.move(FM.scale(1, 1), [0,0,-5]), { duration: 500 });
     };
 
     module.exports = CameraView;

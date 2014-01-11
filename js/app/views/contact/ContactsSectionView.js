@@ -102,7 +102,9 @@ define(function(require, exports, module) {
         function onAbcTouch(e) {
             var y = e.y - $('.abcButton').position().top;
             var h = $('.abcButton').height();
-            var index = this.a2zIndexArray[Math.ceil(27*y/h)];
+            var aa = 0.0;
+            var index = this.a2zIndexArray[Math.floor(27*y/h-aa)];
+            console.log (h,27*y/h - aa, Math.ceil(27*y/h-aa), index);
             if (index == this.curAbcIndex) return;
             this.curAbcIndex = index;
             this.scrollview.setVelocity(0);

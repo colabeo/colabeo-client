@@ -102,10 +102,11 @@ define(function(require, exports, module) {
         function onAbcTouch(e) {
             var y = e.y - $('.abcButton').position().top;
             var h = $('.abcButton').height();
-            var index = Math.ceil(27*y/h);
+            var index = this.a2zIndexArray[Math.ceil(27*y/h)];
             if (index == this.curAbcIndex) return;
             this.curAbcIndex = index;
-            this.scrollview.node.index = this.a2zIndexArray[index];
+            this.scrollview.setVelocity(0);
+            this.scrollview.node.index = index;
             this.scrollview.setPosition(0);
         }
 
@@ -121,9 +122,19 @@ define(function(require, exports, module) {
         this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
         this.currentCollection;
 
-        this.scrollview.sequenceFrom(this.currentCollection.map(function(item) {
+        var sequence = this.currentCollection.map(function(item) {
             return this.getIndex(item);
-        }.bind(this)));
+        }.bind(this));
+
+        // added empty item
+        // TODO: extra height should be scrollview height - last group's height
+        var extraHeight = this.scrollview.getSize()[1]/2;
+        var emptySurface = new ContactItemView({
+            size: [undefined, extraHeight]
+        })
+        emptySurface.pipe(this.eventOutput);
+        sequence.push(emptySurface);
+        this.scrollview.sequenceFrom(sequence);
 
         while (this.a2zIndexArray.indexOf(-1) != -1){
             this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];

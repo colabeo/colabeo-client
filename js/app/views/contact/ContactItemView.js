@@ -21,22 +21,12 @@ define(function(require, exports, module) {
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
 
-        // empty contact spacer
-        if (!this.model) {
-            this.surface = new Surface(options);
-            this.surface.pipe(this.eventOutput);
-            this._link(this.surface);
-            return;
-        }
-
         var height = 51;
         if (isFirst) height = 77;
         this.surface = new Surface({
             classes: ['contact-item', 'editable'],
             size: [undefined, height]
         });
-
-        this.surface.pipe(this.eventOutput);
 
 //        // Bind click event to load new tweet
         this.surface.on('click', function(e) {
@@ -59,6 +49,8 @@ define(function(require, exports, module) {
         }.bind(this));
 
         this.template(isFirst);
+
+        this.surface.pipe(this.eventOutput);
 
         this.mod = new Mod({
             transform: undefined
@@ -100,7 +92,6 @@ define(function(require, exports, module) {
     };
 
     ContactItemView.prototype.getSize = function() {
-        if (!this.mod) return this.surface.getSize();
         var sh = this.mod.opacityState.get();
         var size = this.surface.getSize();
         size[1] = Math.floor(size[1]*sh);

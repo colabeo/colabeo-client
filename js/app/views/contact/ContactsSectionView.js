@@ -88,9 +88,9 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        this.abcSurface.on('mousedown',onAbcTouch.bind(this));
+//        this.abcSurface.on('mousedown',onAbcTouch.bind(this));
         this.abcSurface.on('mousemove',onAbcTouch.bind(this));
-        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
+//        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
         this.abcSurface.on('touchstart',onAbcTouch.bind(this));
         this.abcSurface.on('touchmove',onAbcTouch.bind(this));
         this.abcSurface.on('touchend',onAbcTouch.bind(this));
@@ -100,20 +100,25 @@ define(function(require, exports, module) {
         }.bind(this));
 
         function onAbcTouch(e) {
-            var y = e.y - $('.abcButton').position().top;
-            var h = $('.abcButton').height();
-            var index = this.a2zIndexArray[Math.ceil(27*y/h)];
-            if (index == this.curAbcIndex) return;
+            if (!this.abcButtons) this.abcButtons = $('.abcButton button');
+            var index = this.abcButtons.indexOf(e.target);
+            index = this.a2zIndexArray[index];
+            if (!index || index == this.curAbcIndex) return;
             this.curAbcIndex = index;
-            this.scrollview.setVelocity(0);
-            this.scrollview.node.index = index;
-            this.scrollview.setPosition(0);
+            this.scrollTo(index);
         }
 
     }
 
     ContactsSection.prototype = Object.create(View.prototype);
     ContactsSection.prototype.constructor = ContactsSection;
+
+    ContactsSection.prototype.scrollTo = function(index) {
+        if (index<0) return;
+        this.scrollview.setVelocity(0);
+        this.scrollview.node.index = index;
+        this.scrollview.setPosition(0);
+    };
 
     ContactsSection.prototype.loadContacts = function(searchKey) {
         if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
@@ -126,19 +131,24 @@ define(function(require, exports, module) {
             return this.getIndex(item);
         }.bind(this));
 
+        while (this.a2zIndexArray.indexOf(-1) != -1){
+            this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
+        };
+        
         // added empty item
         // TODO: extra height should be scrollview height - last group's height
-        var extraHeight = this.scrollview.getSize()[1]/2;
-        var emptySurface = new ContactItemView({
+        // media access bar messed up the height so add 40
+        var lastGroupIndex = _.last(this.a2zIndexArray);
+        var extraHeight = this.scrollview.getSize()[1] + 40;
+        for (var i = lastGroupIndex; i<sequence.length; i++) {
+            extraHeight -= sequence[i].getSize()[1];
+        }
+        var emptySurface = new Surface({
             size: [undefined, extraHeight]
         })
         emptySurface.pipe(this.eventOutput);
         sequence.push(emptySurface);
         this.scrollview.sequenceFrom(sequence);
-
-        while (this.a2zIndexArray.indexOf(-1) != -1){
-            this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
-        };
     };
 
     ContactsSection.prototype.removeContact = function(index) {
@@ -172,7 +182,7 @@ define(function(require, exports, module) {
         var surface = new ContactItemView({model: item}, isFirst);
         surface.pipe(this.eventOutput);
         return surface;
-    }
+    };
 
     module.exports = ContactsSection;
 });

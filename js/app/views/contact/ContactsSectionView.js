@@ -18,7 +18,6 @@ define(function(require, exports, module) {
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 30;
         this.abcSurfaceHeight = 450;
-        this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
         this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
 
@@ -92,10 +91,11 @@ define(function(require, exports, module) {
 
         $('body').on('click', '.abcButton button', function(e){
             this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
+            this.scrollview.setPosition(0);
         }.bind(this));
 
         $('body').on('keyup', '.search-contact', function(e){
-            this.searchFunction(e.target.value);
+            this.loadContacts(e.target.value);
         }.bind(this));
 
     }
@@ -103,40 +103,20 @@ define(function(require, exports, module) {
     ContactsSection.prototype = Object.create(View.prototype);
     ContactsSection.prototype.constructor = ContactsSection;
 
-    ContactsSection.prototype.loadContacts = function() {
+    ContactsSection.prototype.loadContacts = function(searchKey) {
+        if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
+        else this.currentCollection = this.collection;
+        this.firstChar = undefined;
+        this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
+        this.currentCollection;
 
-        this.getIndex = function(item, firstChar){
-            var index = item.collection.indexOf(item);
-            this.a2zIndexArray[this.a2zString.indexOf(firstChar)] = index;
-        }
-
-        var firstChar;
-//        if (this.scrollview.node) this.curIndex = this.scrollview.node.index;
-        this.scrollview.sequenceFrom(this.collection.map(function(item) {
-
-            var isFirst = false;
-            if (!/^[a-zA-Z]+$/.test(item.get('lastname'))){
-                if (firstChar != "#"){
-                    firstChar = "#";
-                    isFirst = "#";
-                    this.getIndex(item, firstChar);
-                }
-            }
-            else if (item.get('lastname') && firstChar != item.get('lastname')[0].toUpperCase()) {
-                firstChar = item.get('lastname')[0].toUpperCase();
-                isFirst = firstChar;
-                this.getIndex(item, firstChar);
-            }
-            var surface = new ContactItemView({model: item}, isFirst);
-            surface.pipe(this.eventOutput);
-            return surface;
+        this.scrollview.sequenceFrom(this.currentCollection.map(function(item) {
+            return this.getIndex(item);
         }.bind(this)));
-//        if (this.scrollview.node) this.scrollview.node.index = this.curIndex;
 
-        // provide the values for index if they dont have one.
         while (this.a2zIndexArray.indexOf(-1) != -1){
             this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
-        }
+        };
     };
 
     ContactsSection.prototype.removeContact = function(index) {
@@ -148,15 +128,29 @@ define(function(require, exports, module) {
         }
     };
 
-    ContactsSection.prototype.searchFunction = function(searchKey){
-        console.log(searchKey);
-        var searchCollection = this.collection.searchContact(searchKey.toUpperCase());
-        this.scrollview.sequenceFrom(searchCollection.map(function(item){
-            var surface = new ContactItemView({model: item});
-            surface.pipe(this.eventOutput);
-            return surface;
-        }.bind(this)));
+    ContactsSection.prototype.getCurrentIndex = function (item){
+        var index = this.currentCollection.indexOf(item);
+        this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = index;
     };
+
+    ContactsSection.prototype.getIndex = function (item){
+        var isFirst = false;
+        if (!/^[a-zA-Z]+$/.test(item.get('lastname'))){
+            if (this.firstChar != "#"){
+                this.firstChar = "#";
+                isFirst = "#";
+                this.getCurrentIndex(item);
+            }
+        }
+        else if (item.get('lastname') && this.firstChar != item.get('lastname')[0].toUpperCase()) {
+            this.firstChar = item.get('lastname')[0].toUpperCase();
+            isFirst = this.firstChar;
+            this.getCurrentIndex(item);
+        }
+        var surface = new ContactItemView({model: item}, isFirst);
+        surface.pipe(this.eventOutput);
+        return surface;
+    }
 
     module.exports = ContactsSection;
 });

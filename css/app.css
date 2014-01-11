@@ -84,9 +84,9 @@ button.button {
 
 /* webcam stuff */
 .camera {
-    height: 90% !important;
+    height: 100% !important;
     width: 100%;
-    top: 5%;
+    top: 0%;
     overflow: hidden;
     position: absolute;
     pointer-events: none;

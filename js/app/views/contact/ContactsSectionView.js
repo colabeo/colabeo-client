@@ -94,6 +94,7 @@ define(function(require, exports, module) {
         this.abcSurface.on('touchstart',onAbcTouch.bind(this));
         this.abcSurface.on('touchmove',onAbcTouch.bind(this));
         this.abcSurface.on('touchend',onAbcTouch.bind(this));
+//        window.addEventListener('resize', onResize.bind(this), false);
 
         $('body').on('keyup', '.search-contact', function(e){
             this.loadContacts(e.target.value);
@@ -101,11 +102,17 @@ define(function(require, exports, module) {
 
         function onAbcTouch(e) {
             if (!this.abcButtons) this.abcButtons = $('.abcButton button');
+//            var index = Math.floor(27*(e.y-$('.abcButton').position().top)/(this.abcButtons.length*this.abcButtons.height()));
             var index = this.abcButtons.indexOf(e.target);
             index = this.a2zIndexArray[index];
             if (index == undefined || index == this.curAbcIndex) return;
             this.curAbcIndex = index;
             this.scrollTo(index);
+        }
+
+        function onResize(e) {
+            console.log('resize');
+            this.loadContacts();
         }
 
     }
@@ -136,16 +143,12 @@ define(function(require, exports, module) {
         };
         
         // added empty item
-        // TODO: extra height should be scrollview height - last group's height
-        // last group's height
-        var lastHeight = (this.collection.length - this.a2zIndexArray[this.a2zIndexArray.length-1])*51+26;
-        var extraHeight = this.scrollview.getSize()[1] - lastHeight;
         // media access bar messed up the height so add 40
-//        var lastGroupIndex = _.last(this.a2zIndexArray);
-//        var extraHeight = this.scrollview.getSize()[1] + 40;
-//        for (var i = lastGroupIndex; i<sequence.length; i++) {
-//            extraHeight -= sequence[i].getSize()[1];
-//        }
+        var lastGroupIndex = _.last(this.a2zIndexArray);
+        var extraHeight = this.scrollview.getSize()[1] + 40;
+        for (var i = lastGroupIndex; i<sequence.length; i++) {
+            extraHeight -= sequence[i].getSize()[1];
+        }
         var emptySurface = new Surface({
             size: [undefined, extraHeight]
         })

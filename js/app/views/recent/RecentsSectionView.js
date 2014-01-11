@@ -39,6 +39,7 @@ define(function(require, exports, module) {
                     if (i<0) i = options.index;
                     this.removeContact(i);
                     break;
+                case 'sync':
                 case 'add':
                     this.loadContacts();
                     break;
@@ -47,6 +48,7 @@ define(function(require, exports, module) {
 
         $('body').on('click', '.header button.clear-button', function(e){
             _.invoke(this.collection.all(), 'destroy');
+            this.loadContacts();
         }.bind(this));
 
         $('body').on('click', '.header input[name=recents-toggle]', function(e){

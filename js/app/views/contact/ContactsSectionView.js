@@ -88,37 +88,26 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-//        $('body').on('click', '.abcButton button', function(e){
-//            this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
-//            this.scrollview.setPosition(0);
-//        }.bind(this));
-
-
-        this.abcSurface.on('mousedown',function(e){
-            console.log(e.y);
-        }.bind(this));
-        this.abcSurface.on('mousemove',function(e){
-            var y = e.y - $('.abcButton').position().top;
-            var h = $('.abcButton').height();
-            this.scrollview.node.index = this.a2zIndexArray[Math.floor(27*y/h)];
-            this.scrollview.setPosition(0);
-        }.bind(this));
-        this.abcSurface.on('mouseup',function(e){
-            console.log(e.y);
-        }.bind(this));
-        this.abcSurface.on('touchstart',function(e){
-            console.log(e, e.offsetY);
-        }.bind(this));
-        this.abcSurface.on('touchmove',function(e){
-            console.log(e, e.offsetY);
-        }.bind(this));
-        this.abcSurface.on('touchend',function(e){
-            console.log(e, e.offsetY);
-        }.bind(this));
+        this.abcSurface.on('mousedown',onAbcTouch.bind(this));
+        this.abcSurface.on('mousemove',onAbcTouch.bind(this));
+        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
+        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
+        this.abcSurface.on('touchmove',onAbcTouch.bind(this));
+        this.abcSurface.on('touchend',onAbcTouch.bind(this));
 
         $('body').on('keyup', '.search-contact', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));
+
+        function onAbcTouch(e) {
+            var y = e.y - $('.abcButton').position().top;
+            var h = $('.abcButton').height();
+            var index = Math.ceil(27*y/h);
+            if (index == this.curAbcIndex) return;
+            this.curAbcIndex = index;
+            this.scrollview.node.index = this.a2zIndexArray[index];
+            this.scrollview.setPosition(0);
+        }
 
     }
 

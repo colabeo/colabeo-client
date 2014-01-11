@@ -17,7 +17,7 @@ define(function(require, exports, module) {
 
         this.searchBarSize = 50;
         this.abcSurfaceWidth = 30;
-        this.abcSurfaceHeight = 450;
+        this.abcSurfaceHeight = undefined;
         this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
 
@@ -49,7 +49,6 @@ define(function(require, exports, module) {
         });
 
         this.abcMod = new Mod({
-            transform: Matrix.translate(0,this.searchBarSize),
             origin: [1.0, 0.0]
         });
 
@@ -68,10 +67,10 @@ define(function(require, exports, module) {
         });
 
         this.headerFooterLayout.id.header.link(this.searchSurface);
-        this.headerFooterLayout.id.content.link(this.scrollview);
+        this.headerFooterLayout.id.content.add(this.scrollview);
+        this.headerFooterLayout.id.content.add(this.abcMod).link(this.abcSurface);
 
         this.pipe(this.scrollview);
-        this._add(this.abcMod).link(this.abcSurface);
         this._add(this.headerFooterLayout);
 
         // When Firebase returns the data switch out of the loading screen
@@ -89,9 +88,32 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        $('body').on('click', '.abcButton button', function(e){
-            this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
+//        $('body').on('click', '.abcButton button', function(e){
+//            this.scrollview.node.index = this.a2zIndexArray[this.a2zString.indexOf(e.target.id)];
+//            this.scrollview.setPosition(0);
+//        }.bind(this));
+
+
+        this.abcSurface.on('mousedown',function(e){
+            console.log(e.y);
+        }.bind(this));
+        this.abcSurface.on('mousemove',function(e){
+            var y = e.y - $('.abcButton').position().top;
+            var h = $('.abcButton').height();
+            this.scrollview.node.index = this.a2zIndexArray[Math.floor(27*y/h)];
             this.scrollview.setPosition(0);
+        }.bind(this));
+        this.abcSurface.on('mouseup',function(e){
+            console.log(e.y);
+        }.bind(this));
+        this.abcSurface.on('touchstart',function(e){
+            console.log(e, e.offsetY);
+        }.bind(this));
+        this.abcSurface.on('touchmove',function(e){
+            console.log(e, e.offsetY);
+        }.bind(this));
+        this.abcSurface.on('touchend',function(e){
+            console.log(e, e.offsetY);
         }.bind(this));
 
         $('body').on('keyup', '.search-contact', function(e){

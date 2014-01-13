@@ -29,8 +29,8 @@ define(function(require, exports, module) {
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
             classes: ['contact-section-search-bar'],
-            content: '<div class="contact-section-search-bar"><div><i class="fa fa-search"></i>   ' +
-                '<input type="text" class="search-contact" placeholder = "Search" ></div></div>',
+            content: '<div><i class="fa fa-search"></i>   ' +
+                '<input type="text" class="search-contact" placeholder = "Search" ></div>',
             properties:{
                 backgroundColor: 'rgba(15,15,15,0.9)',
                 color: 'white',

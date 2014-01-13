@@ -493,9 +493,10 @@ input {
 }
 
 .contact-section-search-bar{
-    padding: 5px;
+    padding: 10px;
     font-size: 20px;
     margin: 0px;
+    line-height: 30px;
 }
 
 .contact-section-search-bar div{
@@ -504,9 +505,13 @@ input {
     padding-left: 5px;
 }
 
+.contact-section-search-bar i{
+    color: #aaa;
+    font-size: 17px;
+}
 .contact-section-search-bar div input.search-contact{
     font-size : 18px;
-    width: 240px;
+    width: 90%;
 }
 
 .abcButton{

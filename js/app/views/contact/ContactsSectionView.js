@@ -149,11 +149,13 @@ define(function(require, exports, module) {
         for (var i = lastGroupIndex; i<sequence.length; i++) {
             extraHeight -= sequence[i].getSize()[1];
         }
-        var emptySurface = new Surface({
-            size: [undefined, extraHeight]
-        })
-        emptySurface.pipe(this.eventOutput);
-        sequence.push(emptySurface);
+        if (extraHeight > 0) {
+            var emptySurface = new Surface({
+                size: [undefined, extraHeight]
+            })
+            emptySurface.pipe(this.eventOutput);
+            sequence.push(emptySurface);
+        }
         this.scrollview.sequenceFrom(sequence);
     };
 

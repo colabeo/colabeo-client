@@ -39,6 +39,10 @@ define(function(require, exports, module) {
 //                    }
 //                    break;
                 case 'remove':
+                    this.curIndex = this.scrollview.getCurrentNode().index;
+                    this.curPosition = this.scrollview.getPosition();
+                    this.loadFavorites();
+                    this.scrollTo(this.curIndex,this.curPosition);
                 case 'sync':
                     this.loadFavorites();
                     break;
@@ -70,8 +74,6 @@ define(function(require, exports, module) {
             emptySurface.pipe(this.eventOutput);
             sequence.push(emptySurface);
         }
-        console.log(this.scrollview.getSize());
-        console.log(emptySurface.getSize());
         this.scrollview.sequenceFrom(sequence);
     };
 
@@ -83,6 +85,13 @@ define(function(require, exports, module) {
             }.bind(this));
         }
     };
+
+    FavoritesSectionView.prototype.scrollTo = function(index, position){
+        if (!index) index = 0;
+        if (!position) position = 0;
+        this.scrollview.node.index = index;
+        this.scrollview.setPosition(position);
+    }
 
     module.exports = FavoritesSectionView;
 });

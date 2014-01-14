@@ -101,6 +101,7 @@ define(function(require, exports, module) {
                 this.scrollview.node.splice(index,1);
             }.bind(this));
         }
+
     };
 
     module.exports = RecentsSectionView;

@@ -79,6 +79,11 @@ define(function(require, exports, module) {
             switch(e)
             {
                 case 'remove':
+                    this.curIndex = this.scrollview.getCurrentNode().index;
+                    this.curPosition = this.scrollview.getPosition();
+                    this.loadContacts();
+                    this.scrollTo(this.curIndex,this.curPosition);
+                    break;
 //                    this.removeContact(options.index);
 //                    break;
                 case 'sync':
@@ -120,11 +125,12 @@ define(function(require, exports, module) {
     ContactsSection.prototype = Object.create(View.prototype);
     ContactsSection.prototype.constructor = ContactsSection;
 
-    ContactsSection.prototype.scrollTo = function(index) {
+    ContactsSection.prototype.scrollTo = function(index, position) {
         if (index<0) return;
         this.scrollview.setVelocity(0);
         this.scrollview.node.index = index;
-        this.scrollview.setPosition(0);
+        if (!position) position = 0;
+        this.scrollview.setPosition(position);
     };
 
     ContactsSection.prototype.loadContacts = function(searchKey) {
@@ -149,11 +155,13 @@ define(function(require, exports, module) {
         for (var i = lastGroupIndex; i<sequence.length; i++) {
             extraHeight -= sequence[i].getSize()[1];
         }
-        var emptySurface = new Surface({
-            size: [undefined, extraHeight]
-        })
-        emptySurface.pipe(this.eventOutput);
-        sequence.push(emptySurface);
+        if (extraHeight > 0) {
+            var emptySurface = new Surface({
+                size: [undefined, extraHeight]
+            })
+            emptySurface.pipe(this.eventOutput);
+            sequence.push(emptySurface);
+        }
         this.scrollview.sequenceFrom(sequence);
     };
 
@@ -173,7 +181,7 @@ define(function(require, exports, module) {
 
     ContactsSection.prototype.getIndex = function (item){
         var isFirst = false;
-        if (!/^[a-zA-Z]+$/.test(item.get('lastname'))){
+        if (!/^[a-zA-Z]+$/.test(item.get('lastname')[0])){
             if (this.firstChar != "#"){
                 this.firstChar = "#";
                 isFirst = "#";

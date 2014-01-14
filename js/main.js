@@ -12,6 +12,8 @@ define(function(require, exports, module) {
     var CallCollection = require("app/models/CallCollection");
     var Settings          = require("app/models/Settings");
     var ContactCollection = require('app/models/ContactCollection');
+    var Conversation = require('app/models/Conversation');
+    var ConversationCollection = require('app/models/ConversationCollection');
 
     // import views
     var CameraView = require("app/views/CameraView");
@@ -19,6 +21,7 @@ define(function(require, exports, module) {
     var OutgoingCallView = require("app/views/call/OutgoingCallView");
     var IncomingCallView = require("app/views/call/IncomingCallView");
     var ConnectedCallView = require('app/views/call/ConnectedCallView');
+    var ConversationView = require('app/views/Conversation/ConversationView');
     var FavoritesSectionView = require('app/views/favorite/FavoritesSectionView');
     var RecentsSectionView = require('app/views/recent/RecentsSectionView');
     var ContactsSectionView = require('app/views/contact/ContactsSectionView');
@@ -59,6 +62,7 @@ define(function(require, exports, module) {
             firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
         });
         this.recentCalls = new CallCollection();
+        this.conversations = new ConversationCollection();
         this.curCall = new Call();
 
         // Set up views
@@ -94,10 +98,12 @@ define(function(require, exports, module) {
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
+        var conversationView = new ConversationView({collection: this.conversations});
         window.myLightbox = myLightbox;
         outgoingCallView.pipe(this.eventOutput);
         incomingCallView.pipe(this.eventOutput);
         connectedCallView.pipe(this.eventOutput);
+        conversationView.pipe(this.eventOutput);
         var cameraView = new CameraView({});
 
         // create a display context and hook in the App
@@ -114,7 +120,8 @@ define(function(require, exports, module) {
         this.eventOutput.on('incomingCall', onIncomingCall);
         this.eventOutput.on('outgoingCall', onOutgoingCall);
         this.eventOutput.on('connectedCall', onConnectedCall);
-        this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept)
+        this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
+        this.eventOutput.on('conversations', onConversations);
         this.eventOutput.on('editContact', onEditContact);
         this.eventOutput.on('showApp', onShowApp);
         this.eventOutput.on('chatOn', onChatOn);
@@ -162,6 +169,11 @@ define(function(require, exports, module) {
             }
         }
 
+        function onConversations() {
+            conversationView.start();
+            myLightbox.show(conversationView, true);
+        }
+
         function onEditContact(eventData) {
             if (eventData instanceof Contact) {
                 var contactView = new AddContactView({model: eventData});
@@ -200,6 +212,7 @@ define(function(require, exports, module) {
         colabeo.contactsSection = contactsSection;
         colabeo.favoritesSection = favoritesSection;
         colabeo.cameraView = cameraView;
+        colabeo.conversationView = conversationView;
     }.bind(this));
 
 });

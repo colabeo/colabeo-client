@@ -32,8 +32,6 @@ define(function(require, exports, module) {
 
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
-//            console.log(e, model, collection, options);
-            console.log(e);
             switch(e)
             {
                 case 'remove':

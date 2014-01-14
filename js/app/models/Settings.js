@@ -3,9 +3,7 @@ define(function(require, exports, module) {
     module.exports = Backbone.Model.extend({
         localStorage: new Backbone.LocalStorage("colabeo-settings"),
         defaults: {
-//            cid: "tZNo7HwWLl",
             cid: "sMu7eW1QYY",
-//            cid: "3FQb25z8Dz",
             email: "jeff@colabeo.com",
             linkAccounts: {
                 facebook: false,
@@ -16,9 +14,10 @@ define(function(require, exports, module) {
             },
             firstname: "Jeff",
             lastname: "Lin",
-            video: JSON.parse(localStorage.getItem('colabeo-settings-video')),
-            audio: JSON.parse(localStorage.getItem('colabeo-settings-audio')),
-            blur: JSON.parse(localStorage.getItem('colabeo-settings-blur')),
+            camera: true,
+            video: true,
+            audio: true,
+            blur: undefined,
             userDatabaseUrl: "https://koalalab-berry.firebaseio.com/users/",
             callDatabaseUrl: "https://de-berry.firebaseio-demo.com/calls/"
         }

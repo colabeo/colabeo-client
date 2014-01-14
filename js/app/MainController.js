@@ -13,21 +13,19 @@ define(function(require, exports, module) {
         var userId = this.appSettings.get('cid');
         var userFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
         this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + userId);
-        if (!localStorage.getItem('colabeo-settings-video'))
-            localStorage.setItem('colabeo-settings-video', 'true');
-        if (!localStorage.getItem('colabeo-settings-audio'))
-            localStorage.setItem('colabeo-settings-audio', 'true');
         if (Utils.isMobile()) {
             $('body').addClass('mobile');
+            if (this.appSettings.get('blur') == undefined)
+                this.appSettings.set('blur', false);
         } else {
-            if (!localStorage.getItem('colabeo-settings-blur'))
-                localStorage.setItem('colabeo-settings-blur', 'true');
+            if (this.appSettings.get('blur') == undefined)
+                this.appSettings.set('blur', true);
         }
         this.setupCallListener();
         this.setupVideo();
         this.setupSettingsListener();
 
-        // TODO: hack for chrome DATAconnection
+        // TODO: hack for android chrome DATAconnection
         util.supports.sctp = false;
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
@@ -39,6 +37,9 @@ define(function(require, exports, module) {
     MainController.prototype.setupSettingsListener = function() {
         this.eventOutput.on('setCamera', function() {
             this.setCamera();
+        }.bind(this));
+        this.eventOutput.on('setVideo', function() {
+            this.setVideo();
         }.bind(this));
         this.eventOutput.on('setBlur', function() {
             this.setBlur();
@@ -232,12 +233,11 @@ define(function(require, exports, module) {
     /* end of peer call */
 
     MainController.prototype.setCamera = function() {
-        var video = JSON.parse(localStorage.getItem('colabeo-settings-video'));
-        this.initLocalMedia({video: video, audio: true});
+        this.initLocalMedia({video: this.appSettings.get('camera'), audio: true});
     };
 
     MainController.prototype.setBlur = function() {
-        var on = JSON.parse(localStorage.getItem('colabeo-settings-blur'));
+        var on = this.appSettings.get('blur');
         if (on)
             $('.camera').removeClass('fakeblur');
         else
@@ -245,7 +245,7 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.setAudio = function() {
-        var audio = JSON.parse(localStorage.getItem('colabeo-settings-audio'));
+        var audio = this.appSettings.get('audio');
         if (this.localStream) {
             var audioTracks = this.localStream.getAudioTracks();
             for (var i = 0, l = audioTracks.length; i < l; i++) {
@@ -255,12 +255,16 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.setVideo = function() {
-        var video = JSON.parse(localStorage.getItem('colabeo-settings-video'));
+        var video = this.appSettings.get('video');
         if (this.localStream) {
             var videoTracks = this.localStream.getVideoTracks();
             for (var i = 0, l = videoTracks.length; i < l; i++) {
                 videoTracks[i].enabled = video;
             }
+            if (video)
+                $('.local-video video').show();
+            else
+                $('.local-video video').hide();
         }
     };
 

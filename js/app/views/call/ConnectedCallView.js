@@ -44,9 +44,48 @@ define(function(require, exports, module) {
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
 
+        this.footer = new Surface({
+            classes: ['connected-call-view-buttons'],
+            size: [undefined, 80],
+            properties: {
+                backgroundColor: 'transparent',
+                zIndex:1,
+                opacity:0
+            }
+        });
+
+        this._add(this.backSurface);
+        this._add(this.footerLightBox);
+
+        this.footer.on('click', function(e) {
+            var target = $(e.target);
+            if (target.hasClass("end-button")) {
+                this.stop(target);
+            }
+            else if (target.hasClass("sync-button")) {
+                this.eventOutput.emit('sync');
+
+            }
+        }.bind(this));
+
+        this.backSurface.on('click',function(e){
+            $('.box').toggle();
+        })
+    }
+
+
+    ConnectedCallView.prototype = Object.create(View.prototype);
+    ConnectedCallView.prototype.constructor = ConnectedCallView;
+
+    ConnectedCallView.prototype.start = function(appSetting) {
+        this.appSettings = appSetting;
+        $('.camera').removeClass('blur');
+        this.footerLightBox.show(this.footer);
+
         var videoButton = Templates.toggleButton({
+            id: 'video',
             classes: ["video-button", "big-button"],
-            checked: true,
+            checked: this.appSettings?this.appSettings.get('video'):true,
             onContent: '<i class="fa fa-eye fa-lg"></i>',
             offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
             onBackgroundColor: '#dadbd9',
@@ -64,50 +103,18 @@ define(function(require, exports, module) {
             size: [160,70]
         });
         var audioButton = Templates.toggleButton({
+            id: 'audio',
             classes:["audio-button", "big-button"],
-            checked: true,
+            checked: this.appSettings?this.appSettings.get('audio'):true,
             onContent: '<i class="fa fa-microphone fa-lg"></i>',
             offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
             onBackgroundColor: '#dadbd9',
             offBackgroundColor: '#dadbd9',
             size: [70,70]
         });
-        this.footer = new Surface({
-            classes: ['connected-call-view-buttons'],
-            size: [undefined, 80],
-            properties: {
-                backgroundColor: 'transparent',
-                zIndex:1,
-                opacity:0
-            },
-            content: '<div class="box">' + syncButton + endButton + audioButton + '</div>'
-        });
+        var html = '<div class="box">' + syncButton + endButton + audioButton + '</div>';
+        this.footer.setContent(html);
 
-        this._add(this.backSurface);
-        this._add(this.footerLightBox);
-
-        this.footer.on('click', function(e) {
-            var target = $(e.target);
-            if (target.hasClass("end-button")) {
-                this.stop(target);
-            }
-            else if (target.hasClass("sync-button")) {
-                this.eventOutput.emit('sync');
-            }
-        }.bind(this));
-
-        this.backSurface.on('click',function(e){
-            $('.box').toggle();
-        })
-    }
-
-
-    ConnectedCallView.prototype = Object.create(View.prototype);
-    ConnectedCallView.prototype.constructor = ConnectedCallView;
-
-    ConnectedCallView.prototype.start = function() {
-        $('.camera').removeClass('blur');
-        this.footerLightBox.show(this.footer);
     };
 
     ConnectedCallView.prototype.stop = function(button) {

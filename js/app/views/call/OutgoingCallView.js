@@ -54,38 +54,12 @@ define(function(require, exports, module) {
             }
         });
 
-        var videoButton = Templates.toggleButton({
-            classes: ["video-button", "big-button"],
-            checked: true,
-            onContent: '<i class="fa fa-eye fa-lg"></i>',
-            offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
-            onBackgroundColor: '#dadbd9',
-            offBackgroundColor: '#dadbd9',
-            size: [70,70]
-        });
-        var endButton = Templates.button({
-            classes: ["end-button", "big-button"],
-            checked: true,
-            content: 'End',
-            size: [160,70]
-        });
-        var audioButton = Templates.toggleButton({
-            classes:["audio-button", "big-button"],
-            checked: true,
-            onContent: '<i class="fa fa-microphone fa-lg"></i>',
-            offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
-            onBackgroundColor: '#dadbd9',
-            offBackgroundColor: '#dadbd9',
-            size: [70,70]
-        });
         this.footer = new Surface({
             classes: ['outgoing-call-view-buttons'],
             size: [undefined, 80],
             properties: {
                 backgroundColor: 'transparent'
-            },
-            content: '<div class="box">' + videoButton + endButton + audioButton + '</div>'
-//            content: '<div class="box"><button class="end-button"></button></div>'
+            }
         });
 
         this._add(this.headerLightBox);
@@ -122,6 +96,36 @@ define(function(require, exports, module) {
         html += '<div class="caller-info">FamousTime...</div>';
 
         this.header.setContent(html);
+
+        var videoButton = Templates.toggleButton({
+            id: 'video',
+            classes: ["video-button", "big-button"],
+            checked: this.appSettings?this.appSettings.get('video'):true,
+            onContent: '<i class="fa fa-eye fa-lg"></i>',
+            offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
+            onBackgroundColor: '#dadbd9',
+            offBackgroundColor: '#dadbd9',
+            size: [70,70]
+        });
+        var endButton = Templates.button({
+            classes: ["end-button", "big-button"],
+            checked: true,
+            content: 'End',
+            size: [160,70]
+        });
+        var audioButton = Templates.toggleButton({
+            id: 'audio',
+            classes:["audio-button", "big-button"],
+            checked: this.appSettings?this.appSettings.get('audio'):true,
+            onContent: '<i class="fa fa-microphone fa-lg"></i>',
+            offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
+            onBackgroundColor: '#dadbd9',
+            offBackgroundColor: '#dadbd9',
+            size: [70,70]
+        });
+
+        html = '<div class="box">' + videoButton + endButton + audioButton + '</div>'
+        this.footer.setContent(html);
     };
 
     OutgoingCallView.prototype.startCalltone = function() {
@@ -137,7 +141,8 @@ define(function(require, exports, module) {
         e.currentTime = 0;
     };
 
-    OutgoingCallView.prototype.start = function(eventData) {
+    OutgoingCallView.prototype.start = function(eventData, appSettings) {
+        this.appSettings = appSettings;
         this.on = true;
         var data;
         if (eventData instanceof Contact || eventData instanceof Call) {

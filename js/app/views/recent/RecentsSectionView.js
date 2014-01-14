@@ -32,6 +32,7 @@ define(function(require, exports, module) {
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
 //            console.log(e, model, collection, options);
+            console.log(e);
             switch(e)
             {
                 case 'remove':
@@ -39,7 +40,7 @@ define(function(require, exports, module) {
                     if (i<0) i = options.index;
                     this.removeContact(i);
                     break;
-                case 'sync':
+//                case 'sync':
                 case 'add':
                     this.loadContacts();
                     break;

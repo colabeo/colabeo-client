@@ -42,6 +42,10 @@ define(function(require, exports, module) {
     this.mainController.loadUser(function(data) {
         // Set up models and collections
         this.appSettings = new Settings({
+            id: data.objectId
+        });
+        this.appSettings.fetch();
+        this.appSettings.save({
             cid: data.objectId,
             email: data.email,
             firstname: data.firstname,
@@ -49,6 +53,8 @@ define(function(require, exports, module) {
             username: data.username
         });
         this.mainController.appSettings = this.appSettings;
+        this.mainController.init();
+
         this.contactCollection = new ContactCollection([], {
             firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
         });
@@ -132,13 +138,13 @@ define(function(require, exports, module) {
             if (eventData instanceof Function) {
                 callback = eventData;
             }
-            connectedCallView.start();
+            connectedCallView.start(this.appSettings);
             myLightbox.show(connectedCallView, true, callback);
             this.eventOutput.emit('chatOn');
         }
 
         function onOutgoingCall(eventData) {
-            outgoingCallView.start(eventData);
+            outgoingCallView.start(eventData, this.appSettings);
             myLightbox.show(outgoingCallView, true);
         }
 
@@ -187,8 +193,6 @@ define(function(require, exports, module) {
         $('body').on('click', '.header button.close-button', function(e){
             this.eventOutput.emit('showApp');
         }.bind(this));
-
-        this.mainController.init();
 
         // TODO: hack
         window.colabeo = this;

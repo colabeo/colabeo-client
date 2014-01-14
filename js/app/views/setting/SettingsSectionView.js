@@ -30,18 +30,18 @@ define(function(require, exports, module) {
         this.scrollview.sequenceFrom([this.surface]);
         this._link(this.scrollview);
 
-        $( 'body' ).on( "change", ".box #video", function(event, ui) {
-            localStorage.setItem('colabeo-settings-video', JSON.stringify($("#video").attr('checked')));
-            this.eventOutput.emit('setCamera');
+        $( 'body' ).on( "change", "#camera", function(event, ui) {
+            this.appSettings.save({camera : JSON.parse($("#camera").prop('checked'))});
         }.bind(this));
-        $( 'body' ).on( "change", ".box #audio", function(event, ui) {
-            localStorage.setItem('colabeo-settings-audio', JSON.stringify($("#audio").attr('checked')));
-            this.eventOutput.emit('setAudio');
+        $( 'body' ).on( "change", "#video", function(event, ui) {
+            this.appSettings.save({video : JSON.parse($("#video").prop('checked'))});
+        }.bind(this));
+        $( 'body' ).on( "change", "#audio", function(event, ui) {
+            this.appSettings.save({audio : JSON.parse($("#audio").prop('checked'))});
         }.bind(this));
 
-        $( 'body' ).on( "change", ".box #blur", function(event, ui) {
-            localStorage.setItem('colabeo-settings-blur', JSON.stringify($("#blur").attr('checked')));
-            this.eventOutput.emit('setBlur');
+        $( 'body' ).on( "change", "#blur", function(event, ui) {
+            this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
         }.bind(this));
 
         $('body').on('click', 'button.call-button', function(e){
@@ -59,6 +59,37 @@ define(function(require, exports, module) {
         $('body').on('click', 'button.logout-button', function(e){
             window.location = "/logout";
         }.bind(this));
+
+        this.appSettings.on({
+            'change:camera': onCamera.bind(this),
+            'change:audio': onAudio.bind(this),
+            'change:video': onVideo.bind(this),
+            'change:blur': onBlur.bind(this)
+        });
+
+        function onCamera() {
+            console.log('camera change');
+            $("#camera").prop('checked', this.appSettings.get('camera'));
+            this.eventOutput.emit('setCamera');
+        }
+
+        function onAudio() {
+            console.log('audio change');
+            $("#audio").prop('checked', this.appSettings.get('audio'));
+            this.eventOutput.emit('setAudio');
+        }
+
+        function onVideo() {
+            console.log('video change');
+            $("#video").prop('checked', this.appSettings.get('video'));
+            this.eventOutput.emit('setVideo');
+        }
+
+        function onBlur() {
+            console.log('blur change');
+            $("#blur").prop('checked', this.appSettings.get('blur'));
+            this.eventOutput.emit('setBlur');
+        }
     }
 
     SettingsSectionView.prototype = Object.create(View.prototype);
@@ -73,10 +104,9 @@ define(function(require, exports, module) {
 
         html += '<div class="desc"></div>';
         html += '<div class="info">Camera ';
-        html += Templates.toggleSwitch("video", this.appSettings.get('video')) + '</div>';
-        html += '<div class="info">Audio ';
-        html += Templates.toggleSwitch("audio", this.appSettings.get('audio')) + '</div>';
+        html += Templates.toggleSwitch("camera", this.appSettings.get('camera')) + '</div>';
         html += '<div class="info">Blur ';
+        console.log(this.appSettings, this.appSettings.get('blur'));
         html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';
@@ -94,21 +124,6 @@ define(function(require, exports, module) {
         html += '<div class="desc">Testing</div>';
         html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button></div>';
         html += '</div>';
-//        html += Templates.toggleButton({
-//            classes: ["test"],
-//            checked: true,
-//            onContent: '<i class="fa fa-microphone fa-lg"></i>',
-//            offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
-//            onBackgroundColor: '#c23635',
-//            offBackgroundColor: '#dadbd9',
-//            size: [160,60]
-//        });
-//        html += Templates.toggleButton({
-//            classes: ["test"],
-//            checked: false,
-//            onContent: 'On',
-//            offContent: 'Off'
-//        });
         this.surface.setContent(html);
     };
 

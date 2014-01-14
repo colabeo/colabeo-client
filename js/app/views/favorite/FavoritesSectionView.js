@@ -51,11 +51,28 @@ define(function(require, exports, module) {
 
     FavoritesSectionView.prototype.loadFavorites = function() {
         var favoritesCollection = this.collection.favorites();
-        this.scrollview.sequenceFrom(favoritesCollection.map(function(item) {
+        var sequence = favoritesCollection.map(function(item){
             var surface = new FavoriteItemView({model: item});
             surface.pipe(this.eventOutput);
             return surface;
-        }.bind(this)));
+        }.bind(this))
+
+        var extraHeight = this.scrollview.getSize()[1] - 100 ;
+        for (i = 0; i < sequence.length; i++){
+            extraHeight -= sequence[i].getSize()[1];
+            if (extraHeight <= 0) break;
+            console.log(extraHeight);
+        }
+        if (extraHeight > 0){
+            var emptySurface = new Surface({
+                size: [undefined, extraHeight]
+            })
+            emptySurface.pipe(this.eventOutput);
+            sequence.push(emptySurface);
+        }
+        console.log(this.scrollview.getSize());
+        console.log(emptySurface.getSize());
+        this.scrollview.sequenceFrom(sequence);
     };
 
     FavoritesSectionView.prototype.removeContact = function(index) {

@@ -10,6 +10,7 @@ define(function(require, exports, module) {
     var Utility          = require('famous/Utility');
     var ContainerSurface = require('famous/ContainerSurface');
     var Mod              = require('famous/Modifier');
+//    var Engine           = require('famous/Engine');
 
     function ContactsSection(options) {
 
@@ -30,7 +31,7 @@ define(function(require, exports, module) {
             size: [undefined, this.searchBarSize],
             classes: ['contact-section-search-bar'],
             content: '<div><i class="fa fa-search"></i>   ' +
-                '<input type="text" class="search-contact" placeholder = "Search" ></div>',
+                '<input type="text" class="search-contact" placeholder = "Search" ></div></div>',
             properties:{
                 backgroundColor: 'rgba(15,15,15,0.9)',
                 color: 'white',
@@ -65,6 +66,7 @@ define(function(require, exports, module) {
             direction: Util.Direction.Y,
             margin: 10000
         });
+//        Engine.pipe(this.scrollview);
 
         this.headerFooterLayout.id.header.link(this.searchSurface);
         this.headerFooterLayout.id.content.add(this.scrollview);
@@ -150,11 +152,13 @@ define(function(require, exports, module) {
         
         // added empty item
         // media access bar messed up the height so add 40
+
         var lastGroupIndex = _.last(this.a2zIndexArray);
         var extraHeight = this.scrollview.getSize()[1] + 40;
         for (var i = lastGroupIndex; i<sequence.length; i++) {
             extraHeight -= sequence[i].getSize()[1];
         }
+
         if (extraHeight > 0) {
             var emptySurface = new Surface({
                 size: [undefined, extraHeight]
@@ -162,6 +166,7 @@ define(function(require, exports, module) {
             emptySurface.pipe(this.eventOutput);
             sequence.push(emptySurface);
         }
+
         this.scrollview.sequenceFrom(sequence);
     };
 

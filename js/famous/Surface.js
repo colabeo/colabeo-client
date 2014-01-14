@@ -8,14 +8,14 @@ define(function(require, exports, module) {
     /**
      * @class A base class for viewable content and event
      *    targets inside a Famous applcation, containing a renderable document
-     *    fragment. 
+     *    fragment.
      * @description Like an HTML div, it can accept internal markup,
      *    properties, and classes, and handle events. This is a PUBLIC
      *    interface and can be extended.
-     * 
+     *
      * @name FamousSurface
      * @constructor
-     * 
+     *
      * @param {Array.<number>} size Width and height in absolute pixels (array of ints)
      * @param {string} content Document content (e.g. HTML) managed by this
      *    surface.
@@ -54,13 +54,13 @@ define(function(require, exports, module) {
         this._currTarget = undefined;
     };
 
-    /** 
+    /**
      * Document events to which FamousSurface automatically listens.
      *   Bind to them with .on(), forward them with .pipe(), and similar.
      *
      * @name FamousSurface#surfaceEvents
      * @field
-     * @type {Array.<string>} 
+     * @type {Array.<string>}
      */
     FamousSurface.prototype.surfaceEvents = ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'click', 'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'mouseenter', 'mouseleave', 'mousewheel', 'wheel'];
 
@@ -69,11 +69,11 @@ define(function(require, exports, module) {
 
     /**
      * Bind a handler function to occurrence of event type on this surface.
-     *   Document events have the opportunity to first be intercepted by the 
-     *   on() method of the FamousSurface upon which the event occurs, then 
+     *   Document events have the opportunity to first be intercepted by the
+     *   on() method of the FamousSurface upon which the event occurs, then
      *   by the on() method of the FamousContext containing that surface, and
      *   finally as a default, the FamousEngine itself.
-     * 
+     *
      * @name FamousSurface#on
      * @function
      * @param  {string} type event type key (for example, 'click')
@@ -84,13 +84,13 @@ define(function(require, exports, module) {
     };
 
     /**
-     * Unbind an event by type and handler.  
+     * Unbind an event by type and handler.
      *   This undoes the work of {@link FamousSurface#on}
-     * 
+     *
      * @name FamousSurface#unbind
      * @function
      * @param {string} type event type key (for example, 'click')
-     * @param {function(string, Object)} handler 
+     * @param {function(string, Object)} handler
      */
     FamousSurface.prototype.unbind = function(type, fn) {
         this.eventHandler.unbind(type, fn);
@@ -99,7 +99,7 @@ define(function(require, exports, module) {
     /**
      * Trigger an event, sending to all downstream handlers
      *   matching provided 'type' key.
-     * 
+     *
      * @name FamousSurface#emit
      * @function
      * @param  {string} type event type key (for example, 'click')
@@ -140,9 +140,9 @@ define(function(require, exports, module) {
     };
 
     /**
-     * Stop piping all events at the FamousEngine level to a target emitter 
+     * Stop piping all events at the FamousEngine level to a target emitter
      *   object.  Undoes the work of #pipe.
-     * 
+     *
      * @name FamousSurface#unpipe
      * @function
      * @param {emitterObject} target emitter object
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
     /**
      * Return spec for this surface. Note that for a base surface, this is
      *    simply an id.
-     * 
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#render
      * @function
@@ -167,7 +167,7 @@ define(function(require, exports, module) {
     /**
      * Set CSS-style properties on this FamousSurface. Note that this will cause
      *    dirtying and thus re-rendering, even if values do not change (confirm)
-     *    
+     *
      * @name FamousSurface#setProperties
      * @function
      * @param {Object} properties property dictionary of "key" => "value"
@@ -181,7 +181,7 @@ define(function(require, exports, module) {
 
     /**
      * Get CSS-style properties on this FamousSurface.
-     * 
+     *
      * @name FamousSurface#getProperties
      * @function
      * @returns {Object} Dictionary of properties of this Surface.
@@ -193,9 +193,9 @@ define(function(require, exports, module) {
     /**
      * Add CSS-style class to the list of classes on this FamousSurface. Note
      *   this will map directly to the HTML property of the actual
-     *   corresponding rendered <div>. 
+     *   corresponding rendered <div>.
      *   These will be deployed to the document on call to .setup().
-     *    
+     *
      * @param {string} className name of class to add
      */
     FamousSurface.prototype.addClass = function(className) {
@@ -208,9 +208,9 @@ define(function(require, exports, module) {
     /**
      * Remove CSS-style class from the list of classes on this FamousSurface.
      *   Note this will map directly to the HTML property of the actual
-     *   corresponding rendered <div>. 
+     *   corresponding rendered <div>.
      *   These will be deployed to the document on call to #setup().
-     *    
+     *
      * @name FamousSurface#removeClass
      * @function
      * @param {string} className name of class to remove
@@ -235,7 +235,7 @@ define(function(require, exports, module) {
 
     /**
      * Get array of CSS-style classes attached to this div.
-     * 
+     *
      * @name FamousSurface#getClasslist
      * @function
      * @returns {Array.<string>} Returns an array of classNames
@@ -247,10 +247,10 @@ define(function(require, exports, module) {
     /**
      * Set or overwrite inner (HTML) content of this surface. Note that this
      *    causes a re-rendering if the content has changed.
-     * 
+     *
      * @name FamousSurface#setContent
      * @function
-     *    
+     *
      * @param {string} content HTML content
      */
     FamousSurface.prototype.setContent = function(content) {
@@ -262,10 +262,10 @@ define(function(require, exports, module) {
 
     /**
      * Return inner (HTML) content of this surface.
-     * 
+     *
      * @name FamousSurface#getContent
      * @function
-     * 
+     *
      * @returns {string} inner (HTML) content
      */
     FamousSurface.prototype.getContent = function() {
@@ -292,7 +292,7 @@ define(function(require, exports, module) {
      *   Attach Famous event handling to document events emanating from target
      *     document element.  This occurs just after deployment to the document.
      *     Calling this enables methods like #on and #pipe.
-     *    
+     *
      * @private
      * @param {Element} target document element
      */
@@ -307,8 +307,8 @@ define(function(require, exports, module) {
      *   Detach Famous event handling from document events emanating from target
      *     document element.  This occurs just before recall from the document.
      *     Calling this enables methods like #on and #pipe.
-     *    
-     * 
+     *
+     *
      * @name FamousSurface#_unbindEvents
      * @function
      * @private
@@ -323,7 +323,7 @@ define(function(require, exports, module) {
 
     /**
      *  Apply to document all changes from #removeClass since last #setup().
-     *    
+     *
      * @name FamousSurface#_cleanupClasses
      * @function
      * @private
@@ -337,7 +337,7 @@ define(function(require, exports, module) {
     /**
      * Apply values of all Famous-managed styles to the document element.
      *   These will be deployed to the document on call to #setup().
-     * 
+     *
      * @name FamousSurface#_applyStyles
      * @function
      * @private
@@ -352,7 +352,7 @@ define(function(require, exports, module) {
     /**
      * Clear all Famous-managed styles from the document element.
      *   These will be deployed to the document on call to #setup().
-     * 
+     *
      * @name FamousSurface#_cleanupStyles
      * @function
      * @private
@@ -369,37 +369,37 @@ define(function(require, exports, module) {
     var _setInvisible;
 
     /**
-     * Directly apply given FamousMatrix to the document element as the 
+     * Directly apply given FamousMatrix to the document element as the
      *   appropriate webkit CSS style.
-     * 
+     *
      * @name FamousSurfaceManager#setMatrix
      * @function
      * @static
      * @private
      * @param {Element} element document element
-     * @param {FamousMatrix} matrix 
-     */ 
+     * @param {FamousMatrix} matrix
+     */
     if(usePrefix) _setMatrix = function(element, matrix) { element.style.webkitTransform = FM.formatCSS(matrix); };
     else _setMatrix = function(element, matrix) { element.style.transform = FM.formatCSS(matrix); };
 
     /**
-     * Directly apply given origin coordinates to the document element as the 
+     * Directly apply given origin coordinates to the document element as the
      *   appropriate webkit CSS style.
-     * 
+     *
      * @name FamousSurfaceManager#setOrigin
      * @function
      * @static
      * @private
      * @param {Element} element document element
-     * @param {FamousMatrix} matrix 
-     */ 
+     * @param {FamousMatrix} matrix
+     */
     if(usePrefix) _setOrigin = function(element, origin) { element.style.webkitTransformOrigin = _formatCSSOrigin(origin); };
     else _setOrigin = function(element, origin) { element.style.transformOrigin = _formatCSSOrigin(origin); };
 
 
     /**
-     * Shrink given document element until it is effectively invisible.   
-     *   This destroys any existing transform properties.  
+     * Shrink given document element until it is effectively invisible.
+     *   This destroys any existing transform properties.
      *   Note: Is this the ideal implementation?
      *
      * @name FamousSurfaceManager#setInvisible
@@ -433,11 +433,11 @@ define(function(require, exports, module) {
 
     /**
      * Sets up an element to be ready for commits
-     *  
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#setup
      * @function
-     * 
+     *
      * @param {Element} target document element
      */
     FamousSurface.prototype.setup = function(allocator) {
@@ -469,7 +469,7 @@ define(function(require, exports, module) {
      * Apply all changes stored in the Surface object to the actual element
      * This includes changes to classes, styles, size, and content, but not
      * transforms or opacities, which are managed by (@link FamousSurfaceManager).
-     * 
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#commit
      * @function
@@ -543,9 +543,9 @@ define(function(require, exports, module) {
      *  Remove all Famous-relevant attributes from a document element.
      *    This is called by SurfaceManager's detach().
      *    This is in some sense the reverse of .deploy().
-     *    Note: If you're trying to destroy a surface, don't use this. 
+     *    Note: If you're trying to destroy a surface, don't use this.
      *    Just remove it from the render tree.
-     * 
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#cleanup
      * @function
@@ -561,16 +561,26 @@ define(function(require, exports, module) {
         var classList = this.getClassList();
         _cleanupClasses.call(this, target);
         for(var i = 0; i < classList.length; i++) target.classList.remove(classList[i]);
+        if(this.elementClass) {
+            if(this.elementClass instanceof Array) {
+                for(var i = 0; i < this.elementClass.length; i++) {
+                    target.classList.remove(this.elementClass[i]);
+                }
+            }
+            else {
+                target.classList.remove(this.elementClass);
+            }
+        }
         _unbindEvents.call(this, target);
         this._currTarget = undefined;
         allocator.deallocate(target);
         _setInvisible(target);
     };
     /**
-     * Directly output this surface's fully prepared inner document content to 
+     * Directly output this surface's fully prepared inner document content to
      *   the provided containing parent element.
      *   This translates to innerHTML in the DOM sense.
-     * 
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#deploy
      * @function
@@ -583,9 +593,9 @@ define(function(require, exports, module) {
     };
 
     /**
-     * Remove any contained document content associated with this surface 
-     *   from the actual document.  
-     * 
+     * Remove any contained document content associated with this surface
+     *   from the actual document.
+     *
      * (Scope: Device developers and deeper)
      * @name FamousSurface#recall
      * @function
@@ -596,11 +606,11 @@ define(function(require, exports, module) {
         this.setContent(df);
     };
 
-    /** 
+    /**
      *  Get the x and y dimensions of the surface.  This normally returns
      *    the size of the rendered surface unless setSize() was called
      *    more recently than setup().
-     * 
+     *
      * @name FamousSurface#getSize
      * @function
      * @param {boolean} actual return actual size
@@ -614,7 +624,7 @@ define(function(require, exports, module) {
     /**
      * Set x and y dimensions of the surface.  This takes effect upon
      *   the next call to this.{#setup()}.
-     * 
+     *
      * @name FamousSurface#setSize
      * @function
      * @param {Array.<number>} size x,y size array

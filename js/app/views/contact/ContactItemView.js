@@ -87,16 +87,16 @@ define(function(require, exports, module) {
         this.surface.setContent(contact);
     };
 
-    ContactItemView.prototype.collapse = function(callback) {
-        this.mod.setOpacity(0,{duration:600}, callback);
-    };
-
-    ContactItemView.prototype.getSize = function() {
-        var sh = this.mod.opacityState.get();
-        var size = this.surface.getSize();
-        size[1] = Math.floor(size[1]*sh);
-        return size;
-    };
+//    ContactItemView.prototype.collapse = function(callback) {
+//        this.mod.setOpacity(0,{duration:600}, callback);
+//    };
+//
+//    ContactItemView.prototype.getSize = function() {
+//        var sh = this.mod.opacityState.get();
+//        var size = this.surface.getSize();
+//        size[1] = Math.floor(size[1]*sh);
+//        return size;
+//    };
 
     module.exports = ContactItemView;
 });

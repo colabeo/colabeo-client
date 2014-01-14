@@ -29,14 +29,11 @@ define(function(require, exports, module) {
         this.eventOutput = new EventHandler();
         EventHandler.setOutputHandler(this, this.eventOutput);
 
-        var title = 'New Contact';
-        if (this.model) title = 'Edit Contact';
         this.header = new Surface({
             classes: ['header'],
             size: [undefined, 50],
             properties: {
-            },
-            content: '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
+            }
         });
         this.content = new Surface({
             classes: ['add-contact-view'],
@@ -56,16 +53,25 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        this.template();
+        this.renderContact();
 
         this.content.pipe(this.eventOutput);
+
+        $('body').on('click', 'button.google-button', function(e){
+            this.renderGoogle();
+        }.bind(this));
+        $('body').on('click', 'button.back-button', function(e){
+            this.renderContact();
+        }.bind(this));
 
     }
 
     AddContactView.prototype = Object.create(HeaderFooterLayout.prototype);
     AddContactView.prototype.constructor = AddContactView;
 
-    AddContactView.prototype.template = function() {
+    AddContactView.prototype.renderContact = function() {
+        var title = 'New Contact';
+        if (this.model) title = 'Edit Contact';
         var html = '<form role="form">';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-first-name" placeholder="First" name="firstname"';
@@ -83,7 +89,25 @@ define(function(require, exports, module) {
             html += ' value="' + this.model.get('email') + '"';
         html += '></div>';
         html += '</form>';
+
+        html += '<div class="box">';
+        html += '<div class="info">';
+        if (this.model)
+            html += this.model.get('google');
+        html += '<button class="google-button">Google+</button></div>';
+        html += '<div class="info">' + "jeffatparty";
+        if (this.model)
+            html += this.model.get('facebook');
+        html += '<button class="facebook-button">Facebook</button></div>';
         this.content.setContent(html);
+        var html = '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
+        this.header.setContent(html);
+    }
+    AddContactView.prototype.renderGoogle = function() {
+        var html = "Google";
+        this.content.setContent(html);
+        var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
+        this.header.setContent(html);
     };
 
     AddContactView.prototype.fillFrom = function() {

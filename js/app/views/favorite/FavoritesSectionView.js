@@ -43,6 +43,7 @@ define(function(require, exports, module) {
                     this.curPosition = this.scrollview.getPosition();
                     this.loadFavorites();
                     this.scrollTo(this.curIndex,this.curPosition);
+                    break;
                 case 'sync':
                     this.loadFavorites();
                     break;
@@ -61,11 +62,10 @@ define(function(require, exports, module) {
             return surface;
         }.bind(this))
 
-        var extraHeight = this.scrollview.getSize()[1] - 100 ;
+        var extraHeight = this.scrollview.getSize()[1] + 40 ;
         for (i = 0; i < sequence.length; i++){
             extraHeight -= sequence[i].getSize()[1];
             if (extraHeight <= 0) break;
-            console.log(extraHeight);
         }
         if (extraHeight > 0){
             var emptySurface = new Surface({
@@ -89,8 +89,9 @@ define(function(require, exports, module) {
     FavoritesSectionView.prototype.scrollTo = function(index, position){
         if (!index) index = 0;
         if (!position) position = 0;
-        this.scrollview.node.index = index;
+        this.scrollview.setVelocity(0);
         this.scrollview.setPosition(position);
+        this.scrollview.node.index = index;
     }
 
     module.exports = FavoritesSectionView;

@@ -6,12 +6,10 @@ define(function(require, exports, module) {
     var Matrix = require('famous/Matrix');
     var Easing = require('famous-animation/Easing');
     var UpDownTransform = require('app/custom/UpDownTransform');
-    var ContactsSectionView = require('app/views/contact/ContactsSectionView');
+    var ContactsView = require('app/views/contact/ContactsView');
 
     function ImportContactView(options){
         HeaderFooterLayout.call(this);
-
-        var upDownTransform = new UpDownTransform;
 
         this.collection = options.collection;
 
@@ -28,14 +26,14 @@ define(function(require, exports, module) {
             properties: {
             }
         });
-        this.content = new ContactsSectionView({
+        this.content = new ContactsView({
             collection: this.collection
         });
 
         this.id.header.link(this.header);
         this.id.content.link(this.content);
 
-        this.content.pipe(this.eventOutput);
+        this.header.pipe(this.eventOutput);
 
         this.header.on('click', function(e) {
             var target = $(e.target);

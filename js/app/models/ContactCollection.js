@@ -17,6 +17,14 @@ define(function(require, exports, module) {
         });
       },
 
+      searchContactByEmail: function(keyword) {
+        return this.filter(function(item){
+            if (item.get('email').toUpperCase().indexOf(keyword) != -1){
+                return item.get('email');
+            }
+        })
+      },
+
       comparator: function(model) {
           var l = model.get('lastname');
           var f = model.get('firstname');

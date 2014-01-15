@@ -10,7 +10,6 @@ define(function(require, exports, module) {
     var Utility          = require('famous/Utility');
     var ContainerSurface = require('famous/ContainerSurface');
     var Mod              = require('famous/Modifier');
-//    var Engine           = require('famous/Engine');
 
     function ContactsSection(options) {
 

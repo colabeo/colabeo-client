@@ -59,19 +59,24 @@ define(function(require, exports, module) {
 
         var edgeSwapper = new EdgeSwapper();
 
-        var googleContacts = new ImportContactView({
-            title: 'google+',
-            collection: options.collection
-        });
-        var facebookContacts = new ImportContactView({
-            title: 'facebook',
-            collection: options.collection
-        });
+//        var googleContacts = new ImportContactView({
+//            title: 'google+',
+//            collection: options.collection
+//        });
+//        var facebookContacts = new ImportContactView({
+//            title: 'facebook',
+//            collection: options.collection
+//        });
 
-
-        var collection = {
-            'google+' : options.collection,
-            facebook: options.collection
+        var importViews = {
+            'google+' : new ImportContactView({
+                title: 'google+',
+                collection: options.collection
+            }),
+            facebook: new ImportContactView({
+                title: 'facebook',
+                collection: options.collection
+            })
         };
 
         this._link (edgeSwapper);
@@ -90,20 +95,16 @@ define(function(require, exports, module) {
 
         this.collection = options.collection;
 
-        $('body').on('click', '.google-button', function(e){
-            edgeSwapper.show(googleContacts, true);
-        }.bind(this));
-        $('body').on('click', '.facebook-button', function(e){
-            edgeSwapper.show(facebookContacts, true);
-        }.bind(this));
+//        $('body').on('click', '.google-button', function(e){
+//            edgeSwapper.show(googleContacts, true);
+//        }.bind(this));
+//        $('body').on('click', '.facebook-button', function(e){
+//            edgeSwapper.show(facebookContacts, true);
+//        }.bind(this));
 
         $('body').on('click', '.import-contact', function(e){
             var source = e.target.id;
-            this.importContactView = new ImportContactView({
-                title: source,
-                collection: collection[source]
-            });
-            edgeSwapper.show(this.importContactView, true);
+            edgeSwapper.show(importViews[source], true);
         }.bind(this));
 
         $('body').on('click', 'button.back-button', function(e){
@@ -141,7 +142,7 @@ define(function(require, exports, module) {
         html += '></div>';
 
         html += '<div class="box">';
-        html += '<div class="info google-button" id="google+"><i class="fa fa-google-plus-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="google+"><i class="fa fa-google-plus-square fa-lg"></i>';
         if (this.model && this.model.get('google'))
             html += '<span><input type="text" readonly>'+ this.model.get('google') +'</input></span>';
         else

@@ -39,6 +39,7 @@ define(function(require, exports, module) {
             classes: ['add-contact-view'],
             size: [undefined, undefined],
             properties: {
+                'padding': '20px',
                 backgroundColor: 'transparent'
             }
         });
@@ -57,8 +58,11 @@ define(function(require, exports, module) {
 
         this.content.pipe(this.eventOutput);
 
-        $('body').on('click', 'button.google-button', function(e){
+        $('body').on('click', '.google-button', function(e){
             this.renderGoogle();
+        }.bind(this));
+        $('body').on('click', '.facebook-button', function(e){
+            this.renderFacebook();
         }.bind(this));
         $('body').on('click', 'button.back-button', function(e){
             this.renderContact();
@@ -71,8 +75,13 @@ define(function(require, exports, module) {
 
     AddContactView.prototype.renderContact = function() {
         var title = 'New Contact';
-        if (this.model) title = 'Edit Contact';
-        var html = '<form role="form">';
+        var initial = '<i class="fa fa-user fa-lg"></i>';
+        if (this.model) {
+            title = 'Edit Contact';
+            initial = this.model.get('firstname')[0]+this.model.get('lastname')[0];
+        }
+        var html = '<div class="initial">'+initial+'</div>';
+        html += '<form role="form">';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-first-name" placeholder="First" name="firstname"';
         if (this.model)
@@ -83,23 +92,31 @@ define(function(require, exports, module) {
         if (this.model)
             html += ' value="' + this.model.get('lastname') + '"';
         html += '></div>';
-        html += '<div class="form-group">';
+        html += '<div class="form-group small">';
         html += '<input type="email" class="form-control" id="input-email" placeholder="Email" name="email"';
         if (this.model)
             html += ' value="' + this.model.get('email') + '"';
         html += '></div>';
-        html += '</form>';
 
         html += '<div class="box">';
-        html += '<div class="info">';
-        if (this.model)
-            html += this.model.get('google');
-        html += '<button class="google-button">Google+</button></div>';
-        html += '<div class="info">' + "jeffatparty";
-        if (this.model)
-            html += this.model.get('facebook');
-        html += '<button class="facebook-button">Facebook</button></div>';
+        html += '<div class="info google-button"><i class="fa fa-google-plus-square fa-lg"></i>';
+        if (this.model && this.model.get('google'))
+            html += '<span><input type="text" readonly>'+ this.model.get('google') +'</input></span>';
+        else
+            html += "<span>"+ "New Google+ Contact" +"</span>";
+        html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
+
+        html += '<div class="info facebook-button"><i class="fa fa-facebook-square fa-lg"></i>';
+        if (this.model && this.model.get('facebook'))
+            html += '<span><input type="text" readonly>'+ this.model.get('facebook') +'</input></span>';
+        else
+            html += "<span>"+ "New Facebook Contact" +"</span>";
+        html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
+
+        html += '</form>';
+
         this.content.setContent(html);
+
         var html = '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
         this.header.setContent(html);
     }
@@ -107,6 +124,12 @@ define(function(require, exports, module) {
         var html = "Google";
         this.content.setContent(html);
         var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
+        this.header.setContent(html);
+    };
+    AddContactView.prototype.renderFacebook = function() {
+        var html = "Facebook";
+        this.content.setContent(html);
+        var html = '<button class="left back-button">Back</button><div>Facebook Contacts</div>'
         this.header.setContent(html);
     };
 

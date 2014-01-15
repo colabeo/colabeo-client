@@ -438,11 +438,11 @@ input {
 }
 
 .form-group.small {
-    margin: 0px 0px 10px 150px;
+    margin: 0px 0px 10px 100px;
 }
 
 .form-group.small input {
-    width: 190px;
+    width: 210px;
 }
 
 /* contacts */
@@ -548,6 +548,44 @@ input {
     height: 28px;
     padding: 5px 8px;
     margin: 1px;
+}
+
+/* new contact */
+.add-contact-view .box .info {
+    cursor: pointer;
+    line-height: 30px;
+}
+
+.add-contact-view .box .info .arrow {
+    float: right;
+    line-height: 30px;
+}
+
+.add-contact-view .box .info input {
+    position: fixed;
+}
+
+.add-contact-view .box .info span {
+    margin: 10px;
+}
+
+.add-contact-view .initial {
+    position: absolute;
+    top: 70px;
+    left: 10px;
+    background: rgba(255,255,255,0.7);
+    width: 70px;
+    height: 70px;
+    border-radius: 70px;
+    line-height: 70px;
+    text-align: center;
+    margin: -40px 20px;
+    color: rgba(0,0,0,0.5);
+    float: left;
+    font-size: 20px;
+}
+.add-contact-view form {
+    margin: 0px;
 }
 
 /* toggle switch */

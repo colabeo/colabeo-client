@@ -68,6 +68,12 @@ define(function(require, exports, module) {
             collection: options.collection
         });
 
+
+        var collection = {
+            'google+' : options.collection,
+            facebook: options.collection
+        };
+
         this._link (edgeSwapper);
         edgeSwapper.show(this.headerFooterLayout);
 
@@ -82,6 +88,7 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
+        this.collection = options.collection;
 
         $('body').on('click', '.google-button', function(e){
             edgeSwapper.show(googleContacts, true);
@@ -89,6 +96,16 @@ define(function(require, exports, module) {
         $('body').on('click', '.facebook-button', function(e){
             edgeSwapper.show(facebookContacts, true);
         }.bind(this));
+
+        $('body').on('click', '.import-contact', function(e){
+            var source = e.target.id;
+            this.importContactView = new ImportContactView({
+                title: source,
+                collection: collection[source]
+            });
+            edgeSwapper.show(this.importContactView, true);
+        }.bind(this));
+
         $('body').on('click', 'button.back-button', function(e){
             edgeSwapper.show(this.headerFooterLayout, true);
         }.bind(this));
@@ -124,18 +141,18 @@ define(function(require, exports, module) {
         html += '></div>';
 
         html += '<div class="box">';
-        html += '<div class="info google-button"><i class="fa fa-google-plus-square fa-lg"></i>';
+        html += '<div class="info google-button" id="google+"><i class="fa fa-google-plus-square fa-lg"></i>';
         if (this.model && this.model.get('google'))
             html += '<span><input type="text" readonly>'+ this.model.get('google') +'</input></span>';
         else
-            html += "<span>"+ "New Google+ Contact" +"</span>";
+            html += "  New Google+ Contact";
         html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
 
-        html += '<div class="info facebook-button"><i class="fa fa-facebook-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg"></i>';
         if (this.model && this.model.get('facebook'))
             html += '<span><input type="text" readonly>'+ this.model.get('facebook') +'</input></span>';
         else
-            html += "<span>"+ "New Facebook Contact" +"</span>";
+            html += "  New Facebook Contact";
         html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
 
         html += '</form>';
@@ -164,7 +181,7 @@ define(function(require, exports, module) {
             $('[name=lastname]').val(this.model.attributes.lastname);
             $('[name=email]').val(this.model.attributes.email);
         }
-    }
+    };
 
     AddContactView.prototype.submitForm = function(){
         var formArr = $('.add-contact-view form').serializeArray();
@@ -184,7 +201,7 @@ define(function(require, exports, module) {
             }
         }
         $('.add-contact-view form')[0].reset();
-    }
+    };
 
     module.exports = AddContactView;
 });

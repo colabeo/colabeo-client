@@ -6,11 +6,18 @@ define(function(require, exports, module) {
     var Matrix = require('famous/Matrix');
     var Easing = require('famous-animation/Easing');
     var UpDownTransform = require('app/custom/UpDownTransform');
-
+    var ImportContactView = require('app/views/contact/ImportContactView');
+    var ContactCollection = require('app/models/ContactCollection');
+    var View = require('famous/View');
+    var EdgeSwapper = require('famous-views/EdgeSwapper');
 
     function AddContactView(options) {
-        HeaderFooterLayout.call(this);
+        View.call(this);
 
+        this.headerFooterLayout = new HeaderFooterLayout({
+            headerSize: 50,
+            footerSize: 0
+        });
         var upDownTransform = new UpDownTransform;
 
         if(options.inTransform === undefined) this.options.inTransform = upDownTransform.options.inTransform;
@@ -19,6 +26,9 @@ define(function(require, exports, module) {
         if(options.outTransition === undefined) this.options.outTransition = upDownTransform.options.outTransition;
         if(options.inOpacity === undefined) this.options.inOpacity = upDownTransform.options.inOpacity;
         if(options.outOpacity === undefined) this.options.outOpacity = upDownTransform.options.outOpacity;
+        this.options.showOrigin = [0,0];
+        this.options.inOrigin = [0,0];
+        this.options.outOrigin = [0,0];
 
         this.model = options.model;
         this.collection = options.collection;
@@ -44,8 +54,26 @@ define(function(require, exports, module) {
             }
         });
 
-        this.id.header.link(this.header);
-        this.id.content.link(this.content);
+        this.headerFooterLayout.id.header.link(this.header);
+        this.headerFooterLayout.id.content.link(this.content);
+
+        var edgeSwapper = new EdgeSwapper();
+
+        var googleContacts = new ImportContactView({
+            title: 'google+',
+            collection: options.collection
+        });
+        var facebookContacts = new ImportContactView({
+            title: 'facebook',
+            collection: options.collection
+        });
+
+        this._link (edgeSwapper);
+        edgeSwapper.show(this.headerFooterLayout);
+
+        this.content.pipe(this.eventOutput);
+
+        this.renderContact();
 
         this.header.on('click', function(e) {
             var target = $(e.target);
@@ -54,23 +82,20 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        this.renderContact();
-
-        this.content.pipe(this.eventOutput);
 
         $('body').on('click', '.google-button', function(e){
-            this.renderGoogle();
+            edgeSwapper.show(googleContacts, true);
         }.bind(this));
         $('body').on('click', '.facebook-button', function(e){
-            this.renderFacebook();
+            edgeSwapper.show(facebookContacts, true);
         }.bind(this));
         $('body').on('click', 'button.back-button', function(e){
-            this.renderContact();
+            edgeSwapper.show(this.headerFooterLayout, true);
         }.bind(this));
 
     }
 
-    AddContactView.prototype = Object.create(HeaderFooterLayout.prototype);
+    AddContactView.prototype = Object.create(View.prototype);
     AddContactView.prototype.constructor = AddContactView;
 
     AddContactView.prototype.renderContact = function() {
@@ -120,18 +145,18 @@ define(function(require, exports, module) {
         var html = '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
         this.header.setContent(html);
     }
-    AddContactView.prototype.renderGoogle = function() {
-        var html = "Google";
-        this.content.setContent(html);
-        var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
-        this.header.setContent(html);
-    };
-    AddContactView.prototype.renderFacebook = function() {
-        var html = "Facebook";
-        this.content.setContent(html);
-        var html = '<button class="left back-button">Back</button><div>Facebook Contacts</div>'
-        this.header.setContent(html);
-    };
+//    AddContactView.prototype.renderGoogle = function() {
+//        var html = "Google";
+//        this.content.setContent(html);
+//        var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
+//        this.header.setContent(html);
+//    };
+//    AddContactView.prototype.renderFacebook = function() {
+//        var html = "Facebook";
+//        this.content.setContent(html);
+//        var html = '<button class="left back-button">Back</button><div>Facebook Contacts</div>'
+//        this.header.setContent(html);
+//    };
 
     AddContactView.prototype.fillFrom = function() {
         if (this.model) {

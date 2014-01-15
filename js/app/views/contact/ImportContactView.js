@@ -13,14 +13,6 @@ define(function(require, exports, module) {
 
         var upDownTransform = new UpDownTransform;
 
-        if(options.inTransform === undefined) this.options.inTransform = upDownTransform.options.inTransform;
-        if(options.outTransform === undefined) this.options.outTransform = upDownTransform.options.outTransform;
-        if(options.inTransition === undefined) this.options.inTransition = upDownTransform.options.inTransition;
-        if(options.outTransition === undefined) this.options.outTransition = upDownTransform.options.outTransition;
-        if(options.inOpacity === undefined) this.options.inOpacity = upDownTransform.options.inOpacity;
-        if(options.outOpacity === undefined) this.options.outOpacity = upDownTransform.options.outOpacity;
-
-        this.model = options.model;
         this.collection = options.collection;
 
         // Set up event handlers
@@ -30,6 +22,7 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.header = new Surface({
+            content: '<button class="left back-button">Back</button><div>' + options.title + ' Contacts</div>',
             classes: ['header'],
             size: [undefined, 50],
             properties: {
@@ -38,8 +31,6 @@ define(function(require, exports, module) {
         this.content = new ContactsSectionView({
             collection: this.collection
         });
-
-        this.template();
 
         this.id.header.link(this.header);
         this.id.content.link(this.content);
@@ -56,11 +47,6 @@ define(function(require, exports, module) {
     }
     ImportContactView.prototype = Object.create(HeaderFooterLayout.prototype);
     ImportContactView.prototype.constructor = ImportContactView;
-
-    ImportContactView.prototype.template = function() {
-        var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
-        this.header.setContent(html);
-    };
 
     module.exports = ImportContactView;
 });

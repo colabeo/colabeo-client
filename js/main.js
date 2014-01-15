@@ -213,6 +213,7 @@ define(function(require, exports, module) {
         colabeo.favoritesSection = favoritesSection;
         colabeo.cameraView = cameraView;
         colabeo.conversationView = conversationView;
+        colabeo.addContactView = addContactView;
     }.bind(this));
 
 });

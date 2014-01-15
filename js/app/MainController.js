@@ -205,6 +205,23 @@ define(function(require, exports, module) {
         }.bind(this),1000);
     };
 
+    MainController.prototype.getXirsys = function(callback) {
+        $.post("https://api.xirsys.com/getIceServers",
+            {
+                domain: "54.193.20.66",
+                room: "default",
+                application: "default",
+                ident: "chapman",
+                secret: "02f0e22c-764e-4939-8042-4ea028e9b8e0",
+                secure: 0
+            },
+            function(data,status){
+                xirsys = jQuery.parseJSON(data);
+                iceServerXIR = xirsys.d;
+                if (callback) callback();
+            });
+    };
+
     MainController.prototype.setupPeerConn = function(conn) {
         console.log("setup peer connection",conn);
         this.conn = conn;

@@ -9,7 +9,7 @@ define(function(require, exports, module) {
 
     // Import app specific dependencies
 
-    function ImportItemView(options) {
+    function SocialItemView(options) {
         View.call(this);
 
         this.model = options.model;
@@ -30,7 +30,7 @@ define(function(require, exports, module) {
 //        // Bind click event to load new tweet
         this.surface.on('click', function(e) {
             var target = $(e.target);
-            if (target.hasClass("add-button")) {
+            if (target.hasClass("import-source")) {
                 //TODO: add function
             }
         }.bind(this));
@@ -46,14 +46,14 @@ define(function(require, exports, module) {
         this._link(this.surface);
     }
 
-    ImportItemView.prototype = Object.create(View.prototype);
-    ImportItemView.prototype.constructor = ImportItemView;
+    SocialItemView.prototype = Object.create(View.prototype);
+    SocialItemView.prototype.constructor = SocialItemView;
 
-    ImportItemView.prototype.template = function() {
+    SocialItemView.prototype.template = function() {
         var email = this.model.get('email');
-        contact = email + '<div><i class="fa fa-plus-circle"> </i> </div>';
+        var contact = '<div class="import-source">' + email + '</div>';
         this.surface.setContent(contact);
     };
 
-    module.exports = ImportItemView;
+    module.exports = SocialItemView;
 });

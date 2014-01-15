@@ -4,10 +4,10 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var ImportItemView  = require('app/views/contact/ImportItemView');
+    var SocialItemView  = require('app/views/contact/SocialItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
 
-    function ContactsView(options) {
+    function SocialView(options) {
 
         View.call(this);
 
@@ -24,9 +24,9 @@ define(function(require, exports, module) {
 
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
-            classes: ['contact-section-search-bar'],
+            classes: ['import-section-search-bar'],
             content: '<div><i class="fa fa-search"></i>   ' +
-                '<input type="text" class="search-contact" placeholder = "Search" ></div></div>',
+                '<input type="text" class="search-import" placeholder = "Search" ></div></div>',
             properties:{
                 backgroundColor: 'rgba(15,15,15,0.9)',
                 color: 'white',
@@ -47,33 +47,26 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
 
-        this.collection.on('all', function(e, model, collection, options) {
-            switch(e)
-            {
-                case 'sync':
-                    this.loadContacts();
-                    break;
-            }
-        }.bind(this));
+        this.loadContacts();
 
         $('body').on('keyup', '.search-contact', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));
     }
 
-    ContactsView.prototype = Object.create(View.prototype);
-    ContactsView.prototype.constructor = ContactsView;
+    SocialView.prototype = Object.create(View.prototype);
+    SocialView.prototype.constructor = SocialView;
 
-    ContactsView.prototype.loadContacts = function(searchKey) {
-        if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
+    SocialView.prototype.loadContacts = function(searchKey) {
+        if (searchKey) this.currentCollection = this.collection.searchContactByEmail(searchKey.toUpperCase());
         else this.currentCollection = this.collection;
         console.log(this.currentCollection);
         this.scrollview.sequenceFrom(this.currentCollection.map(function(item) {
-            var surface = new ImportItemView({model: item}, false);
+            var surface = new SocialItemView({model: item}, false);
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
     };
 
-    module.exports = ContactsView;
+    module.exports = SocialView;
 });

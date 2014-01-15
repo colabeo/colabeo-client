@@ -59,26 +59,6 @@ define(function(require, exports, module) {
 
         var edgeSwapper = new EdgeSwapper();
 
-//        var googleContacts = new ImportContactView({
-//            title: 'google+',
-//            collection: options.collection
-//        });
-//        var facebookContacts = new ImportContactView({
-//            title: 'facebook',
-//            collection: options.collection
-//        });
-
-        var importViews = {
-            'google+' : new ImportContactView({
-                title: 'google+',
-                collection: options.collection
-            }),
-            facebook: new ImportContactView({
-                title: 'facebook',
-                collection: options.collection
-            })
-        };
-
         this._link (edgeSwapper);
         edgeSwapper.show(this.headerFooterLayout);
 
@@ -104,7 +84,10 @@ define(function(require, exports, module) {
 
         $('body').on('click', '.import-contact', function(e){
             var source = e.target.id;
-            edgeSwapper.show(importViews[source], true);
+            var newSocialView = new ImportContactView({
+                title: source,
+                collection: this.collection});  //TODO: change collections
+            edgeSwapper.show(newSocialView, true);
         }.bind(this));
 
         $('body').on('click', 'button.back-button', function(e){

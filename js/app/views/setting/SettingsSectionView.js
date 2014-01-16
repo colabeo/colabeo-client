@@ -30,35 +30,73 @@ define(function(require, exports, module) {
         this.scrollview.sequenceFrom([this.surface]);
         this._link(this.scrollview);
 
-        $( 'body' ).on( "change", "#camera", function(event, ui) {
-            this.appSettings.save({camera : JSON.parse($("#camera").prop('checked'))});
-        }.bind(this));
-        $( 'body' ).on( "change", "#video", function(event, ui) {
-            this.appSettings.save({video : JSON.parse($("#video").prop('checked'))});
-        }.bind(this));
-        $( 'body' ).on( "change", "#audio", function(event, ui) {
-            this.appSettings.save({audio : JSON.parse($("#audio").prop('checked'))});
+//        $( 'body' ).on( "change", "#camera", function(event, ui) {
+//            this.appSettings.save({camera : JSON.parse($("#camera").prop('checked'))});
+//        }.bind(this));
+//        $( 'body' ).on( "change", "#video", function(event, ui) {
+//            this.appSettings.save({video : JSON.parse($("#video").prop('checked'))});
+//        }.bind(this));
+//        $( 'body' ).on( "change", "#audio", function(event, ui) {
+//            this.appSettings.save({audio : JSON.parse($("#audio").prop('checked'))});
+//        }.bind(this));
+//        $( 'body' ).on( "change", "#blur", function(event, ui) {
+//            this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
+//            console.log('ddd');
+//        }.bind(this));
+
+        this.surface.on('click', function(e){
+            //TODO: dont know why the surface is call twice: first time for the surface and the second time for the toggle button.
+//            console.log(e);
+            switch (e.target.id)
+            {
+                case "camera":
+                    this.appSettings.save({camera : JSON.parse($("#camera").prop('checked'))});
+                    break;
+                case "video":
+                    this.appSettings.save({video : JSON.parse($("#video").prop('checked'))});
+                    break;
+                case "audio":
+                    this.appSettings.save({audio : JSON.parse($("#audio").prop('checked'))});
+                    break;
+                case "blur":
+                    this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
+                    break;
+            }
         }.bind(this));
 
-        $( 'body' ).on( "change", "#blur", function(event, ui) {
-            this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
+        this.surface.on('click', function(e){
+            switch (e.target.className)
+            {
+//                case "call-button":
+//                    this.eventOutput.emit('outgoingCall');
+//                    break;
+//                case "incoming-button":
+//                    this.eventOutput.emit('imcomingCall');
+//                    break;
+                case "connected-button":
+                    this.eventOutput.emit('connectedCall');
+                    break;
+                case "conversations-button":
+                    this.eventOutput.emit('conversations');
+                    break;
+            }
         }.bind(this));
 
-        $('body').on('click', 'button.call-button', function(e){
-            this.eventOutput.emit('outgoingCall');
-        }.bind(this));
-
-        $('body').on('click', 'button.incoming-button', function(e){
-            this.eventOutput.emit('incomingCall');
-        }.bind(this));
-
-        $('body').on('click', 'button.connected-button', function(e){
-            this.eventOutput.emit('connectedCall');
-        }.bind(this));
-
-        $('body').on('click', 'button.conversations-button', function(e){
-            this.eventOutput.emit('conversations');
-        }.bind(this));
+//        $('body').on('click', 'button.call-button', function(e){
+//            this.eventOutput.emit('outgoingCall');
+//        }.bind(this));
+//
+//        $('body').on('click', 'button.incoming-button', function(e){
+//            this.eventOutput.emit('incomingCall');
+//        }.bind(this));
+//
+//        $('body').on('click', 'button.connected-button', function(e){
+//            this.eventOutput.emit('connectedCall');
+//        }.bind(this));
+//
+//        $('body').on('click', 'button.conversations-button', function(e){
+//            this.eventOutput.emit('conversations');
+//        }.bind(this));
 
         $('body').on('click', 'button.logout-button', function(e){
             window.location = "/logout";

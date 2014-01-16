@@ -5,7 +5,7 @@ define(function(require, exports, module) {
     var RenderNode = require('famous/RenderNode');
     var Utility = require('famous/Utility');
     var Matrix = require('famous/Matrix');
-    
+
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
     var EdgeSwapper = require('famous-views/EdgeSwapper');
     

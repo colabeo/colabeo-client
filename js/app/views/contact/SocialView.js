@@ -12,8 +12,6 @@ define(function(require, exports, module) {
         View.call(this);
 
         this.searchBarSize = 50;
-        this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
-
 
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: this.searchBarSize,

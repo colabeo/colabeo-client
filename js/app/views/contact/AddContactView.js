@@ -82,17 +82,24 @@ define(function(require, exports, module) {
                 var newSocialView = new ImportContactView({
                     title: source,
                     collection: colabeo.social[source]});
+                newSocialView.pipe(this.eventOutput);
                 edgeSwapper.show(newSocialView, true);
             }
         }.bind(this));
 
-        $('body').on('click', 'button.back-button', function(e){
-            edgeSwapper.show(this.headerFooterLayout, true);
-        }.bind(this));
-        $('body').on('click', '.import-source', function(e){
-            edgeSwapper.show(this.headerFooterLayout, true);
-        }.bind(this));
+        this.eventOutput.on('importSource', onImportSource);
+        this.eventOutput.on('goBack', onGoBack);
 
+        function onImportSource(eventData){
+            console.log(eventData);
+            console.log('The first name is: ' + eventData.attributes.firstname);
+            console.log('The last name is: ' + eventData.attributes.lastname);
+            console.log('The email is: ' + eventData.attributes.email);
+        }
+
+        function onGoBack(){
+            edgeSwapper.show(this.headerFooterLayout, true);
+        }
     }
 
     AddContactView.prototype = Object.create(View.prototype);

@@ -31,12 +31,9 @@ define(function(require, exports, module) {
         this.surface.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("import-source")) {
-                console.log(this.model);
-                console.log('The first name is: ' + this.model.attributes.firstname);
-                console.log('The last name is: ' + this.model.attributes.lastname);
-                console.log('The email is: ' + this.model.attributes.email);
                 //TODO: add function
-                this.eventOutput.emit('outgoingCall', this.model);
+                this.eventOutput.emit('importSource', this.model);
+                this.eventOutput.emit('goBack');
             }
         }.bind(this));
 

@@ -33,6 +33,7 @@ define(function(require, exports, module) {
         this.id.content.link(this.content);
 
         this.header.pipe(this.eventOutput);
+        this.content.pipe(this.eventOutput);
 
         this.header.on('click', function(e) {
             var target = $(e.target);
@@ -40,6 +41,12 @@ define(function(require, exports, module) {
                 this.submitForm();
             }
         }.bind(this));
+
+        this.header.on('click', function(e){
+            this.eventOutput.emit('goBack');
+        }.bind(this));
+
+        this.header.pipe(this.eventOutput);
 
     }
     ImportContactView.prototype = Object.create(HeaderFooterLayout.prototype);

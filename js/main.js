@@ -214,6 +214,10 @@ define(function(require, exports, module) {
         colabeo.cameraView = cameraView;
         colabeo.conversationView = conversationView;
         colabeo.addContactView = addContactView;
+        colabeo.social = {
+            Facebook : this.contactCollection,
+            Google : this.contactCollection
+        };
     }.bind(this));
 
 });

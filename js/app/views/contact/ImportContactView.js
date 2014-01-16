@@ -10,7 +10,6 @@ define(function(require, exports, module) {
 
     function ImportContactView(options){
         HeaderFooterLayout.call(this);
-
         this.collection = options.collection;
 
         // Set up event handlers

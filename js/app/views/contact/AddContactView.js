@@ -31,7 +31,6 @@ define(function(require, exports, module) {
         this.options.outOrigin = [0,0];
 
         this.model = options.model;
-        this.collection = options.collection;
 
         // Set up event handlers
         this.eventInput = new EventHandler();
@@ -82,11 +81,13 @@ define(function(require, exports, module) {
 //            edgeSwapper.show(facebookContacts, true);
 //        }.bind(this));
 
-        $('body').on('click', '.import-contact', function(e){
-            var source = e.target.id;
+        this.content.on('click', function(e){
+            var target = (e.target);
+            var source = target.id;
+            //TODO: pull collections from server
             var newSocialView = new ImportContactView({
                 title: source,
-                collection: this.collection});  //TODO: change collections
+                collection: colabeo.social[source]});
             edgeSwapper.show(newSocialView, true);
         }.bind(this));
 
@@ -125,14 +126,14 @@ define(function(require, exports, module) {
         html += '></div>';
 
         html += '<div class="box">';
-        html += '<div class="info import-contact" id="google+"><i class="fa fa-google-plus-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="Google"><i class="fa fa-google-plus-square fa-lg"></i>';
         if (this.model && this.model.get('google'))
             html += '<span><input type="text" readonly>'+ this.model.get('google') +'</input></span>';
         else
-            html += "  New Google+ Contact";
+            html += "  New Google Contact";
         html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
 
-        html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="Facebook"><i class="fa fa-facebook-square fa-lg"></i>';
         if (this.model && this.model.get('facebook'))
             html += '<span><input type="text" readonly>'+ this.model.get('facebook') +'</input></span>';
         else

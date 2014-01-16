@@ -79,6 +79,9 @@ define(function(require, exports, module) {
                 case "conversations-button":
                     this.eventOutput.emit('conversations');
                     break;
+                case "logout-button":
+                    window.location = "/logout";
+                    break;
             }
         }.bind(this));
 
@@ -97,10 +100,9 @@ define(function(require, exports, module) {
 //        $('body').on('click', 'button.conversations-button', function(e){
 //            this.eventOutput.emit('conversations');
 //        }.bind(this));
-
-        $('body').on('click', 'button.logout-button', function(e){
-            window.location = "/logout";
-        }.bind(this));
+//        $('body').on('click', 'button.logout-button', function(e){
+//            window.location = "/logout";
+//        }.bind(this));
 
         this.appSettings.on({
             'change:camera': onCamera.bind(this),

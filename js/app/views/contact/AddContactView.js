@@ -74,13 +74,6 @@ define(function(require, exports, module) {
 
         this.collection = options.collection;
 
-//        $('body').on('click', '.google-button', function(e){
-//            edgeSwapper.show(googleContacts, true);
-//        }.bind(this));
-//        $('body').on('click', '.facebook-button', function(e){
-//            edgeSwapper.show(facebookContacts, true);
-//        }.bind(this));
-
         this.content.on('click', function(e){
             var target = (e.target);
             var source = target.id;
@@ -147,18 +140,6 @@ define(function(require, exports, module) {
         var html = '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
         this.header.setContent(html);
     }
-//    AddContactView.prototype.renderGoogle = function() {
-//        var html = "Google";
-//        this.content.setContent(html);
-//        var html = '<button class="left back-button">Back</button><div>Google+ Contacts</div>'
-//        this.header.setContent(html);
-//    };
-//    AddContactView.prototype.renderFacebook = function() {
-//        var html = "Facebook";
-//        this.content.setContent(html);
-//        var html = '<button class="left back-button">Back</button><div>Facebook Contacts</div>'
-//        this.header.setContent(html);
-//    };
 
     AddContactView.prototype.fillFrom = function() {
         if (this.model) {

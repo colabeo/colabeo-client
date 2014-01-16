@@ -12,8 +12,6 @@ define(function(require, exports, module) {
         View.call(this);
 
         this.searchBarSize = 50;
-        this.abcSurfaceWidth = 30;
-        this.abcSurfaceHeight = undefined;
         this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
 
@@ -41,8 +39,7 @@ define(function(require, exports, module) {
         });
 
         this.headerFooterLayout.id.header.link(this.searchSurface);
-        this.headerFooterLayout.id.content.add(this.scrollview);
-        this.headerFooterLayout.id.content.add(this.abcMod).link(this.abcSurface);
+        this.headerFooterLayout.id.content.link(this.scrollview);
 
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);

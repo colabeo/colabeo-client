@@ -36,6 +36,7 @@ define(function(require, exports, module) {
                 console.log('The last name is: ' + this.model.attributes.lastname);
                 console.log('The email is: ' + this.model.attributes.email);
                 //TODO: add function
+                this.eventOutput.emit('outgoingCall', this.model);
             }
         }.bind(this));
 

@@ -75,16 +75,21 @@ define(function(require, exports, module) {
         this.collection = options.collection;
 
         this.content.on('click', function(e){
-            var target = (e.target);
-            var source = target.id;
-            //TODO: pull collections from server
-            var newSocialView = new ImportContactView({
-                title: source,
-                collection: colabeo.social[source]});
-            edgeSwapper.show(newSocialView, true);
+            var target = $(e.target);
+            if (target.hasClass('import-contact')){
+                var source = target[0].id;
+                //TODO: pull collections from server
+                var newSocialView = new ImportContactView({
+                    title: source,
+                    collection: colabeo.social[source]});
+                edgeSwapper.show(newSocialView, true);
+            }
         }.bind(this));
 
         $('body').on('click', 'button.back-button', function(e){
+            edgeSwapper.show(this.headerFooterLayout, true);
+        }.bind(this));
+        $('body').on('click', '.import-source', function(e){
             edgeSwapper.show(this.headerFooterLayout, true);
         }.bind(this));
 

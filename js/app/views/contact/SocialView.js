@@ -6,12 +6,19 @@ define(function(require, exports, module) {
     var Scrollview       = require('famous-views/Scrollview');
     var SocialItemView  = require('app/views/contact/SocialItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
+    var EventHandler = require('famous/EventHandler');
 
     function SocialView(options) {
 
         View.call(this);
 
         this.searchBarSize = 50;
+
+        // Set up event handlers
+        this.eventInput = new EventHandler();
+        EventHandler.setInputHandler(this, this.eventInput);
+        this.eventOutput = new EventHandler();
+        EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: this.searchBarSize,
@@ -44,7 +51,11 @@ define(function(require, exports, module) {
 
         this.loadContacts();
 
-        $('body').on('keyup', '.search-contact', function(e){
+//        $('body').on('keyup', '.search-import', function(e){
+//            this.loadContacts(e.target.value);
+//        }.bind(this));
+        // TODO: keyup dont work, using 'click' works fine.
+        this.searchSurface.on('keyup', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));
     }

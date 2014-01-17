@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     // Import core Famous dependencies
     var View             = require('famous/View');
     var Util             = require('famous/Utility');
-    var Surface          = require('famous/Surface');
+    var Surface          = require('app/custom/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var ContactItemView  = require('app/views/contact/ContactItemView');
     var Matrix           = require('famous/Matrix');
@@ -102,7 +102,11 @@ define(function(require, exports, module) {
         this.abcSurface.on('touchend',onAbcTouch.bind(this));
 //        window.addEventListener('resize', onResize.bind(this), false);
 
-        $('body').on('keyup', '.search-contact', function(e){
+//        $('body').on('keyup', '.search-contact', function(e){
+//            this.loadContacts(e.target.value);
+//        }.bind(this));
+
+        this.searchSurface.on('keyup', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));
 

@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     // Import core Famous dependencies
     var View             = require('famous/View');
     var Util             = require('famous/Utility');
-    var Surface          = require('famous/Surface');
+    var Surface          = require('app/custom/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var SocialItemView  = require('app/views/contact/SocialItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
@@ -54,7 +54,6 @@ define(function(require, exports, module) {
 //        $('body').on('keyup', '.search-import', function(e){
 //            this.loadContacts(e.target.value);
 //        }.bind(this));
-        // TODO: keyup dont work, using 'click' works fine.
         this.searchSurface.on('keyup', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));

@@ -16,7 +16,7 @@ define(function(require, exports, module) {
         // Set up navigation and title bar information
         this.title = '<button class="left clear-button" id="clear-button"></button>';
         this.title += Templates.recentsToggle();
-        this.title += '<button class="right edit-button"></button>';
+        this.title += '<button class="right edit-button" id="edit-contact"></button>';
         this.navigation = {
             caption: 'Recents',
             icon: '<i class="fa fa-clock-o"></i>'

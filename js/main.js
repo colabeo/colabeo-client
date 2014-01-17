@@ -94,7 +94,7 @@ define(function(require, exports, module) {
         // create the App from the template
         var myApp = new App(config);
         var myLightbox = new LightBox({overlap:true});
-        var addContactView = new AddContactView({collection: this.contactCollection});
+        var addContactView = new AddContactView({});
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
@@ -205,10 +205,9 @@ define(function(require, exports, module) {
         }
 
         // header buttons events
-        $('body').on('click', '.header button.edit-button', function(e){
-            $('body').toggleClass('editing');
-        });
-
+//        $('body').on('click', '.header button.edit-button', function(e){
+//            $('body').toggleClass('editing');
+//        });
 //        $('body').on('click', '.header button.add-contact', function(e){
 //            this.eventOutput.emit('editContact');
 //        }.bind(this));

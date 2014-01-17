@@ -62,12 +62,14 @@ define(function(require, exports, module) {
                 switch (e.target.id)
                 {
                     case 'clear-button':
-                        alert("delete all");
-//                        _.invoke(this.collection.all(), 'destroy');
-//                        this.loadContacts();
+                        _.invoke(this.collection.all(), 'destroy');
+                        this.loadContacts();
                         break;
                     case 'add-contact':
                         this.eventOutput.emit('editContact');
+                        break;
+                    case 'edit-contact':
+                        $('body').toggleClass('editing');
                         break;
                     case 'recent-toggle':
                         this.eventOutput.emit('loadRecent', e);

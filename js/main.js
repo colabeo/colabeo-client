@@ -128,6 +128,14 @@ define(function(require, exports, module) {
         this.eventOutput.on('showApp', onShowApp);
         this.eventOutput.on('chatOn', onChatOn);
         this.eventOutput.on('chatOff', onChatOff);
+        this.eventOutput.on('loadRecent', onLoadRecent);
+
+        function onLoadRecent (e){
+            console.log(e);
+            recentsSection.missedOnly = (e.target.outerText == 'missed');
+            console.log(recentsSection.missedOnly);
+            recentsSection.loadContacts();
+        }
 
         function onShowApp(eventData) {
             var callback;

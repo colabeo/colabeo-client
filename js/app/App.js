@@ -69,6 +69,9 @@ define(function(require, exports, module) {
                     case 'add-contact':
                         this.eventOutput.emit('editContact');
                         break;
+                    case 'recent-toggle':
+                        this.eventOutput.emit('loadRecent', e);
+                        break;
                 }
             }.bind(this));
 //            EventHandler.setOutputHandler(this, this.header._surfaces[data.id])

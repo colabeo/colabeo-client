@@ -51,10 +51,10 @@ define(function(require, exports, module) {
 //            this.loadContacts();
 //        }.bind(this));
 
-        $('body').on('click', '.header input[name=recents-toggle]', function(e){
-            this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');
-            this.loadContacts();
-        }.bind(this));
+//        $('body').on('click', '.header input[name=recents-toggle]', function(e){
+//            this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');
+//            this.loadContacts();
+//        }.bind(this));
 
         this.collection.fetch();
     }

@@ -67,9 +67,9 @@ define(function(require, exports, module) {
 
     function recentsToggle() {
         var html = '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>';
-        html += '<label for="all" class="first">all</label>';
+        html += '<label for="all" class="first" id="recent-toggle">all</label>';
         html += '<input type="radio" id="missed" name="recents-toggle" value="missed">';
-        html += '<label for="missed" class="last">missed</label></div>';
+        html += '<label for="missed" class="last" id="recent-toggle">missed</label></div>';
         return html;
     }
     module.exports = {

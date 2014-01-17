@@ -170,6 +170,8 @@ define(function(require, exports, module) {
             form[formArr[i].name] = formArr[i].value;
         }
         if (form.firstname && form.lastname && form.email) {
+            console.log(this.collection);
+            window.a=this.collection;
             if (this.collection) {
                 this.collection.add(form);
                 // TODO: this is a hack; need scrollview append
@@ -180,7 +182,12 @@ define(function(require, exports, module) {
                 this.model.trigger('sync');
             }
         }
+
         $('.add-contact-view form')[0].reset();
+    };
+    AddContactView.prototype.setContact = function (model, collection){
+        this.model = model;
+        this.collection = collection;
     };
 
     module.exports = AddContactView;

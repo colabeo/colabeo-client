@@ -94,7 +94,7 @@ define(function(require, exports, module) {
         // create the App from the template
         var myApp = new App(config);
         var myLightbox = new LightBox({overlap:true});
-        var addContactView = new AddContactView({});
+        var addContactView = new AddContactView({collection: this.contactCollection});
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
@@ -185,13 +185,10 @@ define(function(require, exports, module) {
         }
 
         function onEditContact(eventData) {
-            if (eventData instanceof Contact) {
-                var contactView = new AddContactView({model: eventData});
-                contactView.pipe(this.eventOutput);
-                myLightbox.show(contactView, true);
-            } else {
-                myLightbox.show(addContactView, true);
-            }
+            if (eventData instanceof Contact) addContactView.setContact(eventData,undefined);
+            else addContactView.setContact(undefined,this.contactCollection);
+            addContactView.renderContact();
+            myLightbox.show(addContactView, true);
         }
 
         function onChatOn() {

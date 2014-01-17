@@ -37,7 +37,11 @@ define(function(require, exports, module) {
         this.eventInput.pipe(this.contentArea);
 
         // navigation events are app events
-        EventHandler.setOutputHandler(this, this.navigation);
+        EventHandler.setOutputHandler(this, this.navigation)
+        this.eventInput = new EventHandler();
+        EventHandler.setInputHandler(this, this.eventInput);
+        this.eventOutput = new EventHandler();
+        EventHandler.setOutputHandler(this, this.eventOutput);
 
         // declare the render nodes
         this._currentSection = undefined;
@@ -53,6 +57,23 @@ define(function(require, exports, module) {
             this._currentSection = data.id;
             this.header.show(this._sectionTitles[data.id]);
             this.contentArea.show(this._sections[data.id].get());
+
+            this.header._surfaces[data.id].on('click', function(e){
+                switch (e.target.id)
+                {
+                    case 'clear-button':
+                        alert("delete all");
+//                        _.invoke(this.collection.all(), 'destroy');
+//                        this.loadContacts();
+                        break;
+                    case 'add-contact':
+                        this.eventOutput.emit('editContact');
+                        break;
+
+                }
+            }.bind(this));
+//            EventHandler.setOutputHandler(this, this.header._surfaces[data.id])
+            this.header._surfaces[data.id].pipe(this.eventOutput);
         }.bind(this));
 
         // assign the layout to this view

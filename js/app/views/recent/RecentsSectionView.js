@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         this.missedOnly = false;
 
         // Set up navigation and title bar information
-        this.title = '<button class="left clear-button"></button>';
+        this.title = '<button class="left clear-button" id="clear-button"></button>';
         this.title += Templates.recentsToggle();
         this.title += '<button class="right edit-button"></button>';
         this.navigation = {
@@ -46,10 +46,10 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        $('body').on('click', '.header button.clear-button', function(e){
-            _.invoke(this.collection.all(), 'destroy');
-            this.loadContacts();
-        }.bind(this));
+//        $('body').on('click', '.header button.clear-button', function(e){
+//            _.invoke(this.collection.all(), 'destroy');
+//            this.loadContacts();
+//        }.bind(this));
 
         $('body').on('click', '.header input[name=recents-toggle]', function(e){
             this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');

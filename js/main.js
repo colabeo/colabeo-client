@@ -100,10 +100,12 @@ define(function(require, exports, module) {
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
         var conversationView = new ConversationView({collection: this.conversations});
         window.myLightbox = myLightbox;
+        myApp.pipe(this.eventOutput);
         outgoingCallView.pipe(this.eventOutput);
         incomingCallView.pipe(this.eventOutput);
         connectedCallView.pipe(this.eventOutput);
         conversationView.pipe(this.eventOutput);
+        addContactView.pipe(this.eventOutput);
         var cameraView = new CameraView({});
 
         // create a display context and hook in the App
@@ -198,13 +200,13 @@ define(function(require, exports, module) {
             $('body').toggleClass('editing');
         });
 
-        $('body').on('click', '.header button.add-contact', function(e){
-            this.eventOutput.emit('editContact');
-        }.bind(this));
-
-        $('body').on('click', '.header button.close-button', function(e){
-            this.eventOutput.emit('showApp');
-        }.bind(this));
+//        $('body').on('click', '.header button.add-contact', function(e){
+//            this.eventOutput.emit('editContact');
+//        }.bind(this));
+//
+//        $('body').on('click', '.header button.close-button', function(e){
+//            this.eventOutput.emit('showApp');
+//        }.bind(this));
 
         // TODO: hack
         window.colabeo = this;
@@ -214,6 +216,8 @@ define(function(require, exports, module) {
         colabeo.cameraView = cameraView;
         colabeo.conversationView = conversationView;
         colabeo.addContactView = addContactView;
+        colabeo.app = myApp;
+
         colabeo.social = {
             Facebook : this.contactCollection,
             Google : this.contactCollection

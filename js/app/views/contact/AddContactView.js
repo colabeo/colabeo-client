@@ -62,6 +62,7 @@ define(function(require, exports, module) {
         edgeSwapper.show(this.headerFooterLayout);
 
         this.content.pipe(this.eventOutput);
+        this.header.pipe(this.eventOutput);
 
         this.renderContact();
 
@@ -70,6 +71,7 @@ define(function(require, exports, module) {
             if (target.hasClass("done-contact")) {
                 this.submitForm();
             }
+            this.eventOutput.emit('showApp');
         }.bind(this));
 
         this.collection = options.collection;
@@ -149,7 +151,7 @@ define(function(require, exports, module) {
 
         this.content.setContent(html);
 
-        var html = '<button class="left close-button cancel-contact">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
+        var html = '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
         this.header.setContent(html);
     }
 

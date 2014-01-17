@@ -52,6 +52,11 @@ define(function(require, exports, module) {
         this.template();
 
         this.content.pipe(this.eventOutput);
+        this.header.pipe(this.eventOutput);
+
+        this.header.on('click', function(e){
+            this.eventOutput.emit('showApp');
+        }.bind(this));
 
     }
 

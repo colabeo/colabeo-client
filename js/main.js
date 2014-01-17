@@ -185,8 +185,8 @@ define(function(require, exports, module) {
         }
 
         function onEditContact(eventData) {
-            if (eventData instanceof Contact) addContactView.setContact(eventData,undefined);
-            else addContactView.setContact(undefined,this.contactCollection);
+            if (eventData instanceof Contact) addContactView.setContact(eventData);
+            else addContactView.setContact(undefined);
             addContactView.renderContact();
             myLightbox.show(addContactView, true);
         }

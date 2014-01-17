@@ -172,22 +172,21 @@ define(function(require, exports, module) {
         if (form.firstname && form.lastname && form.email) {
             console.log(this.collection);
             window.a=this.collection;
-            if (this.collection) {
-                this.collection.add(form);
-                // TODO: this is a hack; need scrollview append
-                this.collection.trigger('sync');
-            } else if (this.model) {
+            if (this.model) {
                 this.model.set(form);
                 // TODO: this is a hack; need scrollview append
                 this.model.trigger('sync');
+            } else if (this.collection) {
+                this.collection.add(form);
+                // TODO: this is a hack; need scrollview append
+                this.collection.trigger('sync');
             }
         }
 
         $('.add-contact-view form')[0].reset();
     };
-    AddContactView.prototype.setContact = function (model, collection){
+    AddContactView.prototype.setContact = function (model){
         this.model = model;
-        this.collection = collection;
     };
 
     module.exports = AddContactView;

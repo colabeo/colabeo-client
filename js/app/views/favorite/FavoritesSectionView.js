@@ -11,7 +11,7 @@ define(function(require, exports, module) {
         View.call(this);
 
         // Set up navigation and title bar information
-        this.title = '<button class="left edit-button"></button><div>Favorites</div>';
+        this.title = '<button class="left edit-button" id="edit-contact"></button><div>Favorites</div>';
         this.navigation = {
             caption: 'Favorites',
             icon: '<i class="fa fa-star"></i>'

@@ -104,8 +104,12 @@ define(function(require, exports, module) {
                 Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
             }.bind(this));
         }
-
     };
+
+    RecentsSectionView.prototype.setMissOnly = function(miss){
+        this.missedOnly = (miss == 'missed');
+    }
+
 
     module.exports = RecentsSectionView;
 });

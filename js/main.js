@@ -131,9 +131,7 @@ define(function(require, exports, module) {
         this.eventOutput.on('loadRecent', onLoadRecent);
 
         function onLoadRecent (e){
-            console.log(e);
-            recentsSection.missedOnly = (e.target.outerText == 'missed');
-            console.log(recentsSection.missedOnly);
+            recentsSection.setMissOnly(e.target.outerText);
             recentsSection.loadContacts();
         }
 

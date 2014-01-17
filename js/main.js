@@ -179,6 +179,7 @@ define(function(require, exports, module) {
         function onEditContact(eventData) {
             if (eventData instanceof Contact) {
                 var contactView = new AddContactView({model: eventData});
+                contactView.pipe(this.eventOutput);
                 myLightbox.show(contactView, true);
             } else {
                 myLightbox.show(addContactView, true);

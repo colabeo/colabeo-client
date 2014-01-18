@@ -57,27 +57,7 @@ define(function(require, exports, module) {
             this._currentSection = data.id;
             this.header.show(this._sectionTitles[data.id]);
             this.contentArea.show(this._sections[data.id].get());
-
-            this.header._surfaces[data.id].on('click', function(e){
-                switch (e.target.id)
-                {
-                    case 'clear-button':
-                        _.invoke(this.collection.all(), 'destroy');
-                        this.loadContacts();
-                        break;
-                    case 'add-contact':
-                        this.eventOutput.emit('editContact');
-                        break;
-                    case 'edit-contact':
-                        $('body').toggleClass('editing');
-                        break;
-                    case 'recent-toggle':
-                        this.eventOutput.emit('loadRecent', e);
-                        break;
-                }
-            }.bind(this));
-//            EventHandler.setOutputHandler(this, this.header._surfaces[data.id])
-            this.header._surfaces[data.id].pipe(this.eventOutput);
+//            if (!this.header._surfaces[data.id].eventHandled) this.onHeaderClick(data);
         }.bind(this));
 
         // assign the layout to this view
@@ -161,6 +141,28 @@ define(function(require, exports, module) {
             }
         }.bind(this));
     };
+
+    App.prototype.onHeaderClick = function(data){
+        this.header._surfaces[data.id].eventHandled = true;
+        this.header._surfaces[data.id].on('click', function(e){
+            switch (e.target.id)
+            {
+                case 'clear-button':
+                    this.eventOutput.emit('clearRecent');
+                    break;
+                case 'add-contact':
+                    this.eventOutput.emit('editContact');
+                    break;
+                case 'edit-contact':
+                    $('body').toggleClass('editing');
+                    break;
+                case 'recent-toggle':
+                    this.eventOutput.emit('loadRecent', e);
+                    break;
+            }
+        }.bind(this));
+        this.header._surfaces[data.id].pipe(this.eventOutput);
+    }
 
     module.exports = App;
 });

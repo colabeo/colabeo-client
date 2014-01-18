@@ -129,9 +129,16 @@ define(function(require, exports, module) {
         this.eventOutput.on('chatOn', onChatOn);
         this.eventOutput.on('chatOff', onChatOff);
         this.eventOutput.on('loadRecent', onLoadRecent);
+        this.eventOutput.on('clearRecent', onClearRecent);
+        this.eventOutput.on('onEngineClick', onEngineClick);
 
         function onLoadRecent (e){
             recentsSection.setMissOnly(e.target.outerText);
+            recentsSection.loadContacts();
+        }
+
+        function onClearRecent (e){
+            recentsSection.clearContact();
             recentsSection.loadContacts();
         }
 
@@ -199,6 +206,26 @@ define(function(require, exports, module) {
             cameraView.turnOff();
         }
 
+        FamousEngine.on('click', function(e){this.eventOutput.emit('onEngineClick', e)}.bind(this));
+
+        function onEngineClick(e) {
+            switch (e.target.id)
+            {
+                case 'clear-button':
+                    this.eventOutput.emit('clearRecent');
+                    break;
+                case 'add-contact':
+                    this.eventOutput.emit('editContact');
+                    break;
+                case 'edit-contact':
+                    $('body').toggleClass('editing');
+                    break;
+                case 'recent-toggle':
+                    this.eventOutput.emit('loadRecent', e);
+                    break;
+            }
+        }
+
         // header buttons events
 //        $('body').on('click', '.header button.edit-button', function(e){
 //            $('body').toggleClass('editing');
@@ -220,6 +247,7 @@ define(function(require, exports, module) {
         colabeo.conversationView = conversationView;
         colabeo.addContactView = addContactView;
         colabeo.app = myApp;
+        colabeo.engine = FamousEngine;
 
         colabeo.social = {
             Facebook : this.contactCollection,

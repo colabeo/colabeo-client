@@ -170,8 +170,6 @@ define(function(require, exports, module) {
             form[formArr[i].name] = formArr[i].value;
         }
         if (form.firstname && form.lastname && form.email) {
-            console.log(this.collection);
-            window.a=this.collection;
             if (this.model) {
                 this.model.set(form);
                 // TODO: this is a hack; need scrollview append

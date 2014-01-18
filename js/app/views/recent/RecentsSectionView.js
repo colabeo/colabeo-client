@@ -106,6 +106,10 @@ define(function(require, exports, module) {
         }
     };
 
+    RecentsSectionView.prototype.clearContact = function(){
+        _.invoke(this.collection.all(), 'destroy');
+    }
+
     RecentsSectionView.prototype.setMissOnly = function(miss){
         this.missedOnly = (miss == 'missed');
     }

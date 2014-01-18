@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var FavoriteItemView  = require('app/views/favorite/FavoriteItemView');
+    var FavoriteItemView  = require('views/favorite/FavoriteItemView');
 
     function FavoritesSectionView(options) {
 

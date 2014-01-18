@@ -6,7 +6,7 @@ define(function(require, exports, module) {
     var Matrix = require('famous/Matrix');
     var Easing = require('famous-animation/Easing');
     var UpDownTransform = require('app/custom/UpDownTransform');
-    var SocialView = require('app/views/contact/SocialView');
+    var SocialView = require('views/contact/SocialView');
 
     function ImportContactView(options){
         HeaderFooterLayout.call(this);

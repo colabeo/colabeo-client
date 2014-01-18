@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var RecentItemView   = require('app/views/recent/RecentItemView');
+    var RecentItemView   = require('views/recent/RecentItemView');
     var Templates        = require('app/custom/Templates');
     var Engine           = require('famous/Engine');
 

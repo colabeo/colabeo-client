@@ -6,7 +6,7 @@ define(function(require, exports, module) {
     var Matrix = require('famous/Matrix');
     var Easing = require('famous-animation/Easing');
     var UpDownTransform = require('app/custom/UpDownTransform');
-    var ImportContactView = require('app/views/contact/ImportContactView');
+    var ImportContactView = require('views/contact/ImportContactView');
     var ContactCollection = require('app/models/ContactCollection');
     var View = require('famous/View');
     var EdgeSwapper = require('famous-views/EdgeSwapper');

@@ -4,7 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var ContactItemView  = require('app/views/contact/ContactItemView');
+    var ContactItemView  = require('views/contact/ContactItemView');
     var Matrix           = require('famous/Matrix');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
     var Utility = require('famous/Utility');

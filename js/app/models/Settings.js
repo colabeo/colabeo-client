@@ -1,4 +1,6 @@
 define(function(require, exports, module) {
+    require("lib/backboneLocalStorage");
+
     // Generic Backbone Model
     module.exports = Backbone.Model.extend({
         localStorage: new Backbone.LocalStorage("colabeo-settings"),

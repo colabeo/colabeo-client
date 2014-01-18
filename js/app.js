@@ -16,16 +16,16 @@ define(function(require, exports, module) {
     var ConversationCollection = require('app/models/ConversationCollection');
 
     // import views
-    var CameraView = require("app/views/CameraView");
-    var AddContactView = require("app/views/contact/AddContactView");
-    var OutgoingCallView = require("app/views/call/OutgoingCallView");
-    var IncomingCallView = require("app/views/call/IncomingCallView");
-    var ConnectedCallView = require('app/views/call/ConnectedCallView');
-    var ConversationView = require('app/views/Conversation/ConversationView');
-    var FavoritesSectionView = require('app/views/favorite/FavoritesSectionView');
-    var RecentsSectionView = require('app/views/recent/RecentsSectionView');
-    var ContactsSectionView = require('app/views/contact/ContactsSectionView');
-    var SettingsSectionView = require('app/views/setting/SettingsSectionView');
+    var CameraView = require("views/CameraView");
+    var AddContactView = require("views/contact/AddContactView");
+    var OutgoingCallView = require("views/call/OutgoingCallView");
+    var IncomingCallView = require("views/call/IncomingCallView");
+    var ConnectedCallView = require('views/call/ConnectedCallView');
+    var ConversationView = require('views/Conversation/ConversationView');
+    var FavoritesSectionView = require('views/favorite/FavoritesSectionView');
+    var RecentsSectionView = require('views/recent/RecentsSectionView');
+    var ContactsSectionView = require('views/contact/ContactsSectionView');
+    var SettingsSectionView = require('views/setting/SettingsSectionView');
 
     // import app
     var config = require('app/config');

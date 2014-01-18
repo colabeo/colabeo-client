@@ -3,12 +3,19 @@ define(function(require, exports, module) {
     var Settings    = require("app/models/Settings");
     var Call = require("app/models/Call");
 
+    var defaultIceConfig = {'iceServers': [
+        { url: 'stun:stun.l.google.com:19302' }
+    ]};
+
     function MainController(options) {
         this.eventInput = options.eventInput;
         this.eventOutput = options.eventOutput;
     }
 
     MainController.prototype.init = function() {
+        this.iceServerConfig = defaultIceConfig;
+        // get Xirsys ice config
+        this.getXirsys();
         this.disableNow = false;
         var userId = this.appSettings.get('cid');
         var userFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
@@ -30,8 +37,8 @@ define(function(require, exports, module) {
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
 //        window.addEventListener("message", onMessage.bind(this), false);
-        if (window.demoboBody)
-            window.demoboBody.addEventListener("FromExtension", onExtensionMessage.bind(this));
+        if (window.colabeoBody)
+            window.colabeoBody.addEventListener("FromExtension", onExtensionMessage.bind(this));
     };
 
     MainController.prototype.setupSettingsListener = function() {
@@ -95,7 +102,7 @@ define(function(require, exports, module) {
                 var callee = this.appSettings.get('cid');
                 var roomId = call.get('roomId');
                 if (roomId) {
-                    this.listenRef.child(call.get('roomId')).update({
+                    this.listenRef.child(roomId).update({
                         state : "answered"
                     });
                     this.joinRoom(caller, callee, roomId);
@@ -149,19 +156,20 @@ define(function(require, exports, module) {
 
         // UI stuff
         this.existingCall = call;
-//        console.log("Their ID:" + call.peer);
         call.on('close', this.cleanRoom.bind(this));
     }
 
     MainController.prototype.startRoom = function(caller, callee, roomId)  {
-//        roomId = "A"+caller+callee+roomId+"Z";
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
-        this.peer = new Peer(roomId, { key: '7bihidp9q86c4n29', debug: 0, config: {'iceServers': [
-            { url: 'stun:stun.l.google.com:19302' }
-        ]}});
+        this.peer = new Peer(roomId, {
+//            key: '7bihidp9q86c4n29',
+//            debug: 0,
+            host: 'dashboard.colabeo.com',
+            port: 9000,
+            config: this.iceServerConfig
+        });
         this.peer.on('open', function(){
-            console.log("my ID:" + this.peer.id);
         }.bind(this));
 
         // Receiving a call
@@ -177,18 +185,19 @@ define(function(require, exports, module) {
         }.bind(this));
 
         this.peer.on('error', function(err){
-//            alert(err.message);
         }.bind(this));
     };
 
     MainController.prototype.joinRoom = function(caller, callee, roomId) {
-//        roomId = "A"+caller+callee+roomId+"Z";
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
-        this.peer = new Peer({ key: '7bihidp9q86c4n29', debug: 0, config: {'iceServers': [
-            { url: 'stun:stun.l.google.com:19302' }
-        ]}});
-//        console.log("my ID:" + this.peer.id);
+        this.peer = new Peer({
+//            key: '7bihidp9q86c4n29',
+//            debug: 0,
+            host: 'dashboard.colabeo.com',
+            port: 9000,
+            config: this.iceServerConfig
+        });
         setTimeout(function(){
             // Initiate a call!
             var call = this.peer.call(roomId, this.localStream);
@@ -197,43 +206,45 @@ define(function(require, exports, module) {
 
             var conn = this.peer.connect(roomId, {
                 label: 'chat',
-//                serialization: 'none',
                 reliable: false
             });
             this.setupPeerConn(conn);
-
         }.bind(this),1000);
     };
 
     MainController.prototype.getXirsys = function(callback) {
         $.post("https://api.xirsys.com/getIceServers",
             {
-                domain: "54.193.20.66",
+                domain: "dashboard.colabeo.com",
                 room: "default",
                 application: "default",
                 ident: "chapman",
                 secret: "02f0e22c-764e-4939-8042-4ea028e9b8e0",
                 secure: 0
-            },
-            function(data,status){
-                xirsys = jQuery.parseJSON(data);
-                iceServerXIR = xirsys.d;
-                if (callback) callback();
-            });
+            }, function(data,status){
+                if (data) {
+                    var xirsys = JSON.parse(data);
+                    var iceServerXIR = xirsys.d;
+                    if (iceServerXIR) {
+                        this.iceServerConfig = {
+                            'iceServers': defaultIceConfig.iceServers.concat(iceServerXIR.iceServers)
+                        };
+                    }
+                }
+                if (callback) callback(iceServer);
+            }.bind(this)
+        );
     };
 
     MainController.prototype.setupPeerConn = function(conn) {
-        console.log("setup peer connection",conn);
         this.conn = conn;
         this.conn.on('open', function() {
-            console.log("on connection open");
             // Receive messages
             this.conn.on('data', onMessage.bind(this));
         }.bind(this));
     }
 
     MainController.prototype.exitRoom = function() {
-        console.log("exitRoom");
         if (this.existingCall) {
             this.existingCall.close();
         }
@@ -360,7 +371,6 @@ define(function(require, exports, module) {
             dataType: 'json',
             data: { provider: "email", externalId : externalId },
             success: function(data) {
-//                console.log(JSON.stringify(data));
                 done(data);
             },
             error: function() {
@@ -372,7 +382,7 @@ define(function(require, exports, module) {
     }
     function sendMessage(type, data) {
         if (Utils.isMobile()) return;
-        if (!window.demoboBody)
+        if (!window.colabeoBody)
             return;
         var evt = new CustomEvent("FromKoala", {
             detail : {
@@ -380,7 +390,7 @@ define(function(require, exports, module) {
                 data : data
             }
         });
-        window.demoboBody.dispatchEvent(evt);
+        window.colabeoBody.dispatchEvent(evt);
     }
     function onExtensionMessage(e) {
         if (this.disableNow) return;
@@ -405,7 +415,6 @@ define(function(require, exports, module) {
         }
     }
     function onMessage(e) {
-        console.log('onMessage: 1 Peer Received', e);
         this.disableNow = true;
         setTimeout(function(){
             this.disableNow = false;

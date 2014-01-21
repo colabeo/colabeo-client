@@ -52,9 +52,8 @@ define(function(require, exports, module) {
     SocialItemView.prototype.constructor = SocialItemView;
 
     SocialItemView.prototype.template = function() {
-        var email = this.model.get('email');
-        var contact = '<div class="import-source">' + email + '</div>';
-        this.surface.setContent(contact);
+        var name = '<div class="import-source">' + this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>" + '</div>';;
+        this.surface.setContent(name);
     };
 
     module.exports = SocialItemView;

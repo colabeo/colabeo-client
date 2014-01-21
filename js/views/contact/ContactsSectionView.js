@@ -95,11 +95,16 @@ define(function(require, exports, module) {
         }.bind(this));
 
 //        this.abcSurface.on('mousedown',onAbcTouch.bind(this));
-        this.abcSurface.on('mousemove',onAbcTouch.bind(this));
+        this.abcSurface.on('mousemove', function(e){
+            this.onAbcTouch(e);
+        }.bind(this));
+        this.abcSurface.on('touchmove', function(e){
+            this.onAbcTouch(e);
+        }.bind(this));
 //        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
-        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
-        this.abcSurface.on('touchmove',onAbcTouch.bind(this));
-        this.abcSurface.on('touchend',onAbcTouch.bind(this));
+//        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
+//        this.abcSurface.on('touchmove',onAbcTouch.bind(this));
+//        this.abcSurface.on('touchend',onAbcTouch.bind(this));
 //        window.addEventListener('resize', onResize.bind(this), false);
 
 //        $('body').on('keyup', '.search-contact', function(e){
@@ -109,16 +114,6 @@ define(function(require, exports, module) {
         this.searchSurface.on('keyup', function(e){
             this.loadContacts(e.target.value);
         }.bind(this));
-
-        function onAbcTouch(e) {
-            if (!this.abcButtons) this.abcButtons = $('.abcButton button');
-//            var index = Math.floor(27*(e.y-$('.abcButton').position().top)/(this.abcButtons.length*this.abcButtons.height()));
-            var index = this.abcButtons.indexOf(e.target);
-            index = this.a2zIndexArray[index];
-            if (index == undefined || index == this.curAbcIndex) return;
-            this.curAbcIndex = index;
-            this.scrollTo(index);
-        }
 
         function onResize(e) {
             console.log('resize');
@@ -151,7 +146,7 @@ define(function(require, exports, module) {
 
         while (this.a2zIndexArray.indexOf(-1) != -1){
             this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
-        };
+        }
         
         // added empty item
         // media access bar messed up the height so add 40
@@ -165,7 +160,7 @@ define(function(require, exports, module) {
         if (extraHeight > 0) {
             var emptySurface = new Surface({
                 size: [undefined, extraHeight]
-            })
+            });
             emptySurface.pipe(this.eventOutput);
             sequence.push(emptySurface);
         }
@@ -205,6 +200,16 @@ define(function(require, exports, module) {
         surface.pipe(this.eventOutput);
         return surface;
     };
+
+    ContactsSection.prototype.onAbcTouch = function(e) {
+        if (!this.abcButtons) this.abcButtons = $('.abcButton button');
+//            var index = Math.floor(27*(e.y-$('.abcButton').position().top)/(this.abcButtons.length*this.abcButtons.height()));
+        var index = this.abcButtons.indexOf(e.target);
+        index = this.a2zIndexArray[index];
+        if (index == undefined || index == this.curAbcIndex) return;
+        this.curAbcIndex = index;
+        this.scrollTo(index);
+    }
 
     module.exports = ContactsSection;
 });

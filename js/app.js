@@ -249,10 +249,7 @@ define(function(require, exports, module) {
         colabeo.app = myApp;
         colabeo.engine = FamousEngine;
 
-        colabeo.social = {
-            Facebook : this.contactCollection,
-            Google : this.contactCollection
-        };
+        colabeo.social = {};
     }.bind(this));
 
 });

@@ -31,9 +31,7 @@ define(function(require, exports, module) {
         this.surface.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("import-source")) {
-                //TODO: add function
-                this.eventOutput.emit('importSource', this.model);
-                this.eventOutput.emit('goBack');
+                this.eventOutput.emit('goBack', this.model);
             }
         }.bind(this));
 

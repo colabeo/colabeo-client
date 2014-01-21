@@ -360,6 +360,22 @@ define(function(require, exports, module) {
         });
     };
 
+    MainController.prototype.loadContact = function(source, done) {
+        $.ajax({
+            url: '/contact/' + source,
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                if (done) done(data);
+            },
+            error: function() {
+                console.log('error');
+                // TODO: temp dev user
+                if (done) done({});
+            }
+        });
+    };
+
     MainController.prototype.onSyncButton = function() {
         sendMessage("event", {data: {action:"sync"}});
     };
@@ -426,6 +442,13 @@ define(function(require, exports, module) {
         }
         sendMessage("event", evt);
     }
+
+    // extra underscore util functions
+    _.mixin({
+        capitalize: function(string) {
+            return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
+        }
+    });
 
     module.exports = MainController;
 });

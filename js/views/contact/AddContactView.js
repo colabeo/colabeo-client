@@ -10,6 +10,8 @@ define(function(require, exports, module) {
     var ContactCollection = require('app/models/ContactCollection');
     var View = require('famous/View');
     var EdgeSwapper = require('famous-views/EdgeSwapper');
+    var SocialContactCollection = require('app/models/SocialContactCollection');
+    var Contact = require('app/models/Contact');
 
     function AddContactView(options) {
         View.call(this);
@@ -80,12 +82,32 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass('import-contact')){
                 var source = target[0].id;
-                //TODO: pull collections from server
-                var newSocialView = new ImportContactView({
-                    title: source,
-                    collection: colabeo.social[source]});
-                newSocialView.pipe(this.eventOutput);
-                edgeSwapper.show(newSocialView, true);
+                if (!colabeo.social[source]) {
+                    colabeo.social[source] = new SocialContactCollection();
+                    colabeo.social[source].url = 'contact/'+source;
+                    colabeo.social[source].fetch({
+                        success : onDataHandler.bind(this),
+                        error: onErrorHandler.bind(this)
+                    });
+                } else {
+                    onDataHandler.bind(this)();
+                }
+                function onDataHandler() {
+                    if (colabeo.social[source].models.length) {
+                        //TODO: pull collections from server
+                        var newSocialView = new ImportContactView({
+                            title: _(source).capitalize(),
+                            collection: colabeo.social[source]});
+                        newSocialView.pipe(this.eventOutput);
+                        edgeSwapper.show(newSocialView, true);
+                    } else {
+                        alert("Please link your account to " + _(source).capitalize());
+                    }
+                }
+                function onErrorHandler() {
+                    alert("Please link your account to " + _(source).capitalize());
+                }
+
             }
         }.bind(this));
 
@@ -97,10 +119,27 @@ define(function(require, exports, module) {
             console.log('The first name is: ' + eventData.attributes.firstname);
             console.log('The last name is: ' + eventData.attributes.lastname);
             console.log('The email is: ' + eventData.attributes.email);
+
+            if (!this.model) {
+                var newContact = {
+                    firstname: eventData.attributes.firstname,
+                    lastname: eventData.attributes.lastname,
+                    email: eventData.attributes.email
+                };
+                if (eventData.attributes.provider)
+                    newContact[eventData.attributes.provider] = eventData.attributes;
+                this.fillFrom(new Contact(newContact));
+            } else {
+                if (eventData.attributes.provider)
+                    this.model[eventData.attributes.provider] = eventData.attributes;
+                this.fillFrom(this.model);
+            }
         }
 
-        function onGoBack(){
-            edgeSwapper.show(this.headerFooterLayout, true);
+        function onGoBack(eventData){
+            edgeSwapper.show(this.headerFooterLayout, true, function() {
+                onImportSource.bind(this)(eventData);
+            }.bind(this));
         }
     }
 
@@ -133,18 +172,20 @@ define(function(require, exports, module) {
         html += '></div>';
 
         html += '<div class="box">';
-        html += '<div class="info import-contact" id="Google"><i class="fa fa-google-plus-square fa-lg"></i>';
-        if (this.model && this.model.get('google'))
-            html += '<span><input type="text" readonly>'+ this.model.get('google') +'</input></span>';
-        else
-            html += "  New Google Contact";
+        html += '<div class="info import-contact" id="google"><i class="fa fa-google-plus-square fa-lg"></i>';
+        if (this.model && this.model.get('google')) {
+            var obj = this.model.get('google');
+            html += '<span>  ' + obj.firstname + ' ' + obj.lastname +'</span>';
+        } else
+            html += "<span>  New Google Contact</span>";
         html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
 
-        html += '<div class="info import-contact" id="Facebook"><i class="fa fa-facebook-square fa-lg"></i>';
-        if (this.model && this.model.get('facebook'))
-            html += '<span><input type="text" readonly>'+ this.model.get('facebook') +'</input></span>';
-        else
-            html += "  New Facebook Contact";
+        html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg"></i>';
+        if (this.model && this.model.get('facebook')) {
+            var obj = this.model.get('facebook');
+            html += '<span>  ' + obj.firstname + ' ' + obj.lastname +'</span>';
+        } else
+            html += "<span>  New Facebook Contact</span>";
         html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
 
         html += '</form>';
@@ -155,11 +196,16 @@ define(function(require, exports, module) {
         this.header.setContent(html);
     }
 
-    AddContactView.prototype.fillFrom = function() {
-        if (this.model) {
-            $('[name=firstname]').val(this.model.attributes.firstname);
-            $('[name=lastname]').val(this.model.attributes.lastname);
-            $('[name=email]').val(this.model.attributes.email);
+    AddContactView.prototype.fillFrom = function(contact) {
+        console.log(contact, $('[name=firstname]'));
+        if (contact) {
+            $('[name=firstname]').val(contact.attributes.firstname);
+            $('[name=lastname]').val(contact.attributes.lastname);
+            $('[name=email]').val(contact.attributes.email);
+            if (contact.attributes.facebook)
+                $('#facebook span').text(contact.attributes.facebook.firstname + " " + contact.attributes.facebook.lastname);
+            if (contact.attributes.google)
+                $('#google span').text(contact.attributes.google.firstname + " " + contact.attributes.google.lastname);
         }
     };
 
@@ -169,7 +215,7 @@ define(function(require, exports, module) {
         for (var i in formArr) {
             form[formArr[i].name] = formArr[i].value;
         }
-        if (form.firstname && form.lastname && form.email) {
+        if (form.firstname && form.lastname && (form.email || form.facebook || form.google)) {
             if (this.model) {
                 this.model.set(form);
                 // TODO: this is a hack; need scrollview append

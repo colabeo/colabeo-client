@@ -9,7 +9,7 @@ define(function(require, exports, module) {
 
     // Import app specific dependencies
 
-    function SocialItemView(options) {
+    function SocialItemView(options, isFirst) {
         View.call(this);
 
         this.model = options.model;
@@ -21,6 +21,7 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         var height = 51;
+        if (isFirst) height = 77;
 
         this.surface = new Surface({
             classes: ['import-item', 'editable'],
@@ -35,7 +36,7 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        this.template();
+        this.template(isFirst);
 
         this.surface.pipe(this.eventOutput);
 
@@ -49,9 +50,19 @@ define(function(require, exports, module) {
     SocialItemView.prototype = Object.create(View.prototype);
     SocialItemView.prototype.constructor = SocialItemView;
 
-    SocialItemView.prototype.template = function() {
-        var name = '<div class="import-source">' + this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>" + '</div>';;
-        this.surface.setContent(name);
+    SocialItemView.prototype.template = function(isFirst) {
+        var name;
+        var initial;
+        if (this.model.get('firstname') && this.model.get('lastname')) {
+            name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
+            initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
+        } else {
+            name = this.model.get('email');
+        }
+        var contact = '<div class="import-source">' + name + '</div>';
+        contact = Templates.deleteButton() + Templates.favoriteButton(this.model.get('favorite')) + contact;
+        if (isFirst) contact = '<div class="first-char">' + isFirst + '</div>' + contact;
+        this.surface.setContent(contact);
     };
 
     module.exports = SocialItemView;

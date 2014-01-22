@@ -75,7 +75,7 @@ define(function(require, exports, module) {
     ContactItemView.prototype.template = function(isFirst) {
         var name;
         var initial;
-        if (this.model.get('firstname') && this.model.get('lastname')) {
+        if (this.model.get('firstname') || this.model.get('lastname')) {
             name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
             initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
         } else {

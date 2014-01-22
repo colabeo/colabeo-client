@@ -215,7 +215,7 @@ define(function(require, exports, module) {
         for (var i in formArr) {
             form[formArr[i].name] = formArr[i].value;
         }
-        if (form.firstname && form.lastname && (form.email || form.facebook || form.google)) {
+        if ((form.firstname || form.lastname)) {
             if (this.model) {
                 this.model.set(form);
                 // TODO: this is a hack; need scrollview append

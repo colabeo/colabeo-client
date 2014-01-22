@@ -315,15 +315,16 @@ define(function(require, exports, module) {
         if (!id) return;
         this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
         var callerFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
-        this.callRef.push({
+        var callObj = {
             name : this.appSettings.get('cid'),
             person : callerFullName,
             firstname : this.appSettings.get('firstname'),
             lastname : this.appSettings.get('lastname'),
-            email : this.appSettings.get('email'),
             state : "calling"
-        });
-
+        };
+        if (this.appSettings.get('email')) callObj.email = this.appSettings.get('email');
+        if (this.appSettings.get('username')) callObj.username = this.appSettings.get('username');
+        this.callRef.push(callObj);
         this.callRef.on('child_changed', onChanged.bind(this));
         this.callRef.on('child_removed', onRemove.bind(this));
 
@@ -443,7 +444,7 @@ define(function(require, exports, module) {
         sendMessage("event", evt);
     }
 
-    // extra underscore util functions
+    // underscore util functions
     _.mixin({
         capitalize: function(string) {
             return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();

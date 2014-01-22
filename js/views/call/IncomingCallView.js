@@ -111,7 +111,7 @@ define(function(require, exports, module) {
             html += '<div class="initial">'+initial+'</div>';
         }
 
-        html += '<div class="caller-info">FamousTime...</div>';
+        html += '<div class="caller-info">Colabeo</div>';
 
         this.header.setContent(html);
     };

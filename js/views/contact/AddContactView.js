@@ -72,8 +72,10 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass("done-contact")) {
                 this.submitForm();
+                this.eventOutput.emit('showApp');
+            } else if (target.hasClass("close-button")){
+                this.eventOutput.emit('showApp');
             }
-            this.eventOutput.emit('showApp');
         }.bind(this));
 
         this.collection = options.collection;

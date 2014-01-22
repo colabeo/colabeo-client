@@ -55,7 +55,7 @@ define(function(require, exports, module) {
         this.header.pipe(this.eventOutput);
 
         this.header.on('click', function(e){
-            this.eventOutput.emit('showApp');
+            if (target.hasClass("close-button")) this.eventOutput.emit('showApp');
         }.bind(this));
 
     }

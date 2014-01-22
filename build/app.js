@@ -75,8 +75,12 @@ Famous(function(require,exports,module){
             email: data.email,
             firstname: data.firstname,
             lastname: data.lastname,
-            username: data.username
+            username: data.username,
+            linkAccounts: {
+                facebook: (data.authData && data.authData.facebook)
+            }
         });
+        this.appSettings.me = data;
         this.mainController.appSettings = this.appSettings;
         this.mainController.init();
 
@@ -261,20 +265,16 @@ Famous(function(require,exports,module){
 //        }.bind(this));
 
         // TODO: hack
-        window.colabeo = this;
-        colabeo.recentsSection = recentsSection;
-        colabeo.contactsSection = contactsSection;
-        colabeo.favoritesSection = favoritesSection;
-        colabeo.cameraView = cameraView;
-        colabeo.conversationView = conversationView;
-        colabeo.addContactView = addContactView;
-        colabeo.app = myApp;
-        colabeo.engine = FamousEngine;
-
-        colabeo.social = {
-            Facebook : this.contactCollection,
-            Google : this.contactCollection
-        };
+//        window.colabeo = this;
+//        colabeo.recentsSection = recentsSection;
+//        colabeo.contactsSection = contactsSection;
+//        colabeo.favoritesSection = favoritesSection;
+//        colabeo.cameraView = cameraView;
+//        colabeo.conversationView = conversationView;
+//        colabeo.addContactView = addContactView;
+//        colabeo.app = myApp;
+//        colabeo.engine = FamousEngine;
+//        colabeo.social = {};
     }.bind(this));
 
 });

@@ -522,6 +522,12 @@ input {
     cursor: pointer;
 }
 
+.import-item .first-char {
+    background-color: rgba(0,0,0,0.5);
+    line-height: 26px;
+    padding: 0px 20px;
+}
+
 .import-section-search-bar{
     padding: 10px;
     font-size: 20px;
@@ -803,4 +809,8 @@ input {
 .recent-toggle label.last {
     border-radius: 0px 5px 5px 0px;
     width: 45px;
+}
+
+.disabled {
+    opacity: 0.2;
 }

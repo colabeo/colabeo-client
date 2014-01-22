@@ -310,7 +310,10 @@ define(function(require, exports, module) {
         multipleLookup(query, function(result) {
             if (result.length) {
                 var callee = result[0];
-                if (callee.cid) this.callById(callee.cid);
+                var cid;
+                if (callee.user && callee.user.objectId) cid = callee.user.objectId;
+                else if (callee.objectId) cid = callee.objectId;
+                this.callById(cid, callee.provider);
             }
             else {
                 console.log('The user you are calling is not an colabeo user, I don\'t know what to do.');
@@ -337,7 +340,7 @@ define(function(require, exports, module) {
         }.bind(this));
     };
 
-    MainController.prototype.callById = function(id) {
+    MainController.prototype.callById = function(id, provider) {
         if (!id) return;
         this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
         var callerFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');

@@ -304,7 +304,8 @@ define(function(require, exports, module) {
         if (data.get('facebook')) {
             query.push({provider:'facebook',eid:data.get('facebook').id});
         }
-        query = encodeURIComponent(JSON.stringify(query));
+//        query = encodeURIComponent(JSON.stringify(query));
+        query = JSON.stringify(query);
         console.log(query);
         multipleLookup(query, function(result) {
             if (result.length) {

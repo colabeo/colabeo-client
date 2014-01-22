@@ -143,6 +143,7 @@ define(function(require, exports, module) {
             firstname: data.firstname,
             lastname: data.lastname,
             email: data.email,
+            facebook: data.facebook,
             pictureUrl: false,
             type: 'incoming',
             time: Date.now(),

@@ -151,10 +151,12 @@ define(function(require, exports, module) {
             this.model = this.collection.models[0] || new Call();
             data = this.model.attributes;
         }
+        // TODO: extend data
         var newCall = {
             firstname: data.firstname,
             lastname: data.lastname,
             email: data.email,
+            facebook: data.facebook,
             pictureUrl: false,
             type: 'outgoing',
             time: Date.now()

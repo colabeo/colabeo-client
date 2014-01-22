@@ -243,7 +243,7 @@ define(function(require, exports, module) {
 //        }.bind(this));
 
         // TODO: hack
-//        window.colabeo = this;
+        window.colabeo = this;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
 //        colabeo.favoritesSection = favoritesSection;

@@ -297,6 +297,28 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.callByContact = function(data) {
+        var query = [];
+        if (data.get('email')) {
+            query.push({provider:'email',eid:data.get('email')})
+        }
+        if (data.get('facebook')) {
+            query.push({provider:'facebook',eid:data.get('facebook').id});
+        }
+        query = encodeURIComponent(JSON.stringify(query));
+        console.log(query);
+        multipleLookup(query, function(result) {
+            if (result.length) {
+                var callee = result[0];
+                if (callee.cid) this.callById(callee.cid);
+            }
+            else {
+                console.log('The user you are calling is not an colabeo user, I don\'t know what to do.');
+                console.log(result);
+            }
+        }.bind(this));
+    };
+
+    MainController.prototype.callByContactSingle = function(data) {
         console.log("callByContact", data);
         var externalId = data.get('email');
         var provider = "email";
@@ -390,6 +412,22 @@ define(function(require, exports, module) {
             type: 'get',
             dataType: 'json',
             data: { provider: provider, externalId : externalId },
+            success: function(data) {
+                done(data);
+            },
+            error: function() {
+                console.log('error');
+                // TODO: show default call for now
+                done(new Call());
+            }
+        });
+    }
+    function multipleLookup(query, done) {
+        $.ajax({
+            url: '/findusers',
+            type: 'get',
+            dataType: 'json',
+            data: { query: query },
             success: function(data) {
                 done(data);
             },

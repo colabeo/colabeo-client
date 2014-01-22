@@ -15,7 +15,7 @@ define(function(require, exports, module) {
 
     function AddContactView(options) {
         View.call(this);
-
+        this.social = {};
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: 50,
             footerSize: 0
@@ -82,10 +82,10 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass('import-contact')){
                 var source = target[0].id;
-                if (!colabeo.social[source]) {
-                    colabeo.social[source] = new SocialContactCollection();
-                    colabeo.social[source].url = 'contact/'+source;
-                    colabeo.social[source].fetch({
+                if (!this.social[source]) {
+                    this.social[source] = new SocialContactCollection();
+                    this.social[source].url = 'contact/'+source;
+                    this.social[source].fetch({
                         success : onDataHandler.bind(this),
                         error: onErrorHandler.bind(this)
                     });
@@ -93,11 +93,11 @@ define(function(require, exports, module) {
                     onDataHandler.bind(this)();
                 }
                 function onDataHandler() {
-                    if (colabeo.social[source].models.length) {
+                    if (this.social[source].models.length) {
                         //TODO: pull collections from server
                         var newSocialView = new ImportContactView({
                             title: _(source).capitalize(),
-                            collection: colabeo.social[source]});
+                            collection: this.social[source]});
                         newSocialView.pipe(this.eventOutput);
                         edgeSwapper.show(newSocialView, true);
                     } else {
@@ -131,7 +131,7 @@ define(function(require, exports, module) {
                 this.fillFrom(new Contact(newContact));
             } else {
                 if (eventData.attributes.provider)
-                    this.model[eventData.attributes.provider] = eventData.attributes;
+                    this.model.attributes[eventData.attributes.provider] = eventData.attributes;
                 this.fillFrom(this.model);
             }
         }
@@ -147,6 +147,7 @@ define(function(require, exports, module) {
     AddContactView.prototype.constructor = AddContactView;
 
     AddContactView.prototype.renderContact = function() {
+        this.newContact = {};
         var title = 'New Contact';
         var initial = '<i class="fa fa-user fa-lg"></i>';
         if (this.model) {
@@ -197,37 +198,44 @@ define(function(require, exports, module) {
     }
 
     AddContactView.prototype.fillFrom = function(contact) {
-        console.log(contact, $('[name=firstname]'));
-        if (contact) {
-            $('[name=firstname]').val(contact.attributes.firstname);
-            $('[name=lastname]').val(contact.attributes.lastname);
-            $('[name=email]').val(contact.attributes.email);
-            if (contact.attributes.facebook)
-                $('#facebook span').text(contact.attributes.facebook.firstname + " " + contact.attributes.facebook.lastname);
-            if (contact.attributes.google)
-                $('#google span').text(contact.attributes.google.firstname + " " + contact.attributes.google.lastname);
+        this.newContact = _.extend(this.newContact, contact.attributes);
+        if (this.newContact) {
+            if (!$('[name=firstname]').val()) $('[name=firstname]').val(this.newContact.firstname);
+            if (!$('[name=lastname]').val()) $('[name=lastname]').val(this.newContact.lastname);
+            $('[name=email]').val(this.newContact.email);
+            if (this.newContact.facebook)
+                $('#facebook span').text(this.newContact.facebook.firstname + " " + this.newContact.facebook.lastname);
+            if (this.newContact.google)
+                $('#google span').text(this.newContact.google.firstname + " " + this.newContact.google.lastname);
         }
     };
 
-    AddContactView.prototype.submitForm = function(){
+    AddContactView.prototype.getFormContact = function(){
         var formArr = $('.add-contact-view form').serializeArray();
-        var form = {};
+        var newContact = {};
         for (var i in formArr) {
-            form[formArr[i].name] = formArr[i].value;
+            newContact[formArr[i].name] = formArr[i].value;
         }
-        if ((form.firstname || form.lastname)) {
+        this.newContact = _.extend(this.newContact, newContact);
+        return this.newContact;
+    }
+
+    AddContactView.prototype.submitForm = function(){
+        var newContact = this.getFormContact();
+        if ((newContact.firstname || newContact.lastname)) {
             if (this.model) {
-                this.model.set(form);
+                this.model.set(newContact);
                 // TODO: this is a hack; need scrollview append
                 this.model.trigger('sync');
             } else if (this.collection) {
-                this.collection.add(form);
+                this.collection.add(newContact);
                 // TODO: this is a hack; need scrollview append
                 this.collection.trigger('sync');
             }
         }
-
+        // reset everything
         $('.add-contact-view form')[0].reset();
+        this.newContact = {};
     };
     AddContactView.prototype.setContact = function (model){
         this.model = model;

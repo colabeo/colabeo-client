@@ -1,10 +1,13 @@
 define(function(require, exports, module) {
 
-    function toggleSwitch(id, checked) {
+    function toggleSwitch(id, checked, disabled) {
         var html = '<div class="onoffswitch">';
         html += '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="'+id+'" '
-        if (checked) html += 'checked';
-        html += '><label class="onoffswitch-label" for="'+id+'">';
+        if (checked) html += 'checked ';
+        if (disabled) html += 'disabled ';
+        html += '><label class="onoffswitch-label';
+        if (disabled) html += ' disabled';
+        html +='" for="'+id+'">';
         html += '<div class="onoffswitch-inner"></div>';
         html += '<div class="onoffswitch-switch"></div>';
         html += '</label>';

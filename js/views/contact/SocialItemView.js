@@ -60,7 +60,6 @@ define(function(require, exports, module) {
             name = this.model.get('email');
         }
         var contact = '<div class="import-source">' + name + '</div>';
-        contact = Templates.deleteButton() + Templates.favoriteButton(this.model.get('favorite')) + contact;
         if (isFirst) contact = '<div class="first-char">' + isFirst + '</div>' + contact;
         this.surface.setContent(contact);
     };

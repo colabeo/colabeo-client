@@ -3,25 +3,26 @@ define(function(require, exports, module) {
 
     // Generic Backbone Model
     module.exports = Backbone.Model.extend({
-        localStorage: new Backbone.LocalStorage("colabeo-settings"),
+        // if url changed, need new name for the localstorage
+        localStorage: new Backbone.LocalStorage("colabeo-settings-1"),
         defaults: {
-            cid: "sMu7eW1QYY",
-            email: "jeff@colabeo.com",
+            cid: "default",
+            email: "default@colabeo.com",
             linkAccounts: {
                 facebook: false,
-                gmail: false,
+                google: false,
                 linkedin: false,
                 github: false,
                 yammer: false
             },
-            firstname: "Jeff",
-            lastname: "Lin",
+            firstname: "John",
+            lastname: "Colabeo",
             camera: true,
             video: true,
             audio: true,
             blur: undefined,
-            userDatabaseUrl: "https://koalalab-berry.firebaseio.com/users/",
-            callDatabaseUrl: "https://de-berry.firebaseio-demo.com/calls/"
+            userDatabaseUrl: "https://colabeo.firebaseio.com/users/",
+            callDatabaseUrl: "https://colabeo.firebaseio.com/calls/"
         }
     });
 });

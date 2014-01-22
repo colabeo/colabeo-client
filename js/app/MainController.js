@@ -297,8 +297,11 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.callByContact = function(data) {
+        console.log("callByContact", data);
         var externalId = data.get('email');
-        userLookup(externalId, function(result) {
+        var provider = "email";
+        data.get('facebook');
+        userLookup(externalId, provider, function(result) {
             var callee = result.callee;
             if (callee) {
                 var curCallID = callee.objectId;
@@ -381,12 +384,12 @@ define(function(require, exports, module) {
         sendMessage("event", {data: {action:"sync"}});
     };
 
-    function userLookup(externalId, done) {
+    function userLookup(externalId, provider, done) {
         $.ajax({
             url: '/finduser',
             type: 'get',
             dataType: 'json',
-            data: { provider: "email", externalId : externalId },
+            data: { provider: provider, externalId : externalId },
             success: function(data) {
                 done(data);
             },

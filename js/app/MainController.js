@@ -342,6 +342,7 @@ define(function(require, exports, module) {
 
     MainController.prototype.callById = function(id, provider) {
         if (!id) return;
+        console.log(id);
         this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
         var callerFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
         var callObj = {

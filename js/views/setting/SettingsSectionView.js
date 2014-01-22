@@ -154,7 +154,7 @@ define(function(require, exports, module) {
         html += '<button class="logout-button">Log Out</button></div>';
 
         html += '<div class="desc"></div>';
-        html += '<div class="info">ID: ' + this.appSettings.get('email') + "</div>";
+        html += '<div class="info">ID: ' + this.appSettings.get('username') + "</div>";
 
         html += '<div class="desc"></div>';
         html += '<div class="info">Camera ';

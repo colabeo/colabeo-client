@@ -43,7 +43,8 @@ define(function(require, exports, module) {
         }.bind(this));
 
         this.header.on('click', function(e){
-            this.eventOutput.emit('goBack');
+            if ($(e.target).hasClass('back-button'))
+                this.eventOutput.emit('goBack');
         }.bind(this));
 
         this.header.pipe(this.eventOutput);

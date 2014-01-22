@@ -103,11 +103,11 @@ define(function(require, exports, module) {
                         newSocialView.pipe(this.eventOutput);
                         edgeSwapper.show(newSocialView, true);
                     } else {
-                        alert("Please link your account to " + _(source).capitalize());
+                        alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                     }
                 }
                 function onErrorHandler() {
-                    alert("Please link your account to " + _(source).capitalize());
+                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                 }
 
             }
@@ -117,11 +117,7 @@ define(function(require, exports, module) {
         this.eventOutput.on('goBack', onGoBack);
 
         function onImportSource(eventData){
-            console.log(eventData);
-            console.log('The first name is: ' + eventData.attributes.firstname);
-            console.log('The last name is: ' + eventData.attributes.lastname);
-            console.log('The email is: ' + eventData.attributes.email);
-
+            if (!eventData || !eventData.attributes) return;
             if (!this.model) {
                 var newContact = {
                     firstname: eventData.attributes.firstname,

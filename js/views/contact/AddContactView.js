@@ -170,23 +170,23 @@ define(function(require, exports, module) {
         if (this.model)
             html += ' value="' + this.model.get('email') + '"';
         html += '></div>';
-
+        //TODO: this is a hack. we used the same class "import-contact" and id for a target.
         html += '<div class="box">';
-        html += '<div class="info import-contact" id="google"><i class="fa fa-google-plus-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="google"><i class="fa fa-google-plus-square fa-lg import-contact" id="google"></i>';
         if (this.model && this.model.get('google')) {
             var obj = this.model.get('google');
-            html += '<span>  ' + obj.firstname + ' ' + obj.lastname +'</span>';
+            html += '<span class="import-contact" id="google">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
         } else
-            html += "<span>  New Google Contact</span>";
-        html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
+            html += '<span class="import-contact" id="google">  New Google Contact</span>';
+        html += '<i class="arrow fa fa-angle-right fa-lg import-contact" id="google"></i></div>';
 
-        html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg"></i>';
+        html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg import-contact" id="facebook"></i>';
         if (this.model && this.model.get('facebook')) {
             var obj = this.model.get('facebook');
-            html += '<span>  ' + obj.firstname + ' ' + obj.lastname +'</span>';
+            html += '<span class="import-contact" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
         } else
-            html += "<span>  New Facebook Contact</span>";
-        html += '<i class="arrow fa fa-angle-right fa-lg"></i></div>';
+            html += '<span class="import-contact" id="facebook">  New Facebook Contact</span>';
+        html += '<i class="arrow fa fa-angle-right fa-lg import-contact" id="facebook"></i></div>';
 
         html += '</form>';
 

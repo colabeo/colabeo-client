@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     // Import app specific dependencies
     var Call = require('app/models/Call');
     // Todo: hack, need this for packaging
-    require("lib/backboneLocalStorage");
+//    require("lib/backboneLocalStorage");
 
     module.exports = Backbone.Collection.extend({
 

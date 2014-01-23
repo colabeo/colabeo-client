@@ -521,8 +521,19 @@ input {
     margin-right: 8px;
 }
 
+.firstAdd {
+    color:#3398cd;
+    text-align: center;
+    margin-right: 15px;
+    margin-top:150px;
+}
+
+.fa-plus {
+    cursor: pointer;
+}
+
 .fa-envelope{
-    color: #919191;
+    color: #3398cd;
 }
 
 .fa-facebook-square{

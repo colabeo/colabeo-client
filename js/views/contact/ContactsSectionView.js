@@ -161,8 +161,17 @@ define(function(require, exports, module) {
             var emptySurface = new Surface({
                 size: [undefined, extraHeight]
             });
-            emptySurface.pipe(this.eventOutput);
             sequence.push(emptySurface);
+
+            if (this.currentCollection.length == 0) {
+                var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first awesome buddy</div></div>'
+                emptySurface.setContent(firstAdd);
+                emptySurface.pipe(this.eventOutput);
+                emptySurface.on('click',function(e){
+                    if ($(e.target).hasClass('fa-plus'))
+                    this.eventOutput.emit('editContact');
+                }.bind(this))
+            }
         }
 
         this.scrollview.sequenceFrom(sequence);

@@ -163,10 +163,10 @@ define(function(require, exports, module) {
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
         this.peer = new Peer(roomId, {
-//            key: '7bihidp9q86c4n29',
-//            debug: 0,
+            debug: 0,
             host: 'dashboard.colabeo.com',
             port: 9000,
+            secure: true,
             config: this.iceServerConfig
         });
         this.peer.on('open', function(){

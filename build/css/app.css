@@ -453,6 +453,7 @@ input {
 }
 .contact-item .source {
     margin: 0px 20px;
+    margin-right:40px;
     border-bottom: solid thin rgba(255, 255, 255, .2);
     line-height: 50px;
     cursor: pointer;
@@ -512,6 +513,24 @@ input {
 .contact-section-search-bar div input.search-contact{
     font-size : 18px;
     width: 90%;
+}
+
+.contact-icon {
+    float:right;
+    margin-top: 20px;
+    margin-right: 8px;
+}
+
+.fa-envelope{
+    color: #919191;
+}
+
+.fa-facebook-square{
+    color: #3398cd;
+}
+
+.fa-google-plus-square{
+    color: #bf4335;
 }
 
 /* imports */

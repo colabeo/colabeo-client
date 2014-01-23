@@ -73,6 +73,7 @@ define(function(require, exports, module) {
     ContactItemView.prototype.constructor = ContactItemView;
 
     ContactItemView.prototype.template = function(isFirst) {
+        console.log(this.model);
         var name;
         var initial;
         if (this.model.get('firstname') || this.model.get('lastname')) {
@@ -81,9 +82,14 @@ define(function(require, exports, module) {
         } else {
             name = this.model.get('email');
         }
-        var contact = '<div class="source">' + name + '</div>';
+        var contact = '<div class="source">' + name;
         contact = Templates.deleteButton() + Templates.favoriteButton(this.model.get('favorite')) + contact;
         if (isFirst) contact = '<div class="first-char">' + isFirst + '</div>' + contact;
+        if (this.model.attributes.email) contact = contact + '<i class="fa fa-envelope contact-icon"></i>';
+        if (this.model.attributes.facebook) contact = contact + '<i class="fa fa-facebook-square contact-icon"></i>';
+        if (this.model.attributes.google) contact = contact + '<i class="fa fa-google-plus-square contact-icon"></i>';
+        contact += '</div>';
+
         this.surface.setContent(contact);
     };
 

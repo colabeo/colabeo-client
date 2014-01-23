@@ -79,6 +79,9 @@ define(function(require, exports, module) {
         this.abcSurface.on('mousemove',function(e){
             this.onAbcTouch(e);
         }.bind(this));
+        this.abcSurface.on('touchmove',function(e){
+            this.onAbcTouch(e);
+        }.bind(this));
 //        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
 //        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
 //        this.abcSurface.on('touchmove',onAbcTouch.bind(this));

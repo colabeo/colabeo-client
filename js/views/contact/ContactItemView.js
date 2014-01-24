@@ -73,7 +73,7 @@ define(function(require, exports, module) {
     ContactItemView.prototype.constructor = ContactItemView;
 
     ContactItemView.prototype.template = function(isFirst) {
-        console.log(this.model);
+//        console.log(this.model);
         var name;
         var initial;
         if (this.model.get('firstname') || this.model.get('lastname')) {

@@ -114,7 +114,6 @@ define(function(require, exports, module) {
         });
         var html = '<div class="box">' + syncButton + endButton + audioButton + '</div>';
         this.footer.setContent(html);
-
     };
 
     ConnectedCallView.prototype.stop = function(button) {

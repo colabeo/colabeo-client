@@ -57,6 +57,9 @@ define(function(require, exports, module) {
         this.eventOutput.on('setAudio', function() {
             this.setAudio();
         }.bind(this));
+        $('body').on('change', '#audio, #video', function(e){
+            this.appSettings.set($(e.target)[0].id, $(e.target).prop('checked'));
+        }.bind(this));
     };
 
     MainController.prototype.setupCallListener = function() {
@@ -360,9 +363,15 @@ define(function(require, exports, module) {
         };
         if (this.appSettings.get('email')) callObj.email = this.appSettings.get('email');
         if (this.appSettings.get('username')) callObj.username = this.appSettings.get('username');
-        this.callRef.push(callObj);
-        this.callRef.on('child_changed', onChanged.bind(this));
-        this.callRef.on('child_removed', onRemove.bind(this));
+        this.callRef.once("value", function(snapshot) {
+            if(snapshot.val() == null) {
+                this.callRef.push(callObj);
+                this.callRef.once('child_changed', onChanged.bind(this));
+                this.callRef.once('child_removed', onRemove.bind(this));
+            } else {
+                delete this.callRef;
+            }
+        }.bind(this));
 
         function onChanged(snapshot){
             var refCallState = snapshot.val()['state'];

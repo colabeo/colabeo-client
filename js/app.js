@@ -179,11 +179,15 @@ define(function(require, exports, module) {
         }
 
         function onIncomingCall(eventData) {
+            var curView = myLightbox.nodes[0].get();
+            if (curView instanceof OutgoingCallView || curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
+                return;
             incomingCallView.start(eventData);
             myLightbox.show(incomingCallView, true);
         }
 
-        function onCallEnd() {
+        function onCallEnd(eventData) {
+
             this.eventOutput.emit('chatOff');
             // ligntbox shown object stop
             var curView = myLightbox.nodes[0].object;
@@ -250,6 +254,7 @@ define(function(require, exports, module) {
 
         // TODO: hack
         window.colabeo = this;
+        window.myLightbox = myLightbox;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
 //        colabeo.favoritesSection = favoritesSection;

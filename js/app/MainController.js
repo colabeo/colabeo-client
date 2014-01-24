@@ -20,6 +20,9 @@ define(function(require, exports, module) {
         var userId = this.appSettings.get('cid');
         var userFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
         this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + userId);
+        // remove zombie call after disconnect
+        this.listenRef.onDisconnect().remove();
+
         if (Utils.isMobile()) {
             $('body').addClass('mobile');
             if (this.appSettings.get('blur') == undefined)
@@ -86,7 +89,7 @@ define(function(require, exports, module) {
 
         }
         function onRemove(snapshot){
-            this.eventOutput.emit('callEnd');
+            this.eventOutput.emit('callEnd', snapshot);
         }
         function onOutgoingCallEnd(call) {
             if (this.callRef) this.callRef.remove();
@@ -163,7 +166,7 @@ define(function(require, exports, module) {
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
         this.peer = new Peer(roomId, {
-            debug: 0,
+//            debug: 0,
             host: 'dashboard.colabeo.com',
             port: 9000,
             secure: true,
@@ -344,6 +347,9 @@ define(function(require, exports, module) {
         if (!id) return;
         console.log(id);
         this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
+        // remove zombie call after disconnect
+        this.callRef.onDisconnect().remove();
+
         var callerFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
         var callObj = {
             name : this.appSettings.get('cid'),
@@ -371,7 +377,7 @@ define(function(require, exports, module) {
             }
         }
         function onRemove(snapshot){
-            this.eventOutput.emit('callEnd');
+            this.eventOutput.emit('callEnd', snapshot);
         }
     };
 

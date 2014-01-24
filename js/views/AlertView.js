@@ -76,7 +76,7 @@ define(function(require, exports, module) {
     AlertView.prototype.constructor = AlertView;
 
     AlertView.prototype.setAlertMessage = function (message){
-        var content = '<div class="alert-title">WoW</div><div id="message">' + message + '</div> <div id="close-alert"> OK </div>'
+        var content = '<div class="alert-title"><b>WoW</b></div><div id="message">' + message + '</div> <div id="close-alert"> OK </div>'
         this.alertSurface.setContent(content);
     }
 

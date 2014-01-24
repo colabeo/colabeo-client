@@ -871,6 +871,7 @@ input {
     left: 70px;
     border-radius: 10px;
     padding-top: 8px;
+    cursor: pointer;
 }
 
 .ccolor{

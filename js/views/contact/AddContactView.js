@@ -151,7 +151,7 @@ define(function(require, exports, module) {
         this.newContact = {};
         var title = 'New Contact';
         var initial = '<i class="fa fa-user fa-lg"></i>';
-        if (this.model) {
+        if (this.model instanceof Contact) {
             title = 'Edit Contact';
             initial = this.model.get('firstname')[0]+this.model.get('lastname')[0];
         }

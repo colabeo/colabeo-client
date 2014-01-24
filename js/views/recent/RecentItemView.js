@@ -34,7 +34,10 @@ define(function(require, exports, module) {
                 this.model.destroy();
             }
             else {
-                this.eventOutput.emit('outgoingCall', this.model);
+                if ($('body').hasClass('editing'))
+                    this.eventOutput.emit('editContact', this.model);
+                else
+                    this.eventOutput.emit('outgoingCall', this.model);
             }
         }.bind(this));
 

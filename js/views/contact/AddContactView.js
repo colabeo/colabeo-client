@@ -12,6 +12,9 @@ define(function(require, exports, module) {
     var EdgeSwapper = require('famous-views/EdgeSwapper');
     var SocialContactCollection = require('app/models/SocialContactCollection');
     var Contact = require('app/models/Contact');
+    // import models
+    var Contact = require("app/models/Contact");
+    var Call = require("app/models/Call");
 
     function AddContactView(options) {
         View.call(this);
@@ -221,11 +224,11 @@ define(function(require, exports, module) {
     AddContactView.prototype.submitForm = function(){
         var newContact = this.getFormContact();
         if ((newContact.firstname || newContact.lastname)) {
-            if (this.model) {
+            if (this.model instanceof Contact) {
                 this.model.set(newContact);
                 // TODO: this is a hack; need scrollview append
                 this.model.trigger('sync');
-            } else if (this.collection) {
+            } else if (this.collection || this.model instanceof Call) {
                 this.collection.add(newContact);
                 // TODO: this is a hack; need scrollview append
                 this.collection.trigger('sync');

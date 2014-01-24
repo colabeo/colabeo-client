@@ -43,7 +43,7 @@ define(function(require, exports, module) {
             size: [340, 220],
             properties:{
                 borderRadius: "10px",
-                background: "rgba(59, 59, 59, 0.70)",
+                background: "rgba(59, 59, 59, 0.90)",
                 color: 'rgba(245, 236, 236,1)',
                 textAlign: "center",
                 zIndex:1001

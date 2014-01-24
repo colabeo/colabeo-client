@@ -35,7 +35,7 @@ define(function(require, exports, module) {
         this.bigSurface = new Surface({
             size: [undefined, undefined],
             properties:{
-                background: "rgba(0,0,0,0.7)",
+                background: "rgba(0,0,0,0.5)",
                 zIndex: 1000
             }
         });
@@ -61,7 +61,7 @@ define(function(require, exports, module) {
             showTransform: Matrix.identity,
             showOpacity: 1,
             showOrigin: [0.5, 0.45],
-            inTransition: {duration: 100, curve: Easing.inQuadNorm()},
+            inTransition: {duration: 200, curve: Easing.inQuadNorm()},
             outTransition: {duration: 100, curve: Easing.outQuintNorm()},
         });
 

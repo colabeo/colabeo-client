@@ -271,11 +271,12 @@ define(function(require, exports, module) {
         }
 
         function onCloseAlert(){
+//            this.alertView.alertLightBox.hide();
             alertLightbox.hide();
         }
 
         alert = onAlert;
-//        alert('ldsjf alfjw lkefj lw lqj r fl ekr e kljgkrle krjklre klretjle lerj ');
+        alert('ldsjf alfjw lkefj lw lqj r fl ekr e kljgkrle krjklre klretjle lerj ');
 
     }.bind(this));
 

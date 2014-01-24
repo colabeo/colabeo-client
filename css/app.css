@@ -851,7 +851,9 @@ input {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     height: 35px;
+    padding-left: 20px;
     padding-top: 10px;
+    text-align: left;
 }
 
 .alert #message {
@@ -862,8 +864,7 @@ input {
 }
 
 .alert #close-alert{
-    background: -webkit-gradient(linear, left top, left bottom, from(rgba(22,138,221,0.7)), to(rgba(53,122,156,0.7)));
-    background: -moz-linear-gradient(top, #168add, #357a9c);
+    background: rgba(22,138,221,0.7);
     width: 200px;
     height: 34px;
     position: absolute;
@@ -872,8 +873,9 @@ input {
     border-radius: 10px;
     padding-top: 8px;
     cursor: pointer;
+    text-align: center;
 }
 
-.ccolor{
-    color: rgba(54, 54, 54, 0.70)
+.alert-dark .darker{
+    background-color: rgba(0, 0, 0, 0.70)
 }

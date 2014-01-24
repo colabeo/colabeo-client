@@ -162,11 +162,11 @@ define(function(require, exports, module) {
                 size: [undefined, extraHeight]
             });
             sequence.push(emptySurface);
+            emptySurface.pipe(this.eventOutput);
 
             if (this.currentCollection.length == 0) {
                 var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>'
                 emptySurface.setContent(firstAdd);
-                emptySurface.pipe(this.eventOutput);
                 emptySurface.on('click',function(e){
                     if ($(e.target).hasClass('fa-plus'))
                     this.eventOutput.emit('editContact');

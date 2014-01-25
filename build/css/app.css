@@ -521,8 +521,19 @@ input {
     margin-right: 8px;
 }
 
+.firstAdd {
+    color:#3398cd;
+    text-align: center;
+    margin-right: 15px;
+    margin-top:150px;
+}
+
+.fa-plus {
+    cursor: pointer;
+}
+
 .fa-envelope{
-    color: #919191;
+    color: #a7a7a7;
 }
 
 .fa-facebook-square{
@@ -832,4 +843,39 @@ input {
 
 .disabled {
     opacity: 0.2;
+}
+
+/*Alert View*/
+.alert  .alert-title{
+    background-color: rgba(54,54,54,0.7);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 35px;
+    padding-left: 20px;
+    padding-top: 10px;
+    text-align: left;
+}
+
+.alert #message {
+    margin-top: 20px;
+    text-align: left;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.alert #close-alert{
+    background: rgba(22,138,221,0.7);
+    width: 200px;
+    height: 34px;
+    position: absolute;
+    bottom: 15px;
+    left: 70px;
+    border-radius: 10px;
+    padding-top: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.alert-dark .darker{
+    background-color: rgba(0, 0, 0, 0.70)
 }

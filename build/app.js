@@ -23,7 +23,7 @@
 Famous(function(require,exports,module){
     // import famous dependencies
     var FamousEngine = require('famous/Engine');
-    var LightBox = require('app/custom/LightBox')
+    var LightBox = require('app/custom/LightBox');
     var Surface = require('famous/Surface');
     var Easing = require('famous-animation/Easing');
     var EventHandler = require('famous/EventHandler');
@@ -48,6 +48,7 @@ Famous(function(require,exports,module){
     var RecentsSectionView = require('views/recent/RecentsSectionView');
     var ContactsSectionView = require('views/contact/ContactsSectionView');
     var SettingsSectionView = require('views/setting/SettingsSectionView');
+    var AlertView = require('views/AlertView');
 
     // import app
     var config = require('app/config');
@@ -120,6 +121,7 @@ Famous(function(require,exports,module){
         // create the App from the template
         var myApp = new App(config);
         var myLightbox = new LightBox({overlap:true});
+        var alertLightbox = new LightBox({overlap:true});
         var addContactView = new AddContactView({collection: this.contactCollection});
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
@@ -138,6 +140,7 @@ Famous(function(require,exports,module){
         var mainDisplay = FamousEngine.createContext();
         mainDisplay.add(cameraView);
         mainDisplay.add(myLightbox);
+        mainDisplay.add(alertLightbox);
         myLightbox.show(myApp);
         FamousEngine.pipe(myApp);
 
@@ -157,6 +160,7 @@ Famous(function(require,exports,module){
         this.eventOutput.on('loadRecent', onLoadRecent);
         this.eventOutput.on('clearRecent', onClearRecent);
         this.eventOutput.on('onEngineClick', onEngineClick);
+        this.eventOutput.on('closeAlert', onCloseAlert);
 
         function onLoadRecent (e){
             recentsSection.setMissOnly(e.target.outerText);
@@ -220,7 +224,7 @@ Famous(function(require,exports,module){
         }
 
         function onEditContact(eventData) {
-            if (eventData instanceof Contact) addContactView.setContact(eventData);
+            if (eventData instanceof Contact || eventData instanceof Call) addContactView.setContact(eventData);
             else addContactView.setContact(undefined);
             addContactView.renderContact();
             myLightbox.show(addContactView, true);
@@ -253,6 +257,8 @@ Famous(function(require,exports,module){
                 case 'recent-toggle':
                     this.eventOutput.emit('loadRecent', e);
                     break;
+                case 'close-alert':
+                    this.eventOutput.emit('closeAlert');
             }
         }
 
@@ -280,6 +286,20 @@ Famous(function(require,exports,module){
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
+
+        function onAlert(word){
+            var alertView = new AlertView(word);
+            alertLightbox.show(alertView,true);
+        }
+
+        function onCloseAlert(){
+//            this.alertView.alertLightBox.hide();
+            alertLightbox.hide();
+        }
+
+        alert = onAlert;
+//        alert('ldsjf alfjw lkefj lw lqj r fl ekr e kljgkrle krjklre klretjle lerj ');
+
     }.bind(this));
 
 });

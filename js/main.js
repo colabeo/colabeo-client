@@ -165,5 +165,6 @@ Famous.Views.Favorite_FavoritesSectionView = require('views/favorite/FavoritesSe
 Famous.Views.Recent_RecentItemView = require('views/recent/RecentItemView');
 Famous.Views.Recent_RecentsSectionView = require('views/recent/RecentsSectionView');
 Famous.Views.Setting_SettingsSectionView = require('views/setting/SettingsSectionView');
+Famous.Views.AlertView = require('views/AlertView');
 Famous.Views.CameraView = require('views/CameraView');
 module.exports = Famous; });

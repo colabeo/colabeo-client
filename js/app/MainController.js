@@ -317,15 +317,14 @@ define(function(require, exports, module) {
 
     MainController.prototype.callByContact = function(data) {
         var query = [];
-        if (data.get('email')) {
-            query.push({provider:'email',eid:data.get('email')})
-        }
-        if (data.get('facebook')) {
-            query.push({provider:'facebook',eid:data.get('facebook').id});
-        }
-//        query = encodeURIComponent(JSON.stringify(query));
+        // TODO: add more providers here in the future
+        ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+            if (data.get(provider)) {
+                query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+            }
+        });
         query = JSON.stringify(query);
-        console.log(query);
+//        console.log(query);
         multipleLookup(query, function(result) {
             if (result.length) {
                 var callee = result[0];

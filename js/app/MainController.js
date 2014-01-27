@@ -35,6 +35,19 @@ define(function(require, exports, module) {
         this.setupVideo();
         this.setupSettingsListener();
 
+        this.loadConnected(function(data){
+            console.log("loadConnected", data);
+            if (!data || !data.length) return;
+            var linkAccounts = {};
+            data.map(function(item){
+                console.log("loadConnected", item.provider);
+                linkAccounts[item.provider] = true;
+            });
+            this.appSettings.save({
+                linkAccounts: linkAccounts
+            });
+        }.bind(this));
+
         // TODO: hack for android chrome DATAconnection
         util.supports.sctp = false;
         sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
@@ -393,6 +406,22 @@ define(function(require, exports, module) {
     MainController.prototype.loadUser = function(done) {
         $.ajax({
             url: '/me',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                if (done) done(data);
+            },
+            error: function() {
+                console.log('error');
+                // TODO: temp dev user
+                if (done) done({});
+            }
+        });
+    };
+
+    MainController.prototype.loadConnected = function(done) {
+        $.ajax({
+            url: '/connected',
             type: 'get',
             dataType: 'json',
             success: function(data) {

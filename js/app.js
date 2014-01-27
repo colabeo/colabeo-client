@@ -54,11 +54,9 @@ define(function(require, exports, module) {
             email: data.email,
             firstname: data.firstname,
             lastname: data.lastname,
-            username: data.username,
-            linkAccounts: {
-                facebook: (data.authData && data.authData.facebook)
-            }
+            username: data.username
         });
+
         this.appSettings.me = data;
         this.mainController.appSettings = this.appSettings;
         this.mainController.init();

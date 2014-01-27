@@ -63,9 +63,12 @@ define(function(require, exports, module) {
                     break;
                 case "facebook":
                     if (JSON.parse($("#facebook").prop('checked')))
-                        window.location = "/connect/facebook";
+                        window.location = "/connect/facebook/email";
                     break;
                 case "google":
+                    if (JSON.parse($("#google").prop('checked')))
+                        window.location = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+                    break;
                 case "linkedin":
                 case "github":
                 case "yammer":
@@ -160,7 +163,7 @@ define(function(require, exports, module) {
         html += '<div class="info">Camera ';
         html += Templates.toggleSwitch("camera", this.appSettings.get('camera')) + '</div>';
         html += '<div class="info">Blur ';
-        console.log(this.appSettings, this.appSettings.get('blur'));
+//        console.log(this.appSettings, this.appSettings.get('blur'));
         html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';

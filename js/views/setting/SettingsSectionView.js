@@ -30,20 +30,6 @@ define(function(require, exports, module) {
         this.scrollview.sequenceFrom([this.surface]);
         this._link(this.scrollview);
 
-//        $( 'body' ).on( "change", "#camera", function(event, ui) {
-//            this.appSettings.save({camera : JSON.parse($("#camera").prop('checked'))});
-//        }.bind(this));
-//        $( 'body' ).on( "change", "#video", function(event, ui) {
-//            this.appSettings.save({video : JSON.parse($("#video").prop('checked'))});
-//        }.bind(this));
-//        $( 'body' ).on( "change", "#audio", function(event, ui) {
-//            this.appSettings.save({audio : JSON.parse($("#audio").prop('checked'))});
-//        }.bind(this));
-//        $( 'body' ).on( "change", "#blur", function(event, ui) {
-//            this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
-//            console.log('ddd');
-//        }.bind(this));
-
         this.surface.on('click', function(e){
             //TODO: dont know why the surface is call twice: first time for the surface and the second time for the toggle button.
 //            console.log(e);
@@ -98,53 +84,39 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-//        $('body').on('click', 'button.call-button', function(e){
-//            this.eventOutput.emit('outgoingCall');
-//        }.bind(this));
-//
-//        $('body').on('click', 'button.incoming-button', function(e){
-//            this.eventOutput.emit('incomingCall');
-//        }.bind(this));
-//
-//        $('body').on('click', 'button.connected-button', function(e){
-//            this.eventOutput.emit('connectedCall');
-//        }.bind(this));
-//
-//        $('body').on('click', 'button.conversations-button', function(e){
-//            this.eventOutput.emit('conversations');
-//        }.bind(this));
-//        $('body').on('click', 'button.logout-button', function(e){
-//            window.location = "/logout";
-//        }.bind(this));
-
         this.appSettings.on({
             'change:camera': onCamera.bind(this),
             'change:audio': onAudio.bind(this),
             'change:video': onVideo.bind(this),
-            'change:blur': onBlur.bind(this)
+            'change:blur': onBlur.bind(this),
+            'change': onChange.bind(this)
         });
+
+        function onChange() {
+            this.template();
+        }
 
         function onCamera() {
             console.log('camera change');
-            $("#camera").prop('checked', this.appSettings.get('camera'));
+//            $("#camera").prop('checked', this.appSettings.get('camera'));
             this.eventOutput.emit('setCamera');
         }
 
         function onAudio() {
             console.log('audio change');
-            $("#audio").prop('checked', this.appSettings.get('audio'));
+//            $("#audio").prop('checked', this.appSettings.get('audio'));
             this.eventOutput.emit('setAudio');
         }
 
         function onVideo() {
             console.log('video change');
-            $("#video").prop('checked', this.appSettings.get('video'));
+//            $("#video").prop('checked', this.appSettings.get('video'));
             this.eventOutput.emit('setVideo');
         }
 
         function onBlur() {
             console.log('blur change');
-            $("#blur").prop('checked', this.appSettings.get('blur'));
+//            $("#blur").prop('checked', this.appSettings.get('blur'));
             this.eventOutput.emit('setBlur');
         }
     }

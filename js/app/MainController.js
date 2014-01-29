@@ -37,7 +37,7 @@ define(function(require, exports, module) {
 
         this.loadConnected(function(data){
             console.log("loadConnected", data);
-            if (!data || !data.length) return;
+            if (!data || !Array.isArray(data)) return;
             var linkAccounts = {};
             data.map(function(item){
                 console.log("loadConnected", item.provider);

@@ -50,10 +50,14 @@ define(function(require, exports, module) {
                 case "facebook":
                     if (JSON.parse($("#facebook").prop('checked')))
                         window.location = "/connect/facebook/email";
+                    else
+                        window.location = "/disconnect/facebook";
                     break;
                 case "google":
                     if (JSON.parse($("#google").prop('checked')))
                         window.location = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+                    else
+                        window.location = "/disconnect/google";
                     break;
                 case "linkedin":
                 case "github":
@@ -140,15 +144,15 @@ define(function(require, exports, module) {
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';
         html += '<div class="info">Facebook ';
-        html += Templates.toggleSwitch("facebook", this.appSettings.get('linkAccounts').facebook, this.appSettings.get('linkAccounts').facebook) + '</div>';
+        html += Templates.toggleSwitch("facebook", this.appSettings.get('linkAccounts').facebook) + '</div>';
         html += '<div class="info">Google ';
-        html += Templates.toggleSwitch("google", this.appSettings.get('linkAccounts').google, this.appSettings.get('linkAccounts').google) + '</div>';
+        html += Templates.toggleSwitch("google", this.appSettings.get('linkAccounts').google) + '</div>';
         html += '<div class="info">Linkedin ';
-        html += Templates.toggleSwitch("linkedin", this.appSettings.get('linkAccounts').linkedin, this.appSettings.get('linkAccounts').linkedin) + '</div>';
+        html += Templates.toggleSwitch("linkedin", this.appSettings.get('linkAccounts').linkedin) + '</div>';
         html += '<div class="info">Github ';
-        html += Templates.toggleSwitch("github", this.appSettings.get('linkAccounts').github, this.appSettings.get('linkAccounts').github) + '</div>';
+        html += Templates.toggleSwitch("github", this.appSettings.get('linkAccounts').github) + '</div>';
         html += '<div class="info">Yammer ';
-        html += Templates.toggleSwitch("yammer", this.appSettings.get('linkAccounts').yammer, this.appSettings.get('linkAccounts').yammer) + '</div>';
+        html += Templates.toggleSwitch("yammer", this.appSettings.get('linkAccounts').yammer) + '</div>';
 
 //        html += '<div class="desc">Testing</div>';
 //        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button><button class="conversations-button">Message</button></div>';

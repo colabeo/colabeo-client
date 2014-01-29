@@ -516,7 +516,7 @@ define(function(require, exports, module) {
             console.log("updateUrl: ", e.detail.source);
             updateSync.bind(this)();
         }
-//        if (this.disableNow) return;
+        if (this.disableNow) return;
         if (e.detail.action == "incoming")	{
             console.log("incoming", e.detail);
             var call = new Call({

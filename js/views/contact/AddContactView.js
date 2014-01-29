@@ -153,7 +153,9 @@ define(function(require, exports, module) {
         var initial = '<i class="fa fa-user fa-lg"></i>';
         if (this.model instanceof Contact) {
             title = 'Edit Contact';
-            initial = this.model.get('firstname')[0]+this.model.get('lastname')[0];
+            initial = '';
+            if (this.model.get('firstname')) initial = this.model.get('firstname')[0];
+            if (this.model.get('lastname')) initial +=  this.model.get('lastname')[0];
         }
         var html = '<div class="initial">'+initial+'</div>';
         html += '<form role="form">';

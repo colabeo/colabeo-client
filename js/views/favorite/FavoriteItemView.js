@@ -57,12 +57,14 @@ define(function(require, exports, module) {
 
     FavoriteItemView.prototype.template = function() {
         var name;
-        var initial;
-        if (this.model.get('firstname') && this.model.get('lastname')) {
+        var initial = "";
+        if (this.model.get('firstname') || this.model.get('lastname')) {
             name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
-            initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
+            if (this.model.get('firstname')) initial = this.model.get('firstname')[0];
+            if (this.model.get('lastname')) initial +=  this.model.get('lastname')[0];
         } else {
             name = this.model.get('email');
+            if (name) initial = name[0];
         }
         var contact = '<div class="source"><div class="initial">'+initial+'</div>' + name + '</div>';
         contact = Templates.deleteButton() + contact;

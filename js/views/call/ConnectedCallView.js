@@ -59,12 +59,13 @@ define(function(require, exports, module) {
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
+            console.log(target);
             if (target.hasClass("end-button")) {
                 this.stop(target);
             }
             else if (target.hasClass("sync-button")) {
                 this.eventOutput.emit('sync');
-
+                $('.sync-button').removeClass('synced').addClass('syncing');
             }
         }.bind(this));
 
@@ -94,8 +95,8 @@ define(function(require, exports, module) {
         });
         var syncButton = Templates.button({
             classes: ["sync-button", "big-button"],
-            content: 'Sync',
-            size: [70,70]
+            content: '<i class="sync-button fa fa-refresh fa-2x"></i>',
+            size: [40,40]
         });
         var endButton = Templates.button({
             classes: ["end-button", "big-button"],
@@ -112,7 +113,7 @@ define(function(require, exports, module) {
             offBackgroundColor: '#dadbd9',
             size: [70,70]
         });
-        var html = '<div class="box">' + syncButton + endButton + audioButton + '</div>';
+        var html = '<div class="box">' + videoButton + endButton + audioButton + syncButton + '</div>';
         this.footer.setContent(html);
     };
 

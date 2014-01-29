@@ -106,6 +106,7 @@ define(function(require, exports, module) {
         }
         function onRemove(snapshot){
             this.eventOutput.emit('callEnd', snapshot);
+            this.exitRoom();
         }
         function onOutgoingCallEnd(call) {
             if (this.callRef) this.callRef.remove();
@@ -399,6 +400,7 @@ define(function(require, exports, module) {
         }
         function onRemove(snapshot){
             this.eventOutput.emit('callEnd', snapshot);
+            this.exitRoom();
         }
     };
 
@@ -498,13 +500,24 @@ define(function(require, exports, module) {
         });
         window.colabeoBody.dispatchEvent(evt);
     }
+    function updateSync() {
+        if (this.remoteUrl==this.localUrl)
+            $('.sync-button').removeClass('syncing').addClass('synced');
+        else
+            $('.sync-button').removeClass('synced syncing');
+    }
     function onExtensionMessage(e) {
-        if (this.disableNow) return;
         console.log("onExtensionMessage: ", e.detail);
-        if (e.detail.type == "urlUpdate") {
-            this.curUrl = e.detail.data.url;
+        if (e.detail.action == "updateUrl") {
+            if (e.detail.source== "remote")
+                this.remoteUrl = e.detail.url;
+            else
+                this.localUrl = e.detail.url;
+            console.log("updateUrl: ", e.detail.source);
+            updateSync.bind(this)();
         }
-        else if (e.detail.action == "incoming")	{
+//        if (this.disableNow) return;
+        if (e.detail.action == "incoming")	{
             console.log("incoming", e.detail);
             var call = new Call({
                 firstname: e.detail.firstname,

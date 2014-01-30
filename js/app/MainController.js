@@ -70,6 +70,12 @@ define(function(require, exports, module) {
         this.eventOutput.on('setAudio', function() {
             this.setAudio();
         }.bind(this));
+        this.eventOutput.on('onSocialLink', function(source) {
+            if (source == 'facebook')
+                window.location = "/connect/facebook/email";
+            else if (source == 'google')
+                window.location = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+        })
         $('body').on('change', '#audio, #video', function(e){
             this.appSettings.set($(e.target)[0].id, $(e.target).prop('checked'));
         }.bind(this));

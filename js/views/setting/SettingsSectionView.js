@@ -49,13 +49,13 @@ define(function(require, exports, module) {
                     break;
                 case "facebook":
                     if (JSON.parse($("#facebook").prop('checked')))
-                        window.location = "/connect/facebook/email";
+                        this.eventOutput.emit('onSocialLink', e.target.id);
                     else
                         window.location = "/disconnect/facebook";
                     break;
                 case "google":
                     if (JSON.parse($("#google").prop('checked')))
-                        window.location = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+                        this.eventOutput.emit('onSocialLink', e.target.id);
                     else
                         window.location = "/disconnect/google";
                     break;

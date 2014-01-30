@@ -106,11 +106,13 @@ define(function(require, exports, module) {
                         newSocialView.pipe(this.eventOutput);
                         edgeSwapper.show(newSocialView, true);
                     } else {
-                        alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
+                        this.eventOutput.emit('onSocialLink', source);
+//                        alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                     }
                 }
                 function onErrorHandler() {
-                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
+                    this.eventOutput.emit('onSocialLink', source);
+//                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                 }
 
             }

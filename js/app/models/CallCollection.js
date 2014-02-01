@@ -5,7 +5,7 @@ define(function(require, exports, module) {
 //    require("lib/backboneLocalStorage");
 
     module.exports = Backbone.Collection.extend({
-
+//
 //      url: '/user/calls',
 //      localStorage: true,
       localStorage: new Backbone.LocalStorage("colabeo-call-collection"),

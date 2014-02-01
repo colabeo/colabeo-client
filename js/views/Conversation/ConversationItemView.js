@@ -21,7 +21,10 @@ define(function(require, exports, module) {
 
         this.surface = new Surface({
             class: ['conversation-item'],
-            size: [undefined, 30]
+            size: [undefined, 50],
+            properties:{
+                backgroundColor: "rgba(193,19,280,0.5)"
+            }
         });
 
         this.template();
@@ -39,7 +42,6 @@ define(function(require, exports, module) {
 
     ConversationItemView.prototype.template = function(){
         var content = this.model.get('content');
-        console.log(content);
         this.surface.setContent(content);
     };
 

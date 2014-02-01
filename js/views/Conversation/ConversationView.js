@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     // Import core Famous dependencies
     var View             = require('famous/View');
     var Util             = require('famous/Utility');
-    var Surface          = require('famous/Surface');
+    var Surface          = require('app/custom/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var ConversationItemView  = require('views/Conversation/ConversationItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
@@ -12,12 +12,12 @@ define(function(require, exports, module) {
         View.call(this);
 
         this.headerFooterLayout = new HeaderFooterLayout({
-            headerSize: 400,
-            footerSize: 30
+            headerSize: 0,
+            footerSize: 50
         });
 
         this.inputSurface = new Surface({
-            size:[undefined, 25],
+            size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
             content: '<div><input type = "text"  class="input-msg" name="message"><button class="send-text-button">send</button></div>',
             properties:{
@@ -48,7 +48,13 @@ define(function(require, exports, module) {
         this.inputSurface.on('click', function(e){
             var target = $(e.target);
             if (target.hasClass("send-text-button")){
-                this.addChat(document.getElementsByClassName('input-msg')[0].value);
+                this.addChat();
+            }
+            this.loadMsg();
+        }.bind(this));
+        this.inputSurface.on('keyup', function(e){
+            if (e.keyCode == 13){
+                this.addChat();
             }
             this.loadMsg();
         }.bind(this));
@@ -67,16 +73,20 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this)));
+//        this.scrollview.setVelocity(0);
+//        this.scrollview.node.index = this.collection.length - 1;
+//        this.scrollview.setPosition (0);
     };
 
-    ConversationView.prototype.addChat = function(content){
+    ConversationView.prototype.addChat = function(){
+        if (document.getElementsByClassName('input-msg')[0].value == "") return;
         var newMsg = {
-            content: content,
+            content: document.getElementsByClassName('input-msg')[0].value,
 //            class: [from],
 //            type: type,
             time: Date.now()
         };
-        console.log(newMsg);
+        document.getElementsByClassName('input-msg')[0].value = "";
         this.collection.create(newMsg);
     };
 

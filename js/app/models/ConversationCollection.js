@@ -9,7 +9,7 @@ define(function(require, exports, module) {
         model: Conversation,
 
         comparator: function(model){
-            return -1*model.get('time');
+            return 1*model.get('time');
         }
 
     })

@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
     // Import core Famous dependencies
     var View         = require('famous/View');
-    var Surface      = require('famous/Surface');
+    var Surface      = require('app/custom/ConversationSurface');
     var EventHandler = require('famous/EventHandler');
     var Contact      = require('app/models/Contact');
     var Templates    = require('app/custom/Templates');
@@ -43,7 +43,7 @@ define(function(require, exports, module) {
 
     ConversationItemView.prototype.template = function(){
         var content = this.model.get('content');
-        content = '<p class="triangle-border left">' + content + '</p>';
+//        content = '<p class="triangle-border left">' + content + '</p>';
         this.surface.setContent(content);
 
     };

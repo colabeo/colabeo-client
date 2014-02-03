@@ -122,6 +122,7 @@ define(function(require, exports, module) {
 
         // start on the main section
         myApp.select(myApp.options.sections[2].title);
+        onConversations();
         // events handling
         this.eventOutput.on('callEnd', onCallEnd);
         this.eventOutput.on('incomingCall', onIncomingCall);
@@ -257,7 +258,7 @@ define(function(require, exports, module) {
 //        colabeo.contactsSection = contactsSection;
 //        colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
-//        colabeo.conversationView = conversationView;
+        colabeo.conversationView = conversationView;
 //        colabeo.addContactView = addContactView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;

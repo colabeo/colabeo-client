@@ -38,6 +38,14 @@ define(function(require, exports, module) {
 
         this.loadMsg();
 
+        //TODO: will delete this part
+        setTimeout(function(){
+            this.addSth('dsfdsfdsfsdf');
+            this.addSth('dsfdsfdsfsdfsdfsddfsfdfsfsfsdfsdfsdfsdffdsfsdfdsfsdfsfsdfsdfsfsdfsds');
+            this.addSth('dsfdsfsdfdsfsdffsfsdfsfsdfsdfsfsdfsdfsdfsddsfsdfsdfsdfdsfsdfdsfsdfsfsdfsdfsfsdfsdsfdsfdsfsdfdsfsdfsdfsdfsdfsdffsdfsdfsfsfsfs');
+        }.bind(this),1000);
+
+
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
                 case 'add':
@@ -139,6 +147,15 @@ define(function(require, exports, module) {
             if (!position) position = 0;
             this.scrollview.setPosition(position);
         }
+    };
+
+    //TODO: will delete this part
+    ConversationView.prototype.addSth = function(Sth){
+        var newMsg = {
+            content: Sth,
+            time: Date.now()
+        };
+        this.collection.add(newMsg);
     };
 
     module.exports = ConversationView;

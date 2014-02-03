@@ -36,27 +36,30 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
 
+        this.loadMsg();
+
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
-                case 'sync-msg':
-                    console.log('sync-msg');
+                case 'add':
+                case 'sync':
+                    this.curIndex = this.scrollview.getCurrentNode().index;
+                    this.curPosition = this.scrollview.getPosition();
                     this.loadMsg();
+                    this.scrollTo(this.curIndex,this.curPosition);
                     break;
             }
-        });
+        }.bind(this));
 
         this.inputSurface.on('click', function(e){
             var target = $(e.target);
             if (target.hasClass("send-text-button")){
                 this.addChat();
             }
-            this.loadMsg();
         }.bind(this));
         this.inputSurface.on('keyup', function(e){
             if (e.keyCode == 13){
                 this.addChat();
             }
-            this.loadMsg();
         }.bind(this));
     }
 
@@ -68,13 +71,48 @@ define(function(require, exports, module) {
     };
 
     ConversationView.prototype.loadMsg = function (){
-        this.scrollview.sequenceFrom(this.collection.map(function(item){
+        var sequence =  this.collection.map(function(item){
             var surface = new ConversationItemView({model: item});
             surface.pipe(this.eventOutput);
             return surface;
-        }.bind(this)));
+        }.bind(this))
+
+        var msgHeight = 0;
+
+        for (var ii=0; ii<sequence.length; ii++){
+            msgHeight = msgHeight + sequence[ii].getSize()[1];
+            console.log(msgHeight);
+            if (msgHeight >= this.scrollview.getSize()[1]) {
+                msgHeight = 0;
+                break
+            }
+        }
+
+        if (msgHeight != 0) {
+            console.log('ys empty' + msgHeight);
+            this.emptySurface = new Surface({
+                size:[undefined, this.scrollview.getSize()[1]-msgHeight],
+                properties:{
+                    backgroundColor: "rgba(12,144,55,0.4)"
+                }
+            });
+            this.emptySurface.pipe(this.scrollview);
+
+            var templateSequence = []
+            templateSequence.push(this.emptySurface);
+
+            for (var ii=0; ii<sequence.length; ii++){
+                templateSequence.push(sequence[ii])
+            }
+
+            sequence = templateSequence;
+
+        } else {this.emptySurface = undefined};
+
+        this.scrollview.sequenceFrom(sequence);
+
 //        this.scrollview.setVelocity(0);
-//        this.scrollview.node.index = this.collection.length - 1;
+//        this.scrollview.node.index = 0;
 //        this.scrollview.setPosition (0);
     };
 
@@ -87,7 +125,20 @@ define(function(require, exports, module) {
             time: Date.now()
         };
         document.getElementsByClassName('input-msg')[0].value = "";
-        this.collection.create(newMsg);
+        this.collection.add(newMsg);
+    };
+
+    ConversationView.prototype.scrollTo = function(index, position) {
+        if (index<0) return;
+        this.scrollview.setVelocity(0);
+        if (this.emptySurface) {
+            this.scrollview.node.index = 0;
+            this.scrollview.setPosition(0);
+        } else {
+            this.scrollview.node.index = index+1;
+            if (!position) position = 0;
+            this.scrollview.setPosition(position);
+        }
     };
 
     module.exports = ConversationView;

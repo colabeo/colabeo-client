@@ -11,6 +11,8 @@ define(function(require, exports, module) {
 
         View.call(this);
 
+        this.inputSourceLocal=true;
+
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: 0,
             footerSize: 50
@@ -135,6 +137,9 @@ define(function(require, exports, module) {
 //            type: type,
             time: Date.now()
         };
+        if (this.inputSourceLocal) newMsg.source = "local" ;
+        else newMsg.source = "remote";
+        this.inputSourceLocal = !this.inputSourceLocal;
         document.getElementsByClassName('input-msg')[0].value = "";
         this.collection.add(newMsg);
     };

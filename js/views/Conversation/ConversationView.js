@@ -40,9 +40,11 @@ define(function(require, exports, module) {
 
         //TODO: will delete this part
         setTimeout(function(){
-            this.addSth('dsfdsfdsfsdf');
-            this.addSth('dsfdsfdsfsdfsdfsddfsfdfsfsfsdfsdfsdfsdffdsfsdfdsfsdfsfsdfsdfsfsdfsds');
-            this.addSth('dsfdsfsdfdsfsdffsfsdfsfsdfsdfsfsdfsdfsdfsddsfsdfsdfsdfdsfsdfdsfsdfsfsdfsdfsfsdfsdsfdsfdsfsdfdsfsdfsdfsdfsdfsdffsdfsdfsfsfsfs');
+            this.addRemote('Hi');
+            this.addLocal("What's going on? WE waaa fawefaf af faa aff aafa");
+            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
         }.bind(this),1000);
 
 
@@ -53,7 +55,7 @@ define(function(require, exports, module) {
                     this.curIndex = this.scrollview.getCurrentNode().index;
                     this.curPosition = this.scrollview.getPosition();
                     this.loadMsg();
-                    this.scrollTo(this.curIndex,this.curPosition);
+//                    this.scrollTo(this.curIndex,this.curPosition);
                     break;
             }
         }.bind(this));
@@ -82,6 +84,7 @@ define(function(require, exports, module) {
         var sequence =  this.collection.map(function(item){
             var surface = new ConversationItemView({model: item});
             surface.pipe(this.eventOutput);
+            console.log(surface.getSize(true));
             return surface;
         }.bind(this))
 
@@ -95,27 +98,27 @@ define(function(require, exports, module) {
                 break
             }
         }
-
-        if (msgHeight != 0) {
-            console.log('ys empty' + msgHeight);
-            this.emptySurface = new Surface({
-                size:[undefined, this.scrollview.getSize()[1]-msgHeight],
-                properties:{
-                    backgroundColor: "rgba(12,144,55,0.4)"
-                }
-            });
-            this.emptySurface.pipe(this.scrollview);
-
-            var templateSequence = []
-            templateSequence.push(this.emptySurface);
-
-            for (var ii=0; ii<sequence.length; ii++){
-                templateSequence.push(sequence[ii])
-            }
-
-            sequence = templateSequence;
-
-        } else {this.emptySurface = undefined};
+//
+//        if (msgHeight != 0) {
+//            console.log('ys empty' + msgHeight);
+//            this.emptySurface = new Surface({
+//                size:[undefined, this.scrollview.getSize()[1]-msgHeight],
+//                properties:{
+//                    backgroundColor: "rgba(12,144,55,0.4)"
+//                }
+//            });
+//            this.emptySurface.pipe(this.scrollview);
+//
+//            var templateSequence = []
+////            templateSequence.push(this.emptySurface);
+//
+//            for (var ii=0; ii<sequence.length; ii++){
+//                templateSequence.push(sequence[ii])
+//            }
+//
+//            sequence = templateSequence;
+//
+//        } else {this.emptySurface = undefined};
 
         this.scrollview.sequenceFrom(sequence);
 
@@ -150,9 +153,19 @@ define(function(require, exports, module) {
     };
 
     //TODO: will delete this part
-    ConversationView.prototype.addSth = function(Sth){
+    ConversationView.prototype.addRemote = function(Sth){
         var newMsg = {
             content: Sth,
+            source: 'remote',
+            time: Date.now()
+        };
+        this.collection.add(newMsg);
+    };
+
+    ConversationView.prototype.addLocal = function(Sth){
+        var newMsg = {
+            content: Sth,
+            source: 'local',
             time: Date.now()
         };
         this.collection.add(newMsg);

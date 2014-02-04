@@ -20,11 +20,8 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.surface = new Surface({
-            classes: ['conversation-item' ],
-            size: [undefined, 50],
             properties:{
-                backgroundColor: "rgba(193,19,280,0.5)",
-                wordWrap: "break-word"
+                maxWidth: 300
             }
         });
 
@@ -43,7 +40,7 @@ define(function(require, exports, module) {
 
     ConversationItemView.prototype.template = function(){
         var content = this.model.get('content');
-//        content = '<p class="triangle-border left">' + content + '</p>';
+        content = '<div class="conversation-item triangle-border right">' + content + '</div>';
         this.surface.setContent(content);
 
     };

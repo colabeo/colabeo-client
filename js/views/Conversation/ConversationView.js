@@ -41,7 +41,7 @@ define(function(require, exports, module) {
         //TODO: will delete this part
         setTimeout(function(){
             this.addRemote('Hi');
-            this.addLocal("What's going on? WE waaa fawefaf af faa aff aafa");
+            this.addLocal("What's ff aafa");
             this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
             this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
             this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');

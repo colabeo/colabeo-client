@@ -40,9 +40,9 @@ define(function(require, exports, module) {
 
     ConversationItemView.prototype.template = function(){
         var content = this.model.get('content');
-        content = '<div class="conversation-item triangle-border right">' + content + '</div>';
+        if (this.model.get('source') == "local") {content = '<div class="conversation-item triangle-border right">' + content + '</div>';}
+        else if (this.model.get('source') == "remote") content = '<div class="conversation-item triangle-border left">' + content + '</div>';
         this.surface.setContent(content);
-
     };
 
     module.exports = ConversationItemView;

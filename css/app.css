@@ -909,6 +909,7 @@ input {
     -webkit-border-radius:10px;
     -moz-border-radius:10px;
     border-radius:10px;
+    max-width: 60%;
 }
 
 /* Variant : for left positioned triangle
@@ -916,6 +917,7 @@ input {
 
 .triangle-border.left {
     margin-left:30px;
+    float: left;
 }
 
 /* Variant : for right positioned triangle
@@ -923,6 +925,7 @@ input {
 
 .triangle-border.right {
     margin-right:30px;
+    float: right;
 }
 
 /* THE TRIANGLE
@@ -1021,5 +1024,6 @@ input {
 }
 
 .conversation-item {
-    word-wrap: break-word
+    word-wrap: break-word;
+    display: inline-block;
 }

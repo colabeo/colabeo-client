@@ -8,20 +8,13 @@ define(function(require, exports, module) {
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
 
     Scrollview.prototype.scrollToEnd = function() {
-        var lastIndex = this.node.array.length-1;
-        var lastItemStart = this._offsets[lastIndex];
-        var lastItemEnd = this._offsets['undefined'];
-        var scrollViewHeight = this.getSize()[1];
-        var i = 0;
-        while (lastItemStart>scrollViewHeight) {
-            i++;
-            if (this._offsets[i]>0) {
-                lastItemStart = lastItemStart-this._offsets[i];
-            }
-        }
-        this.node.index = i;
-        this.setPosition(lastItemEnd-scrollViewHeight);
-    }
+        var arrays = _.values(this._offsets);
+        var i = 1;
+        while (i != arrays.length && _.last(arrays) - arrays[arrays.length - i] < this.getSize()[1]) i++;
+        console.log(i,_.last(arrays) - arrays[arrays.length - i] - this.getSize()[1]);
+        this.node.index = arrays.length - i;
+        setTimeout(function(){this.setPosition(_.last(arrays) - arrays[arrays.length - i] - this.getSize()[1])}.bind(this),10);
+    };
 
     function ConversationView(options) {
 

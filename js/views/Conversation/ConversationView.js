@@ -47,7 +47,8 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
 
-        this.loadMsg();
+//        this.loadMsg();
+        this.scrollview.sequenceFrom([]);
 
         //TODO: will delete this part
         setTimeout(function(){
@@ -55,11 +56,11 @@ define(function(require, exports, module) {
             this.addLocal("What's ff aafa");
             this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
             this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-            this.addLocal("What's ff aafa");
-            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addLocal("What's ff aafa");
+//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
 
         }.bind(this),1000);
 
@@ -69,7 +70,7 @@ define(function(require, exports, module) {
                 case 'add':
                     this.addMsg(model);
                     break;
-                case 'sync':
+//                case 'sync':
 //                    this.loadMsg();
                     break;
             }
@@ -106,6 +107,7 @@ define(function(require, exports, module) {
     };
 
     ConversationView.prototype.addMsg = function (model){
+        // remove empty space, then readd empty space
         var surface = new ConversationItemView({model: model});
         surface.pipe(this.eventOutput);
         this.scrollview.node.push(surface);

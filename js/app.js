@@ -122,7 +122,7 @@ define(function(require, exports, module) {
 
         // start on the main section
         myApp.select(myApp.options.sections[2].title);
-        onConversations();
+//        onConversations();
         // events handling
         this.eventOutput.on('callEnd', onCallEnd);
         this.eventOutput.on('incomingCall', onIncomingCall);

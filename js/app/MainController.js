@@ -58,6 +58,9 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.setupSettingsListener = function() {
+        this.eventOutput.on('incomingChat', function(evt) {
+            console.log("incomingChat", evt);
+        }.bind(this));
         this.eventOutput.on('setCamera', function() {
             this.setCamera();
         }.bind(this));
@@ -167,7 +170,7 @@ define(function(require, exports, module) {
                 alert("Please allow camera access for Colabeo");
             }.bind(this)
         );
-    }
+    };
 
     MainController.prototype.initRemoteMedia = function(call) {
         // Hang up on an existing call if present
@@ -183,16 +186,16 @@ define(function(require, exports, module) {
         // UI stuff
         this.existingCall = call;
         call.on('close', this.cleanRoom.bind(this));
-    }
+    };
 
     MainController.prototype.startRoom = function(caller, callee, roomId)  {
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
         this.peer = new Peer(roomId, {
 //            debug: 0,
-            host: 'dashboard.colabeo.com',
-            port: 9000,
-            secure: true,
+            host: this.appSettings.get('pHost'),
+            port: this.appSettings.get('pPort'),
+            secure: this.appSettings.get('pSecure'),
             config: this.iceServerConfig
         });
         this.peer.on('open', function(){
@@ -218,10 +221,9 @@ define(function(require, exports, module) {
         if (roomId) roomId = "A"+roomId+"Z";
         // PeerJS object
         this.peer = new Peer({
-//            key: '7bihidp9q86c4n29',
-//            debug: 0,
-            host: 'dashboard.colabeo.com',
-            port: 9000,
+            host: this.appSettings.get('pHost'),
+            port: this.appSettings.get('pPort'),
+            secure: this.appSettings.get('pSecure'),
             config: this.iceServerConfig
         });
         setTimeout(function(){
@@ -462,6 +464,11 @@ define(function(require, exports, module) {
         sendMessage("event", {data: {action:"sync"}});
     };
 
+    MainController.prototype.sendChat = function(message, type) {
+        if (!type) type = "text";
+        this.conn.send({data:message, type: type, action:"chat"});
+    };
+
     function userLookup(externalId, provider, done) {
         $.ajax({
             url: '/finduser',
@@ -544,12 +551,15 @@ define(function(require, exports, module) {
         setTimeout(function(){
             this.disableNow = false;
         }.bind(this),1000);
-
         var evt = e;
-        if (Utils.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
-            window.open(evt.data.url);
+        if (evt.action=="chat") {
+            this.eventOutput.emit('incomingChat', evt);
+        } else {
+            if (Utils.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
+                window.open(evt.data.url);
+            }
+            sendMessage("event", evt);
         }
-        sendMessage("event", evt);
     }
 
     // underscore util functions

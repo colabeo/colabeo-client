@@ -22,7 +22,10 @@ define(function(require, exports, module) {
             audio: true,
             blur: undefined,
             userDatabaseUrl: "https://colabeo.firebaseio.com/users/",
-            callDatabaseUrl: "https://colabeo.firebaseio.com/calls/"
+            callDatabaseUrl: "https://colabeo.firebaseio.com/calls/",
+            pHost: "dashboard.colabeo.com",
+            pPort: 9000,
+            pSecure: true
         }
     });
 });

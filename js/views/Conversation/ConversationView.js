@@ -7,6 +7,22 @@ define(function(require, exports, module) {
     var ConversationItemView  = require('views/Conversation/ConversationItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
 
+    Scrollview.prototype.scrollToEnd = function() {
+        var lastIndex = this.node.array.length-1;
+        var lastItemStart = this._offsets[lastIndex];
+        var lastItemEnd = this._offsets['undefined'];
+        var scrollViewHeight = this.getSize()[1];
+        var i = 0;
+        while (lastItemStart>scrollViewHeight) {
+            i++;
+            if (this._offsets[i]>0) {
+                lastItemStart = lastItemStart-this._offsets[i];
+            }
+        }
+        this.node.index = i;
+        this.setPosition(lastItemEnd-scrollViewHeight);
+    }
+
     function ConversationView(options) {
 
         View.call(this);
@@ -47,17 +63,21 @@ define(function(require, exports, module) {
             this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
             this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
             this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+            this.addLocal("What's ff aafa");
+            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+
         }.bind(this),1000);
 
 
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
                 case 'add':
+                    this.addMsg(model);
+                    break;
                 case 'sync':
-                    this.curIndex = this.scrollview.getCurrentNode().index;
-                    this.curPosition = this.scrollview.getPosition();
-                    this.loadMsg();
-//                    this.scrollTo(this.curIndex,this.curPosition);
+//                    this.loadMsg();
                     break;
             }
         }.bind(this));
@@ -89,59 +109,24 @@ define(function(require, exports, module) {
             console.log(surface.getSize(true));
             return surface;
         }.bind(this))
-
-        var msgHeight = 0;
-
-        for (var ii=0; ii<sequence.length; ii++){
-            msgHeight = msgHeight + sequence[ii].getSize()[1];
-            console.log(msgHeight);
-            if (msgHeight >= this.scrollview.getSize()[1]) {
-                msgHeight = 0;
-                break
-            }
-        }
-//
-//        if (msgHeight != 0) {
-//            console.log('ys empty' + msgHeight);
-//            this.emptySurface = new Surface({
-//                size:[undefined, this.scrollview.getSize()[1]-msgHeight],
-//                properties:{
-//                    backgroundColor: "rgba(12,144,55,0.4)"
-//                }
-//            });
-//            this.emptySurface.pipe(this.scrollview);
-//
-//            var templateSequence = []
-////            templateSequence.push(this.emptySurface);
-//
-//            for (var ii=0; ii<sequence.length; ii++){
-//                templateSequence.push(sequence[ii])
-//            }
-//
-//            sequence = templateSequence;
-//
-//        } else {this.emptySurface = undefined};
-
         this.scrollview.sequenceFrom(sequence);
+    };
 
-//        this.scrollview.setVelocity(0);
-//        this.scrollview.node.index = 0;
-//        this.scrollview.setPosition (0);
+    ConversationView.prototype.addMsg = function (model){
+        var surface = new ConversationItemView({model: model});
+        surface.pipe(this.eventOutput);
+        this.scrollview.node.push(surface);
     };
 
     ConversationView.prototype.addChat = function(){
         if (document.getElementsByClassName('input-msg')[0].value == "") return;
-        var newMsg = {
-            content: document.getElementsByClassName('input-msg')[0].value,
-//            class: [from],
-//            type: type,
-            time: Date.now()
-        };
-        if (this.inputSourceLocal) newMsg.source = "local" ;
-        else newMsg.source = "remote";
-        this.inputSourceLocal = !this.inputSourceLocal;
+        var message= document.getElementsByClassName('input-msg')[0].value;
         document.getElementsByClassName('input-msg')[0].value = "";
-        this.collection.add(newMsg);
+
+        // TODO: this is a hack
+        this.inputSourceLocal = !this.inputSourceLocal;
+        if (this.inputSourceLocal) this.addLocal(message);
+        else this.addRemote(message);
     };
 
     ConversationView.prototype.scrollTo = function(index, position) {

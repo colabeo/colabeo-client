@@ -59,7 +59,7 @@ define(function(require, exports, module) {
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><button class="exit-conversation">back</butoon><input type = "text"  class="input-msg" name="message"><button class="send-text-button">send</button></div>',
+            content: '<div><button class="exit-conversation">back</button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">send</button></div>',
             properties:{
                 backgroundColor: 'red',
                 zIndex: 3
@@ -135,7 +135,7 @@ define(function(require, exports, module) {
         document.getElementsByClassName('input-msg')[0].value = "";
 
         // TODO: this is for testing
-//        this.inputSourceLocal = !this.inputSourceLocal;
+        this.inputSourceLocal = !this.inputSourceLocal;
         if (this.inputSourceLocal) this.addLocal(message);
         else this.addRemote(message);
     };

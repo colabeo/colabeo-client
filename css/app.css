@@ -921,7 +921,7 @@ input {
     position:relative;
     padding:15px;
     margin: 5px 10px;
-    border:5px solid #5a8f00;
+    border:0px solid #5a8f00;
     color:#333;
     background:#fff;
     /* css3 */
@@ -956,7 +956,7 @@ input {
     bottom:-20px; /* value = - border-top-width - border-bottom-width */
     left:40px; /* controls horizontal position */
     border-width:20px 20px 0;
-    border-style:solid;
+    border-style:none;
     border-color:#5a8f00 transparent;
     /* reduce the damage in FF3.0 */
     display:block;
@@ -1003,8 +1003,8 @@ input {
 
 /* creates the larger triangle */
 .triangle-border.left:before {
-    top:10px; /* controls vertical position */
-    bottom:auto;
+    bottom:10px; /* controls vertical position */
+    top:auto;
     left:-30px; /* value = - border-left-width - border-right-width */
     border-width:15px 30px 15px 0;
     border-color:transparent #5a8f00;
@@ -1012,8 +1012,8 @@ input {
 
 /* creates the smaller  triangle */
 .triangle-border.left:after {
-    top:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
-    bottom:auto;
+    bottom:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+    top:auto;
     left:-21px; /* value = - border-left-width - border-right-width */
     border-width:9px 21px 9px 0;
     border-color:transparent #fff;
@@ -1024,8 +1024,8 @@ input {
 
 /* creates the larger triangle */
 .triangle-border.right:before {
-    top:10px; /* controls vertical position */
-    bottom:auto;
+    bottom:10px; /* controls vertical position */
+    top:auto;
     left:auto;
     right:-30px; /* value = - border-left-width - border-right-width */
     border-width:15px 0 15px 30px;
@@ -1034,8 +1034,8 @@ input {
 
 /* creates the smaller  triangle */
 .triangle-border.right:after {
-    top:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
-    bottom:auto;
+    bottom:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+    top:auto;
     left:auto;
     right:-21px; /* value = - border-left-width - border-right-width */
     border-width:9px 0 9px 21px;

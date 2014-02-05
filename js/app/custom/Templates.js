@@ -67,7 +67,18 @@ define(function(require, exports, module) {
         html += '"></button>';
         return html;
     }
-
+    function nextButton(id) {
+        var html = '<i class="arrow fa fa-angle-right fa-lg import-contact" id="' + id + '"></i>';
+        return html;
+    }
+    function addButton(id) {
+        var html = '<i class="fa fa-plus add-button" id="' + id + '"></i>';
+        return html;
+    }
+    function removeButton(id) {
+        var html = '<i class="fa fa-times remove-button" id="' + id + '"></i>';
+        return html;
+    }
     function recentsToggle() {
         var html = '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>';
         html += '<label for="all" class="first" id="recent-toggle">all</label>';
@@ -79,6 +90,9 @@ define(function(require, exports, module) {
         toggleSwitch: toggleSwitch,
         toggleButton: toggleButton,
         deleteButton: deleteButton,
+        addButton: addButton,
+        removeButton: removeButton,
+        nextButton: nextButton,
         favoriteButton: favoriteButton,
         recentsToggle: recentsToggle,
         button: button

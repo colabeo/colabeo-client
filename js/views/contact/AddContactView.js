@@ -10,9 +10,9 @@ define(function(require, exports, module) {
     var ContactCollection = require('app/models/ContactCollection');
     var View = require('famous/View');
     var EdgeSwapper = require('famous-views/EdgeSwapper');
-    var SocialContactCollection = require('app/models/SocialContactCollection');
-    var Contact = require('app/models/Contact');
+    var Templates    = require('app/custom/Templates');
     // import models
+    var SocialContactCollection = require('app/models/SocialContactCollection');
     var Contact = require("app/models/Contact");
     var Call = require("app/models/Call");
 
@@ -69,6 +69,7 @@ define(function(require, exports, module) {
         this.content.pipe(this.eventOutput);
         this.header.pipe(this.eventOutput);
 
+        this.newContact = {};
         this.renderContact();
 
         this.header.on('click', function(e) {
@@ -115,6 +116,12 @@ define(function(require, exports, module) {
 //                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                 }
 
+            } else if (target.hasClass('remove-button')){
+                var source = target[0].id;
+                console.log(source,this.model.attributes[source]);
+                if (source)
+                    delete this.model.attributes[source];
+                this.renderContact();
             }
         }.bind(this));
 
@@ -131,11 +138,11 @@ define(function(require, exports, module) {
                 };
                 if (eventData.attributes.provider)
                     newContact[eventData.attributes.provider] = eventData.attributes;
-                this.fillFrom(new Contact(newContact));
+                this.renderContact(new Contact(newContact));
             } else {
                 if (eventData.attributes.provider)
                     this.model.attributes[eventData.attributes.provider] = eventData.attributes;
-                this.fillFrom(this.model);
+                this.renderContact();
             }
         }
 
@@ -149,13 +156,18 @@ define(function(require, exports, module) {
     AddContactView.prototype = Object.create(View.prototype);
     AddContactView.prototype.constructor = AddContactView;
 
-    AddContactView.prototype.renderContact = function() {
-        this.newContact = {};
+    AddContactView.prototype.renderContact = function(newContact) {
         var title = 'New Contact';
         var initial = '<i class="fa fa-user fa-lg"></i>';
         if (this.model instanceof Contact) {
             title = 'Edit Contact';
             initial = '';
+        }
+        if (newContact instanceof Contact) {
+            this.newContact = _.extend(this.newContact, newContact.attributes);
+            this.model = newContact;
+        }
+        if (this.model instanceof Contact) {
             if (this.model.get('firstname')) initial = this.model.get('firstname')[0];
             if (this.model.get('lastname')) initial +=  this.model.get('lastname')[0];
         }
@@ -163,17 +175,17 @@ define(function(require, exports, module) {
         html += '<form role="form">';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-first-name" placeholder="First" name="firstname"';
-        if (this.model)
+        if (this.model && this.model.get('firstname'))
             html += ' value="' + this.model.get('firstname') + '"';
         html += '></div>';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-last-name" placeholder="Last" name="lastname"';
-        if (this.model)
+        if (this.model && this.model.get('lastname'))
             html += ' value="' + this.model.get('lastname') + '"';
         html += '></div>';
         html += '<div class="form-group small">';
         html += '<input type="email" class="form-control" id="input-email" placeholder="Email" name="email"';
-        if (this.model)
+        if (this.model && this.model.get('email'))
             html += ' value="' + this.model.get('email') + '"';
         html += '></div>';
         //TODO: this is a hack. we used the same class "import-contact" and id for a target.
@@ -182,17 +194,21 @@ define(function(require, exports, module) {
         if (this.model && this.model.get('google')) {
             var obj = this.model.get('google');
             html += '<span class="import-contact" id="google">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-        } else
+            html += Templates.removeButton('google') + '</div>';
+        } else {
             html += '<span class="import-contact" id="google">  New Google Contact</span>';
-        html += '<i class="arrow fa fa-angle-right fa-lg import-contact" id="google"></i></div>';
+            html += Templates.nextButton('google') + '</div>';
+        }
 
         html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg import-contact" id="facebook"></i>';
         if (this.model && this.model.get('facebook')) {
             var obj = this.model.get('facebook');
             html += '<span class="import-contact" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-        } else
+            html += Templates.removeButton('facebook') + '</div>';
+        } else {
             html += '<span class="import-contact" id="facebook">  New Facebook Contact</span>';
-        html += '<i class="arrow fa fa-angle-right fa-lg import-contact" id="facebook"></i></div>';
+            html += Templates.nextButton('facebook') + '</div>';
+        }
 
         html += '</form>';
 

@@ -642,6 +642,25 @@ input {
 .add-contact-view .box .info .arrow {
     float: right;
     line-height: 30px;
+    margin: 0px 5px;
+}
+
+.add-contact-view .box .info .remove-button {
+    float: right;
+    line-height: 24px;
+    width: 22px;
+    opacity: 0.88;
+    margin: 3px 0px 0px 16px;
+    height: 22px;
+    border-radius: 22px;
+    text-align: center;
+    color: #fff;
+}
+
+.editing .add-button {
+    width: 22px;
+    opacity: 0.88;
+    margin: 16px 10px 0px 16px;
 }
 
 .add-contact-view .box .info input {

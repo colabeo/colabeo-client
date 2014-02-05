@@ -6,14 +6,36 @@ define(function(require, exports, module) {
     var Scrollview       = require('famous-views/Scrollview');
     var ConversationItemView  = require('views/Conversation/ConversationItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
+    var Engine           = require('famous/Engine');
 
-    Scrollview.prototype.scrollToEnd = function() {
-        var arrays = _.values(this._offsets);
-        var i = 1;
-        while (i != arrays.length && _.last(arrays) - arrays[arrays.length - i] < this.getSize()[1]) i++;
-        console.log(i,_.last(arrays) - arrays[arrays.length - i] - this.getSize()[1]);
-        this.node.index = arrays.length - i;
-        setTimeout(function(){this.setPosition(_.last(arrays) - arrays[arrays.length - i] - this.getSize()[1])}.bind(this),10);
+    Scrollview.prototype.scrollToEnd = function(emptySurfaceHeight) {
+        var speed = 1; // 1 per node
+        var nodeHeight = 72;
+        var lastNode = this.node.array.length;
+        var currNode = this.node.index;
+        var screenSize = this.getSize()[1];
+        if (emptySurfaceHeight == 0) {
+            var v = (lastNode - (currNode + Math.floor(screenSize/nodeHeight))) * speed
+            console.log(v)
+            this.setVelocity(v);
+        }
+
+
+///////// Old method: shifting node.index and position.
+//        var i = 0;
+//        var height = 0;
+//        while (i < heightArray.length && height < this.getSize()[1]){
+//            i++;
+//            // sum the height of the last i surfaces;
+//            height = _.reduce(_.last(heightArray, i),function(memo, num){return memo + num;},0);
+//        }
+//        var position = height - this.getSize()[1];
+//        console.log(heightArray.length- i, position);
+//        this.node.index = heightArray.length - i;
+//        Engine.nextTick(function(){
+//            this.setPosition(position-1);
+//        }.bind(this));
+//////////////////////////////////////
     };
 
     function ConversationView(options) {
@@ -47,15 +69,16 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
 
-//        this.loadMsg();
-        this.scrollview.sequenceFrom([]);
+        this.emptySurface = this.makeEmptySurface(0, this.scrollview.getSize()[1])
+
+        this.scrollview.sequenceFrom([this.emptySurface]);
 
         //TODO: will delete this part
         setTimeout(function(){
-            this.addRemote('Hi');
-            this.addLocal("What's ff aafa");
-            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addRemote('Hi');
+//            this.addLocal("What's ff aafa");
+//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
+//            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
 //            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
 //            this.addLocal("What's ff aafa");
 //            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
@@ -69,9 +92,7 @@ define(function(require, exports, module) {
             switch(e){
                 case 'add':
                     this.addMsg(model);
-                    break;
-//                case 'sync':
-//                    this.loadMsg();
+                    setTimeout(function(){this.scrollview.scrollToEnd(this.emptySurface.getSize()[1])}.bind(this),100);
                     break;
             }
         }.bind(this));
@@ -82,10 +103,16 @@ define(function(require, exports, module) {
                 this.addChat();
             }
         }.bind(this));
+
         this.inputSurface.on('keyup', function(e){
             if (e.keyCode == 13){
                 this.addChat();
             }
+        }.bind(this));
+
+        Engine.on('resize', function(e){
+            this.emptySurfaceResize();
+            console.log(this.emptySurface.getSize())
         }.bind(this));
     }
 
@@ -96,21 +123,11 @@ define(function(require, exports, module) {
         //TODO: NOthing yet
     };
 
-    ConversationView.prototype.loadMsg = function (){
-        var sequence =  this.collection.map(function(item){
-            var surface = new ConversationItemView({model: item});
-            surface.pipe(this.eventOutput);
-            console.log(surface.getSize(true));
-            return surface;
-        }.bind(this))
-        this.scrollview.sequenceFrom(sequence);
-    };
-
     ConversationView.prototype.addMsg = function (model){
-        // remove empty space, then readd empty space
         var surface = new ConversationItemView({model: model});
         surface.pipe(this.eventOutput);
         this.scrollview.node.push(surface);
+        setTimeout(function(){this.emptySurfaceResize()}.bind(this),100);
     };
 
     ConversationView.prototype.addChat = function(){
@@ -122,19 +139,7 @@ define(function(require, exports, module) {
         this.inputSourceLocal = !this.inputSourceLocal;
         if (this.inputSourceLocal) this.addLocal(message);
         else this.addRemote(message);
-    };
-
-    ConversationView.prototype.scrollTo = function(index, position) {
-        if (index<0) return;
-        this.scrollview.setVelocity(0);
-        if (this.emptySurface) {
-            this.scrollview.node.index = 0;
-            this.scrollview.setPosition(0);
-        } else {
-            this.scrollview.node.index = index+1;
-            if (!position) position = 0;
-            this.scrollview.setPosition(position);
-        }
+//        Engine.nextTick(function(){this.scrollview.scrollToEnd()}.bind(this));
     };
 
     //TODO: will delete this part
@@ -154,6 +159,25 @@ define(function(require, exports, module) {
             time: Date.now()
         };
         this.collection.add(newMsg);
+    };
+
+    ConversationView.prototype.makeEmptySurface = function (arraysHeight, screenHeight){
+        var emptySurface = new Surface({
+            size: [undefined, screenHeight - arraysHeight],
+            properties:{
+                backgroundColor: "yellow"
+            }
+        })
+        return emptySurface;
+    };
+
+    ConversationView.prototype.emptySurfaceResize = function (){
+        var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
+        heightArray.shift();
+        var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);
+        var height = this.scrollview.getSize()[1] - totalHeight;
+        if (height < 0) height = 0;
+        this.emptySurface.setSize([undefined, height]);
     };
 
     module.exports = ConversationView;

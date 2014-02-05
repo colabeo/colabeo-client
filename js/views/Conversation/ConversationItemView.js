@@ -21,7 +21,8 @@ define(function(require, exports, module) {
 
         this.surface = new Surface({
             properties:{
-                maxWidth: 300
+                maxWidth: 300,
+                zIndex: 2
             }
         });
 

@@ -4,7 +4,9 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('app/custom/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var ConversationItemView  = require('views/Conversation/ConversationItemView');
+    var Conversation = require('app/models/Conversation');
+    var ConversationCollection = require('app/models/ConversationCollection');
+    var ConversationItemView  = require('views/conversation/ConversationItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
     var Engine           = require('famous/Engine');
 
@@ -19,8 +21,6 @@ define(function(require, exports, module) {
             console.log(v)
             this.setVelocity(v);
         }
-
-
 ///////// Old method: shifting node.index and position.
 //        var i = 0;
 //        var height = 0;
@@ -38,7 +38,7 @@ define(function(require, exports, module) {
 //////////////////////////////////////
     };
 
-    function ConversationView(options) {
+    function ConversationView() {
 
         View.call(this);
 
@@ -52,13 +52,14 @@ define(function(require, exports, module) {
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><input type = "text"  class="input-msg" name="message"><button class="send-text-button">send</button></div>',
+            content: '<div><button class="exit-conversation">back</butoon><input type = "text"  class="input-msg" name="message"><button class="send-text-button">send</button></div>',
             properties:{
-                backgroundColor: 'red'
+                backgroundColor: 'red',
+                zIndex: 3
             }
         });
 
-        this.collection = options.collection;
+        this.collection = new ConversationCollection();
         this.scrollview = new Scrollview({
             direction: Util.Direction.Y
         });
@@ -73,21 +74,6 @@ define(function(require, exports, module) {
 
         this.scrollview.sequenceFrom([this.emptySurface]);
 
-        //TODO: will delete this part
-        setTimeout(function(){
-//            this.addRemote('Hi');
-//            this.addLocal("What's ff aafa");
-//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-//            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-//            this.addLocal("What's ff aafa");
-//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-//            this.addLocal('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-//            this.addRemote('Aafs afw faaw faa afaffafewffa afffzefafaf afaffwa fawewfwaf asfa fffafaefagrag faefaefa');
-
-        }.bind(this),1000);
-
-
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
                 case 'add':
@@ -99,9 +85,8 @@ define(function(require, exports, module) {
 
         this.inputSurface.on('click', function(e){
             var target = $(e.target);
-            if (target.hasClass("send-text-button")){
-                this.addChat();
-            }
+            if (target.hasClass("send-text-button")) this.addChat();
+            else if (target.hasClass("exit-conversation")) this.eventOutput.emit('exit-conversation');
         }.bind(this));
 
         this.inputSurface.on('keyup', function(e){
@@ -113,6 +98,10 @@ define(function(require, exports, module) {
         Engine.on('resize', function(e){
             this.emptySurfaceResize();
             console.log(this.emptySurface.getSize())
+        }.bind(this));
+
+        this.eventOutput.on('incomingChat', function(evt){
+            this.addRemote(evt.content);
         }.bind(this));
     }
 
@@ -135,37 +124,39 @@ define(function(require, exports, module) {
         var message= document.getElementsByClassName('input-msg')[0].value;
         document.getElementsByClassName('input-msg')[0].value = "";
 
-        // TODO: this is a hack
-        this.inputSourceLocal = !this.inputSourceLocal;
+        // TODO: this is for testing
+//        this.inputSourceLocal = !this.inputSourceLocal;
         if (this.inputSourceLocal) this.addLocal(message);
         else this.addRemote(message);
-//        Engine.nextTick(function(){this.scrollview.scrollToEnd()}.bind(this));
     };
 
     //TODO: will delete this part
-    ConversationView.prototype.addRemote = function(Sth){
+    ConversationView.prototype.addRemote = function(message){
         var newMsg = {
-            content: Sth,
+            content: message,
             source: 'remote',
+            type: 'text',
             time: Date.now()
         };
         this.collection.add(newMsg);
     };
 
-    ConversationView.prototype.addLocal = function(Sth){
+    ConversationView.prototype.addLocal = function(message){
         var newMsg = {
-            content: Sth,
+            content: message,
             source: 'local',
+            type: 'text',
             time: Date.now()
         };
         this.collection.add(newMsg);
+        this.eventOutput.emit('outgoingChat', newMsg);
     };
 
     ConversationView.prototype.makeEmptySurface = function (arraysHeight, screenHeight){
         var emptySurface = new Surface({
             size: [undefined, screenHeight - arraysHeight],
             properties:{
-                backgroundColor: "yellow"
+                background: "transparent"
             }
         })
         return emptySurface;

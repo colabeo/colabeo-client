@@ -12,8 +12,6 @@ define(function(require, exports, module) {
     var CallCollection = require("app/models/CallCollection");
     var Settings          = require("app/models/Settings");
     var ContactCollection = require('app/models/ContactCollection');
-    var Conversation = require('app/models/Conversation');
-    var ConversationCollection = require('app/models/ConversationCollection');
 
     // import views
     var CameraView = require("views/CameraView");
@@ -21,7 +19,6 @@ define(function(require, exports, module) {
     var OutgoingCallView = require("views/call/OutgoingCallView");
     var IncomingCallView = require("views/call/IncomingCallView");
     var ConnectedCallView = require('views/call/ConnectedCallView');
-    var ConversationView = require('views/Conversation/ConversationView');
     var FavoritesSectionView = require('views/favorite/FavoritesSectionView');
     var RecentsSectionView = require('views/recent/RecentsSectionView');
     var ContactsSectionView = require('views/contact/ContactsSectionView');
@@ -65,7 +62,6 @@ define(function(require, exports, module) {
             firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
         });
         this.recentCalls = new CallCollection();
-        this.conversations = new ConversationCollection();
         this.curCall = new Call();
 
         // Set up views
@@ -102,13 +98,11 @@ define(function(require, exports, module) {
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
-        var conversationView = new ConversationView({collection: this.conversations});
         window.myLightbox = myLightbox;
         myApp.pipe(this.eventOutput);
         outgoingCallView.pipe(this.eventOutput);
         incomingCallView.pipe(this.eventOutput);
         connectedCallView.pipe(this.eventOutput);
-        conversationView.pipe(this.eventOutput);
         addContactView.pipe(this.eventOutput);
         var cameraView = new CameraView({});
 
@@ -121,15 +115,14 @@ define(function(require, exports, module) {
         FamousEngine.pipe(myApp);
 
         // start on the main section
-        myApp.select(myApp.options.sections[2].title);
-//        onConversations();
+        myApp.select(myApp.options.sections[3].title);
+//        onConnectedCall();
         // events handling
         this.eventOutput.on('callEnd', onCallEnd);
         this.eventOutput.on('incomingCall', onIncomingCall);
         this.eventOutput.on('outgoingCall', onOutgoingCall);
         this.eventOutput.on('connectedCall', onConnectedCall);
         this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
-        this.eventOutput.on('conversations', onConversations);
         this.eventOutput.on('editContact', onEditContact);
         this.eventOutput.on('showApp', onShowApp);
         this.eventOutput.on('chatOn', onChatOn);
@@ -195,11 +188,6 @@ define(function(require, exports, module) {
             }
         }
 
-        function onConversations() {
-            conversationView.start();
-            myLightbox.show(conversationView, true);
-        }
-
         function onEditContact(eventData) {
             if (eventData instanceof Contact || eventData instanceof Call) addContactView.setContact(eventData);
             else addContactView.setContact(undefined);
@@ -258,7 +246,6 @@ define(function(require, exports, module) {
 //        colabeo.contactsSection = contactsSection;
 //        colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
-        colabeo.conversationView = conversationView;
 //        colabeo.addContactView = addContactView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;

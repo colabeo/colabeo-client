@@ -7,6 +7,7 @@ define(function(require, exports, module) {
     var LightBox     = require('app/custom/LightBox');
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
+    var ConversationView = require('views/conversation/ConversationView');
     var duration = 500;
 
     function ConnectedCallView(options){
@@ -19,23 +20,23 @@ define(function(require, exports, module) {
 
             properties:{
                 backgroundColor:'transparent',
-                zIndex:0
+                zIndex:-1
             }
         });
 
         this.footerLightBox = new LightBox({
-            inTransform: Matrix.translate(0, 900, 0),
+            inTransform: Matrix.identity,
             inTransition: {duration: duration, curve: Easing.inQuadNorm()},
             inOpacity: 0,
-            inOrigin: [0.5, 0.5],
-            outTransform: Matrix.translate(0, 900, 0),
+            inOrigin: [0.5, 0.9],
+            outTransform: Matrix.identity,
             outOpacity: 0,
-            outOrigin: [0.5, 0.5],
+            outOrigin: [0.5, 0.9],
             outTransition: {duration:duration, curve: Easing.outQuadNorm()},
             showTransform: Matrix.identity,
             showOpacity: 1,
-            showOrigin: [0.5, 0.9],
-            overlap:true
+            showOrigin: [0.5, 0.9]
+//            overlap:true
         });
 
         // Set up event handlers
@@ -49,13 +50,16 @@ define(function(require, exports, module) {
             size: [undefined, 80],
             properties: {
                 backgroundColor: 'transparent',
-                zIndex:1,
+                zIndex:3,
                 opacity:0
             }
         });
 
         this._add(this.backSurface);
         this._add(this.footerLightBox);
+
+        this.conversationView = new ConversationView();
+        this.conversationView.pipe(this.eventOutput);
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
@@ -70,10 +74,12 @@ define(function(require, exports, module) {
         }.bind(this));
 
         this.backSurface.on('click',function(e){
-            $('.box').toggle();
-        })
-    }
+            this.footerLightBox.show(this.conversationView,true);
+        }.bind(this))
 
+        this.eventOutput.on('exit-conversation', this.onExitConversation);
+
+    }
 
     ConnectedCallView.prototype = Object.create(View.prototype);
     ConnectedCallView.prototype.constructor = ConnectedCallView;
@@ -130,6 +136,10 @@ define(function(require, exports, module) {
             this.eventOutput.emit('incomingCallEnd', this.model);
         }
     };
+
+    ConnectedCallView.prototype.onExitConversation = function(){
+        this.footerLightBox.show(this.footer)
+    }
 
     module.exports = ConnectedCallView;
 

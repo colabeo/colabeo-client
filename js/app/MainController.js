@@ -58,9 +58,6 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.setupSettingsListener = function() {
-        this.eventOutput.on('incomingChat', function(evt) {
-            console.log("incomingChat", evt);
-        }.bind(this));
         this.eventOutput.on('setCamera', function() {
             this.setCamera();
         }.bind(this));

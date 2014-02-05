@@ -9,6 +9,7 @@ define(function(require, exports, module) {
     var ConversationItemView  = require('views/conversation/ConversationItemView');
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
     var Engine           = require('famous/Engine');
+    var EventHandler = require('famous/EventHandler');
 
     Scrollview.prototype.scrollToEnd = function(emptySurfaceHeight) {
         var speed = 1; // 1 per node
@@ -41,6 +42,12 @@ define(function(require, exports, module) {
     function ConversationView() {
 
         View.call(this);
+
+        // Set up event handlers
+        this.eventInput = new EventHandler();
+        EventHandler.setInputHandler(this, this.eventInput);
+        this.eventOutput = new EventHandler();
+        EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.inputSourceLocal=true;
 
@@ -100,8 +107,11 @@ define(function(require, exports, module) {
             console.log(this.emptySurface.getSize())
         }.bind(this));
 
-        this.eventOutput.on('incomingChat', function(evt){
+        this.eventInput.on('incomingChat', function(evt){
             this.addRemote(evt.content);
+        }.bind(this));
+        this.eventInput.on('incomingChat', function(evt) {
+            console.log("incomingChat conversationView", evt);
         }.bind(this));
     }
 

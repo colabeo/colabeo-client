@@ -103,6 +103,7 @@ define(function(require, exports, module) {
         outgoingCallView.pipe(this.eventOutput);
         incomingCallView.pipe(this.eventOutput);
         connectedCallView.pipe(this.eventOutput);
+        this.pipe(connectedCallView.eventInput);
         addContactView.pipe(this.eventOutput);
         var cameraView = new CameraView({});
 
@@ -131,6 +132,10 @@ define(function(require, exports, module) {
         this.eventOutput.on('clearRecent', onClearRecent);
         this.eventOutput.on('onEngineClick', onEngineClick);
         this.eventOutput.on('closeAlert', onCloseAlert);
+        this.eventOutput.on('incomingChat', function(evt) {
+            console.log("incomingChat app.js", evt);
+
+        }.bind(this));
 
         function onLoadRecent (e){
             recentsSection.setMissOnly(e.target.outerText);

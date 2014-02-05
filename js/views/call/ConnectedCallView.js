@@ -60,6 +60,7 @@ define(function(require, exports, module) {
 
         this.conversationView = new ConversationView();
         this.conversationView.pipe(this.eventOutput);
+        this.pipe(this.conversationView.eventInput);
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
@@ -78,7 +79,9 @@ define(function(require, exports, module) {
         }.bind(this))
 
         this.eventOutput.on('exit-conversation', this.onExitConversation);
-
+        this.eventInput.on('incomingChat', function(evt) {
+            console.log("incomingChat ConnectedCallView", evt);
+        }.bind(this));
     }
 
     ConnectedCallView.prototype = Object.create(View.prototype);

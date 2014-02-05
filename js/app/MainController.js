@@ -59,7 +59,7 @@ define(function(require, exports, module) {
 
     MainController.prototype.setupSettingsListener = function() {
         this.eventOutput.on('incomingChat', function(evt) {
-            console.log("incomingChat", evt);
+            console.log("incomingChat MainController", evt);
         }.bind(this));
         this.eventOutput.on('outgoingChat', function(evt) {
             this.sendChat(evt.content, evt.type);

@@ -58,6 +58,13 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.setupSettingsListener = function() {
+        this.eventOutput.on('incomingChat', function(evt) {
+            console.log("incomingChat", evt);
+        }.bind(this));
+        this.eventOutput.on('outgoingChat', function(evt) {
+            this.sendChat(evt.content, evt.type);
+            console.log("outgoingChat", evt);
+        }.bind(this));
         this.eventOutput.on('setCamera', function() {
             this.setCamera();
         }.bind(this));
@@ -463,7 +470,7 @@ define(function(require, exports, module) {
 
     MainController.prototype.sendChat = function(message, type) {
         if (!type) type = "text";
-        this.conn.send({data:message, type: type, action:"chat"});
+        this.conn.send({content:message, type: type, action:"chat"});
     };
 
     function userLookup(externalId, provider, done) {

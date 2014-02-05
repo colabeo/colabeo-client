@@ -69,7 +69,6 @@ define(function(require, exports, module) {
         this.content.pipe(this.eventOutput);
         this.header.pipe(this.eventOutput);
 
-        this.newContact = {};
         this.renderContact();
 
         this.header.on('click', function(e) {
@@ -138,7 +137,8 @@ define(function(require, exports, module) {
                 };
                 if (eventData.attributes.provider)
                     newContact[eventData.attributes.provider] = eventData.attributes;
-                this.renderContact(new Contact(newContact));
+                this.model = new Contact(newContact);
+                this.renderContact();
             } else {
                 if (eventData.attributes.provider)
                     this.model.attributes[eventData.attributes.provider] = eventData.attributes;
@@ -156,22 +156,12 @@ define(function(require, exports, module) {
     AddContactView.prototype = Object.create(View.prototype);
     AddContactView.prototype.constructor = AddContactView;
 
-    AddContactView.prototype.renderContact = function(newContact) {
-        var title = 'New Contact';
-        var initial = '<i class="fa fa-user fa-lg"></i>';
-        if (this.model instanceof Contact) {
-            title = 'Edit Contact';
-            initial = '';
+    AddContactView.prototype.renderContact = function() {
+        if (this.model) {
+            if (this.model.get('firstname')) this.initial = this.model.get('firstname')[0];
+            if (this.model.get('lastname')) this.initial +=  this.model.get('lastname')[0];
         }
-        if (newContact instanceof Contact) {
-            this.newContact = _.extend(this.newContact, newContact.attributes);
-            this.model = newContact;
-        }
-        if (this.model instanceof Contact) {
-            if (this.model.get('firstname')) initial = this.model.get('firstname')[0];
-            if (this.model.get('lastname')) initial +=  this.model.get('lastname')[0];
-        }
-        var html = '<div class="initial">'+initial+'</div>';
+        var html = '<div class="initial">' + this.initial + '</div>';
         html += '<form role="form">';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-first-name" placeholder="First" name="firstname"';
@@ -214,7 +204,8 @@ define(function(require, exports, module) {
 
         this.content.setContent(html);
 
-        var html = '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>'+title+'</div><button class="right close-button done-contact">Done</button>'
+        var html = '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>'
+                    + this.title + '</div><button class="right close-button done-contact">Done</button>';
         this.header.setContent(html);
     }
 
@@ -242,15 +233,15 @@ define(function(require, exports, module) {
     }
 
     AddContactView.prototype.submitForm = function(){
+        console.log(this.model);
+        return;
         var newContact = this.getFormContact();
         if ((newContact.firstname || newContact.lastname)) {
-            if (this.model instanceof Contact) {
+            if (this.title == 'Edit Contact') {
                 this.model.set(newContact);
-                // TODO: this is a hack; need scrollview append
                 this.model.trigger('sync');
             } else if (this.collection || this.model instanceof Call) {
                 this.collection.add(newContact);
-                // TODO: this is a hack; need scrollview append
                 this.collection.trigger('sync');
             }
         }
@@ -259,6 +250,13 @@ define(function(require, exports, module) {
         this.newContact = {};
     };
     AddContactView.prototype.setContact = function (model){
+        if (model) {
+            this.title = 'Edit Contact';
+            this.initial = '';
+        } else {
+            this.title = 'New Contact';
+            this.initial = '<i class="fa fa-user fa-lg"></i>';
+        }
         this.model = model;
     };
 

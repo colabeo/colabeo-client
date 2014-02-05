@@ -246,7 +246,7 @@ define(function(require, exports, module) {
 //        colabeo.contactsSection = contactsSection;
 //        colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
-//        colabeo.addContactView = addContactView;
+        colabeo.addContactView = addContactView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};

@@ -576,3 +576,14 @@ define(function(require, exports, module) {
 
     module.exports = MainController;
 });
+
+Array.prototype.sum = function () {
+    var total = 0;
+    var i = this.length;
+
+    while (i--) {
+        total += this[i];
+    }
+
+    return total;
+}

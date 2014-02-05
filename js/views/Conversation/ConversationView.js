@@ -12,31 +12,19 @@ define(function(require, exports, module) {
     var EventHandler = require('famous/EventHandler');
 
     Scrollview.prototype.scrollToEnd = function(emptySurfaceHeight) {
-        var speed = 1; // 1 per node
-        var nodeHeight = 72;
-        var lastNode = this.node.array.length;
+        var lastNode = this.node.array.length-1;
         var currNode = this.node.index;
         var screenSize = this.getSize()[1];
-        if (emptySurfaceHeight == 0) {
-            var v = (lastNode - (currNode + Math.floor(screenSize/nodeHeight))) * speed
-            console.log(v)
-            this.setVelocity(v);
-        }
-///////// Old method: shifting node.index and position.
-//        var i = 0;
-//        var height = 0;
-//        while (i < heightArray.length && height < this.getSize()[1]){
-//            i++;
-//            // sum the height of the last i surfaces;
-//            height = _.reduce(_.last(heightArray, i),function(memo, num){return memo + num;},0);
-//        }
-//        var position = height - this.getSize()[1];
-//        console.log(heightArray.length- i, position);
-//        this.node.index = heightArray.length - i;
-//        Engine.nextTick(function(){
-//            this.setPosition(position-1);
-//        }.bind(this));
-//////////////////////////////////////
+        var currPos = this.getPosition();
+        var heightArray = this.node.array.map(function(d){
+            if (d.getSize()[1]===true) return 100;
+            return d.getSize()[1];
+        });
+        var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+        // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
+        var v = 2*totalPixelsToMove/200;
+        console.log(v, totalPixelsToMove);
+        this.setVelocity(v);
     };
 
     function ConversationView() {

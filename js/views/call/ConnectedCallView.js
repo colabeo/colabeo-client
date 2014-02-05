@@ -90,7 +90,7 @@ define(function(require, exports, module) {
     ConnectedCallView.prototype.start = function(appSetting) {
         this.appSettings = appSetting;
         $('.camera').removeClass('blur');
-        this.footerLightBox.show(this.footer);
+        this.footerLightBox.show(this.conversationView);
 
         var videoButton = Templates.toggleButton({
             id: 'video',

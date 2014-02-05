@@ -60,7 +60,7 @@ define(function(require, exports, module) {
 
         this.conversationView = new ConversationView();
         this.conversationView.pipe(this.eventOutput);
-        this.pipe(this.conversationView.eventInput);
+        this.eventInput.pipe(this.conversationView);
 
         this.footer.on('click', function(e) {
             var target = $(e.target);

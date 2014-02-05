@@ -55,6 +55,7 @@ define(function(require, exports, module) {
 //        window.addEventListener("message", onMessage.bind(this), false);
         if (window.colabeoBody)
             window.colabeoBody.addEventListener("FromExtension", onExtensionMessage.bind(this));
+//        setTimeout(function(){this.eventOutput.emit('incomingChat')}.bind(this),3000);
     };
 
     MainController.prototype.setupSettingsListener = function() {

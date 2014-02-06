@@ -10,6 +10,9 @@ define(function(require, exports, module) {
     var HeaderFooterLayout = require('famous-views/HeaderFooterLayout');
     var Engine           = require('famous/Engine');
     var EventHandler = require('famous/EventHandler');
+    var LightBox = require('app/custom/LightBox');
+    var Matrix = require('famous/Matrix');
+
 
     Scrollview.prototype.scrollToEnd = function() {
         var lastNode = this.node.array.length-1;
@@ -40,7 +43,7 @@ define(function(require, exports, module) {
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><button class="fa fa-th menu-toggle-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
+            content: '<div><button class="fa fa-comments-o menu-toggle-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
             properties:{
                 backgroundColor: '#000',
                 opacity: 0.9,
@@ -48,12 +51,27 @@ define(function(require, exports, module) {
             }
         });
 
+        this.contentLightBox = new LightBox({
+            inTransform: Matrix.identity,
+            inOpacity: 0,
+            inOrigin: [0.0, 0.0],
+            outTransform: Matrix.identity,
+            outOpacity: 0,
+            outOrigin: [0.0, 0.0],
+            showTransform: Matrix.identity,
+            showOpacity: 1,
+            showOrigin: [0.0, 0.0],
+            inTransition: true,
+            outTransition: true,
+            overlap: false
+        });
+
         this.collection = new ConversationCollection();
         this.scrollview = new Scrollview({
             direction: Util.Direction.Y
         });
 
-        this.headerFooterLayout.id.content.link(this.scrollview);
+        this.headerFooterLayout.id.content.link(this.contentLightBox);
         this.headerFooterLayout.id.footer.link(this.inputSurface);
 
         this.pipe(this.scrollview);
@@ -193,10 +211,12 @@ define(function(require, exports, module) {
     ConversationView.prototype.toggleMenuToggleButton = function (Blue){
         if (Blue === true) {
             $('.menu-toggle-button').addClass('fade');
+            this.contentLightBox.hide();
             this.BlueMenuToggleButton = false;
         }
         else {
             $('.menu-toggle-button').removeClass('fade');
+            if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
             this.BlueMenuToggleButton = true;
         }
     };

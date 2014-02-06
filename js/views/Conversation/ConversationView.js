@@ -142,7 +142,7 @@ define(function(require, exports, module) {
         document.getElementsByClassName('input-msg')[0].value = "";
 
         // TODO: this is for testing
-        this.inputSourceLocal = !this.inputSourceLocal;
+//        this.inputSourceLocal = !this.inputSourceLocal;
         if (this.inputSourceLocal) this.addLocal(message);
         else this.addRemote(message);
     };

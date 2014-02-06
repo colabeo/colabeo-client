@@ -8,6 +8,7 @@ define(function(require, exports, module) {
     var Templates        = require('app/custom/Templates');
     var Easing = require('famous-animation/Easing');
     var ConversationView = require('views/conversation/ConversationView');
+    var Call = require("app/models/Call");
     var duration = 500;
 
     function ConnectedCallView(options){
@@ -88,7 +89,11 @@ define(function(require, exports, module) {
     ConnectedCallView.prototype.constructor = ConnectedCallView;
 
     ConnectedCallView.prototype.start = function(appSetting) {
+        this.model = this.collection.models[0] || new Call();
         this.appSettings = appSetting;
+        // myId hisID
+        console.log(this.model,this.appSettings);
+//        this.conversationView.
         $('.camera').removeClass('blur');
         this.footerLightBox.show(this.conversationView);
 

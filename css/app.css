@@ -1052,6 +1052,29 @@ input {
     display: inline-block;
 }
 
-.input-msg {
-    background-color: yellow;
+
+.conversation-input-bar div{
+    font-size: 30px;
+    line-height: 30px;
+    width: 100%;
+}
+
+.conversation-input-bar .fa-arrow-circle-left.exit-conversation{
+    margin: 2px;
+}
+
+.conversation-input-bar .fa-plus-circle.attach{
+    margin: 2px;
+}
+
+.conversation-input-bar .input-msg {
+    background-color: rgba(185, 185, 185, 0.2);
+    color: #aaa;
+    font-size: 22px;
+    height: 35px;
+}
+
+.conversation-input-bar .fa-share-square-o.send-text-button{
+    margin: 2px;
+    float: right;
 }

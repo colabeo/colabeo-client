@@ -56,8 +56,6 @@ define(function(require, exports, module) {
             }
         });
 
-        this.showingFooter = false;
-
         this._add(this.backSurface);
         this._add(this.footerLightBox);
 
@@ -78,7 +76,6 @@ define(function(require, exports, module) {
 //        }.bind(this))
 
         this.eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
-        this.eventOutput.on('hide-footer-buttons', this.onHideFooterButtons);
 
         this.eventInput.on('incomingChat', function(evt) {
             console.log("incomingChat ConnectedCallView", evt);
@@ -150,20 +147,13 @@ define(function(require, exports, module) {
         }
     };
 
-    ConnectedCallView.prototype.onMenuToggleButton = function(){
-        if (this.showingFooter == false) {
-            this.footerLightBox.show(this.footer);
-            this.showingFooter = true;
+    ConnectedCallView.prototype.onMenuToggleButton = function(toHide){
+        if (toHide === true) {
+            this.footerLightBox.hide();
         } else {
-            this.onHideFooterButtons()
+            this.footerLightBox.show(this.footer);
         }
-    }
-
-    ConnectedCallView.prototype.onHideFooterButtons = function(){
-        this.footerLightBox.hide();
-        this.showingFooter = false;
-    }
-
+    };
 
         module.exports = ConnectedCallView;
 

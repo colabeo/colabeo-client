@@ -80,7 +80,7 @@ define(function(require, exports, module) {
             if (target.hasClass("send-text-button")) this.addChat();
             else if (target.hasClass("menu-toggle-button")) {
                 this.toggleMenuToggleButton(this.BlueMenuToggleButton);
-                this.eventOutput.emit('menu-toggle-button');
+                this.eventOutput.emit('menu-toggle-button', this.BlueMenuToggleButton);
             }
         }.bind(this));
 
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
             time: Date.now()
         };
         this.toggleMenuToggleButton(false);
-        this.eventOutput.emit('hide-footer-buttons');
+        this.eventOutput.emit('menu-toggle-button', true);
         this.collection.add(newMsg);
     };
 
@@ -167,7 +167,7 @@ define(function(require, exports, module) {
         };
         this.collection.add(newMsg);
         this.toggleMenuToggleButton(false);
-        this.eventOutput.emit('hide-footer-buttons');
+        this.eventOutput.emit('menu-toggle-button', true);
         this.eventOutput.emit('outgoingChat', newMsg);
     };
 

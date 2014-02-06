@@ -46,9 +46,10 @@ define(function(require, exports, module) {
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><i class="fa fa-arrow-circle-left exit-conversation"></i><i class="fa fa-plus-circle attach"></i><input type = "text"  class="input-msg" name="message"><i class="fa fa-share-square-o send-text-button"></i></div>',
+            content: '<div><button class="fa fa-arrow-left exit-conversation"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
             properties:{
-                backgroundColor: 'red',
+                backgroundColor: '#000',
+                opacity: 0.9,
                 zIndex: 3
             }
         });

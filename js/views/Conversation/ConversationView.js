@@ -30,12 +30,6 @@ define(function(require, exports, module) {
 
         View.call(this);
 
-        // Set up event handlers
-        this.eventInput = new EventHandler();
-        EventHandler.setInputHandler(this, this.eventInput);
-        this.eventOutput = new EventHandler();
-        EventHandler.setOutputHandler(this, this.eventOutput);
-
         this.inputSourceLocal=true;
 
         this.headerFooterLayout = new HeaderFooterLayout({
@@ -46,7 +40,7 @@ define(function(require, exports, module) {
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><button class="fa fa-arrow-left exit-conversation"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
+            content: '<div><button class="fa fa-th menu-toggle-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
             properties:{
                 backgroundColor: '#000',
                 opacity: 0.9,
@@ -78,10 +72,16 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
+
+        this.BlueMenuToggleButton = true;
+
         this.inputSurface.on('click', function(e){
             var target = $(e.target);
             if (target.hasClass("send-text-button")) this.addChat();
-            else if (target.hasClass("exit-conversation")) this.eventOutput.emit('exit-conversation');
+            else if (target.hasClass("menu-toggle-button")) {
+                this.toggleMenuToggleButton(this.BlueMenuToggleButton);
+                this.eventOutput.emit('menu-toggle-button');
+            }
         }.bind(this));
 
         this.inputSurface.on('keyup', function(e){
@@ -103,9 +103,6 @@ define(function(require, exports, module) {
 
         this.eventInput.on('incomingChat', function(evt){
             this.addRemote(evt.content);
-        }.bind(this));
-        this.eventInput.on('incomingChat', function(evt) {
-            console.log("incomingChat conversationView", evt);
         }.bind(this));
     }
 
@@ -156,6 +153,8 @@ define(function(require, exports, module) {
             type: 'text',
             time: Date.now()
         };
+        this.toggleMenuToggleButton(false);
+        this.eventOutput.emit('hide-footer-buttons');
         this.collection.add(newMsg);
     };
 
@@ -167,6 +166,8 @@ define(function(require, exports, module) {
             time: Date.now()
         };
         this.collection.add(newMsg);
+        this.toggleMenuToggleButton(false);
+        this.eventOutput.emit('hide-footer-buttons');
         this.eventOutput.emit('outgoingChat', newMsg);
     };
 
@@ -188,6 +189,18 @@ define(function(require, exports, module) {
         if (height < 0) height = 0;
         this.emptySurface.setSize([undefined, height]);
     };
+
+    ConversationView.prototype.toggleMenuToggleButton = function (Blue){
+        if (Blue === true) {
+            $('.menu-toggle-button').addClass('fade');
+            this.BlueMenuToggleButton = false;
+        }
+        else {
+            $('.menu-toggle-button').removeClass('fade');
+            this.BlueMenuToggleButton = true;
+        }
+    };
+
 
     module.exports = ConversationView;
 });

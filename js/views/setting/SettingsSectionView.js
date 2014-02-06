@@ -155,7 +155,7 @@ define(function(require, exports, module) {
         html += Templates.toggleSwitch("yammer", this.appSettings.get('linkAccounts').yammer) + '</div>';
 
 //        html += '<div class="desc">Testing</div>';
-//        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button><button class="conversations-button">Message</button></div>';
+        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button><button class="conversations-button">Message</button></div>';
         html += '</div>';
         this.surface.setContent(html);
     };

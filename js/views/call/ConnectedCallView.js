@@ -56,6 +56,8 @@ define(function(require, exports, module) {
             }
         });
 
+        this.showingFooter = false;
+
         this._add(this.backSurface);
         this._add(this.footerLightBox);
 
@@ -71,11 +73,13 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-        this.backSurface.on('click',function(e){
-            this.footerLightBox.show(this.conversationView,true);
-        }.bind(this))
+//        this.backSurface.on('click',function(e){
+//            this.footerLightBox.show(this.conversationView,true);
+//        }.bind(this))
 
-        this.eventOutput.on('exit-conversation', this.onExitConversation);
+        this.eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
+        this.eventOutput.on('hide-footer-buttons', this.onHideFooterButtons);
+
         this.eventInput.on('incomingChat', function(evt) {
             console.log("incomingChat ConnectedCallView", evt);
         }.bind(this));
@@ -89,6 +93,7 @@ define(function(require, exports, module) {
         this.conversationView = new ConversationView();
         this.conversationView.pipe(this.eventOutput);
         this.eventInput.pipe(this.conversationView);
+        this._add(this.conversationView);
 
         this.model = this.collection.models[0] || new Call();
         this.appSettings = appSetting;
@@ -96,7 +101,6 @@ define(function(require, exports, module) {
         console.log(this.model,this.appSettings);
 //        this.conversationView.
         $('.camera').removeClass('blur');
-        this.footerLightBox.show(this.footer);
 
         var videoButton = Templates.toggleButton({
             id: 'video',
@@ -146,10 +150,21 @@ define(function(require, exports, module) {
         }
     };
 
-    ConnectedCallView.prototype.onExitConversation = function(){
-        this.footerLightBox.show(this.footer)
+    ConnectedCallView.prototype.onMenuToggleButton = function(){
+        if (this.showingFooter == false) {
+            this.footerLightBox.show(this.footer);
+            this.showingFooter = true;
+        } else {
+            this.onHideFooterButtons()
+        }
     }
 
-    module.exports = ConnectedCallView;
+    ConnectedCallView.prototype.onHideFooterButtons = function(){
+        this.footerLightBox.hide();
+        this.showingFooter = false;
+    }
+
+
+        module.exports = ConnectedCallView;
 
 });

@@ -1060,7 +1060,7 @@ input {
     border-top: solid rgba(255,255,255,0.3) 1px;
 }
 
-.conversation-input-bar .exit-conversation{
+.conversation-input-bar .menu-toggle-button{
     margin: 2px;
     position: absolute;
     top: 10px;
@@ -1069,6 +1069,10 @@ input {
     width: 30px;
     color: #3398cd;
     font-size: 22px;
+}
+
+.conversation-input-bar .menu-toggle-button.fade{
+    color: #8a8a8a;
 }
 
 .conversation-input-bar .send-text-button{

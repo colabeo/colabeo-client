@@ -40,12 +40,10 @@ define(function(require, exports, module) {
             footerSize: 50
         });
 
-
-//        <button class="fa fa-phone menu-end-button"></button>
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><button class="fa fa-comments-o menu-toggle-button fade"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
+            content: '<div><button class="fa fa-comments-o menu-toggle-button fade"></button><button class="fa fa-phone menu-end-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
             properties:{
                 backgroundColor: '#000',
                 opacity: 0.9,
@@ -84,6 +82,8 @@ define(function(require, exports, module) {
 
         this.scrollview.sequenceFrom([this.emptySurface]);
 
+        this.BlueMenuToggleButton = false;
+
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
                 case 'add':
@@ -92,15 +92,14 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
-
-        this.BlueMenuToggleButton = false;
-
         this.inputSurface.on('click', function(e){
             var target = $(e.target);
             if (target.hasClass("send-text-button")) this.addChat();
             else if (target.hasClass("menu-toggle-button")) {
                 this.toggleMenuToggleButton(this.BlueMenuToggleButton);
                 this.eventOutput.emit('menu-toggle-button', this.BlueMenuToggleButton);
+            } else if (target.hasClass("menu-end-button")) {
+                this.eventOutput.emit('end-call',$('.someRandomNull'));
             }
         }.bind(this));
 
@@ -213,11 +212,15 @@ define(function(require, exports, module) {
     ConversationView.prototype.toggleMenuToggleButton = function (Blue){
         if (Blue === true) {
             $('.menu-toggle-button').addClass('fade');
+            $('.menu-end-button').removeClass('toShow');
+            $('.input-msg').removeClass('short');
             this.contentLightBox.hide();
             this.BlueMenuToggleButton = false;
         }
         else {
             $('.menu-toggle-button').removeClass('fade');
+            $('.menu-end-button').addClass('toShow');
+            $('.input-msg').addClass('short');
             if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
             this.BlueMenuToggleButton = true;
         }

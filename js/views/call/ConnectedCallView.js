@@ -91,6 +91,7 @@ define(function(require, exports, module) {
 //        }.bind(this))
 
         this.eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
+        this.eventOutput.on('end-call', this.stop);
 
         this.eventInput.on('incomingChat', function(evt) {
             console.log("incomingChat ConnectedCallView", evt);
@@ -174,6 +175,6 @@ define(function(require, exports, module) {
         }
     };
 
-        module.exports = ConnectedCallView;
+    module.exports = ConnectedCallView;
 
 });

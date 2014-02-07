@@ -1077,13 +1077,19 @@ input {
     top: 10px;
     left: 45px;
     background: transparent;
-    width: 30px;
+    width: 0px;
     color: #bf4335;
-    font-size: 22px;
+    font-size: 0px;
     -webkit-transform: rotate(135deg);
     -moz-transform: rotate(135deg);
+    -webkit-transition: width 0.3s;
+
 }
 
+.conversation-input-bar .menu-end-button.toShow{
+    width: 30px;
+    font-size: 22px;
+}
 
 
 .conversation-input-bar .menu-toggle-button.fade{
@@ -1109,8 +1115,12 @@ input {
     width: 100%;
     display: block;
     border-left: solid #000 50px;
-    /*border-left: solid #000 90px;*/
     border-right: solid #000 70px;
     box-sizing: border-box;
     margin: 7px 0px;
+    -webkit-transition: border-left 0.3s;
+}
+
+.conversation-input-bar .input-msg.short{
+    border-left: solid #000 90px;
 }

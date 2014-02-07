@@ -40,6 +40,20 @@ define(function(require, exports, module) {
 //            overlap:true
         });
 
+        this.conversationLightBox = new LightBox({
+            inTransform: Matrix.identity,
+            inTransition: {duration: duration, curve: Easing.inQuadNorm()},
+            inOpacity: 0,
+            inOrigin: [0.5, 0.9],
+            outTransform: Matrix.identity,
+            outOpacity: 0,
+            outOrigin: [0.5, 0.9],
+            outTransition: {duration:duration, curve: Easing.outQuadNorm()},
+            showTransform: Matrix.identity,
+            showOpacity: 1,
+            showOrigin: [0.5, 0.9]
+        });
+
         // Set up event handlers
         this.eventInput = new EventHandler();
         EventHandler.setInputHandler(this, this.eventInput);
@@ -58,6 +72,7 @@ define(function(require, exports, module) {
 
         this._add(this.backSurface);
         this._add(this.footerLightBox);
+        this._add(this.conversationLightBox);
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
@@ -90,7 +105,7 @@ define(function(require, exports, module) {
         this.conversationView = new ConversationView();
         this.conversationView.pipe(this.eventOutput);
         this.eventInput.pipe(this.conversationView);
-        this._add(this.conversationView);
+        this.conversationLightBox.show(this.conversationView)
 
         this.model = this.collection.models[0] || new Call();
         this.appSettings = appSetting;
@@ -138,8 +153,9 @@ define(function(require, exports, module) {
 
     ConnectedCallView.prototype.stop = function(button) {
         if (button) button.addClass('exiting');
+        this.conversationLightBox.hide();
+        this.footerLightBox.hide();
         setTimeout(function() {
-            this.footerLightBox.hide();
             this.eventOutput.emit('showApp',function(){
                 if (button) button.removeClass('exiting');
             });

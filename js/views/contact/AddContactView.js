@@ -18,6 +18,7 @@ define(function(require, exports, module) {
 
     function AddContactView(options) {
         View.call(this);
+        this.formObject = {};
         this.social = {};
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: 50,
@@ -117,33 +118,27 @@ define(function(require, exports, module) {
 
             } else if (target.hasClass('remove-button')){
                 var source = target[0].id;
-                console.log(source,this.model.attributes[source]);
                 if (source)
-                    delete this.model.attributes[source];
+                    delete this.formObject[source];
                 this.renderContact();
             }
         }.bind(this));
 
-        this.eventOutput.on('importSource', onImportSource);
+//        this.eventOutput.on('importSource', onImportSource);
         this.eventOutput.on('goBack', onGoBack);
 
         function onImportSource(eventData){
             if (!eventData || !eventData.attributes) return;
-            if (!this.model) {
-                var newContact = {
-                    firstname: eventData.attributes.firstname,
-                    lastname: eventData.attributes.lastname,
-                    email: eventData.attributes.email
-                };
-                if (eventData.attributes.provider)
-                    newContact[eventData.attributes.provider] = eventData.attributes;
-                this.model = new Contact(newContact);
-                this.renderContact();
+            this.getFormObject();
+            if (eventData.attributes.provider) {
+                this.formObject[eventData.attributes.provider] = eventData.attributes;
             } else {
-                if (eventData.attributes.provider)
-                    this.model.attributes[eventData.attributes.provider] = eventData.attributes;
-                this.renderContact();
+                this.formObject = _.extend(this.formObject, eventData.attributes);
             }
+            this.formObject.firstname = this.formObject.firstname?this.formObject.firstname:eventData.attributes.firstname;
+            this.formObject.lastname = this.formObject.lastname?this.formObject.lastname:eventData.attributes.lastname;
+            this.formObject.email = this.formObject.email?this.formObject.email:eventData.attributes.email;
+            this.renderContact();
         }
 
         function onGoBack(eventData){
@@ -157,32 +152,29 @@ define(function(require, exports, module) {
     AddContactView.prototype.constructor = AddContactView;
 
     AddContactView.prototype.renderContact = function() {
-        if (this.model) {
-            if (this.model.get('firstname')) this.initial = this.model.get('firstname')[0];
-            if (this.model.get('lastname')) this.initial +=  this.model.get('lastname')[0];
-        }
         var html = '<div class="initial">' + this.initial + '</div>';
         html += '<form role="form">';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-first-name" placeholder="First" name="firstname"';
-        if (this.model && this.model.get('firstname'))
-            html += ' value="' + this.model.get('firstname') + '"';
+        if (this.formObject.firstname)
+            html += ' value="' + this.formObject.firstname + '"';
         html += '></div>';
         html += '<div class="form-group small">';
         html += '<input type="text" class="form-control" id="input-last-name" placeholder="Last" name="lastname"';
-        if (this.model && this.model.get('lastname'))
-            html += ' value="' + this.model.get('lastname') + '"';
+        if (this.formObject.lastname)
+            html += ' value="' + this.formObject.lastname + '"';
         html += '></div>';
         html += '<div class="form-group small">';
         html += '<input type="email" class="form-control" id="input-email" placeholder="Email" name="email"';
-        if (this.model && this.model.get('email'))
-            html += ' value="' + this.model.get('email') + '"';
+        if (this.formObject.email)
+            html += ' value="' + this.formObject.email + '"';
         html += '></div>';
+
         //TODO: this is a hack. we used the same class "import-contact" and id for a target.
         html += '<div class="box">';
         html += '<div class="info import-contact" id="google"><i class="fa fa-google-plus-square fa-lg import-contact" id="google"></i>';
-        if (this.model && this.model.get('google')) {
-            var obj = this.model.get('google');
+        if (this.formObject.google) {
+            var obj = this.formObject.google;
             html += '<span class="import-contact" id="google">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
             html += Templates.removeButton('google') + '</div>';
         } else {
@@ -191,8 +183,8 @@ define(function(require, exports, module) {
         }
 
         html += '<div class="info import-contact" id="facebook"><i class="fa fa-facebook-square fa-lg import-contact" id="facebook"></i>';
-        if (this.model && this.model.get('facebook')) {
-            var obj = this.model.get('facebook');
+        if (this.formObject.facebook) {
+            var obj = this.formObject.facebook;
             html += '<span class="import-contact" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
             html += Templates.removeButton('facebook') + '</div>';
         } else {
@@ -209,55 +201,42 @@ define(function(require, exports, module) {
         this.header.setContent(html);
     }
 
-    AddContactView.prototype.fillFrom = function(contact) {
-        this.newContact = _.extend(this.newContact, contact.attributes);
-        if (this.newContact) {
-            if (!$('[name=firstname]').val()) $('[name=firstname]').val(this.newContact.firstname);
-            if (!$('[name=lastname]').val()) $('[name=lastname]').val(this.newContact.lastname);
-            $('[name=email]').val(this.newContact.email);
-            if (this.newContact.facebook)
-                $('#facebook span').text(this.newContact.facebook.firstname + " " + this.newContact.facebook.lastname);
-            if (this.newContact.google)
-                $('#google span').text(this.newContact.google.firstname + " " + this.newContact.google.lastname);
-        }
-    };
-
-    AddContactView.prototype.getFormContact = function(){
+    AddContactView.prototype.getFormObject = function(){
         var formArr = $('.add-contact-view form').serializeArray();
-        var newContact = {};
+        var formContact = {};
         for (var i in formArr) {
-            newContact[formArr[i].name] = formArr[i].value;
+            if (formArr[i].name) formContact[formArr[i].name] = formArr[i].value;
         }
-        this.newContact = _.extend(this.newContact, newContact);
-        return this.newContact;
+        this.formObject = _.extend(this.formObject, formContact);
+        return this.formObject;
     }
 
     AddContactView.prototype.submitForm = function(){
-        console.log(this.model);
-        return;
-        var newContact = this.getFormContact();
-        if ((newContact.firstname || newContact.lastname)) {
-            if (this.title == 'Edit Contact') {
-                this.model.set(newContact);
-                this.model.trigger('sync');
-            } else if (this.collection || this.model instanceof Call) {
-                this.collection.add(newContact);
-                this.collection.trigger('sync');
-            }
+        var formContact = this.getFormObject();
+        if (this.title == 'Edit Contact') {
+            this.model.set(formContact);
+        } else {
+            this.collection.add(formContact);
         }
-        // reset everything
-        $('.add-contact-view form')[0].reset();
-        this.newContact = {};
+        // trigger contact list redraw
+        this.collection.trigger('sync');
     };
     AddContactView.prototype.setContact = function (model){
-        if (model) {
+        if (model && model instanceof Contact) {
+            this.formObject = _.omit(model.attributes,'id');
             this.title = 'Edit Contact';
             this.initial = '';
+            if (this.formObject.firstname)
+                this.initial = this.formObject.firstname[0];
+            if (this.formObject.lastname)
+                this.initial +=  this.formObject.lastname[0];
+            this.model = model;
         } else {
+            this.formObject = {};
+            if (model) this.formObject = _.omit(model.attributes,'id');
             this.title = 'New Contact';
             this.initial = '<i class="fa fa-user fa-lg"></i>';
         }
-        this.model = model;
     };
 
     module.exports = AddContactView;

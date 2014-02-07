@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
 var Famous = function(cb) { cb.call(this, require) };
 Famous.App = {};
+Famous.App.Custom_ConversationSurface = require('app/custom/ConversationSurface');
 Famous.App.Custom_InComingTransform = require('app/custom/InComingTransform');
 Famous.App.Custom_LightBox = require('app/custom/LightBox');
 Famous.App.Custom_Surface = require('app/custom/Surface');
@@ -147,8 +148,8 @@ Famous.FamousWidgets.Slider = require('famous-widgets/Slider');
 Famous.FamousWidgets.TitleBar = require('famous-widgets/TitleBar');
 Famous.FamousWidgets.ToggleButton = require('famous-widgets/ToggleButton');
 Famous.Views = {};
-Famous.Views.Conversation_ConversationItemView = require('views/conversation/ConversationItemView');
-Famous.Views.Conversation_ConversationView = require('views/conversation/ConversationView');
+Famous.Views.Conversation_ConversationItemView = require('views/Conversation/ConversationItemView');
+Famous.Views.Conversation_ConversationView = require('views/Conversation/ConversationView');
 Famous.Views.Call_ConnectedCallView = require('views/call/ConnectedCallView');
 Famous.Views.Call_IncomingCallView = require('views/call/IncomingCallView');
 Famous.Views.Call_OutgoingCallView = require('views/call/OutgoingCallView');

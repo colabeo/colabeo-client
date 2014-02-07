@@ -64,8 +64,8 @@ define(function(require, exports, module) {
 
     RecentsSectionView.prototype.loadContacts = function() {
         this.scrollview.setPosition(0);
-        if (this.missedOnly) collection = this.collection.missed();
-        else collection = this.collection;
+        if (this.missedOnly) var collection = this.collection.missed();
+        else var collection = this.collection;
         this.curCollection = collection;
 
         var sequence = this.curCollection.map(function(item){
@@ -95,8 +95,8 @@ define(function(require, exports, module) {
     };
 
     RecentsSectionView.prototype.removeContact = function(index) {
-        if (this.missedOnly) collection = this.collection.missed();
-        else collection = this.collection;
+        if (this.missedOnly) var collection = this.collection.missed();
+        else var collection = this.collection;
         this.curCollection = collection;
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];

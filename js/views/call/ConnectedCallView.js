@@ -119,8 +119,8 @@ define(function(require, exports, module) {
             id: 'video',
             classes: ["video-button", "big-button"],
             checked: this.appSettings?this.appSettings.get('video'):true,
-            onContent: '<i class="fa fa-eye fa-lg"></i>',
-            offContent: '<i class="fa fa-eye-slash fa-lg"></i>',
+            onContent: '<i class="fa fa-eye fa-lg on"></i>',
+            offContent: '<i class="fa fa-eye-slash fa-lg off"></i>',
             onBackgroundColor: '#dadbd9',
             offBackgroundColor: '#dadbd9',
             size: [70,70]
@@ -139,8 +139,8 @@ define(function(require, exports, module) {
             id: 'audio',
             classes:["audio-button", "big-button"],
             checked: this.appSettings?this.appSettings.get('audio'):true,
-            onContent: '<i class="fa fa-microphone fa-lg"></i>',
-            offContent: '<i class="fa fa-microphone-slash fa-lg"></i>',
+            onContent: '<i class="fa fa-microphone fa-lg on"></i>',
+            offContent: '<i class="fa fa-microphone-slash fa-lg off"></i>',
             onBackgroundColor: '#dadbd9',
             offBackgroundColor: '#dadbd9',
             size: [70,70]

@@ -113,9 +113,9 @@ define(function(require, exports, module) {
         var onResize = function() {
             this.scrollview.setVelocity(-99);
             this.loadMsg();
-            console.log("resize");
         }
         Engine.on('resize', function(e){
+            if (Util.isMobile()) return;
             if (resizeTimeout) clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(onResize.bind(this), 1000);
         }.bind(this));

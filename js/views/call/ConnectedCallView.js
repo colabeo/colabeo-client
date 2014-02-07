@@ -129,8 +129,11 @@ define(function(require, exports, module) {
             offBackgroundColor: '#dadbd9',
             size: [70,70]
         });
-        var html = '<div class="box">' + videoButton + endButton + audioButton + syncButton + '</div>';
+        var html = '<div class="box">' + videoButton + endButton + audioButton + '</div>';
         this.footer.setContent(html);
+
+        this.footerLightBox.show(this.footer);
+
     };
 
     ConnectedCallView.prototype.stop = function(button) {

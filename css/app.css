@@ -1071,6 +1071,21 @@ input {
     font-size: 22px;
 }
 
+.conversation-input-bar .menu-end-button{
+    margin: 2px;
+    position: absolute;
+    top: 10px;
+    left: 45px;
+    background: transparent;
+    width: 30px;
+    color: #bf4335;
+    font-size: 22px;
+    -webkit-transform: rotate(135deg);
+    -moz-transform: rotate(135deg);
+}
+
+
+
 .conversation-input-bar .menu-toggle-button.fade{
     color: #8a8a8a;
 }
@@ -1093,7 +1108,7 @@ input {
     height: 35px;
     width: 100%;
     display: block;
-    border-left: solid #000 50px;
+    border-left: solid #000 90px;
     border-right: solid #000 70px;
     box-sizing: border-box;
     margin: 7px 0px;

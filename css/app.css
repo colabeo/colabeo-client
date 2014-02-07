@@ -1108,7 +1108,8 @@ input {
     height: 35px;
     width: 100%;
     display: block;
-    border-left: solid #000 90px;
+    border-left: solid #000 50px;
+    /*border-left: solid #000 90px;*/
     border-right: solid #000 70px;
     box-sizing: border-box;
     margin: 7px 0px;

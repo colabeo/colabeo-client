@@ -40,10 +40,12 @@ define(function(require, exports, module) {
             footerSize: 50
         });
 
+
+//        <button class="fa fa-phone menu-end-button"></button>
         this.inputSurface = new Surface({
             size:[undefined, this.headerFooterLayout.footerSize],
             classes: ['conversation-input-bar'],
-            content: '<div><button class="fa fa-comments-o menu-toggle-button fade"></button><button class="fa fa-phone menu-end-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
+            content: '<div><button class="fa fa-comments-o menu-toggle-button fade"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
             properties:{
                 backgroundColor: '#000',
                 opacity: 0.9,

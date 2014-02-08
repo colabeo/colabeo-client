@@ -86,13 +86,16 @@ define(function(require, exports, module) {
                 this.stop(target);
             }
             else if (target.hasClass("answer-button")) {
-                this.accept(target);
+                this.accept();
             }
         }.bind(this));
 
         this.eventInput.on('incomingCall', function() {
-            console.log("incomingCall");
+//            console.log("incomingCall");
         });
+        this.eventInput.on('incomingCallAnswerClick', function() {
+            this.accept();
+        }.bind(this));
     }
 
     IncomingCallView.prototype = Object.create(View.prototype);
@@ -179,7 +182,8 @@ define(function(require, exports, module) {
         */
     };
 
-    IncomingCallView.prototype.accept = function(button) {
+    IncomingCallView.prototype.accept = function() {
+        var button = $('.answer-button');
         this.on = false;
         this.model.save({
             success: true

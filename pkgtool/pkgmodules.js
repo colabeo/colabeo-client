@@ -19,7 +19,8 @@ var shims = {
     'lib/backboneLocalStorage': {},
     'lib/firebase': {},
     'lib/backboneFirebase': {},
-    'lib/peer.min': {}
+    'lib/peer.min': {},
+    'lib/notify': {}
 };
 
 var packages = _walkDir('../js');

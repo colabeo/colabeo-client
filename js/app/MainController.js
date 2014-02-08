@@ -99,7 +99,7 @@ define(function(require, exports, module) {
             var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
             var incomingCallView = new IncomingCallView({collection: this.recentCalls});
             var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
-            window.myLightbox = myLightbox;
+
             myApp.pipe(this.eventOutput);
             outgoingCallView.pipe(this.eventOutput);
             incomingCallView.pipe(this.eventOutput);
@@ -185,6 +185,26 @@ define(function(require, exports, module) {
             }
 
             function onIncomingCall(eventData) {
+                var myNotification = new Notify('Incoming Call From', {
+                    icon: 'famous-time/content/ios_icon_x144.png',
+                    body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
+                    notifyShow: onShowNotification.bind(this),
+                    notifyClose: onCloseNotification.bind(this),
+                    notifyClick: onClickNotification.bind(this)
+                });
+                function onShowNotification() {
+                }
+                function onCloseNotification() {
+                    this.eventOutput.emit('incomingCallEnd', eventData);
+                }
+                function onClickNotification() {
+                    var curView = myLightbox.nodes[0].get();
+                    if (curView instanceof IncomingCallView) {
+                        incomingCallView.accept(eventData);
+                    }
+                }
+                myNotification.show();
+
                 var curView = myLightbox.nodes[0].get();
                 if (curView instanceof OutgoingCallView || curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
                     return;

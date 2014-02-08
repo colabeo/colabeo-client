@@ -93,13 +93,13 @@ define(function(require, exports, module) {
      * @param {Object=} event
      */
     function handleResize(event) {
-        if(document.activeElement && document.activeElement.nodeName == 'INPUT') {
-            document.activeElement.addEventListener('blur', function deferredResize() {
-                this.removeEventListener('blur', deferredResize);
-                handleResize(event);
-            });
-            return;
-        }
+//        if(document.activeElement && document.activeElement.nodeName == 'INPUT') {
+//            document.activeElement.addEventListener('blur', function deferredResize() {
+//                this.removeEventListener('blur', deferredResize);
+//                handleResize(event);
+//            });
+//            return;
+//        }
         window.scrollTo(0, 0);
         for(var i = 0; i < contexts.length; i++) {
             contexts[i].emit('resize');

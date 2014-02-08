@@ -76,7 +76,6 @@ define(function(require, exports, module) {
 
         this.footer.on('click', function(e) {
             var target = $(e.target);
-            console.log(target);
             if (target.hasClass("end-button")) {
                 this.stop(target);
             }
@@ -92,10 +91,6 @@ define(function(require, exports, module) {
 
         this.eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
         this.eventOutput.on('end-call', this.stop);
-
-        this.eventInput.on('incomingChat', function(evt) {
-            console.log("incomingChat ConnectedCallView", evt);
-        }.bind(this));
     }
 
     ConnectedCallView.prototype = Object.create(View.prototype);
@@ -111,7 +106,6 @@ define(function(require, exports, module) {
         this.model = this.collection.models[0] || new Call();
         this.appSettings = appSetting;
         // myId hisID
-        console.log(this.model,this.appSettings);
 //        this.conversationView.
         $('.camera').removeClass('blur');
 

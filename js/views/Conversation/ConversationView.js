@@ -2,6 +2,7 @@ define(function(require, exports, module) {
     // Import core Famous dependencies
     var View             = require('famous/View');
     var Util             = require('famous/Utility');
+    var Utils            = require('famous-utils/Utils');
     var Surface          = require('app/custom/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var Conversation = require('app/models/Conversation');
@@ -115,7 +116,7 @@ define(function(require, exports, module) {
             this.loadMsg();
         }
         Engine.on('resize', function(e){
-            if (Util.isMobile()) return;
+//            if (Utils.isMobile()) return;
             if (resizeTimeout) clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(onResize.bind(this), 1000);
         }.bind(this));

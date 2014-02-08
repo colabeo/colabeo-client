@@ -6,6 +6,20 @@ define(function(require, exports, module) {
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
 
+    function onPermissionGranted () {
+        myNotification.show();
+    }
+
+    function onPermissionDenied () {
+    }
+
+    var myNotification = new Notify('Settings', {
+        body: 'Notification is already on.',
+        tag: 'notificationSettings',
+        permissionGranted: onPermissionGranted,
+        permissionDenied: onPermissionDenied
+    });
+
     function SettingsSectionView(options) {
         View.call(this);
         this.appSettings = options.model;
@@ -30,6 +44,13 @@ define(function(require, exports, module) {
         this.scrollview.sequenceFrom([this.surface]);
         this._link(this.scrollview);
 
+        $(document).on('click', '#notification', function(){
+            if (myNotification.needsPermission()) {
+                myNotification.requestPermission();
+            } else {
+                myNotification.show();
+            }
+        });
         this.surface.on('click', function(e){
             //TODO: dont know why the surface is call twice: first time for the surface and the second time for the toggle button.
 //            console.log(e);
@@ -139,8 +160,9 @@ define(function(require, exports, module) {
         html += '<div class="info">Camera ';
         html += Templates.toggleSwitch("camera", this.appSettings.get('camera')) + '</div>';
         html += '<div class="info">Blur ';
-//        console.log(this.appSettings, this.appSettings.get('blur'));
         html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
+        html += '<div class="info">Notification ';
+        html += Templates.toggleSwitch("notification", !myNotification.needsPermission(), !myNotification.needsPermission()) + '</div>';
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';
         html += '<div class="info">Facebook ';

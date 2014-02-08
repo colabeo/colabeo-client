@@ -29,7 +29,8 @@ define(function(require, exports, module) {
     // import app
     var config = require('app/config');
     var App = require('app/App');
-    var Notify = require('notify');
+    // Todo: hack, need this for packaging
+//    var Notify = require('notify');
 
     var defaultIceConfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' }
@@ -189,6 +190,9 @@ define(function(require, exports, module) {
                 var myNotification = new Notify('Incoming Call From', {
                     icon: 'famous-time/content/ios_icon_x144.png',
                     body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
+                    buttons : [
+                        { title: "Accept" , iconUrl : "images/48_yes.png" } , { title: "Dismiss" , iconUrl : "images/48_no.png" }
+                    ],
                     notifyShow: onShowNotification.bind(this),
                     notifyClose: onCloseNotification.bind(this),
                     notifyClick: onClickNotification.bind(this)
@@ -196,13 +200,22 @@ define(function(require, exports, module) {
                 function onShowNotification() {
                 }
                 function onCloseNotification() {
-                    this.eventOutput.emit('incomingCallEnd', eventData);
+//                    window.focus();
+//                    setTimeout(function(){
+//                        var curView = myLightbox.nodes[0].get();
+//                        if (curView instanceof IncomingCallView) {
+//                            incomingCallView.stop();
+//                        }
+//                    }.bind(this),300);
                 }
                 function onClickNotification() {
-                    var curView = myLightbox.nodes[0].get();
-                    if (curView instanceof IncomingCallView) {
-                        incomingCallView.accept(eventData);
-                    }
+                    window.focus();
+//                    setTimeout(function(){
+//                        var curView = myLightbox.nodes[0].get();
+//                        if (curView instanceof IncomingCallView) {
+//                            incomingCallView.accept();
+//                        }
+//                    }.bind(this),300);
                 }
                 myNotification.show();
 

@@ -5,7 +5,8 @@ define(function(require, exports, module) {
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
-    var Notify           = require('notify');
+    // Todo: hack, need this for packaging
+//    var Notify           = require('notify');
 
     function onPermissionGranted () {
         myNotification.show();
@@ -15,7 +16,7 @@ define(function(require, exports, module) {
     }
 
     var myNotification = new Notify('Settings', {
-        body: 'Notification is already on.',
+        body: 'Notification is on.',
         tag: 'notificationSettings',
         permissionGranted: onPermissionGranted,
         permissionDenied: onPermissionDenied

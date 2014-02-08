@@ -83,7 +83,7 @@ define(function(require, exports, module) {
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("decline-button")) {
-                this.stop(target);
+                this.stop();
             }
             else if (target.hasClass("answer-button")) {
                 this.accept();
@@ -158,7 +158,8 @@ define(function(require, exports, module) {
         $('.camera').removeClass('blur');
     }
 
-    IncomingCallView.prototype.stop = function(button) {
+    IncomingCallView.prototype.stop = function() {
+        var button = $('.decline-button');
         if (!this.on) return;
         this.on = false;
         if (button) {

@@ -5,6 +5,7 @@ define(function(require, exports, module) {
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
+    var Notify           = require('notify');
 
     function onPermissionGranted () {
         myNotification.show();

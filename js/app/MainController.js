@@ -29,6 +29,7 @@ define(function(require, exports, module) {
     // import app
     var config = require('app/config');
     var App = require('app/App');
+    var Notify = require('notify');
 
     var defaultIceConfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' }

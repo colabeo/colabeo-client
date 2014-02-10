@@ -24,7 +24,7 @@ define(function(require, exports, module) {
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: this.searchBarSize,
             footerSize: 0
-        })
+        });
 
         this.searchSurface = new Surface({
             size: [undefined, this.searchBarSize],
@@ -164,13 +164,16 @@ define(function(require, exports, module) {
             sequence.push(emptySurface);
             emptySurface.pipe(this.eventOutput);
 
-            if (this.currentCollection.length == 0) {
+            if (this.collection.length == 0) {
                 var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>'
                 emptySurface.setContent(firstAdd);
                 emptySurface.on('click',function(e){
                     if ($(e.target).hasClass('fa-plus'))
                     this.eventOutput.emit('editContact');
                 }.bind(this))
+            } else if (this.currentCollection.length == 0) {
+                var noMatch = '<div class="no-match-found"><div> No match found</div></div>'
+                emptySurface.setContent(noMatch);
             }
         }
 

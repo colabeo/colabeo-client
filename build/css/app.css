@@ -545,6 +545,14 @@ input {
     margin-top:150px;
 }
 
+.no-match-found {
+    color:#3398cd;
+    text-align: center;
+    margin-right: 15px;
+    margin-top:150px;
+    font-size: 25px;
+}
+
 .fa-plus {
     cursor: pointer;
 }

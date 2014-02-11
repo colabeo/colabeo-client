@@ -9,6 +9,7 @@ define(function(require, exports, module) {
     var Easing = require('famous-animation/Easing');
     var Contact = require("app/models/Contact");
     var Call = require("app/models/Call");
+    var SoundPlayer = require('famous-audio/SoundPlayer');
     var duration = 500;
 
     function IncomingCallView(options) {
@@ -80,6 +81,10 @@ define(function(require, exports, module) {
         _.bindAll(this, 'template');
         this.collection.bind('add', this.template);
 
+        this.ringtone = new SoundPlayer([
+            'content/audio/ringtone.mp3'
+        ]);
+
         this.footer.on('click', function(e) {
             var target = $(e.target);
             if (target.hasClass("decline-button")) {
@@ -120,16 +125,15 @@ define(function(require, exports, module) {
     };
 
     IncomingCallView.prototype.startRingtone = function() {
-        var e = document.getElementById('ringtone');
-        e && e.play();
+        this.ringtone.playSound(0, 1);
+        this.ringtoneRepeat = setInterval(function(){this.ringtone.playSound(0, 1)}.bind(this), 8000);
         this.footerLightBox.show(this.footer);
         this.headerLightBox.show(this.header);
     };
 
     IncomingCallView.prototype.stopRingtone = function() {
-        var e = document.getElementById('ringtone');
-        e && e.pause();
-        e.currentTime = 0;
+        clearInterval(this.ringtoneRepeat);
+        this.ringtone.stopPlaying();
     };
 
     IncomingCallView.prototype.start = function(eventData) {

@@ -52,8 +52,8 @@ define(function(require, exports, module) {
         });
 
         this.alertLightBox = new LightBox({
-            inTransform: Matrix.scale(0.001,0.001,0.001),
-            inOpacity: 1,
+            inTransform: Matrix.identity,
+            inOpacity: 0.1,
             inOrigin: [0.5, 0.45],
             outTransform: Matrix.scale(0.001,0.001,0.001),
             outOpacity: 1,

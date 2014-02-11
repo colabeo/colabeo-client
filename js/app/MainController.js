@@ -270,6 +270,11 @@ define(function(require, exports, module) {
                 }
             }
 
+            // fastclick hack
+            $('body').on('click', 'input', function(e) {
+                $(e.target).focus();
+            });
+
             // header buttons events
 //        $('body').on('click', '.header button.edit-button', function(e){
 //            $('body').toggleClass('editing');

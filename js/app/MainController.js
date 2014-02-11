@@ -378,11 +378,9 @@ define(function(require, exports, module) {
             var url;
             if (source == 'facebook') {
                 url = "/connect/facebook/email";
-                window.location = url;
             }
             else if (source == 'google') {
                 url = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
-//                window.location = url;
             }
 
             if (url) {
@@ -394,7 +392,7 @@ define(function(require, exports, module) {
                         callback: function(e) {
                             setTimeout(function() {
                                 $('div.import-contact#'+source + ':not(.done)').click().addClass('done');
-                            }, 300);
+                            }.bind(this), 300);
                         }
                     });
                 }

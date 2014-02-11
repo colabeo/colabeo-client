@@ -119,14 +119,14 @@ define(function(require, exports, module) {
         this.header.setContent(html);
     };
 
-    IncomingCallView.prototype.startCalltone = function() {
+    IncomingCallView.prototype.startRingtone = function() {
         var e = document.getElementById('ringtone');
         e && e.play();
         this.footerLightBox.show(this.footer);
         this.headerLightBox.show(this.header);
     };
 
-    IncomingCallView.prototype.stopCalltone = function() {
+    IncomingCallView.prototype.stopRingtone = function() {
         var e = document.getElementById('ringtone');
         e && e.pause();
         e.currentTime = 0;
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
             caller: data.caller
         };
         this.collection.create(newCall);
-        this.startCalltone();
+        this.startRingtone();
         $('.camera').removeClass('blur');
     }
 
@@ -168,7 +168,7 @@ define(function(require, exports, module) {
             });
             button.addClass('exiting');
         }
-        this.stopCalltone();
+        this.stopRingtone();
         setTimeout(function() {
             this.footerLightBox.hide();
             this.headerLightBox.hide();
@@ -190,7 +190,7 @@ define(function(require, exports, module) {
             success: true
         });
         if (button) button.addClass('exiting');
-        this.stopCalltone();
+        this.stopRingtone();
         setTimeout(function() {
             this.footerLightBox.hide();
             this.headerLightBox.hide();

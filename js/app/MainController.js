@@ -197,7 +197,7 @@ define(function(require, exports, module) {
                 function onShowNotification() {
                 }
                 function onCloseNotification() {
-//                    window.focus();
+                    parent.focus();
 //                    setTimeout(function(){
 //                        var curView = myLightbox.nodes[0].get();
 //                        if (curView instanceof IncomingCallView) {
@@ -206,7 +206,7 @@ define(function(require, exports, module) {
 //                    }.bind(this),300);
                 }
                 function onClickNotification() {
-                    window.focus();
+                    parent.focus();
 //                    setTimeout(function(){
 //                        var curView = myLightbox.nodes[0].get();
 //                        if (curView instanceof IncomingCallView) {

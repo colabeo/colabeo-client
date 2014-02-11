@@ -468,12 +468,16 @@ input {
     line-height: 26px;
     padding: 0px 20px;
 }
+
 .contact-item .source {
     margin: 0px 20px;
     margin-right:40px;
     border-bottom: solid thin rgba(255, 255, 255, .2);
     line-height: 50px;
     cursor: pointer;
+}
+.contact-item.recent-item .source {
+    margin-right:20px;
 }
 
 .contact-item .source.missed {

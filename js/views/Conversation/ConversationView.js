@@ -48,7 +48,7 @@ define(function(require, exports, module) {
             properties:{
                 backgroundColor: '#000',
                 opacity: 0.9,
-                zIndex: 3
+                zIndex: 4
             }
         });
 

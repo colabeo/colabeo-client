@@ -190,9 +190,6 @@ define(function(require, exports, module) {
                 var myNotification = new Notify('Incoming Call From', {
                     icon: 'famous-time/content/ios_icon_x144.png',
                     body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
-                    buttons : [
-                        { title: "Accept" , iconUrl : "images/48_yes.png" } , { title: "Dismiss" , iconUrl : "images/48_no.png" }
-                    ],
                     notifyShow: onShowNotification.bind(this),
                     notifyClose: onCloseNotification.bind(this),
                     notifyClick: onClickNotification.bind(this)

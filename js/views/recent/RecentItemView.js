@@ -23,7 +23,7 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.surface = new Surface({
-            classes: ['contact-item', 'editable'],
+            classes: ['contact-item', 'recent-item', 'editable'],
             size: [undefined, 51]
         });
 

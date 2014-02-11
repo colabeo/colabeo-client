@@ -20,7 +20,8 @@ var shims = {
     'lib/firebase': {},
     'lib/backboneFirebase': {},
     'lib/peer.min': {},
-    'lib/notify': {}
+    'lib/notify': {},
+    'lib/oauthpopup': {}
 };
 
 var packages = _walkDir('../js');

@@ -375,10 +375,24 @@ define(function(require, exports, module) {
             this.setAudio();
         }.bind(this));
         this.eventOutput.on('onSocialLink', function(source) {
-            if (source == 'facebook')
-                window.location = "/connect/facebook/email";
-            else if (source == 'google')
-                window.location = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+            var url;
+            if (source == 'facebook') {
+                url = "/connect/facebook/email";
+//                window.location = url;
+            }
+            else if (source == 'google') {
+                url = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
+//                window.location = url;
+            }
+            if (url)
+                $.oauthpopup({
+                    path:url,
+                    callback: function(e) {
+                        setTimeout(function() {
+                            $('div.import-contact#'+source + ':not(.done)').click().addClass('done');
+                        }, 300);
+                    }
+                });
         })
         $('body').on('change', '#audio, #video', function(e){
             this.appSettings.set($(e.target)[0].id, $(e.target).prop('checked'));

@@ -18,6 +18,7 @@ define(function(require, exports, module) {
 
     function AddContactView(options) {
         View.call(this);
+        window.addContactView = this;
         this.formObject = {};
         this.social = {};
         this.headerFooterLayout = new HeaderFooterLayout({
@@ -90,7 +91,7 @@ define(function(require, exports, module) {
                 var source = target[0].id;
                 if (!this.social[source]) {
                     this.social[source] = new SocialContactCollection();
-                    this.social[source].url = 'contact/'+source;
+                    this.social[source].url = '/contact/'+source;
                     this.social[source].fetch({
                         success : onDataHandler.bind(this),
                         error: onErrorHandler.bind(this)
@@ -108,11 +109,13 @@ define(function(require, exports, module) {
                         edgeSwapper.show(newSocialView, true);
                     } else {
                         this.eventOutput.emit('onSocialLink', source);
+                        delete this.social[source];
 //                        alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                     }
                 }
                 function onErrorHandler() {
                     this.eventOutput.emit('onSocialLink', source);
+                    delete this.social[source];
 //                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                 }
 

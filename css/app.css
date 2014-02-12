@@ -73,6 +73,9 @@ button {
     outline: none;
     border: none;
     cursor: pointer;
+    color: #3398cd;
+    background-color: transparent;
+    font-size: 15px;
 }
 
 button.button {

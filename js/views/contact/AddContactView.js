@@ -101,17 +101,13 @@ define(function(require, exports, module) {
                     onDataHandler.bind(this)();
                 }
                 function onDataHandler() {
-                    if (this.social[source].models.length) {
+                    if (_.isArray(this.social[source].models)) {
                         //TODO: pull collections from server
                         var newSocialView = new ImportContactView({
                             title: _(source).capitalize(),
                             collection: this.social[source]});
                         newSocialView.pipe(this.eventOutput);
                         edgeSwapper.show(newSocialView, true);
-                    } else {
-                        this.eventOutput.emit('onSocialLink', source);
-                        delete this.social[source];
-//                        alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
                     }
                 }
                 function onErrorHandler() {

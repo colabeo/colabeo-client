@@ -248,7 +248,6 @@ define(function(require, exports, module) {
                 cameraView.turnOff();
             }
 
-//            FamousEngine.on('click', function(e){this.eventOutput.emit('onEngineClick', e)}.bind(this));
             FamousEngine.on('click', onEngineClick.bind(this));
 
             function onEngineClick(e) {
@@ -272,7 +271,7 @@ define(function(require, exports, module) {
                 if (e.target.tagName == 'INPUT') {
                     $(e.target).focus();
                     this._input = e.target;
-                } else {
+                } else if (e.target.className != 'send-text-button') {
                     if (this._input) {
                         $(this._input).blur();
                         this._input = null;

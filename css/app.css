@@ -1065,6 +1065,8 @@ input {
 .conversation-item {
     word-wrap: break-word;
     display: inline-block;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 

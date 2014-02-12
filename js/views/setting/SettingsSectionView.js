@@ -6,7 +6,7 @@ define(function(require, exports, module) {
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
     // Todo: hack, need this for packaging
-//    var Notify           = require('notify');
+//    require('lib/notify');
 
     function onPermissionGranted () {
         myNotification.show();

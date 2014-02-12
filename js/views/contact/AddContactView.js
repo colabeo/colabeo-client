@@ -77,7 +77,7 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass("done-contact")) {
                 this.submitForm();
-                this.eventOutput.emit('exitEditing');
+                $('body').removeClass('editing');
                 this.eventOutput.emit('showApp');
             } else if (target.hasClass("close-button")){
                 this.eventOutput.emit('showApp');
@@ -212,6 +212,10 @@ define(function(require, exports, module) {
             if (formArr[i].name) formContact[formArr[i].name] = formArr[i].value;
         }
         this.formObject = _.extend(this.formObject, formContact);
+        // remove undefined attributes
+        for (var i in this.formObject) {
+            if (this.formObject[i] === undefined) delete this.formObject[i];
+        }
         return this.formObject;
     }
 

@@ -30,7 +30,7 @@ define(function(require, exports, module) {
     var config = require('app/config');
     var App = require('app/App');
     // Todo: hack, need this for packaging
-//    var Notify = require('notify');
+//    require('lib/notify');
 
     var defaultIceConfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' }
@@ -128,7 +128,6 @@ define(function(require, exports, module) {
             this.eventOutput.on('connectedCall', onConnectedCall);
             this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
             this.eventOutput.on('editContact', onEditContact);
-            this.eventOutput.on('exitEditing', onExitEditing);
             this.eventOutput.on('showApp', onShowApp);
             this.eventOutput.on('chatOn', onChatOn);
             this.eventOutput.on('chatOff', onChatOff);
@@ -241,10 +240,6 @@ define(function(require, exports, module) {
                 myLightbox.show(addContactView, true);
             }
 
-            function onExitEditing(){
-                $('body').toggleClass('editing');
-            }
-
             function onChatOn() {
                 cameraView.turnOn();
             }
@@ -266,7 +261,7 @@ define(function(require, exports, module) {
                         this.eventOutput.emit('editContact');
                         break;
                     case 'edit-contact':
-                        this.eventOutput.emit('exitEditing');
+                        $('body').toggleClass('editing');
                         break;
                     case 'recent-toggle':
                         this.eventOutput.emit('loadRecent', e);
@@ -402,9 +397,9 @@ define(function(require, exports, module) {
             }
 
             if (url) {
-                if (Utils.isMobile()) {
-                    window.location = url;
-                } else {
+//                if (Utils.isMobile()) {
+//                    window.location = url;
+//                } else {
                     $.oauthpopup({
                         path:url,
                         callback: function(e) {
@@ -413,7 +408,7 @@ define(function(require, exports, module) {
                             }.bind(this), 300);
                         }
                     });
-                }
+//                }
             }
 
         })

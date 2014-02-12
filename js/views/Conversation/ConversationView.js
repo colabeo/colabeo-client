@@ -202,6 +202,7 @@ define(function(require, exports, module) {
     };
 
     ConversationView.prototype.emptySurfaceResize = function (){
+        if (Utils.isMobile()) return;
         var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
         heightArray.shift();
         var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);

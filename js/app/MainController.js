@@ -673,7 +673,7 @@ define(function(require, exports, module) {
         query = JSON.stringify(query);
         multipleLookup(query, function(result) {
             if (result.length) {
-                var callee = result[0];
+                var callee = _.last(result);
                 var cid;
                 if (callee.user && callee.user.objectId) cid = callee.user.objectId;
                 else if (callee.objectId) cid = callee.objectId;

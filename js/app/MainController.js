@@ -30,7 +30,7 @@ define(function(require, exports, module) {
     var config = require('app/config');
     var App = require('app/App');
     // Todo: hack, need this for packaging
-//    require('lib/notify');
+//    var Notify = require('notify');
 
     var defaultIceConfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' }

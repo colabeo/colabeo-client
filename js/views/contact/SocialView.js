@@ -9,6 +9,8 @@ define(function(require, exports, module) {
     var EventHandler = require('famous/EventHandler');
     var Mod              = require('famous/Modifier');
     var Matrix           = require('famous/Matrix');
+    var TouchSync = require('app/custom/TouchSync');
+    var GenericSync = require('famous-sync/GenericSync');
 
 
     function SocialView(options) {
@@ -76,12 +78,24 @@ define(function(require, exports, module) {
             this.loadContacts(e.target.value);
         }.bind(this));
 
-        this.abcSurface.on('mousemove',function(e){
-            this.onAbcTouch(e);
+        // abc-bar effect for cellphone
+        var mousePosition = [0,0];
+        var sync = new GenericSync(function(){
+            return mousePosition;
+        },{
+            syncClasses:[TouchSync]
+        });
+        this.abcSurface.pipe(sync);
+        sync.on('update',function(data){
+            var target = document.elementFromPoint(data.ap[0], data.ap[1]);
+            if (target.id == undefined || target.id =='' ) return
+            var index = this.a2zString.indexOf(target.id);
+            index = this.a2zIndexArray[index];
+            if (index == undefined || index == this.curAbcIndex) return;
+            this.curAbcIndex = index;
+            this.scrollTo(index);
         }.bind(this));
-        this.abcSurface.on('touchmove',function(e){
-            this.onAbcTouch(e);
-        }.bind(this));
+
 //        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
 //        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
 //        this.abcSurface.on('touchmove',onAbcTouch.bind(this));

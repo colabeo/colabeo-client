@@ -78,6 +78,10 @@ define(function(require, exports, module) {
             this.loadContacts(e.target.value);
         }.bind(this));
 
+        this.abcSurface.on('mousemove',function(e){
+            this.onAbcTouch(e);
+        }.bind(this));
+
         // abc-bar effect for cellphone
         var mousePosition = [0,0];
         var sync = new GenericSync(function(){

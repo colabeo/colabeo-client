@@ -68,7 +68,7 @@ define(function(require, exports, module) {
 
     RecentItemView.prototype.template = function() {
         var name;
-        if (this.model.get('firstname') && this.model.get('lastname')) {
+        if (this.model.get('firstname') || this.model.get('lastname')) {
             name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
         } else {
             name = this.model.get('email');

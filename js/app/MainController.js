@@ -128,6 +128,7 @@ define(function(require, exports, module) {
             this.eventOutput.on('connectedCall', onConnectedCall);
             this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
             this.eventOutput.on('editContact', onEditContact);
+            this.eventOutput.on('exitEditing', onExitEditing);
             this.eventOutput.on('showApp', onShowApp);
             this.eventOutput.on('chatOn', onChatOn);
             this.eventOutput.on('chatOff', onChatOff);
@@ -144,8 +145,8 @@ define(function(require, exports, module) {
             }
 
             function onAddContactDone (formContact){
-                this.contactCollection.add(formContact);
-                this.contactCollection.trigger('sync');
+//                this.contactCollection.add(formContact);
+//                this.contactCollection.trigger('sync');
             }
 
             function onLoadRecent (e){
@@ -240,6 +241,10 @@ define(function(require, exports, module) {
                 myLightbox.show(addContactView, true);
             }
 
+            function onExitEditing(){
+                $('body').toggleClass('editing');
+            }
+
             function onChatOn() {
                 cameraView.turnOn();
             }
@@ -261,7 +266,7 @@ define(function(require, exports, module) {
                         this.eventOutput.emit('editContact');
                         break;
                     case 'edit-contact':
-                        $('body').toggleClass('editing');
+                        this.eventOutput.emit('exitEditing');
                         break;
                     case 'recent-toggle':
                         this.eventOutput.emit('loadRecent', e);

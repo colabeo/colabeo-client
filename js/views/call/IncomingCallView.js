@@ -119,7 +119,7 @@ define(function(require, exports, module) {
             html += '<div class="initial">'+initial+'</div>';
         }
 
-        html += '<div class="caller-info">Colabeo</div>';
+        html += '<div class="caller-info"></div>';
 
         this.header.setContent(html);
     };

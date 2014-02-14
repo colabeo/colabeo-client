@@ -1,7 +1,7 @@
 body {
   font-family: open_sansregular, sans-serif;
-  color: #fff;
-  background-color: #000;
+  color: #ffffff;
+  background-color: #000000;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -10,8 +10,8 @@ body {
   user-select: none;
 }
 .header {
-  border-bottom: solid 1px #999;
-  color: #fff;
+  border-bottom: solid 1px #999999;
+  color: #ffffff;
   font-family: open_sansbold, sans-serif;
   font-size: 18px;
   line-height: 26px;
@@ -30,15 +30,15 @@ body {
   vertical-align: middle;
   text-shadow: rgba(0, 0, 0, 0.75) 0px -1px 0px;
   z-index: 1;
-  border-top: solid 1px #999;
+  border-top: solid 1px #999999;
   cursor: pointer;
   background: rgba(0, 0, 0, 0.9);
 }
 .navigation.off {
-  color: #999;
+  color: #999999;
 }
 .navigation.on {
-  color: #ef938f;
+  color: #5cadd7;
 }
 .navigation .icon {
   display: inline-block;
@@ -51,7 +51,7 @@ body {
   line-height: 26px;
 }
 .navigation.on .icon {
-  color: #63ace9;
+  color: #3398cd;
 }
 /* new stuff */
 .container {
@@ -147,7 +147,8 @@ button.button {
   line-height: 70px;
   text-align: center;
   margin: -40px 20px;
-  color: rgba(0, 0, 0, 0.5);
+  color: #000000;
+  opacity: 0.5;
   float: right;
   font-size: 20px;
 }
@@ -249,7 +250,7 @@ button.button {
   width: 160px;
   height: 70px;
   background: #c23635;
-  color: #fff;
+  color: #ffffff;
   font-size: 36px;
   border-radius: 10px;
 }
@@ -260,7 +261,7 @@ button.button {
   width: 160px;
   height: 70px;
   background: #5db04c;
-  color: #fff;
+  color: #ffffff;
   font-size: 36px;
   border-radius: 10px;
 }
@@ -356,12 +357,12 @@ button.sync-button.syncing {
 /* favorites */
 .delete-button {
   float: left;
-  background: #f00;
+  background: #c23635;
   height: 22px;
   border-radius: 22px;
   text-align: center;
   margin: 16px -20px;
-  color: #fff;
+  color: #ffffff;
   opacity: 0;
   -webkit-transition: margin 0.3s, opacity 0.3s;
   line-height: 22px;
@@ -377,7 +378,7 @@ button.sync-button.syncing {
   height: 22px;
   text-align: center;
   margin: 16px -20px;
-  color: #fff;
+  color: #ffffff;
   opacity: 0;
   -webkit-transition: margin 0.3s, opacity 0.3s;
   line-height: 20px;
@@ -399,7 +400,7 @@ input {
   background: transparent;
   border: none;
   outline: none;
-  color: #fff;
+  color: #ffffff;
 }
 .form-group {
   margin: 0px 0px 10px 10px;
@@ -503,7 +504,7 @@ input {
   color: #a7a7a7;
 }
 .fa-facebook-square {
-  color: #3398cd;
+  color: #3b5998;
 }
 .fa-google-plus-square {
   color: #bf4335;
@@ -550,7 +551,7 @@ input {
   padding-bottom: 0px;
   font-size: 10px;
   background: transparent;
-  color: #64c1ff;
+  color: #3398cd;
   text-align: center;
   font-weight: bolder;
   height: 3.7037037037037037%;
@@ -590,7 +591,7 @@ input {
   height: 22px;
   border-radius: 22px;
   text-align: center;
-  color: #fff;
+  color: #ffffff;
 }
 .editing .add-button {
   width: 22px;
@@ -670,15 +671,14 @@ input {
 .onoffswitch-inner:before {
   content: "";
   padding-left: 10px;
-  background-color: #2FCCFF;
-  color: #FFFFFF;
+  background-color: #3398cd;
+  color: #ffffff;
   border-radius: 24px 0 0 24px;
 }
 .onoffswitch-inner:after {
   content: "";
   padding-right: 10px;
-  background-color: #EEEEEE;
-  color: #999999;
+  background-color: #999999;
   text-align: right;
   border-radius: 0 24px 24px 0;
 }
@@ -728,14 +728,14 @@ input {
 }
 .onoffbutton-off {
   border-radius: 10px;
-  background-color: #cfcbce;
-  color: #0b0b0b;
+  background-color: #999999;
+  color: #000000;
   -webkit-transition: opacity 1s ease-out;
 }
 .onoffbutton-on {
   border-radius: 10px;
-  background-color: lightgreen;
-  color: #0b0b0b;
+  background-color: #cdbb18;
+  color: #000000;
   -webkit-transition: opacity 1s ease-out;
 }
 .onoffbutton-off,
@@ -860,7 +860,7 @@ input {
   margin: 5px 10px;
   border: 0px solid #5a8f00;
   color: #333;
-  background: #fff;
+  background: #ffffff;
   /* css3 */
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -881,7 +881,7 @@ input {
 .triangle-border.right {
   margin-right: 30px;
   float: right;
-  color: #fff;
+  color: #ffffff;
   background: #3398cd;
 }
 /* THE TRIANGLE
@@ -910,7 +910,7 @@ input {
   /* value = (:before left) + (:before border-left) - (:after border-left) */
   border-width: 13px 13px 0;
   border-style: solid;
-  border-color: #fff transparent;
+  border-color: #ffffff transparent;
   /* reduce the damage in FF3.0 */
   display: block;
   width: 0;
@@ -1012,7 +1012,7 @@ input {
   left: 45px;
   background: transparent;
   width: 0px;
-  color: #bf4335;
+  color: #c23635;
   font-size: 0px;
   -webkit-transform: rotate(135deg);
   -moz-transform: rotate(135deg);
@@ -1023,7 +1023,7 @@ input {
   font-size: 22px;
 }
 .conversation-input-bar .menu-toggle-button.fade {
-  color: #8a8a8a;
+  color: #999999;
 }
 .conversation-input-bar .send-text-button {
   margin: 2px;
@@ -1042,12 +1042,12 @@ input {
   height: 35px;
   width: 100%;
   display: block;
-  border-left: solid #000 50px;
-  border-right: solid #000 70px;
+  border-left: solid #000000 50px;
+  border-right: solid #000000 70px;
   box-sizing: border-box;
   margin: 7px 0px;
   -webkit-transition: border-left 0.3s;
 }
 .conversation-input-bar .input-msg.short {
-  border-left: solid #000 90px;
+  border-left: solid #000000 90px;
 }

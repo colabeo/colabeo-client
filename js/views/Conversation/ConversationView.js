@@ -24,10 +24,16 @@ define(function(require, exports, module) {
             if (d.getSize()[1]===true) return 100;
             return d.getSize()[1];
         });
-        var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+        if (Utils.isMobile()) {
+            var totalPixelsToMove = screenSize + heightArray.sum()
+        } else {
+            var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+        }
+        console.log(totalPixelsToMove);
+
         // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
         var v = 2*totalPixelsToMove/200;
-        this.setVelocity(v);
+        setTimeout(function(){this.setVelocity(v)}.bind(this),300);
     };
 
     function ConversationView() {
@@ -195,7 +201,7 @@ define(function(require, exports, module) {
         var emptySurface = new Surface({
             size: [undefined, screenHeight - arraysHeight],
             properties:{
-                background: "transparent"
+                background: "yellow"
             }
         })
         return emptySurface;

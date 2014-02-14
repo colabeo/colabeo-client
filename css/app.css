@@ -225,24 +225,6 @@ button.button {
   height: 100%;
   margin: auto;
 }
-.incoming-call-view-buttons .remind-me-button {
-  float: left;
-  width: 160px;
-  height: 70px;
-  background: #dadbd9;
-  color: #6c6769;
-  font-size: 20px;
-  border-radius: 10px;
-}
-.incoming-call-view-buttons .message-button {
-  float: right;
-  width: 160px;
-  height: 70px;
-  background: #dadbd9;
-  color: #6c6769;
-  font-size: 20px;
-  border-radius: 10px;
-}
 .incoming-call-view-buttons .decline-button {
   margin-top: 10px;
   margin-left: 0px;
@@ -472,7 +454,7 @@ input {
   padding-left: 5px;
 }
 .contact-section-search-bar i {
-  color: #aaa;
+  color: #aaaaaa;
   font-size: 17px;
 }
 .contact-section-search-bar div input.search-contact {
@@ -504,7 +486,7 @@ input {
   color: #a7a7a7;
 }
 .fa-facebook-square {
-  color: #3b5998;
+  color: #3398cd;
 }
 .fa-google-plus-square {
   color: #bf4335;
@@ -533,7 +515,7 @@ input {
   padding-left: 5px;
 }
 .import-section-search-bar i {
-  color: #aaa;
+  color: #aaaaaa;
   font-size: 17px;
 }
 .import-section-search-bar div input.search-import {
@@ -640,7 +622,7 @@ input {
   display: block;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid #999999;
+  border: 2px solid #808080;
   border-radius: 24px;
 }
 .onoffswitch-inner {
@@ -685,8 +667,8 @@ input {
 .onoffswitch-switch {
   width: 24px;
   margin: 0px;
-  background: #FFFFFF;
-  border: 2px solid #999999;
+  background: #ffffff;
+  border: 2px solid #808080;
   border-radius: 24px;
   position: absolute;
   top: 0;
@@ -947,7 +929,7 @@ input {
   left: -30px;
   /* value = - border-left-width - border-right-width */
   border-width: 15px 30px 15px 0;
-  border-color: transparent #5a8f00;
+  border-color: #5a8f00 transparent;
 }
 /* creates the smaller  triangle */
 .triangle-border.left:after {
@@ -957,7 +939,7 @@ input {
   left: -17px;
   /* value = - border-left-width - border-right-width */
   border-width: 9px 17px 9px 0;
-  border-color: transparent #ddd;
+  border-color: #ddd transparent;
 }
 /* Variant : right
 ------------------------------------------ */
@@ -970,7 +952,7 @@ input {
   right: -30px;
   /* value = - border-left-width - border-right-width */
   border-width: 15px 0 15px 30px;
-  border-color: transparent #5a8f00;
+  border-color: #5a8f00 transparent;
 }
 /* creates the smaller  triangle */
 .triangle-border.right:after {
@@ -981,7 +963,7 @@ input {
   right: -17px;
   /* value = - border-left-width - border-right-width */
   border-width: 9px 0 9px 17px;
-  border-color: transparent #3398cd;
+  border-color: #3398cd transparent;
 }
 .conversation-item {
   word-wrap: break-word;
@@ -1037,7 +1019,7 @@ input {
 }
 .conversation-input-bar .input-msg {
   background-color: rgba(185, 185, 185, 0.2);
-  color: #aaa;
+  color: #ffffff;
   font-size: 18px;
   height: 35px;
   width: 100%;

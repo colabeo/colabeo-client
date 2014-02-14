@@ -8,20 +8,21 @@
 
 @theme-background-color: @theme-black;
 
-@facebook-blue: #3b5998;
+@facebook-blue:  @theme-blue; //#3b5998;
 @google-plus-red: #bf4335;
 @email-grey: #a7a7a7;
 
 @input-bar-background: #b9b9b9;
-@input-bar-placeholder: #aaaaa;
+@input-bar-placeholder: #aaaaaa;
 @text-color: @theme-white;
 @conversation-remote-color: @theme-white;
 @conversation-local-color: @theme-blue;
 @button-color-unselected: @theme-grey;
-@button-color:        @theme-blue;
+@button-color: @theme-blue;
 @button-color-hover:  lighten(@button-color, 10%);
 @button-color-click:  darken(@button-color, 10%);
 @button-color-end-call: #c23635;
+@button-color-answer-call: #5db04c;
 
 body {
   font-family: open_sansregular, sans-serif;
@@ -285,26 +286,6 @@ button.button {
   margin: auto;
 }
 
-.incoming-call-view-buttons .remind-me-button {
-  float: left;
-  width: 160px;
-  height: 70px;
-  background: #dadbd9;
-  color: #6c6769;
-  font-size: 20px;
-  border-radius: 10px;
-}
-
-.incoming-call-view-buttons .message-button {
-  float: right;
-  width: 160px;
-  height: 70px;
-  background: #dadbd9;
-  color: #6c6769;
-  font-size: 20px;
-  border-radius: 10px;
-}
-
 .incoming-call-view-buttons .decline-button {
   margin-top: 10px;
   margin-left: 0px;
@@ -323,7 +304,7 @@ button.button {
   float:right;
   width: 160px;
   height: 70px;
-  background: #5db04c;
+  background: @button-color-answer-call;
   color: @text-color;
   font-size: 36px;
   border-radius: 10px;
@@ -459,7 +440,7 @@ button.sync-button.syncing {
   line-height: 20px;
 }
 .favorite-button.active {
-  color: #3398cd;
+  color: @button-color;
 }
 .editing .favorite-button {
   width: 30px;
@@ -562,7 +543,7 @@ input {
 }
 
 .contact-section-search-bar i{
-  color: #aaa;
+  color: @input-bar-placeholder;
   font-size: 17px;
 }
 .contact-section-search-bar div input.search-contact{
@@ -577,14 +558,14 @@ input {
 }
 
 .firstAdd {
-  color:#3398cd;
+  color:@button-color;
   text-align: center;
   margin-right: 15px;
   margin-top:150px;
 }
 
 .no-match-found {
-  color:#3398cd;
+  color:@button-color;
   text-align: center;
   margin-right: 15px;
   margin-top:150px;
@@ -635,7 +616,7 @@ input {
 }
 
 .import-section-search-bar i{
-  color: #aaa;
+  color: @input-bar-placeholder;
   font-size: 17px;
 }
 .import-section-search-bar div input.search-import{
@@ -752,7 +733,7 @@ input {
 
 .onoffswitch-label {
   display: block; overflow: hidden; cursor: pointer;
-  border: 2px solid #999999; border-radius: 24px;
+  border: 2px solid darken(@button-color-unselected, 10%); border-radius: 24px;
 }
 
 .onoffswitch-inner {
@@ -787,8 +768,8 @@ input {
 
 .onoffswitch-switch {
   width: 24px; margin: 0px;
-  background: #FFFFFF;
-  border: 2px solid #999999; border-radius: 24px;
+  background: @text-color;
+  border: 2px solid darken(@button-color-unselected, 10%); border-radius: 24px;
   position: absolute; top: 0; bottom: 0; right: 16px;
   -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
   -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s;
@@ -1060,7 +1041,7 @@ input {
   top:auto;
   left:-30px; /* value = - border-left-width - border-right-width */
   border-width:15px 30px 15px 0;
-  border-color:transparent #5a8f00;
+  border-color: #5a8f00 transparent;
 }
 
 /* creates the smaller  triangle */
@@ -1069,7 +1050,7 @@ input {
   top:auto;
   left:-17px; /* value = - border-left-width - border-right-width */
   border-width:9px 17px 9px 0;
-  border-color:transparent #ddd;
+  border-color: #ddd transparent;
 }
 
 /* Variant : right
@@ -1082,7 +1063,7 @@ input {
   left:auto;
   right:-30px; /* value = - border-left-width - border-right-width */
   border-width:15px 0 15px 30px;
-  border-color:transparent #5a8f00;
+  border-color: #5a8f00 transparent;
 }
 
 /* creates the smaller  triangle */
@@ -1092,7 +1073,7 @@ input {
   left:auto;
   right:-17px; /* value = - border-left-width - border-right-width */
   border-width:9px 0 9px 17px;
-  border-color:transparent #3398cd;
+  border-color: @button-color transparent;
 }
 
 .conversation-item {
@@ -1159,7 +1140,7 @@ input {
 
 .conversation-input-bar .input-msg {
   background-color: rgba(185, 185, 185, 0.2);
-  color: #aaa;
+  color: @text-color;
   font-size: 18px;
   height: 35px;
   width: 100%;

@@ -51,8 +51,6 @@ define(function(require, exports, module) {
             }
         });
 
-        var remindMeButton = '<button class="remind-me-button big-button"><i class="fa fa-clock-o fa-lg"></i> Remind Me</button>';
-        var messageButton = '<button class="message-button big-button"><i class="fa fa-comment fa-lg"></i> Message</button>';
         var declineButton = Templates.button({
             classes:["decline-button", "big-button"],
             checked:true,

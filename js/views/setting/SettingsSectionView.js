@@ -52,7 +52,6 @@ define(function(require, exports, module) {
             permissionDenied: onPermissionDenied.bind(this)
         });
 
-        window.appSettings = this.appSettings;
         $(document).on('click', '#notification', function(){
             this.appSettings.save({notification : JSON.parse($("#notification").prop('checked'))});
             if (!this.appSettings.get('notification')) return;

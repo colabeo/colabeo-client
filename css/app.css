@@ -114,6 +114,17 @@ button.button {
 .camera.local-video video {
     -webkit-transform: translate(-50%, -50%) scale(-1,1);
 }
+
+.camera.local-video.off {
+    background-image: url('../content/images/wallpaper.jpg');
+    background-size: 100% 100%;
+}
+
+.camera.local-video.off video{
+    display: none;
+}
+
+
 .blur {
     -webkit-filter: blur(20px) opacity(0.5);
     -moz-filter: blur(20px) opacity(0.5);
@@ -122,6 +133,11 @@ button.button {
 .blur.fakeblur {
     -webkit-filter: opacity(0.2);
     -moz-filter: opacity(0.2);
+}
+
+.blur.fakeblur.off {
+    -webkit-filter: blur(20px) opacity(0.5);
+    -moz-filter: blur(20px) opacity(0.5);
 }
 
 /* header */
@@ -912,6 +928,8 @@ input {
     text-align: left;
     margin-left: 40px;
     margin-right: 40px;
+    word-wrap: break-word;
+    -webkit-user-select: text;
 }
 
 .alert #close-alert{

@@ -1,5 +1,6 @@
 define(function(require, exports, module) {
-    require("lib/backboneLocalStorage");
+    // Todo: hack, need this for packaging
+//    require("lib/backboneLocalStorage");
 
     // Generic Backbone Model
     module.exports = Backbone.Model.extend({
@@ -17,6 +18,7 @@ define(function(require, exports, module) {
             },
             firstname: "John",
             lastname: "Colabeo",
+            notification: false,
             camera: true,
             video: true,
             audio: true,

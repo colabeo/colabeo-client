@@ -5,22 +5,9 @@ define(function(require, exports, module) {
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
     var Templates        = require('app/custom/Templates');
+    var Utils            = require('famous-utils/Utils');
     // Todo: hack, need this for packaging
 //    var Notify           = require('notify');
-
-    function onPermissionGranted () {
-        myNotification.show();
-    }
-
-    function onPermissionDenied () {
-    }
-
-    var myNotification = new Notify('Settings', {
-        body: 'Notification is on.',
-        tag: 'notificationSettings',
-        permissionGranted: onPermissionGranted,
-        permissionDenied: onPermissionDenied
-    });
 
     function SettingsSectionView(options) {
         View.call(this);
@@ -46,13 +33,35 @@ define(function(require, exports, module) {
         this.scrollview.sequenceFrom([this.surface]);
         this._link(this.scrollview);
 
+        function onPermissionGranted () {
+            myNotification.show();
+        }
+
+        function onPermissionDenied () {
+            if (this.appSettings.get('notification')) {
+                alert('Unblock notification for beepe.me:443 in chrome://settings/contentExceptions#notifications');
+                this.appSettings.set('notification', false);
+                $('#notification').prop('checked',false);
+            }
+        }
+
+        var myNotification = new Notify('Settings', {
+            body: 'Notification is on.',
+            tag: 'notificationSettings',
+            permissionGranted: onPermissionGranted.bind(this),
+            permissionDenied: onPermissionDenied.bind(this)
+        });
+
+        window.appSettings = this.appSettings;
         $(document).on('click', '#notification', function(){
+            this.appSettings.save({notification : JSON.parse($("#notification").prop('checked'))});
+            if (!this.appSettings.get('notification')) return;
             if (myNotification.needsPermission()) {
                 myNotification.requestPermission();
             } else {
                 myNotification.show();
             }
-        });
+        }.bind(this));
         this.surface.on('click', function(e){
             //TODO: dont know why the surface is call twice: first time for the surface and the second time for the toggle button.
 //            console.log(e);
@@ -163,8 +172,10 @@ define(function(require, exports, module) {
         html += Templates.toggleSwitch("camera", this.appSettings.get('camera')) + '</div>';
         html += '<div class="info">Blur ';
         html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
-        html += '<div class="info">Notification ';
-        html += Templates.toggleSwitch("notification", !myNotification.needsPermission(), !myNotification.needsPermission()) + '</div>';
+        if (!Utils.isMobile()) {
+            html += '<div class="info">Notification ';
+            html += Templates.toggleSwitch("notification", this.appSettings.get('notification')) + '</div>';
+        }
 
         html += '<div class="desc">YOU CAN BE REACHED AT</div>';
         html += '<div class="info">Facebook ';

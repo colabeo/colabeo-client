@@ -179,6 +179,9 @@ define(function(require, exports, module) {
                 connectedCallView.start(this.appSettings);
                 myLightbox.show(connectedCallView, true, callback);
                 this.eventOutput.emit('chatOn');
+                if (!this.localStream){
+                    alert("Please allow camera/microphone access for Beepe");
+                }
             }
 
             function onOutgoingCall(eventData) {
@@ -187,34 +190,24 @@ define(function(require, exports, module) {
             }
 
             function onIncomingCall(eventData) {
-                var myNotification = new Notify('Incoming Call From', {
-                    icon: 'famous-time/content/ios_icon_x144.png',
-                    body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
-                    notifyShow: onShowNotification.bind(this),
-                    notifyClose: onCloseNotification.bind(this),
-                    notifyClick: onClickNotification.bind(this)
-                });
-                function onShowNotification() {
+                if (this.appSettings.get('notification')) {
+                    var myNotification = new Notify('Incoming Call From', {
+                        icon: 'famous-time/content/ios_icon_x144.png',
+                        body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
+                        notifyShow: onShowNotification.bind(this),
+                        notifyClose: onCloseNotification.bind(this),
+                        notifyClick: onClickNotification.bind(this)
+                    });
+                    function onShowNotification() {
+                    }
+                    function onCloseNotification() {
+                        parent.focus();
+                    }
+                    function onClickNotification() {
+                        parent.focus();
+                    }
+                    myNotification.show();
                 }
-                function onCloseNotification() {
-                    parent.focus();
-//                    setTimeout(function(){
-//                        var curView = myLightbox.nodes[0].get();
-//                        if (curView instanceof IncomingCallView) {
-//                            incomingCallView.stop();
-//                        }
-//                    }.bind(this),300);
-                }
-                function onClickNotification() {
-                    parent.focus();
-//                    setTimeout(function(){
-//                        var curView = myLightbox.nodes[0].get();
-//                        if (curView instanceof IncomingCallView) {
-//                            incomingCallView.accept();
-//                        }
-//                    }.bind(this),300);
-                }
-                myNotification.show();
 
                 var curView = myLightbox.nodes[0].get();
                 if (curView instanceof OutgoingCallView || curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
@@ -497,9 +490,12 @@ define(function(require, exports, module) {
                 this.cleanRoom();
                 this.setBlur();
                 this.setAudio();
+                if (options.video) $('.local-video').removeClass('off');
+                else $('.local-video').addClass('off');
             }.bind(this),
             function(){
-                alert("Please allow camera access for Colabeo");
+//                alert("Please allow camera access for Beepe");
+               $('.local-video').addClass('off');
             }.bind(this)
         );
     };
@@ -644,19 +640,24 @@ define(function(require, exports, module) {
 
     MainController.prototype.setVideo = function() {
         var video = this.appSettings.get('video');
-        if (this.localStream) {
+        var camera = this.appSettings.get('camera');
+        if (this.localStream && camera) {
             var videoTracks = this.localStream.getVideoTracks();
             for (var i = 0, l = videoTracks.length; i < l; i++) {
                 videoTracks[i].enabled = video;
             }
             if (video)
-                $('.local-video video').show();
+                $('.local-video').removeClass('off');
             else
-                $('.local-video video').hide();
+                $('.local-video').addClass('off');
         }
     };
 
     MainController.prototype.callByContact = function(data) {
+        if (!this.localStream){
+            alert("Please allow camera/microphone access for Beepe");
+            return;
+        }
         var query = [];
         // TODO: add more providers here in the future
         ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
@@ -674,7 +675,7 @@ define(function(require, exports, module) {
                 this.callById(cid, callee.provider);
             }
             else {
-                console.log('The user you are calling is not an colabeo user, I don\'t know what to do.');
+                alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
             }
         }.bind(this));
     };

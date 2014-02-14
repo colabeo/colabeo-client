@@ -17,7 +17,7 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.localVideoSurface = new Surface({
-            classes: ['camera', 'local-video', 'blur'],
+            classes: ['camera', 'local-video', 'blur', 'off'],
             properties: {
               zIndex: -2
             },

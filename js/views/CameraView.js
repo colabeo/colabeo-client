@@ -21,14 +21,14 @@ define(function(require, exports, module) {
             properties: {
               zIndex: -2
             },
-            content: '<video muted="true" autoplay></video>'
+            content: '<video muted="true" autoplay poster="content/images/transparent.png"></video>'
         });
         this.remoteVideoSurface = new Surface({
             classes: ['camera', 'remote-video'],
             properties: {
                 zIndex: -3
             },
-            content: '<video autoplay></video>'
+            content: '<video autoplay poster="content/images/transparent.png"></video>'
         });
         this.localVideoSurface.pipe(this.eventOutput);
         this.remoteVideoSurface.pipe(this.eventOutput);

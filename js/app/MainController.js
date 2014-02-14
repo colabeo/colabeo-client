@@ -490,12 +490,12 @@ define(function(require, exports, module) {
                 this.cleanRoom();
                 this.setBlur();
                 this.setAudio();
-                if (options.video) $('.local-video').removeClass('off');
-                else $('.local-video').addClass('off');
+                if (options.video) $('.camera').removeClass('off');
+                else $('.camera').addClass('off');
             }.bind(this),
             function(){
 //                alert("Please allow camera access for Beepe");
-               $('.local-video').addClass('off');
+               $('.camera').addClass('off');
             }.bind(this)
         );
     };
@@ -647,9 +647,9 @@ define(function(require, exports, module) {
                 videoTracks[i].enabled = video;
             }
             if (video)
-                $('.local-video').removeClass('off');
+                $('.camera').removeClass('off');
             else
-                $('.local-video').addClass('off');
+                $('.camera').addClass('off');
         }
     };
 

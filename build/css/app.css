@@ -94,13 +94,28 @@ button.button {
     position: absolute;
     pointer-events: none;
     z-index: -1;
-    -webkit-filter: opacity(0.9);
-    -moz-filter: opacity(0.9);
 }
 
 .mobile .camera {
     height: 100% !important;
     top: 0%;
+}
+
+.camera.off {
+    background: url('../content/images/wallpaper.jpg');
+    -webkit-background-size: 100%;
+}
+
+.blur.camera {
+    -webkit-filter: blur(20px) brightness(0.5);
+}
+
+.blur.fakeblur.camera {
+    -webkit-filter: brightness(0.2);
+}
+
+.blur.fakeblur.camera.off, .blur.camera.off {
+    -webkit-filter: brightness(0.5);
 }
 
 .camera video{
@@ -113,31 +128,6 @@ button.button {
 
 .camera.local-video video {
     -webkit-transform: translate(-50%, -50%) scale(-1,1);
-}
-
-.camera.local-video.off {
-    background-image: url('../content/images/wallpaper.jpg');
-    background-size: 100% 100%;
-}
-
-.camera.local-video.off video{
-    display: none;
-}
-
-
-.blur {
-    -webkit-filter: blur(20px) opacity(0.5);
-    -moz-filter: blur(20px) opacity(0.5);
-}
-
-.blur.fakeblur {
-    -webkit-filter: opacity(0.2);
-    -moz-filter: opacity(0.2);
-}
-
-.blur.fakeblur.off {
-    -webkit-filter: blur(20px) opacity(0.5);
-    -moz-filter: blur(20px) opacity(0.5);
 }
 
 /* header */

@@ -339,12 +339,10 @@ button.sync-button.syncing {
 /* favorites */
 .delete-button {
   float: left;
-  background: #c23635;
+  color: #c23635;
   height: 22px;
-  border-radius: 22px;
   text-align: center;
   margin: 16px -20px;
-  color: #ffffff;
   opacity: 0;
   -webkit-transition: margin 0.3s, opacity 0.3s;
   line-height: 22px;
@@ -352,7 +350,7 @@ button.sync-button.syncing {
 .editing .delete-button {
   width: 22px;
   opacity: 0.88;
-  margin: 16px 10px 0px 16px;
+  margin: 14px 10px 0px 16px;
 }
 .favorite-button {
   float: left;

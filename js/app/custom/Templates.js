@@ -57,7 +57,7 @@ define(function(require, exports, module) {
     }
 
     function deleteButton() {
-        var html = '<button class="delete-button fa fa-minus"></button>';
+        var html = '<button class="delete-button fa fa-trash-o fa-lg"></button>';
         return html;
     }
 

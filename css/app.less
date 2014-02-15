@@ -1,28 +1,37 @@
 // Variables
-@theme-yellow: #cdbb18;
-@theme-red: #c23635;
-@theme-grey: #999999;
-@theme-white: #ffffff;
-@theme-black: #000000;
-@theme-blue: #3398cd;
+@color-yellow: #cdbb18;
+@color-red: #c23635;
+@color-grey: #999999;
+@color-white: #ffffff;
+@color-black: #000000;
+@color-blue: #3398cd;
 
-@theme-background-color: @theme-black;
+// Constant
+@button-color-end-call: #c23635;
+@button-color-answer-call: #5db04c;
 
-@facebook-blue:  @theme-blue; //#3b5998;
+// skin Gold
+//@main-color: @color-yellow;
+
+// skin Blue
+@main-color: @color-blue;
+
+@theme-background-color: @color-black;
+
+@facebook-blue:  @color-blue; //#3b5998;
 @google-plus-red: #bf4335;
 @email-grey: #a7a7a7;
 
 @input-bar-background: #b9b9b9;
 @input-bar-placeholder: #aaaaaa;
-@text-color: @theme-white;
-@conversation-remote-color: @theme-white;
-@conversation-local-color: @theme-blue;
-@button-color-unselected: @theme-grey;
-@button-color: @theme-blue;
+@text-color: @color-white;
+@conversation-remote-color: @color-white;
+@conversation-local-color: @main-color;
+@button-color-unselected: @color-grey;
+@button-color: @main-color;
 @button-color-hover:  lighten(@button-color, 10%);
 @button-color-click:  darken(@button-color, 10%);
-@button-color-end-call: #c23635;
-@button-color-answer-call: #5db04c;
+
 
 body {
   font-family: open_sansregular, sans-serif;
@@ -37,7 +46,7 @@ body {
 }
 
 .header {
-  border-bottom: solid 1px @theme-grey;
+  border-bottom: solid 1px @color-grey;
   color: @text-color;
   font-family: open_sansbold, sans-serif;
   font-size: 18px;
@@ -58,13 +67,13 @@ body {
   vertical-align: middle;
   text-shadow: rgba(0,0,0,0.75) 0px -1px 0px;
   z-index: 1;
-  border-top: solid 1px @theme-grey;
+  border-top: solid 1px @color-grey;
   cursor: pointer;
   background: rgba(0,0,0,0.9);
 }
 
 .navigation.off {
-  color: @theme-grey;
+  color: @color-grey;
 }
 
 .navigation.on {
@@ -400,7 +409,7 @@ button.sync-button {
   bottom: -60px;
   left: 0px;
   background-color: transparent;
-  color: @theme-red;
+  color: @color-red;
 }
 button.sync-button.synced {
   color: greenyellow;
@@ -804,14 +813,14 @@ input {
 }
 .onoffbutton-off {
   border-radius: 10px;
-  background-color: @theme-grey;
+  background-color: @color-grey;
   color: @theme-background-color;
   -webkit-transition: opacity 1s ease-out;
 }
 
 .onoffbutton-on {
   border-radius: 10px;
-  background-color: @theme-yellow;
+  background-color: @color-yellow;
   color: @theme-background-color;
   -webkit-transition: opacity 1s ease-out;
 }

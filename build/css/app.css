@@ -937,7 +937,7 @@ input {
   left: -17px;
   /* value = - border-left-width - border-right-width */
   border-width: 9px 17px 9px 0;
-  border-color: #ddd transparent;
+  border-color: transparent #ddd;
 }
 /* Variant : right
 ------------------------------------------ */
@@ -961,7 +961,7 @@ input {
   right: -17px;
   /* value = - border-left-width - border-right-width */
   border-width: 9px 0 9px 17px;
-  border-color: #3398cd transparent;
+  border-color: transparent #3398cd;
 }
 .conversation-item {
   word-wrap: break-word;

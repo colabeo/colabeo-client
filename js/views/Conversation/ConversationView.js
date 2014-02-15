@@ -29,7 +29,6 @@ define(function(require, exports, module) {
         } else {
             var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
         }
-        console.log(totalPixelsToMove);
 
         // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
         var v = 2*totalPixelsToMove/200;
@@ -201,7 +200,7 @@ define(function(require, exports, module) {
         var emptySurface = new Surface({
             size: [undefined, screenHeight - arraysHeight],
             properties:{
-                background: "yellow"
+                background: "transparent"
             }
         })
         return emptySurface;

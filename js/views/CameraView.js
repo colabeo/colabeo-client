@@ -17,18 +17,13 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.localVideoSurface = new Surface({
-            classes: ['camera', 'local-video', 'blur', 'off'],
-            properties: {
-              zIndex: -2
-            },
-            content: '<video muted="true" autoplay poster="content/images/transparent.png"></video>'
+            content: '<div class="camera local-video blur off"><video muted="true" autoplay poster="content/images/transparent.png"></video></div>'
         });
         this.remoteVideoSurface = new Surface({
-            classes: ['camera', 'remote-video'],
             properties: {
                 zIndex: -3
             },
-            content: '<video autoplay poster="content/images/transparent.png"></video>'
+            content: '<div class="camera remote-video"><video autoplay poster="content/images/transparent.png"></video></div>'
         });
         this.localVideoSurface.pipe(this.eventOutput);
         this.remoteVideoSurface.pipe(this.eventOutput);

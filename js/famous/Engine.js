@@ -25,6 +25,7 @@ define(function(require, exports, module) {
      */
     var FamousContext = require('./Context');
     var FamousEventHandler = require('./EventHandler');
+    var Utils       = require('famous-utils/Utils');
 
     var contexts = [];
     var nextTickQueue = [];
@@ -92,22 +93,38 @@ define(function(require, exports, module) {
      * 
      * @param {Object=} event
      */
+    // TODO: hacks
     function handleResize(event) {
-//        if(document.activeElement && document.activeElement.nodeName == 'INPUT') {
-//            document.activeElement.addEventListener('blur', function deferredResize() {
-//                this.removeEventListener('blur', deferredResize);
-//                handleResize(event);
-//            });
-//            return;
-//        }
+        if(Utils.isMobile() && document.activeElement && document.activeElement.nodeName == 'INPUT') {
+            if (document.activeElement.name == 'message') {
+                doResize();
+            }
+            return;
+        }
+        doResize();
+    };
+    function doResize() {
         window.scrollTo(0, 0);
         for(var i = 0; i < contexts.length; i++) {
             contexts[i].emit('resize');
         }
         eventHandler.emit('resize');
-    };
+    }
     window.addEventListener('resize', handleResize, false);
     handleResize();
+
+    on('click', onEngineTouchstart.bind(this));
+    function onEngineTouchstart(e) {
+        if (e.target.tagName == 'INPUT') {
+            $(e.target).focus();
+            this._input = e.target;
+        } else if (e.target.className != 'send-text-button') {
+            if (this._input) {
+                $(this._input).blur();
+                this._input = null;
+            }
+        }
+    }
 
     // prevent scrolling via browser
     window.addEventListener('touchmove', function(event) { event.preventDefault(); }, false);

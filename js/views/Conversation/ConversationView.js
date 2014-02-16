@@ -106,6 +106,9 @@ define(function(require, exports, module) {
                 this.eventOutput.emit('menu-toggle-button', this.BlueMenuToggleButton);
             } else if (target.hasClass("menu-end-button")) {
                 this.eventOutput.emit('end-call',$('.someRandomNull'));
+            } else if ($('input')[0].tagName == 'INPUT') {
+                this.toggleMenuToggleButton(false);
+                this.eventOutput.emit('menu-toggle-button', true);
             }
         }.bind(this));
 
@@ -121,7 +124,7 @@ define(function(require, exports, module) {
             this.loadMsg();
         }
         Engine.on('resize', function(e){
-//            if (Utils.isMobile()) return;
+            if (Utils.isMobile()) return;
             if (resizeTimeout) clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(onResize.bind(this), 1000);
         }.bind(this));

@@ -261,16 +261,6 @@ define(function(require, exports, module) {
                     case 'close-alert':
                         this.eventOutput.emit('closeAlert');
                 }
-                if (e.target.tagName == 'INPUT') {
-                    $(e.target).focus();
-                    this._input = e.target;
-                } else if (e.target.className != 'send-text-button') {
-                    if (this._input) {
-                        $(this._input).blur();
-                        this._input = null;
-                    }
-                }
-
             }
 
             // fastclick hack

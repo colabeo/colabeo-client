@@ -5,10 +5,15 @@
 @color-white: #ffffff;
 @color-black: #000000;
 @color-blue: #3398cd;
+@color-green: #5db04c;
+@opacity-little: 0.88;
+@opacity-half: 0.5;
+@opacity-very: 0.2;
 
 // Constant
-@button-color-end-call: #c23635;
-@button-color-answer-call: #5db04c;
+@facebook-blue:  @color-blue; //#3b5998;
+@google-plus-red: #bf4335;
+@email-grey: #a7a7a7;
 
 // skin Gold
 //@main-color: @color-yellow;
@@ -17,13 +22,6 @@
 @main-color: @color-blue;
 
 @theme-background-color: @color-black;
-
-@facebook-blue:  @color-blue; //#3b5998;
-@google-plus-red: #bf4335;
-@email-grey: #a7a7a7;
-
-@input-bar-background: #b9b9b9;
-@input-bar-placeholder: #aaaaaa;
 @text-color: @color-white;
 @conversation-remote-color: @color-white;
 @conversation-local-color: @main-color;
@@ -31,7 +29,11 @@
 @button-color: @main-color;
 @button-color-hover:  lighten(@button-color, 10%);
 @button-color-click:  darken(@button-color, 10%);
+@input-bar-background: #b9b9b9;
+@input-bar-placeholder: #aaaaaa;
 
+@button-color-end-call: @color-red;
+@button-color-answer-call: @color-green;
 
 body {
   font-family: open_sansregular, sans-serif;
@@ -183,10 +185,10 @@ button.button {
 
 /*call views*/
 .big-button {
-  opacity: 0.88;
+  opacity: @opacity-little;
 }
 .big-button.exiting {
-  opacity: 0.5;
+  opacity: @opacity-half;
 }
 
 /* outgoing-call-view */
@@ -206,7 +208,7 @@ button.button {
   text-align: center;
   margin: -40px 20px;
   color: @theme-background-color;
-  opacity: 0.5;
+  opacity: @opacity-half;
   float: right;
   font-size: 20px;
 }
@@ -431,7 +433,7 @@ button.sync-button.syncing {
 }
 .editing .delete-button {
   width: 22px;
-  opacity: 0.88;
+  opacity: @opacity-little;
   margin: 14px 10px 0px 16px;
 }
 
@@ -451,7 +453,7 @@ button.sync-button.syncing {
 }
 .editing .favorite-button {
   width: 30px;
-  opacity: 0.88;
+  opacity: @opacity-little;
   margin: 16px 10px 0px 3px;
 }
 
@@ -681,7 +683,7 @@ input {
   float: right;
   line-height: 24px;
   width: 22px;
-  opacity: 0.88;
+  opacity: @opacity-little;
   margin: 3px 0px 0px 16px;
   height: 22px;
   border-radius: 22px;
@@ -691,7 +693,7 @@ input {
 
 .editing .add-button {
   width: 22px;
-  opacity: 0.88;
+  opacity: @opacity-little;
   margin: 16px 10px 0px 16px;
 }
 
@@ -832,7 +834,7 @@ input {
 
 .onoffbutton-on, .onoffbutton-checkbox:checked + .onoffbutton-label .onoffbutton-off {
   display: block;
-  opacity: 0.5;
+  opacity: @opacity-half;
   height: 0;
   overflow: hidden;
 }
@@ -910,7 +912,7 @@ input {
 }
 
 .disabled {
-  opacity: 0.2;
+  opacity: @opacity-very;
 }
 
 /*Alert View*/
@@ -963,7 +965,7 @@ input {
   -moz-border-radius:5px;
   border-radius:5px;
   max-width: 60%;
-  opacity: 0.9;
+  opacity: @opacity-little;
 }
 
 /* Variant : for left positioned triangle

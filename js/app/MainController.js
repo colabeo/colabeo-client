@@ -100,7 +100,7 @@ define(function(require, exports, module) {
             var addContactView = new AddContactView({collection: this.contactCollection});
             var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
             var incomingCallView = new IncomingCallView({collection: this.recentCalls});
-            var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
+            var connectedCallView = new ConnectedCallView({collection: this.recentCalls})
 
             myApp.pipe(this.eventOutput);
             outgoingCallView.pipe(this.eventOutput);
@@ -120,7 +120,7 @@ define(function(require, exports, module) {
 
             // start on the main section
             myApp.select(myApp.options.sections[2].title);
-//        onConnectedCall();
+
             // events handling
             this.eventOutput.on('callEnd', onCallEnd);
             this.eventOutput.on('incomingCall', onIncomingCall);
@@ -137,6 +137,10 @@ define(function(require, exports, module) {
             this.eventOutput.on('closeAlert', onCloseAlert);
             this.eventOutput.on('editContactDone', onEditContactDone);
             this.eventOutput.on('addContactDone', onAddContactDone);
+
+            // TODO: TESTING
+//            connectedCallView.start(this.appSettings);
+//            myLightbox.show(connectedCallView);
 
             function onEditContactDone (formContact){
 //            this.contactCollection.add(formContact);
@@ -784,7 +788,7 @@ define(function(require, exports, module) {
 
     MainController.prototype.sendChat = function(message, type) {
         if (!type) type = "text";
-        this.conn.send({content:message, type: type, action:"chat"});
+        if (this.conn) this.conn.send({content:message, type: type, action:"chat"});
     };
 
     function userLookup(externalId, provider, done) {

@@ -5,6 +5,7 @@ Famous.App.Custom_ConversationSurface = require('app/custom/ConversationSurface'
 Famous.App.Custom_InComingTransform = require('app/custom/InComingTransform');
 Famous.App.Custom_LightBox = require('app/custom/LightBox');
 Famous.App.Custom_MouseSync = require('app/custom/MouseSync');
+Famous.App.Custom_Scrollview = require('app/custom/Scrollview');
 Famous.App.Custom_Surface = require('app/custom/Surface');
 Famous.App.Custom_Templates = require('app/custom/Templates');
 Famous.App.Custom_TouchSync = require('app/custom/TouchSync');

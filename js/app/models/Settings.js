@@ -19,7 +19,7 @@ define(function(require, exports, module) {
             firstname: "John",
             lastname: "Colabeo",
             notification: false,
-            camera: false,
+            camera: true,
             video: true,
             audio: true,
             blur: undefined,

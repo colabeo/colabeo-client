@@ -10,7 +10,6 @@ define(function(require, exports, module) {
     var Utility          = require('famous/Utility');
     var ContainerSurface = require('famous/ContainerSurface');
     var Mod              = require('famous/Modifier');
-    var Engine = require('famous/Engine');
     var TouchSync = require('app/custom/TouchSync');
     var GenericSync = require('famous-sync/GenericSync');
 
@@ -68,7 +67,6 @@ define(function(require, exports, module) {
             direction: Util.Direction.Y,
             margin: 10000
         });
-//        Engine.pipe(this.scrollview);
 
         this.headerFooterLayout.id.header.link(this.searchSurface);
         this.headerFooterLayout.id.content.add(this.scrollview);

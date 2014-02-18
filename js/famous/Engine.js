@@ -110,7 +110,7 @@ define(function(require, exports, module) {
         }
         eventHandler.emit('resize');
     }
-    window.addEventListener('resize', handleResize, false);
+    window.addEventListener('resize', handleResize.bind(this), false);
     handleResize();
 
     on('click', onEngineTouchstart.bind(this));

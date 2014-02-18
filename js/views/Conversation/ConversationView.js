@@ -14,7 +14,6 @@ define(function(require, exports, module) {
     var LightBox = require('app/custom/LightBox');
     var Matrix = require('famous/Matrix');
 
-
     Scrollview.prototype.scrollToEnd = function() {
         var lastNode = this.node.array.length-1;
         var currNode = this.node.index;
@@ -24,15 +23,20 @@ define(function(require, exports, module) {
             if (d.getSize()[1]===true) return 100;
             return d.getSize()[1];
         });
-        if (Utils.isMobile()) {
-            var totalPixelsToMove = screenSize + heightArray.sum()
-        } else {
-            var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
-        }
+
+        var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
 
         // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
-        var v = 2*totalPixelsToMove/200;
-        setTimeout(function(){this.setVelocity(v)}.bind(this),300);
+        var v = Math.max(2*totalPixelsToMove/200,0);
+        console.log(v);
+        // TODO: hack, so it will never onEdge when scrollToEnd
+        var pos = this.getPosition();
+        if (this._onEdge==-1) {
+            this.setPosition(pos+20);
+        } else if (this._onEdge==1) {
+            this.setPosition(pos-20);
+        }
+        Engine.defer(function(){this.setVelocity(v)}.bind(this));
     };
 
     function ConversationView() {
@@ -83,10 +87,12 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
 
-        this.emptySurface = this.makeEmptySurface(0, this.scrollview.getSize()[1]);
-        this.emptySurface.pipe(this.eventOutput);
+        this.emptyViews = this.makeEmptySurface(this.scrollview.getSize()[1]);
 
-        this.scrollview.sequenceFrom([this.emptySurface]);
+        this.scrollview.sequenceFrom(this.emptyViews);
+        this.scrollview.scrollToEnd();
+        // init empty surface
+        this.loadMsg();
 
         this.BlueMenuToggleButton = false;
 
@@ -118,15 +124,20 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
+//        window.scrollview = this.scrollview;
+//        window.con = this;
         var resizeTimeout;
         var onResize = function() {
-            this.scrollview.setVelocity(-99);
+            if (!this.scrollview) return;
+            // just in case horizontal resize from wide to narrow
+            if (!Utils.isMobile()) this.scrollview.setVelocity(-99);
             this.loadMsg();
         }
+//        Engine.on('resize', onResize.bind(this));
         Engine.on('resize', function(e){
-            if (Utils.isMobile()) return;
+//            if (Utils.isMobile()) return;
             if (resizeTimeout) clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(onResize.bind(this), 1000);
+            resizeTimeout = setTimeout(onResize.bind(this), 300);
         }.bind(this));
 
         this.eventInput.on('incomingChat', function(evt){
@@ -145,8 +156,11 @@ define(function(require, exports, module) {
         var surface = new ConversationItemView({model: model});
         surface.pipe(this.eventOutput);
         this.scrollview.node.push(surface);
-        setTimeout(function(){this.emptySurfaceResize()}.bind(this),100);
-        setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),100);
+//        this.scrollview.node.splice(this.scrollview.node.array.length-1, 0, surface);
+
+//        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
+        setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
+//        setTimeout(this.emptySurfaceResize.bind(this), 100);
     };
 
     ConversationView.prototype.loadMsg = function (){
@@ -155,11 +169,12 @@ define(function(require, exports, module) {
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this));
-
+        sequence = this.emptyViews.concat(sequence);
         this.scrollview.sequenceFrom(sequence);
-        sequence.unshift(this.emptySurface);
-        setTimeout(function(){this.emptySurfaceResize()}.bind(this),100);
-        setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),100);
+
+        setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
+//        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
+//        if (!Utils.isMobile()) setTimeout(function(){ this.emptySurfaceResize();}.bind(this),300);
     };
 
     ConversationView.prototype.addChat = function(){
@@ -199,43 +214,72 @@ define(function(require, exports, module) {
         this.eventOutput.emit('outgoingChat', newMsg);
     };
 
-    ConversationView.prototype.makeEmptySurface = function (arraysHeight, screenHeight){
-        var emptySurface = new Surface({
-            size: [undefined, screenHeight - arraysHeight],
-            properties:{
+    ConversationView.prototype.makeEmptySurface = function (screenHeight){
+        var views = [];
+        for (var i = 0; i< 10; i++) {
+            var emptyView = new View({})
+            var emptySurface = new Surface({
+                size: [undefined, screenHeight/10],
+                properties:{
                 background: "transparent"
-            }
-        })
-        return emptySurface;
+                    // TODO: TEST
+//                    background: "yellow"
+                }
+            });
+            emptySurface.pipe(this.eventOutput);
+            emptyView._link(emptySurface);
+            views.push(emptyView);
+        }
+        return views;
     };
 
     ConversationView.prototype.emptySurfaceResize = function (){
-        if (Utils.isMobile()) return;
         var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
         heightArray.shift();
         var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);
         var height = this.scrollview.getSize()[1] - totalHeight;
         if (height < 0) height = 0;
+        // make sure the content is at less 1px longer than the scrollview
+        console.log(height);
+//        this.emptySurface.setSize([undefined, height]);
+        this.emptyViews = this.makeEmptySurface(height);
+    };
+
+    ConversationView.prototype.emptySurfaceResize1 = function (){
+        var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
+        heightArray.pop();
+        var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);
+        var height = this.scrollview.getSize()[1] - totalHeight;
+        if (height < 0) height = 0;
+        // make sure the content is at less 1px longer than the scrollview
+        height ++;
+        console.log(height);
         this.emptySurface.setSize([undefined, height]);
     };
 
     ConversationView.prototype.toggleMenuToggleButton = function (Blue){
         if (Blue === true) {
-            $('.menu-toggle-button').addClass('fade');
-            $('.menu-end-button').removeClass('toShow');
-            $('.input-msg').removeClass('short');
-            this.contentLightBox.hide();
-            this.BlueMenuToggleButton = false;
+            this.setConversationOff();
         }
         else {
-            $('.menu-toggle-button').removeClass('fade');
-            $('.menu-end-button').addClass('toShow');
-            $('.input-msg').addClass('short');
-            if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
-            this.BlueMenuToggleButton = true;
+            this.setConversationOn();
         }
     };
 
+    ConversationView.prototype.setConversationOff = function (){
+        $('.menu-toggle-button').addClass('fade');
+        $('.menu-end-button').removeClass('toShow');
+        $('.input-msg').removeClass('short');
+        this.contentLightBox.hide();
+        this.BlueMenuToggleButton = false;
+    };
+
+    ConversationView.prototype.setConversationOn = function (){
+        $('.menu-toggle-button').removeClass('fade');
+        $('.menu-end-button').addClass('toShow');
+        $('.input-msg').addClass('short');
+        if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
+    };
 
     module.exports = ConversationView;
 });

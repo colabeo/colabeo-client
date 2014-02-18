@@ -28,7 +28,6 @@ define(function(require, exports, module) {
 
         // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
         var v = Math.max(2*totalPixelsToMove/200,0);
-        console.log(v);
         // TODO: hack, so it will never onEdge when scrollToEnd
         var pos = this.getPosition();
         if (this._onEdge==-1) {
@@ -94,8 +93,6 @@ define(function(require, exports, module) {
         // init empty surface
         this.loadMsg();
 
-        this.BlueMenuToggleButton = false;
-
         this.collection.on('all', function(e,model,collection,options){
             switch(e){
                 case 'add':
@@ -108,13 +105,11 @@ define(function(require, exports, module) {
             var target = $(e.target);
             if (target.hasClass("send-text-button")) this.addChat();
             else if (target.hasClass("menu-toggle-button")) {
-                this.toggleMenuToggleButton(this.BlueMenuToggleButton);
-                this.eventOutput.emit('menu-toggle-button', this.BlueMenuToggleButton);
+                this.toggleMenuToggleButton();
             } else if (target.hasClass("menu-end-button")) {
                 this.eventOutput.emit('end-call',$('.someRandomNull'));
             } else if ($('input')[0].tagName == 'INPUT') {
-                this.toggleMenuToggleButton(false);
-                this.eventOutput.emit('menu-toggle-button', true);
+                this.setConversationOn();
             }
         }.bind(this));
 
@@ -196,8 +191,7 @@ define(function(require, exports, module) {
             type: 'text',
             time: Date.now()
         };
-        this.toggleMenuToggleButton(false);
-        this.eventOutput.emit('menu-toggle-button', true);
+        this.setConversationOn();
         this.collection.add(newMsg);
     };
 
@@ -209,8 +203,7 @@ define(function(require, exports, module) {
             time: Date.now()
         };
         this.collection.add(newMsg);
-        this.toggleMenuToggleButton(false);
-        this.eventOutput.emit('menu-toggle-button', true);
+        this.setConversationOn();
         this.eventOutput.emit('outgoingChat', newMsg);
     };
 
@@ -240,7 +233,6 @@ define(function(require, exports, module) {
         var height = this.scrollview.getSize()[1] - totalHeight;
         if (height < 0) height = 0;
         // make sure the content is at less 1px longer than the scrollview
-        console.log(height);
 //        this.emptySurface.setSize([undefined, height]);
         this.emptyViews = this.makeEmptySurface(height);
     };
@@ -253,16 +245,15 @@ define(function(require, exports, module) {
         if (height < 0) height = 0;
         // make sure the content is at less 1px longer than the scrollview
         height ++;
-        console.log(height);
         this.emptySurface.setSize([undefined, height]);
     };
 
-    ConversationView.prototype.toggleMenuToggleButton = function (Blue){
-        if (Blue === true) {
-            this.setConversationOff();
+    ConversationView.prototype.toggleMenuToggleButton = function (){
+        if ($('.menu-toggle-button').hasClass('fade')) {
+            this.setConversationOn();
         }
         else {
-            this.setConversationOn();
+            this.setConversationOff();
         }
     };
 
@@ -271,7 +262,7 @@ define(function(require, exports, module) {
         $('.menu-end-button').removeClass('toShow');
         $('.input-msg').removeClass('short');
         this.contentLightBox.hide();
-        this.BlueMenuToggleButton = false;
+        this.eventOutput.emit('menu-toggle-button', false);
     };
 
     ConversationView.prototype.setConversationOn = function (){
@@ -279,6 +270,7 @@ define(function(require, exports, module) {
         $('.menu-end-button').addClass('toShow');
         $('.input-msg').addClass('short');
         if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
+        this.eventOutput.emit('menu-toggle-button', true);
     };
 
     module.exports = ConversationView;

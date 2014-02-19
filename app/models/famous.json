@@ -1,0 +1,7 @@
+{
+  "name": "models",
+  "main": "index.js",
+  "scripts": [
+    "**/*.js"
+  ]
+}

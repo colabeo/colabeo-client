@@ -8,12 +8,23 @@
     "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/utilities/utils": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+    "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/views/header-footer-layout": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/views/edge-swapper": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/widgets/tab-bar": "git+ssh://git@github.com:Famous/famous-widgets.git#modularized",
+    "famous/widgets/title-bar": "git+ssh://git@github.com:Famous/famous-widgets.git#modularized"
   },
   "paths": [
     "../app",
     "../custom",
     "../lib",
-    "../views"
+    "../views",
+    "../models"
   ],
   "scripts": [
     "index.js",
@@ -22,33 +33,3 @@
     "config.js"
   ]
 }
-
-
-
-var LightBox = require('app/custom/LightBox');
-
-
-var Utils       = require('famous-utils/Utils');
-
-// import models
-var Contact = require("app/models/Contact");
-var Call = require("app/models/Call");
-var CallCollection = require("app/models/CallCollection");
-var Settings          = require("app/models/Settings");
-var ContactCollection = require('app/models/ContactCollection');
-
-// import views
-var CameraView = require("views/CameraView");
-var AddContactView = require("views/contact/AddContactView");
-var OutgoingCallView = require("views/call/OutgoingCallView");
-var IncomingCallView = require("views/call/IncomingCallView");
-var ConnectedCallView = require('views/call/ConnectedCallView');
-var FavoritesSectionView = require('views/favorite/FavoritesSectionView');
-var RecentsSectionView = require('views/recent/RecentsSectionView');
-var ContactsSectionView = require('views/contact/ContactsSectionView');
-var SettingsSectionView = require('views/setting/SettingsSectionView');
-var AlertView = require('views/AlertView');
-
-// import app
-var config = require('app/config');
-var App = require('app/App');

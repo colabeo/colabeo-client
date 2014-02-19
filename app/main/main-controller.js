@@ -1,17 +1,20 @@
 // import famous dependencies
 var FamousEngine = require('famous/engine');
-var LightBox = require('lightbox');
 var Surface = require('famous/surface');
 var Easing = require('famous/transitions/easing');
 var EventHandler = require('famous/event-handler');
-var Utils       = require('famous/utilities/utils');
+var Utils = require('famous/utilities/utils');
+
+// import custom views
+var LightBox = require('lightbox');
 
 // import models
-var Contact = require("app/models/Contact");
-var Call = require("app/models/Call");
-var CallCollection = require("app/models/CallCollection");
-var Settings          = require("app/models/Settings");
-var ContactCollection = require('app/models/ContactCollection');
+var Models = require("models");
+var Contact = Models.Contact;
+var Call = Models.Call;
+var CallCollection = Models.CallCollection;
+var Settings = Models.Settings;
+var ContactCollection = Models.ContactCollection;
 
 // import views
 var CameraView = require("views/CameraView");
@@ -26,8 +29,8 @@ var SettingsSectionView = require('views/setting/SettingsSectionView');
 var AlertView = require('views/AlertView');
 
 // import app
-var config = require('app/config');
-var App = require('app/App');
+var config = require('config');
+var App = require('app');
 // Todo: hack, need this for packaging
 //    var Notify = require('notify');
 

@@ -1,0 +1,7 @@
+{
+  "name": "call-view",
+  "main": "index.js",
+  "scripts": [
+    "**/*.js"
+  ]
+}

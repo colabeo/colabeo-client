@@ -1,0 +1,9 @@
+{
+  "name": "lightbox",
+  "dependencies": {
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+  }
+}

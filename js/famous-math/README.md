@@ -1,1 +1,0 @@
-A Math Library for Famo.us

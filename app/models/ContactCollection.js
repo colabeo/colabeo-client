@@ -1,5 +1,5 @@
 // Import app specific dependencies
-var Contact = require('app/models/Contact');
+var Contact = require('Contact');
 
 module.exports = Backbone.Firebase.Collection.extend({
 

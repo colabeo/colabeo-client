@@ -1,0 +1,7 @@
+{
+  "name": "templates",
+  "main": "templates.js",
+  "scripts": [
+    "template.js"
+  ]
+}

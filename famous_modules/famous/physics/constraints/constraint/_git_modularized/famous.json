@@ -1,0 +1,16 @@
+{
+    "name": "famous/physics/constraints/constraint",
+    "namespace": "famous/physics/constraints",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-physics.git"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "scripts": [
+        "index.js"
+    ]
+}

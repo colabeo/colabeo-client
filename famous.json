@@ -1,7 +1,16 @@
 {
   "name": "colabeo-client",
+  "version": "0.0.0",
+  "homepage": "https://github.com/colabeo/colabeo-client",
+  "authors": [
+    "Jeff Lin <jeff@colabeo.com>"
+  ],
   "main": "main",
   "local": [
-    "app"
-  ]
+    "main"
+  ],
+  "paths": [
+    "app/"
+  ],
+  "private": true
 }

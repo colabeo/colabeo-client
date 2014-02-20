@@ -1,0 +1,24 @@
+{
+    "name": "famous/physics/engine",
+    "namespace": "famous/physics",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-physics.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/physics/bodies/particle": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/bodies/body": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/bodies/circle": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/bodies/rectangle": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/forces/force": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/constraints/constraint": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/integrator/symplectic-euler": "git+ssh://git@github.com:Famous/famous-physics.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "conversation-surface",
+  "dependencies": {},
+  "main": "conversation-surface.js",
+  "scripts": [
+    "conversation-surface.js"
+  ],
+  "local": [
+    "custom-surface"
+  ]
+}

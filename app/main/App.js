@@ -1,14 +1,14 @@
 // import famous dependencies
-var View = require('famous/view');
-var EventHandler = require('famous/eventhandler');
-var OptionsManager = require('famous/options-manager');
-var RenderNode = require('famous/render-node');
-var Utility = require('famous/utilities/utility');
-var Matrix = require('famous/transform');
+var View               = require('famous/view');
+var EventHandler       = require('famous/eventhandler');
+var OptionsManager     = require('famous/options-manager');
+var RenderNode         = require('famous/render-node');
+var Utility            = require('famous/utilities/utility');
+var Matrix             = require('famous/transform');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
-var EdgeSwapper = require('famous/views/edge-swapper');
-var NavigationBar = require('famous/widgets/tab-bar');
-var TitleBar = require('famous/widgets/title-bar');
+var EdgeSwapper        = require('famous/views/edge-swapper');
+var TabBar             = require('famous/widgets/tab-bar');
+var TitleBar           = require('famous/widgets/title-bar');
 
 function App(options) {
     // extend from view
@@ -21,7 +21,7 @@ function App(options) {
     this.header = new TitleBar(this.options.header);
 
     // create the navigation bar
-    this.navigation = new NavigationBar(this.options.navigation);
+    this.navigation = new TabBar(this.options.navigation);
 
     // create the content area
     this.contentArea = new EdgeSwapper(this.options.content);

@@ -1,0 +1,18 @@
+{
+    "name": "famous/spec-parser",
+    "namespace": "famous",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

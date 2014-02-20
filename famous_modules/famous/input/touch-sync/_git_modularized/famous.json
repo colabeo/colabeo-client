@@ -1,0 +1,19 @@
+{
+    "name": "famous/input/touch-sync",
+    "namespace": "famous/input",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-sync.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/input/touch-tracker": "git+ssh://git@github.com:Famous/famous-sync.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

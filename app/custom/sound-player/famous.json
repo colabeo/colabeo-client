@@ -1,0 +1,8 @@
+{
+  "name": "famous/audio/sound-player",
+  "main": "sound-player.js",
+  "scripts": [
+    "sound-player.js",
+    "buffer-loader.js"
+  ]
+}

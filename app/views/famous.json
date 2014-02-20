@@ -1,0 +1,31 @@
+{
+  "name": "views",
+  "dependencies": {
+    "famous/views/header-footer-layout": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/views/edge-swapper": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+    "famous/utilities/utils": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized"
+  },
+  "local": [
+    "up-down-transform",
+    "templates",
+    "models",
+    "custom-surface",
+    "custom-touch-sync",
+    "light-box",
+    "famous/audio/sound-player"
+  ],
+  "main": "index.js",
+  "scripts": [
+    "**/*.js"
+  ]
+}

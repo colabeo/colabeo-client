@@ -1,0 +1,12 @@
+{
+  "name": "custom-surface",
+  "dependencies": {
+    "famous/entity": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized"
+  },
+  "main": "surface.js",
+  "scripts": [
+    "surface.js"
+  ]
+}

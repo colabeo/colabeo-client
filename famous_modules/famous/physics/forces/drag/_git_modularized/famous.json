@@ -1,0 +1,18 @@
+{
+    "name": "famous/physics/forces/drag",
+    "namespace": "famous/physics/forces",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-physics.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/physics/forces/force": "git+ssh://git@github.com:Famous/famous-physics.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

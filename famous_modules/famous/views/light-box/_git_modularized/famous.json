@@ -1,0 +1,21 @@
+{
+    "name": "famous/views/light-box",
+    "namespace": "famous/views",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

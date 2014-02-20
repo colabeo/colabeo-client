@@ -1,4 +1,4 @@
-var Util = require('famous/utilities/utility');
+var xDirection = require('famous/utilities/utility').Direction.X;
 
 module.exports = {
     debug: false,
@@ -27,7 +27,7 @@ module.exports = {
     navigation:{
         look: {
             side: 'bottom',
-            direction: Util.Direction.X,
+            direction: xDirection,
             size: [undefined, 50],
             onClasses: ['navigation', 'on'],
             offClasses: ['navigation', 'off']

@@ -1,0 +1,22 @@
+{
+    "name": "famous/widgets/tab-bar",
+    "namespace": "famous/widgets",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-widgets.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+        "famous/views/grid-layout": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+        "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/widgets/toggle-button": "git+ssh://git@github.com:Famous/famous-widgets.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

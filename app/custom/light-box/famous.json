@@ -1,0 +1,13 @@
+{
+  "name": "light-box",
+  "dependencies": {
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+  },
+  "main": "light-box.js",
+  "scripts": [
+    "light-box.js"
+  ]
+}

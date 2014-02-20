@@ -19,12 +19,11 @@
     "famous/widgets/tab-bar": "git+ssh://git@github.com:Famous/famous-widgets.git#modularized",
     "famous/widgets/title-bar": "git+ssh://git@github.com:Famous/famous-widgets.git#modularized"
   },
-  "paths": [
-    "../app",
-    "../custom",
-    "../lib",
-    "../views",
-    "../models"
+  "local": [
+    "models",
+    "views",
+    "vendor",
+    "light-box"
   ],
   "scripts": [
     "index.js",

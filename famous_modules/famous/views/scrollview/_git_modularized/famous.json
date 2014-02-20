@@ -1,0 +1,28 @@
+{
+    "name": "famous/views/scrollview",
+    "namespace": "famous/views",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/entity": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
+        "famous/view-sequence": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/group": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
+        "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/bodies/particle": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/forces/drag": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/forces/spring": "git+ssh://git@github.com:Famous/famous-physics.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

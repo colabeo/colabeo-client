@@ -1,36 +1,40 @@
 // import famous dependencies
 var FamousEngine = require('famous/engine');
-var Surface = require('famous/surface');
-var Easing = require('famous/transitions/easing');
+var Surface      = require('famous/surface');
+var Easing       = require('famous/transitions/easing');
 var EventHandler = require('famous/event-handler');
-var Utils = require('famous/utilities/utils');
+var Utils        = require('famous/utilities/utils');
 
 // import custom views
-var LightBox = require('lightbox');
+var LightBox = require('light-box');
 
 // import models
-var Models = require("models");
-var Contact = Models.Contact;
-var Call = Models.Call;
-var CallCollection = Models.CallCollection;
-var Settings = Models.Settings;
+var Models            = require("models");
+var Contact           = Models.Contact;
+var Call              = Models.Call;
+var CallCollection    = Models.CallCollection;
+var Settings          = Models.Settings;
 var ContactCollection = Models.ContactCollection;
 
 // import views
-var CameraView = require("views/CameraView");
-var AddContactView = require("views/contact/AddContactView");
-var OutgoingCallView = require("views/call/OutgoingCallView");
-var IncomingCallView = require("views/call/IncomingCallView");
-var ConnectedCallView = require('views/call/ConnectedCallView');
-var FavoritesSectionView = require('views/favorite/FavoritesSectionView');
-var RecentsSectionView = require('views/recent/RecentsSectionView');
-var ContactsSectionView = require('views/contact/ContactsSectionView');
-var SettingsSectionView = require('views/setting/SettingsSectionView');
-var AlertView = require('views/AlertView');
+var Views                = require("views");
+var AlertView            = Views.AlertView;
+var CameraView           = Views.CameraView;
+var AddContactView       = Views.AddContactView;
+
+var OutgoingCallView     = Views.OutgoingCallView;
+var IncomingCallView     = Views.IncomingCallView;
+var ConnectedCallView    = Views.ConnectedCallView;
+
+var FavoritesSectionView = Views.FavoritesSectionView;
+var RecentsSectionView   = Views.RecentsSectionView;
+var ContactsSectionView  = Views.ContactsSectionView;
+var SettingsSectionView  = Views.SettingsSectionView;
 
 // import app
 var config = require('config');
 var App = require('app');
+
 // Todo: hack, need this for packaging
 //    var Notify = require('notify');
 

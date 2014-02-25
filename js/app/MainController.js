@@ -288,6 +288,19 @@ define(function(require, exports, module) {
                 }
             }
 
+            function onAlert(word, okHidden){
+                var alertView = new AlertView(word, okHidden);
+                alertLightbox.show(alertView,true);
+            }
+
+            function onCloseAlert(){
+//            this.alertView.alertLightBox.hide();
+                alertLightbox.hide();
+            }
+
+            window.alert = onAlert;
+            alert('Please allow Beepe to use your camera and microphone for phone calls.', true);
+
             // fastclick hack
             $('body').on('click', 'input', function(e) {
                 $(e.target).focus();
@@ -317,19 +330,6 @@ define(function(require, exports, module) {
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
-
-            function onAlert(word){
-                var alertView = new AlertView(word);
-                alertLightbox.show(alertView,true);
-            }
-
-            function onCloseAlert(){
-//            this.alertView.alertLightBox.hide();
-                alertLightbox.hide();
-            }
-
-            alert = onAlert;
-//        alert('ldsjf alfjw lkefj lw lqj r fl ekr e kljgkrle krjklre klretjle lerj ');
 
         }.bind(this));
     }
@@ -518,6 +518,7 @@ define(function(require, exports, module) {
                     });
                     this.eventOutput.emit('outgoingCall', call);
                 }
+                this.eventOutput.emit('closeAlert');
             }.bind(this),
             function(){
 //                alert("Please allow camera access for Beepe");

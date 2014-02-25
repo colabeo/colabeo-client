@@ -8,7 +8,7 @@ define(function(require, exports, module) {
     var Matrix       = require("famous/Matrix");
     var Easing = require('famous-animation/Easing');
 
-    function AlertView(message) {
+    function AlertView(message, okHidden) {
         View.call(this);
         // Set up event handlers
         this.eventInput = new EventHandler();
@@ -65,7 +65,7 @@ define(function(require, exports, module) {
             outTransition: {duration: 100, curve: Easing.outQuintNorm()},
         });
 
-        this.setAlertMessage(message);
+        this.setAlertMessage(message, okHidden);
 
         this._add(this.bigSurface);
         this._add(this.alertLightBox);
@@ -76,9 +76,14 @@ define(function(require, exports, module) {
     AlertView.prototype = Object.create(View.prototype);
     AlertView.prototype.constructor = AlertView;
 
-    AlertView.prototype.setAlertMessage = function (message){
-        var content = '<div class="alert-title"><b>Info</b></div><div id="message">' + message + '</div> <div id="close-alert"> OK </div>'
-        this.alertSurface.setContent(content);
+    AlertView.prototype.setAlertMessage = function (message, okHidden){
+        var content = [
+                        '<div class="alert-title"><b>Beepe</b></div><div id="message">',
+                        message,
+                        '</div>'
+                      ];
+        if (!okHidden) content.push('<div id="close-alert"> OK </div>');
+        this.alertSurface.setContent(content.join(''));
     }
 
     module.exports = AlertView;

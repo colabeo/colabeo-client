@@ -1,4 +1,4 @@
-var Surface = require('custom-surface');
+var Surface = require('famous/surface');
 
 function ConversationSurface(opts) {
     Surface.apply(this, arguments);
@@ -6,7 +6,7 @@ function ConversationSurface(opts) {
 };
 
 ConversationSurface.prototype = Object.create(Surface.prototype);
-ConversationSurface.prototype.surfaceEvents = Surface.prototype.surfaceEvents.concat(['load']);
+//ConversationSurface.prototype.surfaceEvents = Surface.prototype.surfaceEvents.concat(['load']);
 
 ConversationSurface.prototype.deploy = function(target) {
     Surface.prototype.deploy.apply(this, arguments);

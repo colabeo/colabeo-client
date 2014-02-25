@@ -5,9 +5,9 @@ var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Utility            = require('famous/utilities/utility');
 var Modifier           = require('famous/modifier');
 var GenericSync        = require('famous/input/generic-sync');
+var Surface            = require('famous/surface');
 
 // import custom modules
-var Surface            = require('custom-surface');
 var TouchSync          = require('custom-touch-sync');
 
 // import views

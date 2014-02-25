@@ -6,8 +6,8 @@ var Scrollview         = require('famous/views/scrollview');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Engine             = require('famous/engine');
 var Transform          = require('famous/transform');
+var Surface            = require('famous/surface');
 
-var Surface  = require('custom-surface');
 var LightBox = require('light-box');
 
 var ConversationCollection = require('models').ConversationCollection;

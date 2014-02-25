@@ -1,14 +1,14 @@
 
+require("zepto");
+window.$ = Zepto;
+window._ = require("underscore");
+window.Backbone = require("backbone");
+window.Backbone.$ = Zepto;
 
-require("component/components/zepto");
-
-require("component/jaskenas/underscore");
-require("component/jaskenas/backbone");
-
-require("handlebars-runtime");
-require("backbonelocalStorage");
+require("handlebars");
+require("backbone.localStorage");
 
 require("firebase");
-require("backboneFirebase");
-require("peer.min");
+require("backbone-firebase");
+require("peer");
 require("notify");

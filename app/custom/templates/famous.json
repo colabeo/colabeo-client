@@ -2,6 +2,6 @@
   "name": "templates",
   "main": "templates.js",
   "scripts": [
-    "template.js"
+    "templates.js"
   ]
 }

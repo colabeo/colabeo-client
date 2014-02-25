@@ -1,6 +1,6 @@
 // import famous dependencies
 var View               = require('famous/view');
-var EventHandler       = require('famous/eventhandler');
+var EventHandler       = require('famous/event-handler');
 var OptionsManager     = require('famous/options-manager');
 var RenderNode         = require('famous/render-node');
 var Utility            = require('famous/utilities/utility');

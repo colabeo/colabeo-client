@@ -19,8 +19,8 @@
     "up-down-transform",
     "templates",
     "models",
-    "custom-surface",
     "custom-touch-sync",
+    "conversation-surface",
     "light-box",
     "famous/audio/sound-player"
   ],

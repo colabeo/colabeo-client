@@ -1,6 +1,6 @@
 // Import core Famous dependencies
 var View             = require('famous/view');
-var Utility          = require('famous/utility');
+var Utility          = require('famous/utilities/utility');
 var Surface          = require('famous/surface');
 var Scrollview       = require('famous/views/scrollview');
 var Utils            = require('famous/utilities/utils');

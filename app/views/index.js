@@ -8,7 +8,7 @@ module.exports = {
     FavoritesSectionView: require("favorites-section-view"),
     IncomingCallView: require("incoming-call-view"),
     OutgoingCallView: require("outgoing-call-view"),
-    RecentSectionView: require("recent-section-view"),
+    RecentsSectionView: require("recents-section-view"),
     SettingsSectionView: require("settings-section-view"),
     SocialView: require("social-view")
 }

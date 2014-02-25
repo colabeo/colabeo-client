@@ -2,7 +2,6 @@
 var Call = require('call');
 // Todo: hack, need this for packaging
 //    require("lib/backboneLocalStorage");
-
 module.exports = Backbone.Collection.extend({
 //
 //      url: '/user/calls',

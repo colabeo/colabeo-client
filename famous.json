@@ -12,5 +12,15 @@
   "paths": [
     "app/"
   ],
+  "images": [
+    "content/**/*.gif",
+    "content/**/*.png",
+    "content/**/*.jpg",
+    "content/**/*.ico"
+  ],
+  "files": [
+    "content/audio/calltone.mp3",
+    "content/audio/ringtone.mp3"
+  ],
   "private": true
 }

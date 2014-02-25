@@ -44,6 +44,14 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.loadUser(function(data) {
+            console.log(data.chatroom);
+            if (data.chatroom) {
+                this.chatroom = data.chatroom;
+                data.objectId = 'unknown';
+                data.firstname = data.chatroom.calleeAccountId;
+                data.lastname = data.chatroom.calleeAccountProvider;
+                data.username = '';
+            }
             // Set up models and collections
             this.appSettings = new Settings({
                 id: data.objectId
@@ -214,10 +222,16 @@ define(function(require, exports, module) {
                 }
 
                 var curView = myLightbox.nodes[0].get();
-                if (curView instanceof OutgoingCallView || curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
+                if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
                     return;
-                incomingCallView.start(eventData);
-                myLightbox.show(incomingCallView, true);
+                if (curView instanceof OutgoingCallView) {
+                    outgoingCallView.accept();
+                    this.eventOutput.emit('incomingCallAnswer', eventData);
+                }
+                else {
+                    incomingCallView.start(eventData);
+                    myLightbox.show(incomingCallView, true);
+                }
             }
 
             function onCallEnd(eventData) {
@@ -227,6 +241,13 @@ define(function(require, exports, module) {
                 var curView = myLightbox.nodes[0].object;
                 if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
                     curView.stop();
+                }
+                if (this.chatroom) {
+                    var url = '/login?r=' + this.chatroom.objectId;
+                    if (this.chatroom.callerFirstname) {
+                        url += '&fn=' + this.chatroom.callerFirstname;
+                    }
+                    window.location = url;
                 }
             }
 
@@ -486,6 +507,17 @@ define(function(require, exports, module) {
                 this.setAudio();
                 if (options.video) $('.camera').removeClass('off');
                 else $('.camera').addClass('off');
+
+                if (this.chatroom) {
+                    var call = new Call({
+                        firstname: "",
+                        lastname: "",
+                        email: "",
+                        cid: this.chatroom.caller,
+                        provider: this.chatroom.calleeAccountProvider
+                    });
+                    this.eventOutput.emit('outgoingCall', call);
+                }
             }.bind(this),
             function(){
 //                alert("Please allow camera access for Beepe");
@@ -652,26 +684,35 @@ define(function(require, exports, module) {
             alert("Please allow camera/microphone access for Beepe");
             return;
         }
-        var query = [];
-        // TODO: add more providers here in the future
-        ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
-            if (data.get(provider)) {
-                query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+        if (data.get('cid')) {
+            this.callById(data.get('cid'), data.get('provider'));
+        } else {
+            var query = [];
+            // TODO: add more providers here in the future
+            ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+                if (data.get(provider)) {
+                    query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+                }
+            });
+            if (query.length) {
+                multipleLookup(query, function(result) {
+                    if (result.length) {
+                        var callee = _.last(result);
+                        var cid;
+                        if (callee.user && callee.user.objectId) cid = callee.user.objectId;
+                        else if (callee.objectId) cid = callee.objectId;
+                        this.callById(cid, callee.provider);
+                    }
+                    else {
+                        this.setupChatroom(query[0]);
+//                        alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
+                    }
+                }.bind(this));
+            } else {
+                alert('This contact is empty.');
             }
-        });
-        query = JSON.stringify(query);
-        multipleLookup(query, function(result) {
-            if (result.length) {
-                var callee = _.last(result);
-                var cid;
-                if (callee.user && callee.user.objectId) cid = callee.user.objectId;
-                else if (callee.objectId) cid = callee.objectId;
-                this.callById(cid, callee.provider);
-            }
-            else {
-                alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
-            }
-        }.bind(this));
+
+        }
     };
 
     MainController.prototype.callByContactSingle = function(data) {
@@ -735,19 +776,47 @@ define(function(require, exports, module) {
     };
 
     MainController.prototype.loadUser = function(done) {
-        $.ajax({
-            url: '/me',
-            type: 'get',
-            dataType: 'json',
-            success: function(data) {
-                if (done) done(data);
-            },
-            error: function() {
-                console.log('error');
-                // TODO: temp dev user
-                if (done) done({});
+        if (location.pathname == '/call') {
+            var params = parseQueryString();
+            if (params['r']) {
+                var room = params['r'][0];
+                $.ajax({
+                    url: '/chatroom?id='+room,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (done) done({chatroom: data});
+                    },
+                    error: function() {
+                        console.log('error');
+                        // TODO: temp dev user
+                        if (done) done({});
+                    }
+                });
             }
-        });
+        } else {
+            $.ajax({
+                url: '/me',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (done) done(data);
+                },
+                error: function() {
+                    console.log('error');
+                    // TODO: temp dev user
+                    if (done) done({});
+                }
+            });
+        }
+        function parseQueryString() {
+            var query = (window.location.search || '?').substr(1),
+                map   = {};
+            query.replace(/([^&=]+)=?([^&]*)(?:&+|$)/g, function(match, key, value) {
+                (map[key] = map[key] || []).push(value);
+            });
+            return map;
+        }
     };
 
     MainController.prototype.loadConnected = function(done) {
@@ -771,6 +840,25 @@ define(function(require, exports, module) {
             url: '/contact/' + source,
             type: 'get',
             dataType: 'json',
+            success: function(data) {
+                if (done) done(data);
+            },
+            error: function() {
+                console.log('error');
+                // TODO: temp dev user
+                if (done) done({});
+            }
+        });
+    };
+
+    MainController.prototype.setupChatroom = function(callee, done) {
+        $.ajax({
+            url: '/chatroom',
+            type: 'post',
+            data: {
+                callee : { provider : callee.provider , eid : callee.eid }
+            },
+//            dataType: 'json',
             success: function(data) {
                 if (done) done(data);
             },
@@ -808,6 +896,7 @@ define(function(require, exports, module) {
         });
     }
     function multipleLookup(query, done) {
+        query = JSON.stringify(query);
         $.ajax({
             url: '/findusers',
             type: 'get',

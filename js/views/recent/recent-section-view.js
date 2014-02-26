@@ -62,6 +62,7 @@ define(function(require, exports, module) {
             resizeTimeout = setTimeout(onResize.bind(this), 300);
         }.bind(this));
 
+        window.rr = this;
 //        $('body').on('click', '.header button.clear-button', function(e){
 //            _.invoke(this.collection.all(), 'destroy');
 //            this.loadContacts();

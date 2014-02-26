@@ -48,7 +48,8 @@ define(function(require, exports, module) {
                     break;
 //                case 'sync':
                 case 'add':
-                    this.loadContacts();
+                    this.addContacts(model);
+//                    this.loadContacts();  // loadContacts lead to memory leak.
                     break;
             }
         }.bind(this));
@@ -71,7 +72,7 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype.loadContacts = function() {
         this.scrollview.setPosition(0);
         this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
-        var sequence = this.curCollection.map(function(item){
+        this.sequence = this.curCollection.map(function(item){
             var surface = new RecentItemView({model: item});
             this.eventInput.pipe(surface);
             surface.pipe(this.eventOutput);
@@ -82,20 +83,36 @@ define(function(require, exports, module) {
         // media access bar messed up the height so add 40
 
         var extraHeight = this.scrollview.getSize()[1] + 40;
-        for (var i = 0; i<sequence.length; i++){
-            extraHeight -= sequence[i].getSize()[1];
+        for (var i = 0; i<this.sequence.length; i++){
+            extraHeight -= this.sequence[i].getSize()[1];
             if (extraHeight < 0) break;
         }
 
         if (extraHeight > 0) {
-            var emptySurface = new Surface({
+            this.emptysurface = new Surface({
                 size:[undefined, extraHeight]
             });
-            emptySurface.pipe(this.eventOutput);
-            sequence.push(emptySurface);
+            this.emptysurface.pipe(this.eventOutput);
+            this.sequence.push(this.emptysurface);
         }
 
-        this.scrollview.sequenceFrom(sequence);
+        this.scrollview.sequenceFrom(this.sequence);
+    };
+
+    RecentsSectionView.prototype.addContacts = function(call) {
+        this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
+        var surface = new RecentItemView({model: call});
+        this.eventInput.pipe(surface);
+        surface.pipe(this.eventOutput);
+        this.sequence.splice(0, 0, surface);
+
+        var extraHeight = this.scrollview.getSize()[1] + 40;
+        for (var i = 0; i<this.sequence.length; i++){
+            extraHeight -= this.sequence[i].getSize()[1];
+            if (extraHeight < 0) break;
+        }
+
+        this.emptysurface.setSize([undefined, this.emptysurface.getSize()[1]-50])
     };
 
     RecentsSectionView.prototype.removeContact = function(index) {

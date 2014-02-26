@@ -29,7 +29,7 @@ define(function(require, exports, module) {
 
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
-//            console.log(e, model, collection, options);
+            console.log(e, model.attributes, collection, options);
             switch(e)
             {
                 case 'change:favorite':
@@ -43,7 +43,9 @@ define(function(require, exports, module) {
                 case 'remove':
                     this.curIndex = this.scrollview.getCurrentNode().index;
                     this.curPosition = this.scrollview.getPosition();
-                    this.loadFavorites();
+                    var i = this.curCollection.indexOf(model);
+                    this.removeContact(i);
+//                    this.loadFavorites();
                     this.scrollTo(this.curIndex,this.curPosition);
                     break;
                 case 'sync':

@@ -4,5 +4,8 @@
   "scripts": [
     "index.js",
     "**/*.js"
+  ],
+  "styles": [
+    "font-awesome.css"
   ]
 }

@@ -63,7 +63,7 @@ define(function(require, exports, module) {
             resizeTimeout = setTimeout(onResize.bind(this), 300);
         }.bind(this));
 
-        window.ff=this
+        window.fff=this
 
     }
 

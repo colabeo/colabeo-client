@@ -42,9 +42,8 @@ define(function(require, exports, module) {
             {
                 case 'remove':
                     var i = this.curCollection.indexOf(model);
-                    // TODO: Hack?
-                    if (i<0) i = options.index;
-                    this.removeContact(i);
+                    if (i>=0)
+                        this.removeContact(i);
                     break;
 //                case 'sync':
                 case 'add':

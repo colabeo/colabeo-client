@@ -29,7 +29,6 @@ define(function(require, exports, module) {
 
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
-            console.log(e, model.attributes, collection, options);
             switch(e)
             {
                 case 'change:favorite':
@@ -107,6 +106,7 @@ define(function(require, exports, module) {
     };
 
     FavoritesSectionView.prototype.removeFavorite = function(index) {
+        if (index<0) return;
         this.curCollection = this.collection.favorites();
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];

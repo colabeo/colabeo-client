@@ -67,8 +67,6 @@ define(function(require, exports, module) {
             this.appSettings.me = data;
             this.appSettings = this.appSettings;
 
-            this.init();
-
             this.contactCollection = new ContactCollection([], {
                 firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
             });
@@ -309,17 +307,18 @@ define(function(require, exports, module) {
             }
 
             function onCloseAlert(){
-//            this.alertView.alertLightBox.hide();
                 alertLightbox.hide();
             }
 
             window.alert = onAlert;
-            alert('Please allow Beepe to use your camera/microphone for phone calls.', true);
+            if (this.chatroom) alert('Please allow Beepe to use your camera/microphone for phone calls.', true);
 
             // fastclick hack
             $('body').on('click', 'input', function(e) {
                 $(e.target).focus();
             });
+
+            this.init();
 
 
               window.colabeo = this;
@@ -524,7 +523,6 @@ define(function(require, exports, module) {
                     });
                     this.eventOutput.emit('outgoingCall', call);
                 }
-
             }.bind(this),
             function(){
 //                alert("Please allow camera access for Beepe");

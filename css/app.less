@@ -6,9 +6,18 @@
 @color-black: #000000;
 @color-blue: #3398cd;
 @color-green: #5db04c;
+
 @opacity-little: 0.88;
 @opacity-half: 0.5;
 @opacity-very: 0.2;
+
+@tranlucent-white-l: rgba(255, 255, 255, @opacity-little);
+@tranlucent-white-h: rgba(255, 255, 255, @opacity-half);
+@tranlucent-white-v: rgba(255, 255, 255, @opacity-very);
+@tranlucent-black-l: rgba(0, 0, 0, @opacity-little);
+@tranlucent-black-h: rgba(0, 0, 0, @opacity-half);
+@tranlucent-black-v: rgba(0, 0, 0, @opacity-very);
+
 
 // Constant
 @facebook-blue:  @color-blue; //#3b5998;
@@ -436,6 +445,9 @@ button.sync-button.syncing {
   opacity: @opacity-little;
   margin: 14px 10px 0px 16px;
 }
+.delete-button2 {
+  cursor: pointer;
+}
 
 .favorite-button {
   float: left;
@@ -496,7 +508,6 @@ input {
 .contact-item .source {
   margin: 0px 20px;
   margin-right:40px;
-  border-bottom: solid thin rgba(255, 255, 255, .2);
   line-height: 50px;
   cursor: pointer;
 }
@@ -579,7 +590,22 @@ input {
   margin-top:150px;
   font-size: 25px;
 }
-
+.delete-button2 .fa-background{
+  color:@color-red;
+  line-height: 50px;
+}
+.delete-button2 .fa-frontground{
+  color:@color-white;
+  line-height: 50px;
+}
+.phone-button .fa-background{
+  color:@color-green;
+  line-height: 50px;
+}
+.phone-button .fa-frontground{
+  color:@color-white;
+  line-height: 50px;
+}
 .fa-plus {
   cursor: pointer;
 }
@@ -599,7 +625,7 @@ input {
 /* imports */
 .import-item div.import-source {
   margin: 0px 20px;
-  border-bottom: solid thin rgba(255, 255, 255, .2);
+  border-bottom: solid thin @tranlucent-white-l;
   line-height: 50px;
   cursor: pointer;
 }
@@ -1162,4 +1188,16 @@ input {
 
 .conversation-input-bar .input-msg.short{
   border-left: solid @theme-background-color 90px;
+}
+
+//item-view css
+.item-buttons{
+//  padding-top: 4px;
+  text-align: center;
+}
+
+.item-frame {
+  box-sizing: border-box;
+  border-bottom: solid thin @tranlucent-white-v;
+  height: 100%;
 }

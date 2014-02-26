@@ -352,6 +352,9 @@ button.sync-button.syncing {
   opacity: 0.88;
   margin: 14px 10px 0px 16px;
 }
+.delete-button2 {
+  cursor: pointer;
+}
 .favorite-button {
   float: left;
   background: transparent;
@@ -403,7 +406,6 @@ input {
 .contact-item .source {
   margin: 0px 20px;
   margin-right: 40px;
-  border-bottom: solid thin rgba(255, 255, 255, 0.2);
   line-height: 50px;
   cursor: pointer;
 }
@@ -476,6 +478,22 @@ input {
   margin-top: 150px;
   font-size: 25px;
 }
+.delete-button2 .fa-background {
+  color: #c23635;
+  line-height: 50px;
+}
+.delete-button2 .fa-frontground {
+  color: #ffffff;
+  line-height: 50px;
+}
+.phone-button .fa-background {
+  color: #5db04c;
+  line-height: 50px;
+}
+.phone-button .fa-frontground {
+  color: #ffffff;
+  line-height: 50px;
+}
 .fa-plus {
   cursor: pointer;
 }
@@ -491,7 +509,7 @@ input {
 /* imports */
 .import-item div.import-source {
   margin: 0px 20px;
-  border-bottom: solid thin rgba(255, 255, 255, 0.2);
+  border-bottom: solid thin rgba(255, 255, 255, 0.88);
   line-height: 50px;
   cursor: pointer;
 }
@@ -1029,4 +1047,12 @@ input {
 }
 .conversation-input-bar .input-msg.short {
   border-left: solid #000000 90px;
+}
+.item-buttons {
+  text-align: center;
+}
+.item-frame {
+  box-sizing: border-box;
+  border-bottom: solid thin rgba(255, 255, 255, 0.2);
+  height: 100%;
 }

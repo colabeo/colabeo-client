@@ -79,6 +79,30 @@ define(function(require, exports, module) {
         var html = '<i class="fa fa-times remove-button" id="' + id + '"></i>';
         return html;
     }
+    function crossButton(id) {
+        var html = ['<span class="fa-stack delete-button2" id="',
+            id ,
+            '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+            '<i class="fa fa-times fa-stack-1x fa-frontground"></i>',
+            '</span>'].join('');
+        return html;
+    }
+    function plusButton(id) {
+        var html = ['<span class="fa-stack fa-lg delete-button2" id="',
+            id ,
+            '"><i class="fa fa-circle fa-stack"></i>',
+            '<i class="fa fa-plus fa-stack"></i>',
+            '</span>'].join('');
+        return html;
+    }
+    function phoneButton(id) {
+        var html = ['<span class="fa-stack fa-lg phone-button" id="',
+            id ,
+            '"><i class="fa fa-square fa-stack-2x fa-background"></i>',
+            '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>',
+            '</span>'].join('');
+        return html;
+    }
     function recentsToggle() {
         var html = '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>';
         html += '<label for="all" class="first" id="recent-toggle">all</label>';
@@ -86,16 +110,31 @@ define(function(require, exports, module) {
         html += '<label for="missed" class="last" id="recent-toggle">missed</label></div>';
         return html;
     }
+    function itemFrame(margin){
+        var realWidth = window.innerWidth-2*margin;
+        var html = [
+            '<div class="item-frame" style="width: ',
+            realWidth,
+            'px; margin: 0px ',
+            margin,
+            'px"></div>'
+        ].join('');
+        return html;
+    }
     module.exports = {
         toggleSwitch: toggleSwitch,
         toggleButton: toggleButton,
         deleteButton: deleteButton,
         addButton: addButton,
+        plusButton: plusButton,
+        phoneButton: phoneButton,
         removeButton: removeButton,
+        crossButton: crossButton,
         nextButton: nextButton,
         favoriteButton: favoriteButton,
         recentsToggle: recentsToggle,
-        button: button
+        button: button,
+        itemFrame: itemFrame
     }
 
 });

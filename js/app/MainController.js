@@ -21,7 +21,7 @@ define(function(require, exports, module) {
     var IncomingCallView = require("views/call/IncomingCallView");
     var ConnectedCallView = require('views/call/ConnectedCallView');
     var FavoritesSectionView = require('views/favorite/FavoritesSectionView');
-    var RecentsSectionView = require('views/recent/RecentsSectionView');
+    var RecentsSectionView = require('views/recent/recent-section-view');
     var ContactsSectionView = require('views/contact/ContactsSectionView');
     var SettingsSectionView = require('views/setting/SettingsSectionView');
     var AlertView = require('views/AlertView');

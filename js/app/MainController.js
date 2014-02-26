@@ -47,9 +47,9 @@ define(function(require, exports, module) {
             if (data.chatroom) {
                 this.chatroom = data.chatroom;
                 data.objectId = 'unknown';
-                data.firstname = data.chatroom.calleeAccountId;
-                data.lastname = data.chatroom.calleeAccountProvider;
-                data.username = '';
+                data.firstname = data.chatroom.calleeFirstName;
+                data.lastname = data.chatroom.calleeLastName;
+                data.username = data.chatroom.calleeName;
             }
             // Set up models and collections
             this.appSettings = new Settings({
@@ -58,10 +58,10 @@ define(function(require, exports, module) {
             this.appSettings.fetch();
             this.appSettings.save({
                 cid: data.objectId,
-                email: data.email,
-                firstname: data.firstname,
-                lastname: data.lastname,
-                username: data.username
+                email: data.email || "",
+                firstname: data.firstname || data.username || "",
+                lastname: data.lastname || "",
+                username: data.username || ""
             });
 
             this.appSettings.me = data;
@@ -122,7 +122,7 @@ define(function(require, exports, module) {
             FamousEngine.pipe(myApp);
 
             // start on the main section
-            myApp.select(myApp.options.sections[0].title);
+            myApp.select(myApp.options.sections[2].title);
 
             var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
             var incomingCallView = new IncomingCallView({collection: this.recentCalls});
@@ -253,8 +253,8 @@ define(function(require, exports, module) {
                 }
                 if (this.chatroom) {
                     var url = '/login?r=' + this.chatroom.objectId;
-                    if (this.chatroom.callerFirstname) {
-                        url += '&fn=' + this.chatroom.callerFirstname;
+                    if (this.chatroom.callerName) {
+                        url += '&fn=' + this.chatroom.callerName;
                     }
                     window.location = url;
                 }
@@ -314,7 +314,7 @@ define(function(require, exports, module) {
             }
 
             window.alert = onAlert;
-//            alert('Please allow Beepe to use your camera and microphone for phone calls.', true);
+            alert('Please allow Beepe to use your camera/microphone for phone calls.', true);
 
             // fastclick hack
             $('body').on('click', 'input', function(e) {
@@ -322,8 +322,7 @@ define(function(require, exports, module) {
             });
 
 
-            var hack = function() {
-                window.colabeo = this;
+              window.colabeo = this;
 //            window.myLightbox = myLightbox;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
@@ -334,8 +333,7 @@ define(function(require, exports, module) {
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
-            }
-            hack();
+
 
         }.bind(this));
     }
@@ -514,17 +512,19 @@ define(function(require, exports, module) {
                 if (options.video) $('.camera').removeClass('off');
                 else $('.camera').addClass('off');
 
+                this.eventOutput.emit('closeAlert');
+
                 if (this.chatroom) {
                     var call = new Call({
-                        firstname: "",
-                        lastname: "",
-                        email: "",
-                        cid: this.chatroom.caller,
-                        provider: this.chatroom.calleeAccountProvider
+                        firstname: this.chatroom.callerFirstName || this.chatroom.callerName || "",
+                        lastname: this.chatroom.callerLastName || "",
+                        email: this.chatroom.callerAccountId || "",
+                        cid: this.chatroom.caller || "",
+                        provider: this.chatroom.calleeAccountProvider || ""
                     });
                     this.eventOutput.emit('outgoingCall', call);
                 }
-                this.eventOutput.emit('closeAlert');
+
             }.bind(this),
             function(){
 //                alert("Please allow camera access for Beepe");
@@ -863,9 +863,17 @@ define(function(require, exports, module) {
             url: '/chatroom',
             type: 'post',
             data: {
-                callee : { provider : callee.provider , eid : callee.eid }
+                callee : {
+                    provider : callee.provider ,
+                    eid : callee.eid ,
+                    name: callee.firstname + " " + callee.lastname,
+                    firstname: callee.firstname,
+                    lastname: callee.lastname
+                },
+                // 0: do nothing 1: chatroom invite 2: beepe invite 3: debug
+                e: 3
             },
-//            dataType: 'json',
+            dataType: 'json',
             success: function(data) {
                 if (done) done(data);
             },

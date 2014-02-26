@@ -42,9 +42,8 @@ define(function(require, exports, module) {
             {
                 case 'remove':
                     var i = this.curCollection.indexOf(model);
-                    // TODO: Hack?
-                    if (i<0) i = options.index;
-                    this.removeContact(i);
+                    if (i>=0)
+                        this.removeContact(i);
                     break;
 //                case 'sync':
                 case 'add':
@@ -111,8 +110,7 @@ define(function(require, exports, module) {
             extraHeight -= this.sequence[i].getSize()[1];
             if (extraHeight < 0) break;
         }
-
-        this.emptysurface.setSize([undefined, this.emptysurface.getSize()[1]-50])
+        if (this.emptysurface) this.emptysurface.setSize([undefined, this.emptysurface.getSize()[1]-50]);
     };
 
     RecentsSectionView.prototype.removeContact = function(index) {

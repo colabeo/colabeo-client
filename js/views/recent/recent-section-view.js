@@ -16,7 +16,7 @@ define(function(require, exports, module) {
         // Set up navigation and title bar information
         this.title = '<button class="left clear-button" id="clear-button"></button>';
         this.title += Templates.recentsToggle();
-        this.title += '<button class="right edit-button" id="edit-contact"></button>';
+        this.title += '<button class="right edit-button" id="recent-edit-contact"></button>';
         this.navigation = {
             caption: 'Recents',
             icon: '<i class="fa fa-clock-o"></i>'
@@ -32,6 +32,10 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._link(this.scrollview);
 
+        // TODO & Important: fetch first and then add this.collections.on
+        // Otherwise, add event will be trigged n^2 times, and create n^2 item-view.
+        this.collection.fetch();
+        this.loadContacts();
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
             switch(e)
@@ -59,7 +63,6 @@ define(function(require, exports, module) {
 //            this.loadContacts();
 //        }.bind(this));
 
-        this.collection.fetch();
     }
 
     RecentsSectionView.prototype = Object.create(View.prototype);
@@ -70,6 +73,7 @@ define(function(require, exports, module) {
         this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
         var sequence = this.curCollection.map(function(item){
             var surface = new RecentItemView({model: item});
+            this.eventInput.pipe(surface);
             surface.pipe(this.eventOutput);
             return surface;
         }.bind(this));

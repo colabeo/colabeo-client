@@ -16,7 +16,11 @@ define(function(require, exports, module) {
             content: Templates.favoriteItemView(options.model),
             event: 'editContact'
         };
+
         ItemView.apply(this, arguments);
+
+        this.eventInput.on('toggleAllFavorite', this.onToggleAll.bind(this));
+
     }
 
     FavoriteItemView.prototype = Object.create(ItemView.prototype);

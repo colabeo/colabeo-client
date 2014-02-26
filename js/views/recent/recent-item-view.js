@@ -16,7 +16,11 @@ define(function(require, exports, module) {
             content: Templates.recentItemView(options.model),
             event: 'editContact'
         };
+
         ItemView.apply(this, arguments);
+
+        this.eventInput.on('toggleAllRecent', this.onToggleAll.bind(this));
+
     }
 
     RecentItemView.prototype = Object.create(ItemView.prototype);

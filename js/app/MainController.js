@@ -89,7 +89,9 @@ define(function(require, exports, module) {
                 model: this.appSettings
             });
             favoritesSection.pipe(this.eventOutput);
+            this.eventInput.pipe(favoritesSection);
             recentsSection.pipe(this.eventOutput);
+            this.eventInput.pipe(recentsSection);
             contactsSection.pipe(this.eventOutput);
             settingsSection.pipe(this.eventOutput);
 
@@ -284,7 +286,13 @@ define(function(require, exports, module) {
                     case 'add-contact':
                         this.eventOutput.emit('editContact');
                         break;
-                    case 'edit-contact':
+                    case 'recent-edit-contact':
+                        this.eventInput.emit('toggleAllRecent')
+                        break;
+                    case 'favorite-edit-contact':
+                        this.eventInput.emit('toggleAllFavorite')
+                        break;
+                    case 'contact-edit-contact':
                         $('body').toggleClass('editing');
                         break;
                     case 'recent-toggle':

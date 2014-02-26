@@ -56,7 +56,7 @@ define(function(require, exports, module) {
 
         // Set up navigation and title bar information
 //        this.title = '<button class="left import-contacts">Import</button><div>All Contacts</div><button class="right add-contact"><i class="fa fa-plus"></i></button>';
-        this.title = '<button class="left edit-button" id="edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
+        this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
         this.navigation = {
             caption: 'Contacts',
             icon: '<i class="fa fa-users"></i>'
@@ -243,7 +243,7 @@ define(function(require, exports, module) {
         if (index == undefined || index == this.curAbcIndex) return;
         this.curAbcIndex = index;
         this.scrollTo(index);
-    }
+    };
 
     module.exports = ContactsSection;
 });

@@ -12,7 +12,7 @@ define(function(require, exports, module) {
         View.call(this);
 
         // Set up navigation and title bar information
-        this.title = '<button class="left edit-button" id="edit-contact"></button><div>Favorites</div>';
+        this.title = '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
         this.navigation = {
             caption: 'Favorites',
             icon: '<i class="fa fa-star"></i>'
@@ -61,6 +61,7 @@ define(function(require, exports, module) {
         var sequence = this.curCollection.map(function(item){
             var surface = new FavoriteItemView({model: item});
             surface.pipe(this.eventOutput);
+            this.eventInput.pipe(surface);
             return surface;
         }.bind(this))
 

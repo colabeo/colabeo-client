@@ -37,6 +37,7 @@ define(function(require, exports, module) {
 
         this.pos = [0,0];
         this.isEditingMode = false;
+        this.areEditingMode = false;
 
         var sync = new GenericSync(function(){
             return this.pos;
@@ -240,6 +241,16 @@ define(function(require, exports, module) {
         return size;
     };
 
+    ItemView.prototype.onToggleAll = function (){
+        if ( this.areEditingMode == false){
+            this.setEditingOn();
+        } else {
+            this.setEditingOff();
+        }
+        console.log('df')
+        this.areEditingMode =! this.areEditingMode;
+    };
+
     ItemView.prototype.events = function() {
         _(this.options.leftButtons).each(function (b, i) {
             this['leftButton'+i].on('click', function(b) {
@@ -253,19 +264,6 @@ define(function(require, exports, module) {
                 this.eventOutput.emit(this.options.itemButton.event, this.model);
             }
         }.bind(this));
-
-        this.areEditingMode = false;
-        // TODO: very buggy, remove for now
-//        Engine.on('click', function(e){
-//            if ($(e.target).hasClass('edit-button')){
-//                if ( this.areEditingMode == false){
-//                    this.setEditingOn();
-//                } else {
-//                    this.setEditingOff();
-//                }
-//                this.areEditingMode =! this.areEditingMode;
-//            }
-//        }.bind(this));
     };
 
     module.exports = ItemView;

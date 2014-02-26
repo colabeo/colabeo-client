@@ -44,7 +44,6 @@ define(function(require, exports, module) {
         EventHandler.setOutputHandler(this, this.eventOutput);
 
         this.loadUser(function(data) {
-            console.log(data.chatroom);
             if (data.chatroom) {
                 this.chatroom = data.chatroom;
                 data.objectId = 'unknown';
@@ -67,6 +66,7 @@ define(function(require, exports, module) {
 
             this.appSettings.me = data;
             this.appSettings = this.appSettings;
+
             this.init();
 
             this.contactCollection = new ContactCollection([], {
@@ -106,15 +106,8 @@ define(function(require, exports, module) {
             var myLightbox = new LightBox({overlap:true});
             var alertLightbox = new LightBox({overlap:true});
             var addContactView = new AddContactView({collection: this.contactCollection});
-            var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
-            var incomingCallView = new IncomingCallView({collection: this.recentCalls});
-            var connectedCallView = new ConnectedCallView({collection: this.recentCalls})
 
             myApp.pipe(this.eventOutput);
-            outgoingCallView.pipe(this.eventOutput);
-            incomingCallView.pipe(this.eventOutput);
-            connectedCallView.pipe(this.eventOutput);
-            this.pipe(connectedCallView.eventInput);
             addContactView.pipe(this.eventOutput);
             var cameraView = new CameraView({});
 
@@ -128,6 +121,14 @@ define(function(require, exports, module) {
 
             // start on the main section
             myApp.select(myApp.options.sections[0].title);
+
+            var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
+            var incomingCallView = new IncomingCallView({collection: this.recentCalls});
+            var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
+            outgoingCallView.pipe(this.eventOutput);
+            incomingCallView.pipe(this.eventOutput);
+            connectedCallView.pipe(this.eventOutput);
+            this.pipe(connectedCallView.eventInput);
 
             // events handling
             this.eventOutput.on('callEnd', onCallEnd);
@@ -312,20 +313,13 @@ define(function(require, exports, module) {
                 $(e.target).focus();
             });
 
-            // header buttons events
-//        $('body').on('click', '.header button.edit-button', function(e){
-//            $('body').toggleClass('editing');
-//        });
-//        $('body').on('click', '.header button.add-contact', function(e){
-//            this.eventOutput.emit('editContact');
-//        }.bind(this));
-//
-//        $('body').on('click', '.header button.close-button', function(e){
-//            this.eventOutput.emit('showApp');
-//        }.bind(this));
+            this.hack();
 
-            // TODO: hack
-//            window.colabeo = this;
+        }.bind(this));
+    }
+
+    MainController.prototype.hack = function() {
+            window.colabeo = this;
 //            window.myLightbox = myLightbox;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
@@ -336,8 +330,6 @@ define(function(require, exports, module) {
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
-
-        }.bind(this));
     }
 
     MainController.prototype.init = function() {

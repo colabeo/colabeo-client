@@ -255,16 +255,17 @@ define(function(require, exports, module) {
         }.bind(this));
 
         this.areEditingMode = false;
-        Engine.on('click', function(e){
-            if ($(e.target).hasClass('edit-button')){
-                if ( this.areEditingMode == false){
-                    this.setEditingOn();
-                } else {
-                    this.setEditingOff();
-                }
-                this.areEditingMode =! this.areEditingMode;
-            }
-        }.bind(this));
+        // TODO: very buggy, remove for now
+//        Engine.on('click', function(e){
+//            if ($(e.target).hasClass('edit-button')){
+//                if ( this.areEditingMode == false){
+//                    this.setEditingOn();
+//                } else {
+//                    this.setEditingOff();
+//                }
+//                this.areEditingMode =! this.areEditingMode;
+//            }
+//        }.bind(this));
     };
 
     module.exports = ItemView;

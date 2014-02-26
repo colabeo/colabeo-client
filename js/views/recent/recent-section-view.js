@@ -54,6 +54,15 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
+        var resizeTimeout;
+        var onResize = function() {
+            this.emptySurfaceResize();
+        };
+        Engine.on('resize', function(e){
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(onResize.bind(this), 300);
+        }.bind(this));
+
 //        $('body').on('click', '.header button.clear-button', function(e){
 //            _.invoke(this.collection.all(), 'destroy');
 //            this.loadContacts();
@@ -82,19 +91,19 @@ define(function(require, exports, module) {
         // added empty item
         // media access bar messed up the height so add 40
 
-        var extraHeight = this.scrollview.getSize()[1] + 40;
-        for (var i = 0; i<this.sequence.length; i++){
+        var extraHeight = this.scrollview.getSize()[1] + 40 ;
+        for (var i = 0; i < this.sequence.length; i++){
             extraHeight -= this.sequence[i].getSize()[1];
-            if (extraHeight < 0) break;
+            if (extraHeight <= 0) {
+                extraHeight = 0;
+                break;
+            }
         }
-
-        if (extraHeight > 0) {
-            this.emptysurface = new Surface({
-                size:[undefined, extraHeight]
-            });
-            this.emptysurface.pipe(this.eventOutput);
-            this.sequence.push(this.emptysurface);
-        }
+        this.emptySurface = new Surface({
+            size:[undefined, extraHeight]
+        });
+        this.emptySurface.pipe(this.eventOutput);
+        this.sequence.push(this.emptySurface);
 
         this.scrollview.sequenceFrom(this.sequence);
     };
@@ -112,7 +121,7 @@ define(function(require, exports, module) {
             if (extraHeight < 0) break;
         }
 
-        this.emptysurface.setSize([undefined, this.emptysurface.getSize()[1]-50])
+        this.emptySurfaceResize();
     };
 
     RecentsSectionView.prototype.removeContact = function(index) {
@@ -123,6 +132,8 @@ define(function(require, exports, module) {
                 Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
             }.bind(this));
         }
+        this.sequence.splice(index, 1);
+        this.emptySurfaceResize();
     };
 
     RecentsSectionView.prototype.clearContact = function(){
@@ -133,6 +144,10 @@ define(function(require, exports, module) {
         this.missedOnly = (miss == 'missed');
     };
 
+    RecentsSectionView.prototype.emptySurfaceResize = function (){
+        if (this.emptySurface)
+            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
+    };
 
     module.exports = RecentsSectionView;
 });

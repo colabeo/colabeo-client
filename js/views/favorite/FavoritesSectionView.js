@@ -34,17 +34,18 @@ define(function(require, exports, module) {
             {
                 case 'change:favorite':
                     if (model.changed.favorite)
-                        this.loadFavorites();
+                        this.addFavorites(model);
+//                        this.loadFavorites();
                     else {
                         var i = this.curCollection.indexOf(model);
-                        this.removeContact(i);
+                        this.removeFavorite(i);
                     }
                     break;
                 case 'remove':
                     this.curIndex = this.scrollview.getCurrentNode().index;
                     this.curPosition = this.scrollview.getPosition();
                     var i = this.curCollection.indexOf(model);
-                    this.removeContact(i);
+                    this.removeFavorite(i);
 //                    this.loadFavorites();
                     this.scrollTo(this.curIndex,this.curPosition);
                     break;
@@ -53,6 +54,18 @@ define(function(require, exports, module) {
                     break;
             }
         }.bind(this));
+
+        var resizeTimeout;
+        var onResize = function() {
+            this.emptySurfaceResize();
+        };
+        Engine.on('resize', function(e){
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(onResize.bind(this), 300);
+        }.bind(this));
+
+        window.ff=this
+
     }
 
     FavoritesSectionView.prototype = Object.create(View.prototype);
@@ -60,7 +73,7 @@ define(function(require, exports, module) {
 
     FavoritesSectionView.prototype.loadFavorites = function() {
         this.curCollection = this.collection.favorites();
-        var sequence = this.curCollection.map(function(item){
+        this.sequence = this.curCollection.map(function(item){
             var surface = new FavoriteItemView({model: item});
             surface.pipe(this.eventOutput);
             this.eventInput.pipe(surface);
@@ -68,21 +81,32 @@ define(function(require, exports, module) {
         }.bind(this))
 
         var extraHeight = this.scrollview.getSize()[1] + 40 ;
-        for (i = 0; i < sequence.length; i++){
-            extraHeight -= sequence[i].getSize()[1];
-            if (extraHeight <= 0) break;
+        for (var i = 0; i < this.sequence.length; i++){
+            extraHeight -= this.sequence[i].getSize()[1];
+            if (extraHeight <= 0) {
+                extraHeight = 0;
+                break;
+            }
         }
-        if (extraHeight > 0){
-            var emptySurface = new Surface({
-                size: [undefined, extraHeight]
-            })
-            emptySurface.pipe(this.eventOutput);
-            sequence.push(emptySurface);
-        }
-        this.scrollview.sequenceFrom(sequence);
+        this.emptySurface = new Surface({
+            size: [undefined, extraHeight]
+        });
+        this.emptySurface.pipe(this.eventOutput);
+        this.sequence.push(this.emptySurface);
+        this.scrollview.sequenceFrom(this.sequence);
     };
 
-    FavoritesSectionView.prototype.removeContact = function(index) {
+    FavoritesSectionView.prototype.addFavorites = function(contact) {
+        this.curCollection = this.collection.favorites();
+        var i = this.curCollection.indexOf(contact);
+        var surface = new FavoriteItemView({model: contact})
+        surface.pipe(this.eventOutput);
+        this.eventInput.pipe(surface);
+        this.sequence.splice(i, 0, surface);
+        this.emptySurfaceResize();
+    };
+
+    FavoritesSectionView.prototype.removeFavorite = function(index) {
         this.curCollection = this.collection.favorites();
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];
@@ -90,6 +114,8 @@ define(function(require, exports, module) {
                 Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
             }.bind(this));
         }
+        this.sequence.splice(index,1);
+        this.emptySurfaceResize();
     };
 
     FavoritesSectionView.prototype.scrollTo = function(index, position){
@@ -98,7 +124,13 @@ define(function(require, exports, module) {
         this.scrollview.setVelocity(0);
         this.scrollview.setPosition(position);
         this.scrollview.node.index = index;
-    }
+    };
+
+    FavoritesSectionView.prototype.emptySurfaceResize = function (){
+        if (this.emptySurface)
+            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
+    };
+
 
     module.exports = FavoritesSectionView;
 });

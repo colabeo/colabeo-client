@@ -1,26 +1,10 @@
 define(function(require, exports, module) {
-    var RenderNode = require('famous/RenderNode');
-    var Surface = require('famous/Surface');
-    var View = require('famous/View');
-    var Modifier = require('famous/Modifier');
-    var GenericSync = require('famous-sync/GenericSync');
-    var MouseSync = require('famous-sync/MouseSync');
-    var TouchSync = require('famous-sync/TouchSync');
-    var Transform = require('famous/Matrix');
-    var Easing = require('famous-animation/Easing');
     var TimeAgo        = require('famous-utils/TimeAgo');
-    var Transitionable   = require('famous/Transitionable');
-    var WallTransition   = require('famous-physics/utils/WallTransition');
-    var SpringTransition   = require('famous-physics/utils/SpringTransition');
+
     var ItemView = require('app/custom/item-view');
     var Templates = require('app/custom/Templates');
 
-    var Engine = require('famous/Engine');
-
-    Transitionable.registerMethod('wall', WallTransition);
-    Transitionable.registerMethod('spring', SpringTransition);
-
-    function TestContactItemView2(options){
+    function RecentItemView(options){
         // leftButton1Content, rightButtonContent, itemClasses(array)
         this.options=options;
         this.options.leftButtons =[{
@@ -56,7 +40,7 @@ define(function(require, exports, module) {
         return this.itemView;
     }
 
-    TestContactItemView2.prototype.setupItemContent = function (options){
+    RecentItemView.prototype.setupItemContent = function (options){
         var name;
         if (options.get('firstname') || options.get('lastname')) {
             name = options.get('firstname') + " <b>" + options.get('lastname') + "</b>";
@@ -78,6 +62,6 @@ define(function(require, exports, module) {
 
 
 
-    module.exports = TestContactItemView2;
+    module.exports = RecentItemView;
 
 });

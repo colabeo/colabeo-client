@@ -4,8 +4,7 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-//    var RecentItemView   = require('views/recent/RecentItemView');
-    var RecentItemView   = require('views/recent/recent-item-view2');
+    var RecentItemView   = require('views/recent/recent-item-view');
     var Templates        = require('app/custom/Templates');
     var Engine           = require('famous/Engine');
 
@@ -25,7 +24,7 @@ define(function(require, exports, module) {
 
         this.collection = options.collection;
         this.scrollview = new Scrollview({
-            // TODO & Important : hack, in the new scrollview, we dont need to set defaultItemSize.
+            //This will make sure it will work on both master and modularized.
             defaultItemSize: [undefined,50],
             direction: Util.Direction.Y,
             margin: 10000
@@ -39,6 +38,7 @@ define(function(require, exports, module) {
             {
                 case 'remove':
                     var i = this.curCollection.indexOf(model);
+                    // TODO: Hack?
                     if (i<0) i = options.index;
                     this.removeContact(i);
                     break;

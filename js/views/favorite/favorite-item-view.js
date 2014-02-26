@@ -2,26 +2,25 @@ define(function(require, exports, module) {
     var ItemView = require('app/custom/item-view');
     var Templates = require('app/custom/Templates');
 
-    function RecentItemView(options){
+    function FavoriteItemView(options){
         options.leftButtons =[{
             content: Templates.crossButton(),
-            event: 'deleteRecent'
+            event: 'deleteFavorite'
         }];
         options.rightButton ={
             content: Templates.phoneButton(),
             event: 'outgoingCall'
         };
         options.itemButton = {
-            classes: ['contact-item', 'recent-item'],
-            content: Templates.recentItemView(options.model),
+            classes: ['contact-item', 'favorite-item', 'recent-item', 'editable'],
+            content: Templates.favoriteItemView(options.model),
             event: 'editContact'
         };
         ItemView.apply(this, arguments);
     }
 
-    RecentItemView.prototype = Object.create(ItemView.prototype);
-    RecentItemView.prototype.constructor = RecentItemView;
+    FavoriteItemView.prototype = Object.create(ItemView.prototype);
+    FavoriteItemView.prototype.constructor = FavoriteItemView;
 
-    module.exports = RecentItemView;
-
+    module.exports = FavoriteItemView;
 });

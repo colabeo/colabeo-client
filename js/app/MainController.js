@@ -127,7 +127,7 @@ define(function(require, exports, module) {
             FamousEngine.pipe(myApp);
 
             // start on the main section
-            myApp.select(myApp.options.sections[2].title);
+            myApp.select(myApp.options.sections[0].title);
 
             // events handling
             this.eventOutput.on('callEnd', onCallEnd);
@@ -141,14 +141,20 @@ define(function(require, exports, module) {
             this.eventOutput.on('chatOff', onChatOff);
             this.eventOutput.on('loadRecent', onLoadRecent);
             this.eventOutput.on('clearRecent', onClearRecent);
+            this.eventOutput.on('deleteRecent', onDeleteRecent);
+            this.eventOutput.on('deleteFavorite', onDeleteFavorite);
             this.eventOutput.on('onEngineClick', onEngineClick);
             this.eventOutput.on('closeAlert', onCloseAlert);
             this.eventOutput.on('editContactDone', onEditContactDone);
             this.eventOutput.on('addContactDone', onAddContactDone);
 
-            // TODO: TESTING
-//            connectedCallView.start(this.appSettings);
-//            myLightbox.show(connectedCallView);
+            function onDeleteFavorite (model) {
+                model.toggleFavorite();
+            }
+
+            function onDeleteRecent (model) {
+                model.destroy();
+            }
 
             function onEditContactDone (formContact){
 //            this.contactCollection.add(formContact);
@@ -299,7 +305,7 @@ define(function(require, exports, module) {
             }
 
             window.alert = onAlert;
-            alert('Please allow Beepe to use your camera and microphone for phone calls.', true);
+//            alert('Please allow Beepe to use your camera and microphone for phone calls.', true);
 
             // fastclick hack
             $('body').on('click', 'input', function(e) {

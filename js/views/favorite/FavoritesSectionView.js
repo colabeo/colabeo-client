@@ -4,7 +4,8 @@ define(function(require, exports, module) {
     var Util             = require('famous/Utility');
     var Surface          = require('famous/Surface');
     var Scrollview       = require('famous-views/Scrollview');
-    var FavoriteItemView  = require('views/favorite/FavoriteItemView');
+    var FavoriteItemView  = require('views/favorite/favorite-item-view');
+    var Engine           = require('famous/Engine');
 
     function FavoritesSectionView(options) {
 
@@ -32,12 +33,13 @@ define(function(require, exports, module) {
             switch(e)
             {
                 case 'change:favorite':
-//                    if (model.changed.favorite)
-//                        this.loadFavorites();
-//                    else {
-//                        this.removeContact(model.collection.favorites().indexOf(model));
-//                    }
-//                    break;
+                    if (model.changed.favorite)
+                        this.loadFavorites();
+                    else {
+                        var i = this.curCollection.indexOf(model);
+                        this.removeContact(i);
+                    }
+                    break;
                 case 'remove':
                     this.curIndex = this.scrollview.getCurrentNode().index;
                     this.curPosition = this.scrollview.getPosition();
@@ -55,8 +57,8 @@ define(function(require, exports, module) {
     FavoritesSectionView.prototype.constructor = FavoritesSectionView;
 
     FavoritesSectionView.prototype.loadFavorites = function() {
-        var favoritesCollection = this.collection.favorites();
-        var sequence = favoritesCollection.map(function(item){
+        this.curCollection = this.collection.favorites();
+        var sequence = this.curCollection.map(function(item){
             var surface = new FavoriteItemView({model: item});
             surface.pipe(this.eventOutput);
             return surface;
@@ -78,10 +80,11 @@ define(function(require, exports, module) {
     };
 
     FavoritesSectionView.prototype.removeContact = function(index) {
+        this.curCollection = this.collection.favorites();
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];
             removedNode.collapse(function() {
-                this.scrollview.node.splice(index,1);
+                Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
             }.bind(this));
         }
     };

@@ -12,32 +12,28 @@ define(function(require, exports, module) {
     var Transitionable   = require('famous/Transitionable');
     var WallTransition   = require('famous-physics/utils/WallTransition');
     var SpringTransition   = require('famous-physics/utils/SpringTransition');
-    var Templates = require('app/custom/Templates');
-
     var Engine = require('famous/Engine');
+
+    var Templates = require('app/custom/Templates');
 
     Transitionable.registerMethod('wall', WallTransition);
     Transitionable.registerMethod('spring', SpringTransition);
 
-    // leftButton1Content, rightButtonContent, itemClasses(array)
-    
-    function TestContactItemView(options){
+    function ItemView(options){
         View.apply(this, arguments);
-
         this.model = options.model;
         this.options = {
-            paddingLeft : 10,
+            paddingLeft : 20,
             paddingRight : 20,
             buttonSizeX : 50,
             buttonSizeY : 50,
             _leftEndOrigin : [0, 0],
-            _rightEndOrigin : [1, 0],
-            _editingOrigin : this.setEditingOrigion()
+            _rightEndOrigin : [1, 0]
         };
 
         this.setOptions(options);
 
-        this.setupSurfaces(options);
+        this.setupSurfaces();
 
         this.pos = [0,0];
         this.isEditingMode = false;
@@ -83,7 +79,7 @@ define(function(require, exports, module) {
                 this.setEditingOff();
             }
             if (this.pos[0] < -0.5 * window.innerWidth) {
-                this.eventOutput.emit('outgoingCall', this.model);
+                this.eventOutput.emit(this.options.rightButton.event, this.model);
                 this.setEditingOff();
             }
         }.bind(this));
@@ -92,27 +88,27 @@ define(function(require, exports, module) {
 
         window.tt=this;
 
-        function stopEvents ( e ) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+//        function stopEvents ( e ) {
+//            e.preventDefault();
+//            e.stopPropagation();
+//        }
     }
 
-    TestContactItemView.prototype = Object.create(View.prototype);
-    TestContactItemView.prototype.constructor = TestContactItemView;
+    ItemView.prototype = Object.create(View.prototype);
+    ItemView.prototype.constructor = ItemView;
 
-    TestContactItemView.prototype.setOptions = function(options){
+    ItemView.prototype.setOptions = function(options){
         _.extend(this.options, options);
         this.options.nButtons = options.leftButtons.length;
     };
 
-    TestContactItemView.prototype.setupSurfaces = function(options){
+    ItemView.prototype.setupSurfaces = function(){
         this.surfaces = new RenderNode ();
         this.surfacesMod = new Modifier();
         
-        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
+//        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
         this.backgroundSurface = new Surface({
-            content: Templates.itemFrame(20),
+            content: Templates.itemFrame(this.options.paddingLeft, this.options.paddingRight),
             size: [true, this.options.buttonSizeY]
         });
         this.surfaces.add(this.backgroundSurface);
@@ -124,7 +120,7 @@ define(function(require, exports, module) {
             this['leftButton'+i+'Mod'] = new Modifier({
                 origin: this.options._leftEndOrigin,
                 opacity: 0,
-                transform:Transform.translate(this.options.paddingLeft * 2 + this.options.buttonSizeX * (i) ,0,0)
+                transform:Transform.translate(this.options.paddingLeft + this.options.buttonSizeX * (i) ,0,0)
             });
             this['leftButton'+i].pipe(this.eventOutput);
             this.surfaces.add(this['leftButton'+i+'Mod']).link(this['leftButton'+i]);
@@ -142,7 +138,8 @@ define(function(require, exports, module) {
         this.surfaces.add(this.rightButtonMod).link(this.rightButton);
 
         this.itemSurface = new Surface({
-            classes: options.itemClasses,
+            classes: this.options.itemButton.classes,
+            content: this.options.itemButton.content,
             size: [true, this.options.buttonSizeY],
             properties:{
                 backgroundColor: "transparent",
@@ -160,15 +157,11 @@ define(function(require, exports, module) {
 
     };
 
-    TestContactItemView.prototype.setEditingOrigion = function(){
-        return [(this.options.nButtons*this.options.buttonSizeX)/window.innerWidth, 0];
-    };
-
-    TestContactItemView.prototype.animateItem = function(){
+    ItemView.prototype.animateItem = function(){
         this.itemMod.setTransform(Transform.translate(this.pos[0], 0, 0));
     };
 
-    TestContactItemView.prototype.animateItemEnd = function(){
+    ItemView.prototype.animateItemEnd = function(){
         var translate = Transform.identity;
         if (this.isEditingMode) {
             translate = Transform.translate(this.options.nButtons * this.options.buttonSizeX,0,0);
@@ -178,14 +171,14 @@ define(function(require, exports, module) {
         this.itemMod.setTransform(translate, this.wallTransition);
     };
 
-    TestContactItemView.prototype.animateLeftButtons = function(){
+    ItemView.prototype.animateLeftButtons = function(){
         for (var i = 0; i < this.options.nButtons; i++) {
             var Opacity = Math.min((this.pos[0] - this.options.buttonSizeX * i )/(this.options.nButtons*this.options.buttonSizeX), 1);
             this['leftButton'+i+'Mod'].setOpacity(Opacity);
         }
     };
 
-    TestContactItemView.prototype.animateLeftButtonsEnd = function(){
+    ItemView.prototype.animateLeftButtonsEnd = function(){
         for (var i = 0; i < this.options.nButtons; i++) {
             if (this.isEditingMode) {
                 this['leftButton'+i+'Mod'].setOpacity(1, this.returnZeroOpacityTransition);
@@ -195,34 +188,32 @@ define(function(require, exports, module) {
         }
     };
 
-    TestContactItemView.prototype.animateRightButtons = function(){
+    ItemView.prototype.animateRightButtons = function(){
         if (this.pos[0] < 0) {
             this.rightButtonMod.setOpacity(Math.min(-1*this.pos[0]/(0.5*window.innerWidth),1));
         }
     };
 
-    TestContactItemView.prototype.animateRightButtonsEnd = function(){
+    ItemView.prototype.animateRightButtonsEnd = function(){
         this.rightButtonMod.setOpacity(0, this.returnZeroOpacityTransition)
     };
 
-    TestContactItemView.prototype.resizeItem = function(){
-        this.options._editingOrigin = this.setEditingOrigion();
-        if (this.isEditingMode) this.itemMod.setOrigin(this.options._editingOrigin);
+    ItemView.prototype.resizeItem = function(){
         if (this.itemSurface._currTarget) this.itemSurface._currTarget.children[0].style.width = window.innerWidth + 'px';
         if (this.backgroundSurface._currTarget) {
-            jeff = this.backgroundSurface._currTarget.children[0];
-            this.backgroundSurface._currTarget.children[0].outerHTML = Templates.itemFrame(20);
+            this.backgroundSurface._currTarget.children[0].style.width = window.innerWidth - this.options.paddingLeft - this.options.paddingRight + 'px';
+//            outerHTML = Templates.itemFrame(this.options.paddingLeft, this.options.paddingRight);
         }
     };
 
-    TestContactItemView.prototype.setEditingOn = function(){
+    ItemView.prototype.setEditingOn = function(){
         this.isEditingMode = true;
         this.animateItemEnd();
         this.animateLeftButtonsEnd();
         this.animateRightButtonsEnd();
     };
 
-    TestContactItemView.prototype.setEditingOff = function(){
+    ItemView.prototype.setEditingOff = function(){
         setTimeout(function(){
             this.isEditingMode = false;
             this.animateItemEnd();
@@ -231,21 +222,25 @@ define(function(require, exports, module) {
         }.bind(this),100);
     };
 
-    TestContactItemView.prototype.toggleEditing = function(){
+    ItemView.prototype.toggleEditing = function(){
         this.isEditingMode = !this.isEditingMode;
         this.animateItemEnd();
         this.animateLeftButtonsEnd();
         this.animateRightButtonsEnd();
     };
 
-    TestContactItemView.prototype.getSize = function() {
+    ItemView.prototype.collapse = function(callback) {
+        this.surfacesMod.setOpacity(0,{duration:600}, callback);
+    };
+
+    ItemView.prototype.getSize = function() {
         var sh = this.surfacesMod.opacityState.get();
         var size = this.itemSurface.getSize();
         size[1] = Math.floor(size[1]*sh);
         return size;
     };
 
-    TestContactItemView.prototype.events = function() {
+    ItemView.prototype.events = function() {
         _(this.options.leftButtons).each(function (b, i) {
             this['leftButton'+i].on('click', function(b) {
                 console.log(b.event);
@@ -255,7 +250,7 @@ define(function(require, exports, module) {
 
         this.itemSurface.on('click', function(){
             if (this.pos[0] == 0 && this.pos[1] == 0 && this.isEditingMode == false){
-                this.eventOutput.emit('clickItem');
+                this.eventOutput.emit(this.options.itemButton.event, this.model);
             }
         }.bind(this));
 
@@ -272,6 +267,6 @@ define(function(require, exports, module) {
         }.bind(this));
     };
 
-    module.exports = TestContactItemView;
+    module.exports = ItemView;
 
 });

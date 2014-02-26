@@ -1,4 +1,5 @@
 define(function(require, exports, module) {
+    var TimeAgo        = require('famous-utils/TimeAgo');
 
     function toggleSwitch(id, checked, disabled) {
         var html = '<div class="onoffswitch">';
@@ -110,17 +111,74 @@ define(function(require, exports, module) {
         html += '<label for="missed" class="last" id="recent-toggle">missed</label></div>';
         return html;
     }
-    function itemFrame(margin){
-        var realWidth = window.innerWidth-2*margin;
+    function itemFrame(marginLeft, marginRight){
+        var realWidth = window.innerWidth - marginLeft - marginRight;
         var html = [
             '<div class="item-frame" style="width: ',
             realWidth,
-            'px; margin: 0px ',
-            margin,
-            'px"></div>'
+            'px; margin-left: ',
+            marginLeft,
+            'px; margin-right: ',
+            marginRight,
+            '"></div>'
         ].join('');
         return html;
     }
+
+    function recentItemView(call) {
+        var name;
+        if (call.get('firstname') || call.get('lastname')) {
+            name = call.get('firstname') + " <b>" + call.get('lastname') + "</b>";
+        } else {
+            name = call.get('email');
+        }
+        var icon = '';
+        var missed = '';
+        if (call.get('type') == 'outgoing')
+            icon = '<i class="fa fa-sign-out"></i>';
+        else {
+            if (!call.get('success'))
+                missed = "missed";
+        }
+        var html = [
+            '<div style = " width: ',
+            window.innerWidth,
+            'px"><div class="source ',
+            missed,
+            '"><div class="call-type">',
+            icon,
+            '</div>',
+            name,
+            '<div class="call-time">',
+            TimeAgo.parse(call.get('time')),
+            ' ago</div></div></div>'
+        ].join('');
+        return html;
+    }
+
+    function favoriteItemView(contact) {
+        var name;
+        var initial = "";
+        if (contact.get('firstname') || contact.get('lastname')) {
+            name = contact.get('firstname') + " <b>" + contact.get('lastname') + "</b>";
+            if (contact.get('firstname')) initial = contact.get('firstname')[0];
+            if (contact.get('lastname')) initial +=  contact.get('lastname')[0];
+        } else {
+            name = contact.get('email');
+            if (name) initial = name[0];
+        }
+        var html = [
+            '<div style = " width: ',
+            window.innerWidth,
+            'px"><div class="source"><div class="initial">',
+            initial,
+            '</div>',
+            name,
+            '</div></div>'
+        ].join('');
+        return html;
+    };
+
     module.exports = {
         toggleSwitch: toggleSwitch,
         toggleButton: toggleButton,
@@ -134,7 +192,9 @@ define(function(require, exports, module) {
         favoriteButton: favoriteButton,
         recentsToggle: recentsToggle,
         button: button,
-        itemFrame: itemFrame
+        itemFrame: itemFrame,
+        recentItemView: recentItemView,
+        favoriteItemView: favoriteItemView
     }
 
 });

@@ -321,23 +321,23 @@ define(function(require, exports, module) {
                 $(e.target).focus();
             });
 
-            this.hack();
 
-        }.bind(this));
-    }
-
-    MainController.prototype.hack = function() {
-            window.colabeo = this;
+            var hack = function() {
+                window.colabeo = this;
 //            window.myLightbox = myLightbox;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
-//        colabeo.favoritesSection = favoritesSection;
+                colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
 //            colabeo.connectedCallView = connectedCallView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
+            }
+            hack();
+
+        }.bind(this));
     }
 
     MainController.prototype.init = function() {

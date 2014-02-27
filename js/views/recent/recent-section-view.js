@@ -120,8 +120,8 @@ define(function(require, exports, module) {
             var removedNode = this.scrollview.node.array[index];
             removedNode.collapse(function() {
                 Engine.defer( function(index) {
-                    this.sequence.splice(index, 1);
-//                    this.scrollview.node.splice(index,1);
+//                    this.sequence.splice(index, 1);
+                    this.scrollview.node.splice(index,1);
                     this.emptySurfaceResize();
                 }.bind(this, index));
             }.bind(this));
@@ -140,7 +140,7 @@ define(function(require, exports, module) {
         if (this.emptySurface) {
 //            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
             var extraHeight = this.scrollview.getSize()[1];
-            for (var i = 0; i < this.sequence.length; i++){
+            for (var i = 0; i < this.sequence.length - 1; i++){
                 extraHeight -= this.sequence[i].getSize()[1];
                 if (extraHeight <= 0) {
                     extraHeight = 0;

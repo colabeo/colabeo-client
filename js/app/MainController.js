@@ -148,6 +148,7 @@ define(function(require, exports, module) {
             this.eventOutput.on('closeAlert', onCloseAlert);
             this.eventOutput.on('editContactDone', onEditContactDone);
             this.eventOutput.on('addContactDone', onAddContactDone);
+            this.eventOutput.on('triggerBackToNoneEditing',onTriggerBackToNoneEditing.bind(this));
 
             function onDeleteFavorite (model) {
                 model.toggleFavorite();
@@ -302,8 +303,7 @@ define(function(require, exports, module) {
                 }
             }
 
-            myApp.navigation.on('select',onNavigation.bind(this));
-            function onNavigation(e) {
+            function onTriggerBackToNoneEditing(e) {
                 this.eventInput.emit('backToNoneEditing');
             }
 

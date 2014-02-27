@@ -53,6 +53,7 @@ define(function(require, exports, module) {
 
         // respond to the the selection of a different section
         this.navigation.on('select', function(data) {
+            this.eventOutput.emit('triggerBackToNoneEditing');
             $('body').removeClass('editing');
             this._currentSection = data.id;
             this.header.show(this._sectionTitles[data.id]);

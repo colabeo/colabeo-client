@@ -27,8 +27,12 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._link(this.scrollview);
 
+        // It takes a short while to sync the contact.
+        setTimeout(function(){this.loadFavorites()}.bind(this),1000);
+
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
+            console.log(e, model, collection, options);
             switch(e)
             {
                 case 'change:favorite':
@@ -48,9 +52,10 @@ define(function(require, exports, module) {
 //                    this.loadFavorites();
                     this.scrollTo(this.curIndex,this.curPosition);
                     break;
-                case 'sync':
-                    this.loadFavorites();
-                    break;
+                // sync is unnecessary, because loadFavorites() is done at init.
+//                case 'sync':
+//                    this.loadFavorites();
+//                    break;
             }
         }.bind(this));
 

@@ -78,6 +78,7 @@ define(function(require, exports, module) {
             if (target.hasClass("done-contact")) {
                 this.submitForm();
                 $('body').removeClass('editing');
+                this.eventOutput.emit('triggerBackToNoneEditing');
                 this.eventOutput.emit('showApp');
             } else if (target.hasClass("close-button")){
                 this.eventOutput.emit('showApp');

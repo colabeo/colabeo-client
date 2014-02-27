@@ -12,7 +12,7 @@ var WallTransition   = require('famous/transitions/wall-transition');
 var SpringTransition   = require('famous/transitions/spring-transition');
 var Engine = require('famous/engine');
 
-var Templates = require('app/custom/Templates');
+var Templates = require('templates');
 
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);

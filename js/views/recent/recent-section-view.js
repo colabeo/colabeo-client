@@ -32,18 +32,28 @@ define(function(require, exports, module) {
         this.pipe(this.scrollview);
         this._link(this.scrollview);
 
+        this.emptySurface = new Surface({
+            size:[undefined, 0],
+            properties: {
+                backgroundColor: 'yellow'
+            }
+        });
+        this.emptySurface.pipe(this.eventOutput);
+
         // TODO & Important: fetch first and then add this.collections.on
         // Otherwise, add event will be trigged n^2 times, and create n^2 item-view.
         this.collection.fetch();
         this.loadContacts();
         // When Firebase returns the data switch out of the loading screen
         this.collection.on('all', function(e, model, collection, options) {
+//            console.log(e, model, collection, options);
             switch(e)
             {
                 case 'remove':
-                    var i = this.curCollection.indexOf(model);
-                    if (i>=0)
-                        this.removeContact(i);
+                    // TODO: fast remove will cause collection and scrollview index different due to animation delay
+                    if (this.missedOnly) var i = this.curCollection.indexOf(model);
+                    else var i = options.index;
+                    this.removeFromScrollView(i);
                     break;
 //                case 'sync':
                 case 'add':
@@ -81,6 +91,7 @@ define(function(require, exports, module) {
     RecentsSectionView.prototype.loadContacts = function() {
         this.scrollview.setPosition(0);
         this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
+        // TODO: this.sequence need garbage collection
         this.sequence = this.curCollection.map(function(item){
             var surface = new RecentItemView({model: item});
             this.eventInput.pipe(surface);
@@ -88,24 +99,9 @@ define(function(require, exports, module) {
             return surface;
         }.bind(this));
 
-        // added empty item
-        // media access bar messed up the height so add 40
-
-        var extraHeight = this.scrollview.getSize()[1] + 40 ;
-        for (var i = 0; i < this.sequence.length; i++){
-            extraHeight -= this.sequence[i].getSize()[1];
-            if (extraHeight <= 0) {
-                extraHeight = 0;
-                break;
-            }
-        }
-        this.emptySurface = new Surface({
-            size:[undefined, extraHeight]
-        });
-        this.emptySurface.pipe(this.eventOutput);
         this.sequence.push(this.emptySurface);
-
         this.scrollview.sequenceFrom(this.sequence);
+        this.emptySurfaceResize();
     };
 
     RecentsSectionView.prototype.addContacts = function(call) {
@@ -114,26 +110,22 @@ define(function(require, exports, module) {
         this.eventInput.pipe(surface);
         surface.pipe(this.eventOutput);
         this.sequence.splice(0, 0, surface);
-
-        var extraHeight = this.scrollview.getSize()[1] + 40;
-        for (var i = 0; i<this.sequence.length; i++){
-            extraHeight -= this.sequence[i].getSize()[1];
-            if (extraHeight < 0) break;
-        }
-
         this.emptySurfaceResize();
     };
 
-    RecentsSectionView.prototype.removeContact = function(index) {
+    RecentsSectionView.prototype.removeFromScrollView = function(index) {
         this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
+        if (index<0) return;
         if (this.scrollview.node) {
             var removedNode = this.scrollview.node.array[index];
             removedNode.collapse(function() {
-                Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
+                Engine.defer( function(index) {
+                    this.sequence.splice(index, 1);
+//                    this.scrollview.node.splice(index,1);
+                    this.emptySurfaceResize();
+                }.bind(this, index));
             }.bind(this));
         }
-        this.sequence.splice(index, 1);
-        this.emptySurfaceResize();
     };
 
     RecentsSectionView.prototype.clearContact = function(){
@@ -145,8 +137,18 @@ define(function(require, exports, module) {
     };
 
     RecentsSectionView.prototype.emptySurfaceResize = function (){
-        if (this.emptySurface)
-            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
+        if (this.emptySurface) {
+//            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
+            var extraHeight = this.scrollview.getSize()[1];
+            for (var i = 0; i < this.sequence.length; i++){
+                extraHeight -= this.sequence[i].getSize()[1];
+                if (extraHeight <= 0) {
+                    extraHeight = 0;
+                    break;
+                }
+            }
+            this.emptySurface.setSize([undefined, extraHeight]);
+        }
     };
 
     module.exports = RecentsSectionView;

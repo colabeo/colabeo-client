@@ -715,7 +715,7 @@ define(function(require, exports, module) {
                         this.callById(cid, callee.provider);
                     }
                     else {
-                        this.setupChatroom(query[0]);
+                        this.setupChatroom(data, query);
 //                        alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
                     }
                 }.bind(this));
@@ -862,31 +862,29 @@ define(function(require, exports, module) {
         });
     };
 
-    MainController.prototype.setupChatroom = function(callee, done) {
-        $.ajax({
-            url: '/chatroom',
-            type: 'post',
-            data: {
-                callee : {
-                    provider : callee.provider ,
-                    eid : callee.eid ,
-                    name: callee.firstname + " " + callee.lastname,
-                    firstname: callee.firstname,
-                    lastname: callee.lastname
-                },
-                // 0: do nothing 1: chatroom invite 2: beepe invite 3: debug
-                e: 3
-            },
-            dataType: 'json',
-            success: function(data) {
-                if (done) done(data);
-            },
-            error: function() {
-                console.log('error');
-                // TODO: temp dev user
-                if (done) done({});
+    MainController.prototype.setupChatroom = function(contact, eids) {
+        for (var i = 0; i < eids.length; i++) {
+            var c = eids[i];
+            if (c) {
+                callee = {
+                    provider : c.provider ,
+                    eid : c.eid ,
+                    name: contact.get('firstname') + " " + contact.get('lastname'),
+                    firstname: contact.get('firstname'),
+                    lastname: contact.get('lastname'),
+                    email: contact.get('email')
+                };
+                $.ajax({
+                    url: '/chatroom',
+                    type: 'post',
+                    data: {
+                        callee : JSON.stringify(callee),
+                        // 0: do nothing 1: chatroom invite 2: beepe invite 3: debug
+                        e: 3
+                    }
+                });
             }
-        });
+        }
     };
 
     MainController.prototype.onSyncButton = function() {

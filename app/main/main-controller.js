@@ -50,6 +50,13 @@ function MainController() {
     EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.loadUser(function(data) {
+        if (data.chatroom) {
+            this.chatroom = data.chatroom;
+            data.objectId = 'unknown';
+            data.firstname = data.chatroom.calleeFirstName;
+            data.lastname = data.chatroom.calleeLastName;
+            data.username = data.chatroom.calleeName;
+        }
         // Set up models and collections
         this.appSettings = new Settings({
             id: data.objectId
@@ -57,15 +64,14 @@ function MainController() {
         this.appSettings.fetch();
         this.appSettings.save({
             cid: data.objectId,
-            email: data.email,
-            firstname: data.firstname,
-            lastname: data.lastname,
-            username: data.username
+            email: data.email || "",
+            firstname: data.firstname || data.username || "",
+            lastname: data.lastname || "",
+            username: data.username || ""
         });
 
         this.appSettings.me = data;
         this.appSettings = this.appSettings;
-        this.init();
 
         this.contactCollection = new ContactCollection([], {
             firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
@@ -87,7 +93,9 @@ function MainController() {
             model: this.appSettings
         });
         favoritesSection.pipe(this.eventOutput);
+        this.eventInput.pipe(favoritesSection);
         recentsSection.pipe(this.eventOutput);
+        this.eventInput.pipe(recentsSection);
         contactsSection.pipe(this.eventOutput);
         settingsSection.pipe(this.eventOutput);
 
@@ -104,15 +112,8 @@ function MainController() {
         var myLightbox = new LightBox({overlap:true});
         var alertLightbox = new LightBox({overlap:true});
         var addContactView = new AddContactView({collection: this.contactCollection});
-        var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
-        var incomingCallView = new IncomingCallView({collection: this.recentCalls});
-        var connectedCallView = new ConnectedCallView({collection: this.recentCalls})
 
         myApp.pipe(this.eventOutput);
-        outgoingCallView.pipe(this.eventOutput);
-        incomingCallView.pipe(this.eventOutput);
-        connectedCallView.pipe(this.eventOutput);
-        this.pipe(connectedCallView.eventInput);
         addContactView.pipe(this.eventOutput);
         var cameraView = new CameraView({});
 
@@ -127,6 +128,14 @@ function MainController() {
         // start on the main section
         myApp.select(myApp.options.sections[2].title);
 
+        var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
+        var incomingCallView = new IncomingCallView({collection: this.recentCalls});
+        var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
+        outgoingCallView.pipe(this.eventOutput);
+        incomingCallView.pipe(this.eventOutput);
+        connectedCallView.pipe(this.eventOutput);
+        this.pipe(connectedCallView.eventInput);
+
         // events handling
         this.eventOutput.on('callEnd', onCallEnd);
         this.eventOutput.on('incomingCall', onIncomingCall);
@@ -139,14 +148,21 @@ function MainController() {
         this.eventOutput.on('chatOff', onChatOff);
         this.eventOutput.on('loadRecent', onLoadRecent);
         this.eventOutput.on('clearRecent', onClearRecent);
+        this.eventOutput.on('deleteRecent', onDeleteRecent);
+        this.eventOutput.on('deleteFavorite', onDeleteFavorite);
         this.eventOutput.on('onEngineClick', onEngineClick);
         this.eventOutput.on('closeAlert', onCloseAlert);
         this.eventOutput.on('editContactDone', onEditContactDone);
         this.eventOutput.on('addContactDone', onAddContactDone);
+        this.eventOutput.on('triggerBackToNoneEditing',onTriggerBackToNoneEditing.bind(this));
 
-        // TODO: TESTING
-//            connectedCallView.start(this.appSettings);
-//            myLightbox.show(connectedCallView);
+        function onDeleteFavorite (model) {
+            model.toggleFavorite();
+        }
+
+        function onDeleteRecent (model) {
+            model.destroy();
+        }
 
         function onEditContactDone (formContact){
 //            this.contactCollection.add(formContact);
@@ -220,10 +236,16 @@ function MainController() {
             }
 
             var curView = myLightbox.nodes[0].get();
-            if (curView instanceof OutgoingCallView || curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
+            if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
                 return;
-            incomingCallView.start(eventData);
-            myLightbox.show(incomingCallView, true);
+            if (curView instanceof OutgoingCallView) {
+                outgoingCallView.accept();
+                this.eventOutput.emit('incomingCallAnswer', eventData);
+            }
+            else {
+                incomingCallView.start(eventData);
+                myLightbox.show(incomingCallView, true);
+            }
         }
 
         function onCallEnd(eventData) {
@@ -233,6 +255,13 @@ function MainController() {
             var curView = myLightbox.nodes[0].object;
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
                 curView.stop();
+            }
+            if (this.chatroom) {
+                var url = '/login?r=' + this.chatroom.objectId;
+                if (this.chatroom.callerName) {
+                    url += '&fn=' + this.chatroom.callerName;
+                }
+                window.location = url;
             }
         }
 
@@ -252,7 +281,6 @@ function MainController() {
         }
 
         FamousEngine.on('click', onEngineClick.bind(this));
-
         function onEngineClick(e) {
             switch (e.target.id)
             {
@@ -262,7 +290,15 @@ function MainController() {
                 case 'add-contact':
                     this.eventOutput.emit('editContact');
                     break;
-                case 'edit-contact':
+                case 'recent-edit-contact':
+                    $('body').toggleClass('editing');
+                    this.eventInput.emit('toggleAllRecent');
+                    break;
+                case 'favorite-edit-contact':
+                    $('body').toggleClass('editing');
+                    this.eventInput.emit('toggleAllFavorite');
+                    break;
+                case 'contact-edit-contact':
                     $('body').toggleClass('editing');
                     break;
                 case 'recent-toggle':
@@ -273,29 +309,35 @@ function MainController() {
             }
         }
 
+        function onTriggerBackToNoneEditing(e) {
+            this.eventInput.emit('backToNoneEditing');
+        }
+
+        function onAlert(word, okHidden){
+            var alertView = new AlertView(word, okHidden);
+            alertLightbox.show(alertView,true);
+        }
+
+        function onCloseAlert(){
+            alertLightbox.hide();
+        }
+
+        window.alert = onAlert;
+        if (this.chatroom) alert('Please allow Beepe to use your camera/microphone for phone calls.', true);
+
         // fastclick hack
         $('body').on('click', 'input', function(e) {
             $(e.target).focus();
         });
 
-        // header buttons events
-//        $('body').on('click', '.header button.edit-button', function(e){
-//            $('body').toggleClass('editing');
-//        });
-//        $('body').on('click', '.header button.add-contact', function(e){
-//            this.eventOutput.emit('editContact');
-//        }.bind(this));
-//
-//        $('body').on('click', '.header button.close-button', function(e){
-//            this.eventOutput.emit('showApp');
-//        }.bind(this));
+        this.init();
 
-        // TODO: hack
-//            window.colabeo = this;
+
+        window.colabeo = this;
 //            window.myLightbox = myLightbox;
 //        colabeo.recentsSection = recentsSection;
 //        colabeo.contactsSection = contactsSection;
-//        colabeo.favoritesSection = favoritesSection;
+        colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
 //            colabeo.connectedCallView = connectedCallView;
@@ -303,18 +345,6 @@ function MainController() {
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
 
-        function onAlert(word){
-            var alertView = new AlertView(word);
-            alertLightbox.show(alertView,true);
-        }
-
-        function onCloseAlert(){
-//            this.alertView.alertLightBox.hide();
-            alertLightbox.hide();
-        }
-
-        alert = onAlert;
-//        alert('ldsjf alfjw lkefj lw lqj r fl ekr e kljgkrle krjklre klretjle lerj ');
 
     }.bind(this));
 }
@@ -354,7 +384,7 @@ MainController.prototype.init = function() {
     }.bind(this));
 
     // TODO: hack for android chrome DATAconnection
-    //util.supports.sctp = false;
+    util.supports.sctp = false;
     sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
 //        window.addEventListener("message", onMessage.bind(this), false);
@@ -392,14 +422,14 @@ MainController.prototype.setupSettingsListener = function() {
 //                if (Utils.isMobile()) {
 //                    window.location = url;
 //                } else {
-                $.oauthpopup({
-                    path:url,
-                    callback: function(e) {
-                        setTimeout(function() {
-                            $('div.import-contact#'+source + ':not(.done)').click().addClass('done');
-                        }.bind(this), 300);
-                    }
-                });
+            $.oauthpopup({
+                path:url,
+                callback: function(e) {
+                    setTimeout(function() {
+                        $('div.import-contact#'+source + ':not(.done)').click().addClass('done');
+                    }.bind(this), 300);
+                }
+            });
 //                }
         }
 
@@ -492,10 +522,23 @@ MainController.prototype.initLocalMedia = function(options) {
             this.setAudio();
             if (options.video) $('.camera').removeClass('off');
             else $('.camera').addClass('off');
+
+            this.eventOutput.emit('closeAlert');
+
+            if (this.chatroom) {
+                var call = new Call({
+                    firstname: this.chatroom.callerFirstName || this.chatroom.callerName || "",
+                    lastname: this.chatroom.callerLastName || "",
+                    email: this.chatroom.callerAccountId || "",
+                    cid: this.chatroom.caller || "",
+                    provider: this.chatroom.calleeAccountProvider || ""
+                });
+                this.eventOutput.emit('outgoingCall', call);
+            }
         }.bind(this),
         function(){
 //                alert("Please allow camera access for Beepe");
-           $('.camera').addClass('off');
+            $('.camera').addClass('off');
         }.bind(this)
     );
 };
@@ -658,26 +701,35 @@ MainController.prototype.callByContact = function(data) {
         alert("Please allow camera/microphone access for Beepe");
         return;
     }
-    var query = [];
-    // TODO: add more providers here in the future
-    ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
-        if (data.get(provider)) {
-            query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+    if (data.get('cid')) {
+        this.callById(data.get('cid'), data.get('provider'));
+    } else {
+        var query = [];
+        // TODO: add more providers here in the future
+        ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+            if (data.get(provider)) {
+                query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+            }
+        });
+        if (query.length) {
+            multipleLookup(query, function(result) {
+                if (result.length) {
+                    var callee = _.last(result);
+                    var cid;
+                    if (callee.user && callee.user.objectId) cid = callee.user.objectId;
+                    else if (callee.objectId) cid = callee.objectId;
+                    this.callById(cid, callee.provider);
+                }
+                else {
+                    this.setupChatroom(data, query);
+//                        alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
+                }
+            }.bind(this));
+        } else {
+            alert('This contact is empty.');
         }
-    });
-    query = JSON.stringify(query);
-    multipleLookup(query, function(result) {
-        if (result.length) {
-            var callee = _.last(result);
-            var cid;
-            if (callee.user && callee.user.objectId) cid = callee.user.objectId;
-            else if (callee.objectId) cid = callee.objectId;
-            this.callById(cid, callee.provider);
-        }
-        else {
-            alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
-        }
-    }.bind(this));
+
+    }
 };
 
 MainController.prototype.callByContactSingle = function(data) {
@@ -741,19 +793,47 @@ MainController.prototype.callById = function(id, provider) {
 };
 
 MainController.prototype.loadUser = function(done) {
-    $.ajax({
-        url: '/me',
-        type: 'get',
-        dataType: 'json',
-        success: function(data) {
-            if (done) done(data);
-        },
-        error: function() {
-            console.log('error');
-            // TODO: temp dev user
-            if (done) done({});
+    if (location.pathname == '/call') {
+        var params = parseQueryString();
+        if (params['r']) {
+            var room = params['r'][0];
+            $.ajax({
+                url: '/chatroom?id='+room,
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (done) done({chatroom: data});
+                },
+                error: function() {
+                    console.log('error');
+                    // TODO: temp dev user
+                    if (done) done({});
+                }
+            });
         }
-    });
+    } else {
+        $.ajax({
+            url: '/me',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                if (done) done(data);
+            },
+            error: function() {
+                console.log('error');
+                // TODO: temp dev user
+                if (done) done({});
+            }
+        });
+    }
+    function parseQueryString() {
+        var query = (window.location.search || '?').substr(1),
+            map   = {};
+        query.replace(/([^&=]+)=?([^&]*)(?:&+|$)/g, function(match, key, value) {
+            (map[key] = map[key] || []).push(value);
+        });
+        return map;
+    }
 };
 
 MainController.prototype.loadConnected = function(done) {
@@ -788,6 +868,31 @@ MainController.prototype.loadContact = function(source, done) {
     });
 };
 
+MainController.prototype.setupChatroom = function(contact, eids) {
+    for (var i = 0; i < eids.length; i++) {
+        var c = eids[i];
+        if (c) {
+            callee = {
+                provider : c.provider ,
+                eid : c.eid ,
+                name: contact.get('firstname') + " " + contact.get('lastname'),
+                firstname: contact.get('firstname'),
+                lastname: contact.get('lastname'),
+                email: contact.get('email')
+            };
+            $.ajax({
+                url: '/chatroom',
+                type: 'post',
+                data: {
+                    callee : JSON.stringify(callee),
+                    // 0: do nothing 1: chatroom invite 2: beepe invite 3: debug
+                    e: 3
+                }
+            });
+        }
+    }
+};
+
 MainController.prototype.onSyncButton = function() {
     sendMessage("event", {data: {action:"sync"}});
 };
@@ -814,6 +919,7 @@ function userLookup(externalId, provider, done) {
     });
 }
 function multipleLookup(query, done) {
+    query = JSON.stringify(query);
     $.ajax({
         url: '/findusers',
         type: 'get',
@@ -887,14 +993,14 @@ function onMessage(e) {
     }
 }
 
+module.exports = MainController;
+
 // underscore util functions
 _.mixin({
     capitalize: function(string) {
         return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
     }
 });
-
-module.exports = MainController;
 
 Array.prototype.sum = function () {
     var total = 0;

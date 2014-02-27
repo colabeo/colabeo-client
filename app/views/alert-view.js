@@ -7,7 +7,7 @@ var Easing       = require('famous/transitions/easing');
 
 var LightBox = require('light-box');
 
-function AlertView(message) {
+function AlertView(message, okHidden) {
     View.call(this);
     // Set up event handlers
     this.eventInput = new EventHandler();
@@ -38,7 +38,7 @@ function AlertView(message) {
             zIndex: 1000
         }
     });
-    
+
     this.alertSurface = new Surface({
         classes:['alert'],
         size: [340, 220],
@@ -62,10 +62,10 @@ function AlertView(message) {
         showOpacity: 1,
         showOrigin: [0.5, 0.45],
         inTransition: {duration: 200, curve: Easing.inQuad()},
-        outTransition: {duration: 100, curve: Easing.outQuint()},
+        outTransition: {duration: 100, curve: Easing.outQuint()}
     });
 
-    this.setAlertMessage(message);
+    this.setAlertMessage(message, okHidden);
 
     this._add(this.bigSurface);
     this._add(this.alertLightBox);
@@ -76,9 +76,14 @@ function AlertView(message) {
 AlertView.prototype = Object.create(View.prototype);
 AlertView.prototype.constructor = AlertView;
 
-AlertView.prototype.setAlertMessage = function (message){
-    var content = '<div class="alert-title"><b>Info</b></div><div id="message">' + message + '</div> <div id="close-alert"> OK </div>'
-    this.alertSurface.setContent(content);
+AlertView.prototype.setAlertMessage = function (message, okHidden){
+    var content = [
+        '<div class="alert-title"><b>Beepe</b></div><div id="message">',
+        message,
+        '</div>'
+    ];
+    if (!okHidden) content.push('<div id="close-alert"> OK </div>');
+    this.alertSurface.setContent(content.join(''));
 }
 
 module.exports = AlertView;

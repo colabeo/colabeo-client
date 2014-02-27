@@ -1,3 +1,5 @@
+var TimeAgo      = require('famous/utilities/utils').timeSince;
+
 function toggleSwitch(id, checked, disabled) {
     var html = '<div class="onoffswitch">';
     html += '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="'+id+'" '
@@ -81,6 +83,33 @@ function removeButton(id) {
     return html;
 }
 
+function crossButton(id) {
+    var html = ['<span class="fa-stack delete-button2" id="',
+        id ,
+        '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+        '<i class="fa fa-times fa-stack-1x fa-frontground"></i>',
+        '</span>'].join('');
+    return html;
+}
+
+function plusButton(id) {
+    var html = ['<span class="fa-stack fa-lg delete-button2" id="',
+        id ,
+        '"><i class="fa fa-circle fa-stack"></i>',
+        '<i class="fa fa-plus fa-stack"></i>',
+        '</span>'].join('');
+    return html;
+}
+
+function phoneButton(id) {
+    var html = ['<span class="fa-stack fa-lg phone-button" id="',
+        id ,
+        '"><i class="fa fa-square fa-stack-2x fa-background"></i>',
+        '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>',
+        '</span>'].join('');
+    return html;
+}
+
 function recentsToggle() {
     var html = '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>';
     html += '<label for="all" class="first" id="recent-toggle">all</label>';
@@ -89,14 +118,88 @@ function recentsToggle() {
     return html;
 }
 
+function itemFrame(marginLeft, marginRight){
+    var realWidth = window.innerWidth - marginLeft - marginRight;
+    var html = [
+        '<div class="item-frame" style="width: ',
+        realWidth,
+        'px; margin-left: ',
+        marginLeft,
+        'px; margin-right: ',
+        marginRight,
+        '"></div>'
+    ].join('');
+    return html;
+}
+
+function recentItemView(call) {
+    var name;
+    if (call.get('firstname') || call.get('lastname')) {
+        name = call.get('firstname') + " <b>" + call.get('lastname') + "</b>";
+    } else {
+        name = call.get('email');
+    }
+    var icon = '';
+    var missed = '';
+    if (call.get('type') == 'outgoing')
+        icon = '<i class="fa fa-sign-out"></i>';
+    else {
+        if (!call.get('success'))
+            missed = "missed";
+    }
+    var html = [
+        '<div style = " width: ',
+        window.innerWidth,
+        'px"><div class="source ',
+        missed,
+        '"><div class="call-type">',
+        icon,
+        '</div>',
+        name,
+        '<div class="call-time">',
+        TimeAgo.parse(call.get('time')),
+        ' ago</div></div></div>'
+    ].join('');
+    return html;
+}
+
+function favoriteItemView(contact) {
+    var name;
+    var initial = "";
+    if (contact.get('firstname') || contact.get('lastname')) {
+        name = contact.get('firstname') + " <b>" + contact.get('lastname') + "</b>";
+        if (contact.get('firstname')) initial = contact.get('firstname')[0];
+        if (contact.get('lastname')) initial +=  contact.get('lastname')[0];
+    } else {
+        name = contact.get('email');
+        if (name) initial = name[0];
+    }
+    var html = [
+        '<div style = " width: ',
+        window.innerWidth,
+        'px"><div class="source"><div class="initial">',
+        initial,
+        '</div>',
+        name,
+        '</div></div>'
+    ].join('');
+    return html;
+};
+
 module.exports = {
     toggleSwitch: toggleSwitch,
     toggleButton: toggleButton,
     deleteButton: deleteButton,
     addButton: addButton,
+    plusButton: plusButton,
+    phoneButton: phoneButton,
     removeButton: removeButton,
+    crossButton: crossButton,
     nextButton: nextButton,
     favoriteButton: favoriteButton,
     recentsToggle: recentsToggle,
-    button: button
+    button: button,
+    itemFrame: itemFrame,
+    recentItemView: recentItemView,
+    favoriteItemView: favoriteItemView
 };

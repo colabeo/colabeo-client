@@ -22,6 +22,7 @@
     "custom-touch-sync",
     "conversation-surface",
     "light-box",
+    "item-view",
     "famous/audio/sound-player"
   ],
   "main": "index.js",

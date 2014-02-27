@@ -9,7 +9,6 @@ var Surface            = require('famous/surface');
 
 // import custom modules
 var TouchSync          = require('custom-touch-sync');
-
 // import views
 var ContactItemView    = require('contact-item-view');
 
@@ -56,7 +55,7 @@ function ContactsSection(options) {
 
     // Set up navigation and title bar information
 //        this.title = '<button class="left import-contacts">Import</button><div>All Contacts</div><button class="right add-contact"><i class="fa fa-plus"></i></button>';
-    this.title = '<button class="left edit-button" id="edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
+    this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
     this.navigation = {
         caption: 'Contacts',
         icon: '<i class="fa fa-users"></i>'
@@ -169,7 +168,7 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
     while (this.a2zIndexArray.indexOf(-1) != -1){
         this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
     }
-    
+
     // added empty item
     // media access bar messed up the height so add 40
 
@@ -191,7 +190,7 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
             emptySurface.setContent(firstAdd);
             emptySurface.on('click',function(e){
                 if ($(e.target).hasClass('fa-plus'))
-                this.eventOutput.emit('editContact');
+                    this.eventOutput.emit('editContact');
             }.bind(this))
         } else if (this.currentCollection.length == 0) {
             var noMatch = '<div class="no-match-found"><div> No match found</div></div>'
@@ -243,6 +242,6 @@ ContactsSection.prototype.onAbcTouch = function(e) {
     if (index == undefined || index == this.curAbcIndex) return;
     this.curAbcIndex = index;
     this.scrollTo(index);
-}
+};
 
 module.exports = ContactsSection;

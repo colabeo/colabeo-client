@@ -79,6 +79,7 @@ function AddContactView(options) {
         if (target.hasClass("done-contact")) {
             this.submitForm();
             $('body').removeClass('editing');
+            this.eventOutput.emit('triggerBackToNoneEditing');
             this.eventOutput.emit('showApp');
         } else if (target.hasClass("close-button")){
             this.eventOutput.emit('showApp');
@@ -198,9 +199,9 @@ AddContactView.prototype.renderContact = function() {
     this.content.setContent(html);
 
     var html = '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>'
-                + this.title + '</div><button class="right close-button done-contact">Done</button>';
+        + this.title + '</div><button class="right close-button done-contact">Done</button>';
     this.header.setContent(html);
-}
+};
 
 AddContactView.prototype.getFormObject = function(){
     var formArr = $('.add-contact-view form').serializeArray();
@@ -214,7 +215,7 @@ AddContactView.prototype.getFormObject = function(){
         if (this.formObject[i] === undefined) delete this.formObject[i];
     }
     return this.formObject;
-}
+};
 
 AddContactView.prototype.submitForm = function(){
     var formContact = this.getFormObject();

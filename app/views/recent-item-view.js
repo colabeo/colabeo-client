@@ -1,98 +1,30 @@
-// Import core Famous dependencies
-var View         = require('famous/view');
-var Surface      = require('famous/surface');
-var EventHandler = require('famous/event-handler');
-var TimeAgo      = require('famous/utilities/utils').timeSince;
-var Modifier     = require("famous/modifier");
-
-// Import app specific dependencies
 var Templates    = require('templates');
+var ItemView    = require('item-view');
 
-function RecentItemView(options) {
-    View.call(this);
+function RecentItemView(options){
+    options.leftButtons =[{
+        content: Templates.crossButton(),
+        event: 'deleteRecent'
+    }];
+    options.rightButton ={
+        content: Templates.phoneButton(),
+        event: 'outgoingCall'
+    };
+    options.itemButton = {
+        classes: ['contact-item', 'recent-item'],
+        content: Templates.recentItemView(options.model),
+        event: 'editContact'
+    };
 
-    this.model = options.model;
+    ItemView.apply(this, arguments);
 
-    // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    this.eventInput.on('toggleAllRecent', this.onToggleAll.bind(this));
+    this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
 
-    this.surface = new Surface({
-        classes: ['contact-item', 'recent-item', 'editable'],
-        size: [undefined, 51]
-    });
-
-//        // Bind click event to load new tweet
-    this.surface.on('click', function(e) {
-        var target = $(e.target);
-        if (target.hasClass("delete-button")) {
-            this.model.destroy();
-        }
-        else {
-            if ($('body').hasClass('editing'))
-                this.eventOutput.emit('editContact', this.model);
-            else
-                this.eventOutput.emit('outgoingCall', this.model);
-        }
-    }.bind(this));
-
-    this.template();
-
-    this.surface.pipe(this.eventOutput);
-
-    this.mod = new Modifier({
-        transform: undefined
-    });
-    this._link(this.mod);
-    this._link(this.surface);
-
-    this.model.on('all', function(e) {
-        switch(e)
-        {
-            case 'change':
-//                    console.log(e);
-                this.template();
-                break;
-
-        }
-    }.bind(this));
 }
 
-RecentItemView.prototype = Object.create(View.prototype);
+RecentItemView.prototype = Object.create(ItemView.prototype);
 RecentItemView.prototype.constructor = RecentItemView;
 
-RecentItemView.prototype.template = function() {
-    var name;
-    if (this.model.get('firstname') || this.model.get('lastname')) {
-        name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
-    } else {
-        name = this.model.get('email');
-    }
-    var icon = ''; //'<i class="fa fa-sign-in"></i>';
-    var missed = '';
-    if (this.model.get('type') == 'outgoing')
-        icon = '<i class="fa fa-sign-out"></i>';
-    else {
-        if (!this.model.get('success'))
-            missed = "missed";
-    }
-    var contact = '<div class="source '+missed+'"><div class="call-type">'+icon+'</div>' + name;
-    contact += '<div class="call-time">' + TimeAgo(this.model.get('time')) + ' ago</div></div>';
-    contact = Templates.deleteButton() + contact;
-    this.surface.setContent(contact);
-};
-
-RecentItemView.prototype.collapse = function(callback) {
-    this.mod.setOpacity(0,{duration:600}, callback);
-};
-
-RecentItemView.prototype.getSize = function() {
-    var sh = this.mod.opacityState.get();
-    var size = this.surface.getSize();
-    size[1] = Math.floor(size[1]*sh);
-    return size;
-};
-
 module.exports = RecentItemView;
+

@@ -1,7 +1,6 @@
 // import famous dependencies
 var View               = require('famous/view');
 var EventHandler       = require('famous/event-handler');
-var OptionsManager     = require('famous/options-manager');
 var RenderNode         = require('famous/render-node');
 var Utility            = require('famous/utilities/utility');
 var Matrix             = require('famous/transform');
@@ -30,7 +29,7 @@ function App(options) {
     this.layout.id['header'].link(this.header);
     this.layout.id['footer'].link(Utility.transformInFront).link(this.navigation);
     this.layout.id['content'].link(Utility.transformBehind).link(this.contentArea);
-    
+
     // assign received events to content area
     this.eventInput.pipe(this.contentArea);
 
@@ -51,6 +50,7 @@ function App(options) {
 
     // respond to the the selection of a different section
     this.navigation.on('select', function(data) {
+        this.eventOutput.emit('triggerBackToNoneEditing');
         $('body').removeClass('editing');
         this._currentSection = data.id;
         this.header.show(this._sectionTitles[data.id]);
@@ -110,7 +110,7 @@ App.prototype.section = function(id) {
         this._sections[id].setOptions = (function(options) {
             this._sectionTitles[id] = options.title;
             this.navigation.defineSection(id, {
-               content: '<span class="icon">' + options.navigation.icon + '</span><br />' + options.navigation.caption
+                content: '<span class="icon">' + options.navigation.icon + '</span><br />' + options.navigation.caption
             });
         }).bind(this);
     }
@@ -160,6 +160,6 @@ App.prototype.onHeaderClick = function(data){
         }
     }.bind(this));
     this.header._surfaces[data.id].pipe(this.eventOutput);
-}
+};
 
 module.exports = App;

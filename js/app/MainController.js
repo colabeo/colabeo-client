@@ -274,7 +274,6 @@ define(function(require, exports, module) {
             }
 
             FamousEngine.on('click', onEngineClick.bind(this));
-
             function onEngineClick(e) {
                 switch (e.target.id)
                 {
@@ -285,10 +284,12 @@ define(function(require, exports, module) {
                         this.eventOutput.emit('editContact');
                         break;
                     case 'recent-edit-contact':
-                        this.eventInput.emit('toggleAllRecent')
+                        $('body').toggleClass('editing');
+                        this.eventInput.emit('toggleAllRecent');
                         break;
                     case 'favorite-edit-contact':
-                        this.eventInput.emit('toggleAllFavorite')
+                        $('body').toggleClass('editing');
+                        this.eventInput.emit('toggleAllFavorite');
                         break;
                     case 'contact-edit-contact':
                         $('body').toggleClass('editing');
@@ -299,6 +300,11 @@ define(function(require, exports, module) {
                     case 'close-alert':
                         this.eventOutput.emit('closeAlert');
                 }
+            }
+
+            myApp.navigation.on('select',onNavigation.bind(this));
+            function onNavigation(e) {
+                this.eventInput.emit('backToNoneEditing');
             }
 
             function onAlert(word, okHidden){

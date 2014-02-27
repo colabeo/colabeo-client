@@ -20,7 +20,7 @@ define(function(require, exports, module) {
         ItemView.apply(this, arguments);
 
         this.eventInput.on('toggleAllFavorite', this.onToggleAll.bind(this));
-
+        this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
     }
 
     FavoriteItemView.prototype = Object.create(ItemView.prototype);

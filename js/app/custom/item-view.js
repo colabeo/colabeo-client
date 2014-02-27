@@ -264,6 +264,8 @@ define(function(require, exports, module) {
                 this.eventOutput.emit(this.options.itemButton.event, this.model);
             }
         }.bind(this));
+
+        this.eventInput.on('backToNoneEditing', function(){this.areEditingMode = false}.bind(this))
     };
 
     module.exports = ItemView;

@@ -157,7 +157,7 @@ function recentItemView(call) {
         '</div>',
         name,
         '<div class="call-time">',
-        TimeAgo.parse(call.get('time')),
+        TimeAgo(call.get('time')),
         ' ago</div></div></div>'
     ].join('');
     return html;

@@ -2,7 +2,7 @@
 var View             = require('famous/view');
 var Utility          = require('famous/utilities/utility');
 var Surface          = require('famous/surface');
-var Scrollview       = require('vertical-scroll-view');
+var VerticalScrollView       = require('vertical-scroll-view');
 var Engine           = require('famous/engine');
 
 var Templates        = require('templates');
@@ -23,22 +23,11 @@ function RecentsSectionView(options) {
     };
 
     this.collection = options.collection;
-    this.scrollview = new Scrollview({
-        //This will make sure it will work on both master and modularized.
-        defaultItemSize: [undefined,50],
-        direction: Utility.Direction.Y,
-        margin: 10000
+    this.scrollview = new VerticalScrollView({
+        startAt: 'top'
     });
     this.pipe(this.scrollview);
     this._link(this.scrollview);
-
-    this.emptySurface = new Surface({
-//        properties: {
-//            backgroundColor: 'yellow'
-//        },
-        size:[undefined, 0]
-    });
-    this.emptySurface.pipe(this.eventOutput);
 
     // TODO & Important: fetch first and then add this.collections.on
     // Otherwise, add event will be trigged n^2 times, and create n^2 item-view.
@@ -63,25 +52,7 @@ function RecentsSectionView(options) {
         }
     }.bind(this));
 
-    var resizeTimeout;
-    var onResize = function() {
-        this.emptySurfaceResize();
-    };
-    Engine.on('resize', function(e){
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(onResize.bind(this), 300);
-    }.bind(this));
-
     window.rr = this;
-//        $('body').on('click', '.header button.clear-button', function(e){
-//            _.invoke(this.collection.all(), 'destroy');
-//            this.loadContacts();
-//        }.bind(this));
-
-//        $('body').on('click', '.header input[name=recents-toggle]', function(e){
-//            this.missedOnly = ($('input[name=recents-toggle]:checked').val() == 'missed');
-//            this.loadContacts();
-//        }.bind(this));
 
 }
 
@@ -99,9 +70,7 @@ RecentsSectionView.prototype.loadContacts = function() {
         return surface;
     }.bind(this));
 
-    this.sequence.push(this.emptySurface);
     this.scrollview.sequenceFrom(this.sequence);
-    this.emptySurfaceResize();
 };
 
 RecentsSectionView.prototype.addContacts = function(call) {
@@ -110,7 +79,6 @@ RecentsSectionView.prototype.addContacts = function(call) {
     this.eventInput.pipe(surface);
     surface.pipe(this.eventOutput);
     this.sequence.splice(0, 0, surface);
-    this.emptySurfaceResize();
 };
 
 RecentsSectionView.prototype.removeFromScrollView = function(index) {
@@ -122,7 +90,6 @@ RecentsSectionView.prototype.removeFromScrollView = function(index) {
             Engine.defer( function(index) {
 //                    this.sequence.splice(index, 1);
                 this.scrollview.node.splice(index,1);
-                this.emptySurfaceResize();
             }.bind(this, index));
         }.bind(this));
     }
@@ -134,21 +101,6 @@ RecentsSectionView.prototype.clearContact = function(){
 
 RecentsSectionView.prototype.setMissOnly = function(miss){
     this.missedOnly = (miss == 'missed');
-};
-
-RecentsSectionView.prototype.emptySurfaceResize = function (){
-    if (this.emptySurface) {
-//            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
-        var extraHeight = this.scrollview.getSize()[1];
-        for (var i = 0; i < this.sequence.length - 1; i++){
-            extraHeight -= this.sequence[i].getSize()[1];
-            if (extraHeight <= 0) {
-                extraHeight = 0;
-                break;
-            }
-        }
-        this.emptySurface.setSize([undefined, extraHeight]);
-    }
 };
 
 module.exports = RecentsSectionView;

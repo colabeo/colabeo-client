@@ -1,0 +1,14 @@
+{
+  "name": "vertical-scroll-view",
+  "dependencies": {
+    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+  },
+  "main": "vertical-scroll-view.js",
+  "scripts": [
+    "vertical-scroll-view.js"
+  ]
+}

@@ -2,7 +2,7 @@
 var View             = require('famous/view');
 var Utility          = require('famous/utilities/utility');
 var Surface          = require('famous/surface');
-var Scrollview       = require('famous/views/scrollview');
+var Scrollview       = require('vertical-scroll-view');
 var Engine           = require('famous/engine');
 
 var Templates        = require('templates');

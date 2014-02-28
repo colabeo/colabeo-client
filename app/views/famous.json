@@ -23,6 +23,7 @@
     "conversation-surface",
     "light-box",
     "item-view",
+    "vertical-scroll-view",
     "famous/audio/sound-player"
   ],
   "main": "index.js",

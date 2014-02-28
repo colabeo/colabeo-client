@@ -10,7 +10,6 @@
     "famous/utilities/utils": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized",
     "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",

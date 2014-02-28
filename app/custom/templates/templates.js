@@ -109,15 +109,6 @@ module.exports = {
         return html.join('');
     },
 
-    recentsToggle: function() {
-        return [
-            '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
-            '<label for="all" class="first" id="recent-toggle">all</label>',
-            '<input type="radio" id="missed" name="recents-toggle" value="missed">',
-            '<label for="missed" class="last" id="recent-toggle">missed</label></div>'
-        ].join('');
-    },
-
     button: function(options) {
         if (!options.id) options.id = "button" + Math.floor(100000*Math.random());
         if (!options.classes) options.classes = [];
@@ -207,5 +198,20 @@ module.exports = {
             title,
             '</div><button class="right close-button done-contact">Done</button>'
         ].join('');
+    },
+
+    recentsHeader: function() {
+        return [
+            '<button class="left clear-button" id="clear-button"></button>',
+            '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
+            '<label for="all" class="first" id="recent-toggle">all</label>',
+            '<input type="radio" id="missed" name="recents-toggle" value="missed">',
+            '<label for="missed" class="last" id="recent-toggle">missed</label></div>',
+            '<button class="right edit-button" id="recent-edit-contact"></button>'
+        ].join('');
+    },
+
+    favoriteHeader: function() {
+        return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
     }
 };

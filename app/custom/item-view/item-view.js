@@ -109,7 +109,10 @@ ItemView.prototype.setupSurfaces = function(){
 //        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
     this.backgroundSurface = new Surface({
         content: Templates.itemFrame(this.options.paddingLeft, this.options.paddingRight),
-        size: this.options.size
+        size: this.options.size,
+        properties: {
+            zIndex: -1
+        }
     });
     this.surfaces.add(this.backgroundSurface);
     _(this.options.leftButtons).each(function (b, i){
@@ -248,14 +251,13 @@ ItemView.prototype.onToggleAll = function (){
     } else {
         this.setEditingOff();
     }
-    console.log(6666)
     this.areEditingMode =! this.areEditingMode;
 };
 
 ItemView.prototype.events = function() {
     _(this.options.leftButtons).each(function (b, i) {
         this['leftButton'+i].on('click', function(b) {
-            console.log(b.event);
+//            console.log(b.event);
             this.eventOutput.emit(b.event, this.model);
         }.bind(this,b));
     }.bind(this));

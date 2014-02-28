@@ -109,7 +109,7 @@ function ContactsSection(options) {
     this.abcSurface.pipe(sync);
     sync.on('update',function(data){
         var target = document.elementFromPoint(data.ap[0], data.ap[1]);
-        if (target.id == undefined || target.id =='' ) return
+        if (target.id == undefined || target.id =='' ) return;
         var index = this.a2zString.indexOf(target.id);
         index = this.a2zIndexArray[index];
         if (index == undefined || index == this.curAbcIndex) return;

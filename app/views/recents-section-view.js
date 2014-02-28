@@ -12,10 +12,7 @@ function RecentsSectionView(options) {
 
     View.call(this);
 
-    // Set up navigation and title bar information
-    this.title = '<button class="left clear-button" id="clear-button"></button>';
-    this.title += Templates.recentsToggle();
-    this.title += '<button class="right edit-button" id="recent-edit-contact"></button>';
+    this.title = Templates.recentsHeader();
     this.navigation = {
         caption: 'Recents',
         icon: '<i class="fa fa-clock-o"></i>'
@@ -30,21 +27,17 @@ function RecentsSectionView(options) {
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
-//            console.log(e, model, collection, options);
         switch(e)
         {
             case 'remove':
                 this.scrollview.removeByIndex(options.index);
+//                this.removeItemByIndex(options.index);
                 break;
-//                case 'sync':
             case 'add':
                 this.addItem(model);
                 break;
         }
     }.bind(this));
-
-    window.rr = this;
-
 }
 
 RecentsSectionView.prototype = Object.create(View.prototype);
@@ -55,8 +48,8 @@ RecentsSectionView.prototype.loadItems = function() {
     this.scrollview.setPosition(0);
     this.sequence = this.collection.map(function(item){
         var surface = new RecentItemView({model: item});
-        this.eventInput.pipe(surface);
         surface.pipe(this.eventOutput);
+        this.eventInput.pipe(surface);
         return surface;
     }.bind(this));
     this.scrollview.sequenceFrom(this.sequence);
@@ -64,9 +57,13 @@ RecentsSectionView.prototype.loadItems = function() {
 
 RecentsSectionView.prototype.addItem = function(call) {
     var surface = new RecentItemView({model: call});
-    this.eventInput.pipe(surface);
     surface.pipe(this.eventOutput);
+    this.eventInput.pipe(surface);
     this.scrollview.addByIndex(0, surface);
+};
+
+RecentsSectionView.prototype.removeItemByIndex = function(index) {
+    this.scrollview.removeByIndex(index);
 };
 
 RecentsSectionView.prototype.clearAll = function(){
@@ -78,8 +75,9 @@ RecentsSectionView.prototype.setMissedOnly = function(miss){
     _.each(this.sequence, function(itemView){
         if (!itemView.collapse) return;
         if (missedOnly) {
-            if (!itemView.model.isMissed())
+            if (!itemView.model.isMissed()) {
                 itemView.collapse();
+            }
         }
         else itemView.expand();
     }.bind(this));

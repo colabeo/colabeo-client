@@ -46,6 +46,9 @@ VerticalScrollView.prototype.prepareResize = function(){
 
 VerticalScrollView.prototype.sequenceFrom = function(node){
     this.itemArray = _.clone(node);
+//    _.each(this.itemArray, function(item) {
+//        item.pipe(this);
+//    }.bind(this));
     if (this.options.startAt == 'top') {
         node.push(this.emptySurface);
     } else {
@@ -60,13 +63,15 @@ VerticalScrollView.prototype.sequenceFrom = function(node){
 
 VerticalScrollView.prototype.emptySurfaceResize = function (){
     if (this.emptySurface) {
-        var itemSequence = _.filter(this.node.array, function(i){return i instanceof Surface == false});
         var extraHeight = this.getSize()[1];
-        for (var i = 0; i < itemSequence.length; i++){
-            extraHeight -= itemSequence[i].getSize()[1];
-            if (extraHeight <= 0) {
-                extraHeight = 0;
-                break;
+        if (this.node) {
+            var itemSequence = _.filter(this.node.array, function(i){return i instanceof Surface == false});
+            for (var i = 0; i < itemSequence.length; i++){
+                extraHeight -= itemSequence[i].getSize()[1];
+                if (extraHeight <= 0) {
+                    extraHeight = 1;
+                    break;
+                }
             }
         }
         this.emptySurface.setSize([undefined, extraHeight]);
@@ -96,9 +101,11 @@ VerticalScrollView.prototype.removeByIndex = function(index) {
     }
 };
 
-VerticalScrollView.prototype.addByIndex = function(index, node) {
-    this.itemArray.splice(index, 0, node);
-    this.node.splice(index, 0, node);
+VerticalScrollView.prototype.addByIndex = function(index, item) {
+//    item.pipe(this);
+    this.itemArray.splice(index, 0, item);
+    this.node.splice(index, 0, item);
+    // reset position
     this.node.index = 0;
     this.emptySurfaceResize();
 };

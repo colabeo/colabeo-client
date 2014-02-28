@@ -33,10 +33,10 @@ function RecentsSectionView(options) {
     this._link(this.scrollview);
 
     this.emptySurface = new Surface({
-        size:[undefined, 0],
-        properties: {
-            backgroundColor: 'yellow'
-        }
+//        properties: {
+//            backgroundColor: 'yellow'
+//        },
+        size:[undefined, 0]
     });
     this.emptySurface.pipe(this.eventOutput);
 

@@ -199,5 +199,13 @@ module.exports = {
             name,
             '</div></div>'
         ].join('');
+    },
+
+    editContactHeader: function(title) {
+        return [
+            '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>',
+            title,
+            '</div><button class="right close-button done-contact">Done</button>'
+        ].join('');
     }
 };

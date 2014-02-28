@@ -198,8 +198,7 @@ AddContactView.prototype.renderContact = function() {
 
     this.content.setContent(html);
 
-    var html = '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>'
-        + this.title + '</div><button class="right close-button done-contact">Done</button>';
+    var html = Templates.editContactHeader(this.title);
     this.header.setContent(html);
 };
 

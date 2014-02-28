@@ -38,13 +38,11 @@ function RecentsSectionView(options) {
         switch(e)
         {
             case 'remove':
-                // TODO: fast remove will cause collection and scrollview index different due to animation delay
                 this.scrollview.removeByIndex(options.index);
                 break;
 //                case 'sync':
             case 'add':
                 this.addContacts(model);
-//                    this.loadContacts();  // loadContacts lead to memory leak.
                 break;
         }
     }.bind(this));
@@ -73,7 +71,7 @@ RecentsSectionView.prototype.addContacts = function(call) {
     var surface = new RecentItemView({model: call});
     this.eventInput.pipe(surface);
     surface.pipe(this.eventOutput);
-    this.sequence.splice(0, 0, surface);
+    this.scrollview.addByIndex(0, surface);
 };
 
 RecentsSectionView.prototype.clearContact = function(){

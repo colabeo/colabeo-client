@@ -248,7 +248,6 @@ ItemView.prototype.onToggleAll = function (){
     } else {
         this.setEditingOff();
     }
-    console.log('df')
     this.areEditingMode =! this.areEditingMode;
 };
 

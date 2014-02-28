@@ -8,6 +8,7 @@ function VerticalScrollView(options) {
     Scrollview.apply(this,arguments);
     this.prepareEmptySurface();
     this.prepareResize();
+    this.itemArray = [];
     window.ss=this
 }
 
@@ -25,7 +26,7 @@ VerticalScrollView.prototype.setOptions = function (options){
 VerticalScrollView.prototype.prepareEmptySurface = function(){
     this.emptySurface = new Surface({
         properties: {
-            backgroundColor: 'yellow'
+//            backgroundColor: 'yellow'
         },
         size:[undefined, 0]
     });
@@ -44,13 +45,16 @@ VerticalScrollView.prototype.prepareResize = function(){
 };
 
 VerticalScrollView.prototype.sequenceFrom = function(node){
+    this.itemArray = _.clone(node);
     if (this.options.startAt == 'top') {
         node.push(this.emptySurface);
     } else {
         node.unshift(this.emptySurface);
     }
     Object.getPrototypeOf (VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
-    this.emptySurfaceResize();
+    Engine.defer( function() {
+        this.emptySurfaceResize();
+    }.bind(this));
 };
 
 VerticalScrollView.prototype.emptySurfaceResize = function (){
@@ -78,13 +82,24 @@ VerticalScrollView.prototype.scrollTo = function(index, position){
 VerticalScrollView.prototype.removeByIndex = function(index) {
     if (index<0) return;
     if (this.node) {
-        var removedNode = this.node.array[index];
+        var removedNode = this.itemArray.splice(index,1)[0];
         removedNode.collapse(function() {
-            Engine.defer( function(index) {
-                this.node.splice(index,1);
-            }.bind(this, index));
+            Engine.defer( function() {
+                var i = this.node.array.indexOf(removedNode);
+                this.node.splice(i,1);
+                // this fixes first item removal return index -1 bug
+                if (i==0) this.node.index = 0;
+                this.emptySurfaceResize();
+            }.bind(this));
         }.bind(this));
     }
+};
+
+VerticalScrollView.prototype.addByIndex = function(index, node) {
+    this.itemArray.splice(index, 0, node);
+    this.node.splice(index, 0, node);
+    this.node.index = 0;
+    this.emptySurfaceResize();
 };
 
 module.exports = VerticalScrollView;

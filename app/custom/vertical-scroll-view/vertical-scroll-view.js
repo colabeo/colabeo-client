@@ -51,6 +51,7 @@ VerticalScrollView.prototype.sequenceFrom = function(node){
     } else {
         node.unshift(this.emptySurface);
     }
+    // TODO: this.sequence need garbage collection
     Object.getPrototypeOf (VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
     Engine.defer( function() {
         this.emptySurfaceResize();

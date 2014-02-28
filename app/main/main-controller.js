@@ -175,12 +175,11 @@ function MainController() {
         }
 
         function onLoadRecent (e){
-            recentsSection.setMissedOnly.bind(recentsSection)(e.target.outerText);
+            recentsSection.setMissedOnly(e.target.outerText);
         }
 
         function onClearRecent (e){
-            recentsSection.clearContact();
-            recentsSection.loadContacts();
+            recentsSection.clearAll();
         }
 
         function onShowApp(eventData) {

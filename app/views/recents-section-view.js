@@ -27,12 +27,8 @@ function RecentsSectionView(options) {
     });
     this.pipe(this.scrollview);
     this._link(this.scrollview);
+    this.loadItems();
 
-    // TODO & Important: fetch first and then add this.collections.on
-    // Otherwise, add event will be trigged n^2 times, and create n^2 item-view.
-    this.collection.fetch();
-    this.loadContacts();
-    // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
 //            console.log(e, model, collection, options);
         switch(e)
@@ -42,7 +38,7 @@ function RecentsSectionView(options) {
                 break;
 //                case 'sync':
             case 'add':
-                this.addContacts(model);
+                this.addItem(model);
                 break;
         }
     }.bind(this));
@@ -54,27 +50,26 @@ function RecentsSectionView(options) {
 RecentsSectionView.prototype = Object.create(View.prototype);
 RecentsSectionView.prototype.constructor = RecentsSectionView;
 
-RecentsSectionView.prototype.loadContacts = function() {
+RecentsSectionView.prototype.loadItems = function() {
+    this.collection.fetch();
     this.scrollview.setPosition(0);
-    // TODO: this.sequence need garbage collection
     this.sequence = this.collection.map(function(item){
         var surface = new RecentItemView({model: item});
         this.eventInput.pipe(surface);
         surface.pipe(this.eventOutput);
         return surface;
     }.bind(this));
-
     this.scrollview.sequenceFrom(this.sequence);
 };
 
-RecentsSectionView.prototype.addContacts = function(call) {
+RecentsSectionView.prototype.addItem = function(call) {
     var surface = new RecentItemView({model: call});
     this.eventInput.pipe(surface);
     surface.pipe(this.eventOutput);
     this.scrollview.addByIndex(0, surface);
 };
 
-RecentsSectionView.prototype.clearContact = function(){
+RecentsSectionView.prototype.clearAll = function(){
     _.invoke(this.collection.all(), 'destroy');
 };
 

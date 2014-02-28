@@ -248,6 +248,7 @@ ItemView.prototype.onToggleAll = function (){
     } else {
         this.setEditingOff();
     }
+    console.log(6666)
     this.areEditingMode =! this.areEditingMode;
 };
 

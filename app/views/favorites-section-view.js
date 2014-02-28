@@ -117,10 +117,9 @@ FavoritesSectionView.prototype.removeFavorite = function(index) {
         var removedNode = this.scrollview.node.array[index];
         removedNode.collapse(function() {
             Engine.defer( function(index) {this.scrollview.node.splice(index,1)}.bind(this, index) );
+            this.emptySurfaceResize();
         }.bind(this));
     }
-    this.sequence.splice(index,1);
-    this.emptySurfaceResize();
 };
 
 FavoritesSectionView.prototype.scrollTo = function(index, position){

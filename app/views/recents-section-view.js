@@ -11,7 +11,6 @@ var RecentItemView   = require('recent-item-view');
 function RecentsSectionView(options) {
 
     View.call(this);
-    this.missedOnly = false;
 
     // Set up navigation and title bar information
     this.title = '<button class="left clear-button" id="clear-button"></button>';
@@ -40,9 +39,7 @@ function RecentsSectionView(options) {
         {
             case 'remove':
                 // TODO: fast remove will cause collection and scrollview index different due to animation delay
-                if (this.missedOnly) var i = this.curCollection.indexOf(model);
-                else var i = options.index;
-                this.removeFromScrollView(i);
+                this.scrollview.removeByIndex(options.index);
                 break;
 //                case 'sync':
             case 'add':
@@ -61,9 +58,8 @@ RecentsSectionView.prototype.constructor = RecentsSectionView;
 
 RecentsSectionView.prototype.loadContacts = function() {
     this.scrollview.setPosition(0);
-    this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
     // TODO: this.sequence need garbage collection
-    this.sequence = this.curCollection.map(function(item){
+    this.sequence = this.collection.map(function(item){
         var surface = new RecentItemView({model: item});
         this.eventInput.pipe(surface);
         surface.pipe(this.eventOutput);
@@ -74,25 +70,26 @@ RecentsSectionView.prototype.loadContacts = function() {
 };
 
 RecentsSectionView.prototype.addContacts = function(call) {
-    this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
     var surface = new RecentItemView({model: call});
     this.eventInput.pipe(surface);
     surface.pipe(this.eventOutput);
     this.sequence.splice(0, 0, surface);
 };
 
-RecentsSectionView.prototype.removeFromScrollView = function(index) {
-    this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
-    if (index<0) return;
-    this.scrollview.removeByIndex(index);
-};
-
 RecentsSectionView.prototype.clearContact = function(){
     _.invoke(this.collection.all(), 'destroy');
 };
 
-RecentsSectionView.prototype.setMissOnly = function(miss){
-    this.missedOnly = (miss == 'missed');
+RecentsSectionView.prototype.setMissedOnly = function(miss){
+    var missedOnly = (miss == 'missed');
+    _.each(this.sequence, function(itemView){
+        if (!itemView.collapse) return;
+        if (missedOnly) {
+            if (!itemView.model.isMissed())
+                itemView.collapse();
+        }
+        else itemView.expand();
+    }.bind(this));
 };
 
 module.exports = RecentsSectionView;

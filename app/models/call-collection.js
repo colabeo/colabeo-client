@@ -10,7 +10,7 @@ module.exports = Backbone.Collection.extend({
     model: Call,
 
     missed: function() {
-        return this.filter(function(item){ return !item.get('success') && item.get('type')=='incoming'; });
+        return this.filter(function(item){ return item.isMissed(); });
     },
 
     all: function() {

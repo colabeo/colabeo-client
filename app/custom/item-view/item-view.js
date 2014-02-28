@@ -26,7 +26,8 @@ function ItemView(options){
         buttonSizeX : 50,
         buttonSizeY : 50,
         _leftEndOrigin : [0, 0],
-        _rightEndOrigin : [1, 0]
+        _rightEndOrigin : [1, 0],
+        size : [true, 50]
     };
 
     this.setOptions(options);
@@ -108,7 +109,7 @@ ItemView.prototype.setupSurfaces = function(){
 //        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
     this.backgroundSurface = new Surface({
         content: Templates.itemFrame(this.options.paddingLeft, this.options.paddingRight),
-        size: [true, this.options.buttonSizeY]
+        size: this.options.size
     });
     this.surfaces.add(this.backgroundSurface);
     _(this.options.leftButtons).each(function (b, i){
@@ -139,7 +140,7 @@ ItemView.prototype.setupSurfaces = function(){
     this.itemSurface = new Surface({
         classes: this.options.itemButton.classes,
         content: this.options.itemButton.content,
-        size: [true, this.options.buttonSizeY],
+        size: this.options.size,
         properties:{
             backgroundColor: "transparent",
             zIndex:9
@@ -232,11 +233,13 @@ ItemView.prototype.collapse = function(callback) {
     this.surfacesMod.setOpacity(0,{duration:600}, callback);
 };
 
+ItemView.prototype.expand = function(callback) {
+    this.surfacesMod.setOpacity(1,{duration:600}, callback);
+};
+
 ItemView.prototype.getSize = function() {
     var sh = this.surfacesMod.opacityState.get();
-    var size = this.itemSurface.getSize();
-    size[1] = Math.floor(size[1]*sh);
-    return size;
+    return [this.options.size[0], Math.floor(this.options.size[1]*sh) || 1];
 };
 
 ItemView.prototype.onToggleAll = function (){

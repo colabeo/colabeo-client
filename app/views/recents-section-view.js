@@ -84,15 +84,7 @@ RecentsSectionView.prototype.addContacts = function(call) {
 RecentsSectionView.prototype.removeFromScrollView = function(index) {
     this.curCollection = this.missedOnly? this.collection.missed() : this.collection;
     if (index<0) return;
-    if (this.scrollview.node) {
-        var removedNode = this.scrollview.node.array[index];
-        removedNode.collapse(function() {
-            Engine.defer( function(index) {
-//                    this.sequence.splice(index, 1);
-                this.scrollview.node.splice(index,1);
-            }.bind(this, index));
-        }.bind(this));
-    }
+    this.scrollview.removeByIndex(index);
 };
 
 RecentsSectionView.prototype.clearContact = function(){

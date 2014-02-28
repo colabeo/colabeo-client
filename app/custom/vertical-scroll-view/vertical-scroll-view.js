@@ -6,7 +6,7 @@ var Engine           = require('famous/engine');
 
 function VerticalScrollView(options) {
     Scrollview.apply(this,arguments);
-    this.createEmptySurface();
+    this.prepareEmptySurface();
     this.prepareResize();
     window.ss=this
 }
@@ -22,7 +22,7 @@ VerticalScrollView.prototype.setOptions = function (options){
     _.extend(this.options, options);
 };
 
-VerticalScrollView.prototype.createEmptySurface = function(){
+VerticalScrollView.prototype.prepareEmptySurface = function(){
     this.emptySurface = new Surface({
         properties: {
             backgroundColor: 'yellow'
@@ -30,6 +30,17 @@ VerticalScrollView.prototype.createEmptySurface = function(){
         size:[undefined, 0]
     });
     this.emptySurface.pipe(this);
+};
+
+VerticalScrollView.prototype.prepareResize = function(){
+    var resizeTimeout;
+    var onResize = function() {
+        this.emptySurfaceResize();
+    };
+    Engine.on('resize', function(){
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(onResize.bind(this), 300);
+    }.bind(this));
 };
 
 VerticalScrollView.prototype.sequenceFrom = function(node){
@@ -40,16 +51,8 @@ VerticalScrollView.prototype.sequenceFrom = function(node){
     }
     Object.getPrototypeOf (VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
     this.emptySurfaceResize();
-}
+};
 
-//
-//VerticalScrollView.prototype.scrollTo = function(index, position){
-//    if (!index) index = 0;
-//    if (!position) position = 0;
-//    this.scrollview.setPosition(position);
-//    this.scrollview.node.index = index;
-//};
-//
 VerticalScrollView.prototype.emptySurfaceResize = function (){
     if (this.emptySurface) {
         var itemSequence = _.filter(this.node.array, function(i){return i instanceof Surface == false});
@@ -65,32 +68,23 @@ VerticalScrollView.prototype.emptySurfaceResize = function (){
     }
 };
 
-VerticalScrollView.prototype.prepareResize = function(){
-    var resizeTimeout;
-    var onResize = function() {
-        this.emptySurfaceResize();
-    };
-    Engine.on('resize', function(){
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(onResize.bind(this), 300);
-    }.bind(this));
+VerticalScrollView.prototype.scrollTo = function(index, position){
+    if (!index) index = 0;
+    if (!position) position = 0;
+    this.setPosition(position);
+    this.node.index = index;
 };
 
-
-//RecentsSectionView.prototype.emptySurfaceResize = function (){
-//    if (this.emptySurface) {
-////            this.emptySurface.setSize([undefined, Math.max(this.scrollview.getSize()[1] - (this.sequence.length - 1) * this.sequence[0].getSize()[1], 0)]);
-//        var extraHeight = this.scrollview.getSize()[1];
-//        for (var i = 0; i < this.sequence.length - 1; i++){
-//            extraHeight -= this.sequence[i].getSize()[1];
-//            if (extraHeight <= 0) {
-//                extraHeight = 0;
-//                break;
-//            }
-//        }
-//        this.emptySurface.setSize([undefined, extraHeight]);
-//    }
-//};
-
+VerticalScrollView.prototype.removeByIndex = function(index) {
+    if (index<0) return;
+    if (this.node) {
+        var removedNode = this.node.array[index];
+        removedNode.collapse(function() {
+            Engine.defer( function(index) {
+                this.node.splice(index,1);
+            }.bind(this, index));
+        }.bind(this));
+    }
+};
 
 module.exports = VerticalScrollView;

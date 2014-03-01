@@ -169,6 +169,23 @@ module.exports = {
         ].join('');
     },
 
+    contactItemView: function(isFirst, model) {
+        var name;
+        if (model.get('firstname') || model.get('lastname')) {
+            name = [model.get('firstname'), ' <b>',  model.get('lastname') , '</b>'].join('');
+        } else {
+            name = model.get('email');
+        }
+        var contact = '<div class="source">' + name;
+        contact = [this.deleteButton(), this.favoriteButton(model.get('favorite')), contact].join('');
+        if (isFirst) contact = ['<div class="first-char">', isFirst , '</div>' , contact].join('');
+        if (model.attributes.email) contact = [contact , '<i class="fa fa-envelope contact-icon"></i>'].join('');
+        if (model.attributes.facebook) contact = [contact , '<i class="fa fa-facebook-square contact-icon"></i>'].join('');
+        if (model.attributes.google) contact = [contact , '<i class="fa fa-google-plus-square contact-icon"></i>'].join('');
+        contact = [contact, '</div>'].join('');
+        return contact;
+    },
+
     favoriteItemView: function(contact) {
         var name;
         var initial = "";

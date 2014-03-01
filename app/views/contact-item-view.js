@@ -19,9 +19,11 @@ function ContactItemView(options, isFirst) {
     this.eventOutput = new EventHandler();
     EventHandler.setOutputHandler(this, this.eventOutput);
 
+    console.log(Templates.contactItemView(isFirst,this.model));
     var height = 51;
     if (isFirst) height = 77;
     this.surface = new Surface({
+        content: Templates.contactItemView(isFirst,this.model),
         classes: ['contact-item', 'editable'],
         size: [undefined, height]
     });
@@ -46,8 +48,6 @@ function ContactItemView(options, isFirst) {
         }
     }.bind(this));
 
-    this.template(isFirst);
-
     this.surface.pipe(this.eventOutput);
 
     this.mod = new Modifier({
@@ -69,27 +69,6 @@ function ContactItemView(options, isFirst) {
 
 ContactItemView.prototype = Object.create(View.prototype);
 ContactItemView.prototype.constructor = ContactItemView;
-
-ContactItemView.prototype.template = function(isFirst) {
-//        console.log(this.model);
-    var name;
-    var initial;
-    if (this.model.get('firstname') || this.model.get('lastname')) {
-        name = this.model.get('firstname') + " <b>" + this.model.get('lastname') + "</b>";
-        initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
-    } else {
-        name = this.model.get('email');
-    }
-    var contact = '<div class="source">' + name;
-    contact = Templates.deleteButton() + Templates.favoriteButton(this.model.get('favorite')) + contact;
-    if (isFirst) contact = '<div class="first-char">' + isFirst + '</div>' + contact;
-    if (this.model.attributes.email) contact = contact + '<i class="fa fa-envelope contact-icon"></i>';
-    if (this.model.attributes.facebook) contact = contact + '<i class="fa fa-facebook-square contact-icon"></i>';
-    if (this.model.attributes.google) contact = contact + '<i class="fa fa-google-plus-square contact-icon"></i>';
-    contact += '</div>';
-
-    this.surface.setContent(contact);
-};
 
 //    ContactItemView.prototype.collapse = function(callback) {
 //        this.mod.setOpacity(0,{duration:600}, callback);

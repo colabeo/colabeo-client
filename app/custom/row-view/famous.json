@@ -1,5 +1,5 @@
 {
-  "name": "item-view",
+  "name": "row-view",
   "dependencies": {
     "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
     "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
@@ -19,8 +19,8 @@
   "local":[
       "templates"
   ],
-  "main": "item-view.js",
+  "main": "index.js",
   "scripts": [
-    "item-view.js"
+      "**/**/*.js"
   ]
 }

@@ -22,7 +22,7 @@
     "custom-touch-sync",
     "conversation-surface",
     "light-box",
-    "item-view",
+    "row-view",
     "vertical-scroll-view",
     "famous/audio/sound-player"
   ],

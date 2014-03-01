@@ -1,5 +1,6 @@
 var Templates    = require('templates');
-var ItemView    = require('item-view');
+var RowView    = require('row-view');
+var ItemView = RowView.ItemView;
 
 function RecentItemView(options){
     options.leftButtons =[{

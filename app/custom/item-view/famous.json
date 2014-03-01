@@ -13,7 +13,8 @@
     "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/transitions/wall-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
     "famous/transitions/spring-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized",
-    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
   },
   "local":[
       "templates"

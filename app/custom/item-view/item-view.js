@@ -11,6 +11,7 @@ var Transitionable   = require('famous/transitions/transitionable');
 var WallTransition   = require('famous/transitions/wall-transition');
 var SpringTransition   = require('famous/transitions/spring-transition');
 var Engine = require('famous/engine');
+var Utility = require('famous/utilities/utility');
 
 var Templates = require('templates');
 
@@ -33,17 +34,10 @@ function ItemView(options){
     this.setOptions(options);
 
     this.setupSurfaces();
+    this.setupEvent();
 
-    this.pos = [0,0];
     this.isEditingMode = false;
     this.areEditingMode = false;
-
-    var sync = new GenericSync(function(){
-        return this.pos;
-    }.bind(this), {
-            syncClasses:[MouseSync,TouchSync]
-        }
-    );
 
     this.returnZeroOpacityTransition = {
         'curve' : Easing.linearNorm,
@@ -56,23 +50,56 @@ function ItemView(options){
         dampingRatio: 1
     };
 
-    this.itemSurface.pipe(sync);
+    Engine.on('resize', this.resizeItem.bind(this));
+}
 
+ItemView.prototype = Object.create(View.prototype);
+ItemView.prototype.constructor = ItemView;
+
+ItemView.prototype.setupEvent = function(){
     this.events();
+
+    var sync = new GenericSync(function(){
+        return this.pos;
+    }.bind(this), {
+            syncClasses:[MouseSync,TouchSync]
+        }
+    );
+    this.itemSurface.pipe(sync);
+    this.itemSurface.pipe(this.eventOutput);
+    this.pos = [0,0];
 
     sync.on('start', function() {
         this.pos = this.isEditingMode? [this.options.nButtons*this.options.buttonSizeX, 0] : [0,0];
+        this._directionChosen = false;
     }.bind(this));
 
     sync.on('update', function(data) {
         this.pos = data.p;  // the displacement from the start touch point.
-        this.animateItem();
-        this.animateLeftButtons();
-        this.animateRightButtons();
+        if( !this._directionChosen ) {
+            var diffX = this.isEditingMode? Math.abs( this.pos[0] - this.options.nButtons*this.options.buttonSizeX ) : Math.abs( this.pos[0] ),
+                diffY = Math.abs( this.pos[1] );
+            this.direction = diffX > diffY ? Utility.Direction.X : Utility.Direction.Y;
+            this._directionChosen = true;
+            if (this.direction == Utility.Direction.X) {
+                this.itemSurface.unpipe(this.eventOutput);
+            }
+            else {
+                this.itemSurface.pipe(this.eventOutput);
+            }
+        } else {
+            if (this.direction == Utility.Direction.X) {
+                this.animateItem();
+                this.animateLeftButtons();
+                this.animateRightButtons();
+            }
+        }
+
     }.bind(this));
 
     sync.on('end', function(data) {
         this.pos = data.p;
+        if (this.direction != Utility.Direction.X) return;
         if (this.pos[0] > this.options.nButtons*this.options.buttonSizeX){
             this.toggleEditing();
         } else {
@@ -83,19 +110,7 @@ function ItemView(options){
             this.setEditingOff();
         }
     }.bind(this));
-
-    Engine.on('resize', this.resizeItem.bind(this));
-
-    window.tt=this;
-
-//        function stopEvents ( e ) {
-//            e.preventDefault();
-//            e.stopPropagation();
-//        }
 }
-
-ItemView.prototype = Object.create(View.prototype);
-ItemView.prototype.constructor = ItemView;
 
 ItemView.prototype.setOptions = function(options){
     _.extend(this.options, options);
@@ -152,7 +167,6 @@ ItemView.prototype.setupSurfaces = function(){
     this.itemMod = new Modifier({
         origin: this.options._leftEndOrigin
     });
-    this.itemSurface.pipe(this.eventOutput);
 
     this.surfaces.add(this.itemMod).link(this.itemSurface);
 

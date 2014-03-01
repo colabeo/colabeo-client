@@ -97,6 +97,7 @@ function MainController() {
         recentsSection.pipe(this.eventOutput);
         this.eventInput.pipe(recentsSection);
         contactsSection.pipe(this.eventOutput);
+        this.eventInput.pipe(contactsSection);
         settingsSection.pipe(this.eventOutput);
 
         // Config and initialize app
@@ -149,7 +150,9 @@ function MainController() {
         this.eventOutput.on('loadRecent', onLoadRecent);
         this.eventOutput.on('clearRecent', onClearRecent);
         this.eventOutput.on('deleteRecent', onDeleteRecent);
+        this.eventOutput.on('deleteContact', onDeleteContact);
         this.eventOutput.on('deleteFavorite', onDeleteFavorite);
+        this.eventOutput.on('toggleFavorite', onToggleFavorite);
         this.eventOutput.on('onEngineClick', onEngineClick);
         this.eventOutput.on('closeAlert', onCloseAlert);
         this.eventOutput.on('editContactDone', onEditContactDone);
@@ -160,7 +163,15 @@ function MainController() {
             model.toggleFavorite();
         }
 
+        function onToggleFavorite (model) {
+            model.toggleFavorite();
+        }
+
         function onDeleteRecent (model) {
+            model.destroy();
+        }
+
+        function onDeleteContact (model) {
             model.destroy();
         }
 
@@ -298,6 +309,7 @@ function MainController() {
                     break;
                 case 'contact-edit-contact':
                     $('body').toggleClass('editing');
+                    this.eventInput.emit('toggleAllContact');
                     break;
                 case 'recent-toggle':
                     this.eventOutput.emit('loadRecent', e);

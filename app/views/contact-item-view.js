@@ -1,84 +1,45 @@
-// import famous modules
-var View         = require('famous/view');
-var Surface      = require('famous/surface');
-var EventHandler = require('famous/event-handler');
-var Modifier     = require("famous/modifier");
-
 var Templates    = require('templates');
-
-// Import app specific dependencies
+var RowView    = require('row-view');
+var ItemView = RowView.ItemView;
 
 function ContactItemView(options, isFirst) {
-    View.call(this);
 
     this.model = options.model;
 
-    // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    options.leftButtons =[{
+        content: Templates.crossButton(),
+        event: 'deleteContact'
+    },{
+        content: Templates.favoriteButton(this.model.get('favorite')),
+        event: 'toggleFavorite'
+    }];
+    options.rightButton ={
+        content: Templates.phoneButton(),
+        event: 'outgoingCall'
+    };
+    options.itemButton = {
+        classes: ['contact-item', 'favorite-item', 'recent-item', 'editable'],
+        content: Templates.favoriteItemView(options.model),
+        event: 'editContact'
+    };
 
-    console.log(Templates.contactItemView(isFirst,this.model));
-    var height = 51;
-    if (isFirst) height = 77;
-    this.surface = new Surface({
-        content: Templates.contactItemView(isFirst,this.model),
-        classes: ['contact-item', 'editable'],
-        size: [undefined, height]
-    });
+    ItemView.apply(this, arguments);
 
-//        // Bind click event to load new tweet
-    this.surface.on('click', function(e) {
-        var target = $(e.target);
-        if (target.hasClass("delete-button")) {
-            this.model.collection.remove(this.model);
-        }
-        else if (target.hasClass("favorite-button")) {
-            this.model.toggleFavorite();
-        }
-        else if (target.hasClass("first-char")) {
-
-        }
-        else {
-            if ($('body').hasClass('editing'))
-                this.eventOutput.emit('editContact', this.model);
-            else
-                this.eventOutput.emit('outgoingCall', this.model);
-        }
-    }.bind(this));
-
-    this.surface.pipe(this.eventOutput);
-
-    this.mod = new Modifier({
-        transform: undefined
-    });
-    this._link(this.mod);
-    this._link(this.surface);
-
-    this.model.on('all', function(e) {
+    this.model.on('all', function(e, model, collection, options) {
         switch(e)
         {
             case 'change:favorite':
-                $(this.surface._currTarget).find('.favorite-button').toggleClass('active');
+                 console.log('change')
+                $(this['leftButton1']._currTarget).find('.favorite-button').toggleClass('active');
                 break;
-
         }
     }.bind(this));
+
+    this.eventInput.on('toggleAllContact', this.onToggleAll.bind(this));
+    this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
 }
 
-ContactItemView.prototype = Object.create(View.prototype);
+ContactItemView.prototype = Object.create(ItemView.prototype);
 ContactItemView.prototype.constructor = ContactItemView;
-
-//    ContactItemView.prototype.collapse = function(callback) {
-//        this.mod.setOpacity(0,{duration:600}, callback);
-//    };
-//
-//    ContactItemView.prototype.getSize = function() {
-//        var sh = this.mod.opacityState.get();
-//        var size = this.surface.getSize();
-//        size[1] = Math.floor(size[1]*sh);
-//        return size;
-//    };
 
 module.exports = ContactItemView;

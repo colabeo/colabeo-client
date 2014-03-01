@@ -231,6 +231,7 @@ ContactsSection.prototype.getIndex = function (item){
     }
     var surface = new ContactItemView({model: item}, isFirst);
     surface.pipe(this.eventOutput);
+    this.eventInput.pipe(surface);
     return surface;
 };
 

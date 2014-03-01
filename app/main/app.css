@@ -361,24 +361,16 @@ button.sync-button.syncing {
 .delete-button2 {
   cursor: pointer;
 }
+.favorite-button2 {
+  cursor: pointer;
+}
 .favorite-button {
-  float: left;
-  background: transparent;
-  height: 22px;
-  text-align: center;
-  margin: 16px -20px;
+  cursor: pointer;
   color: #ffffff;
-  opacity: 0;
-  -webkit-transition: margin 0.3s, opacity 0.3s;
-  line-height: 20px;
+  line-height: 50px;
 }
 .favorite-button.active {
   color: #3398cd;
-}
-.editing .favorite-button {
-  width: 30px;
-  opacity: 0.88;
-  margin: 16px 10px 0px 3px;
 }
 /* form */
 form {
@@ -429,7 +421,8 @@ input {
   border-radius: 35px;
   line-height: 35px;
   text-align: center;
-  margin: 8px 12px;
+  margin: 8px 0px;
+  margin-right: 12px;
   color: rgba(0, 0, 0, 0.5);
 }
 .contact-item .source .call-type {
@@ -498,6 +491,18 @@ input {
 }
 .phone-button .fa-frontground {
   color: #ffffff;
+  line-height: 50px;
+}
+.favorite-button2 .fa-background {
+  color: #5db04c;
+  line-height: 50px;
+}
+.favorite-button2 .fa-frontground {
+  color: #ffffff;
+  line-height: 50px;
+}
+.favorite-button2 .fa-frontground.active {
+  color: #cdbb18;
   line-height: 50px;
 }
 .fa-plus {

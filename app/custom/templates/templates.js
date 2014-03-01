@@ -98,14 +98,26 @@ module.exports = {
         ].join('');
     },
 
+    favoriteButton2: function(ative,id) {
+        var html = [
+            '<span class="fa-stack favorite-button2" id="',
+            id ,
+            '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+            '<i class="fa fa-star fa-stack-1x fa-frontground'];
+            if (ative) html.push(' active');
+            html.push('"></i></span>');
+        return html.join('');
+    },
+
     nextButton: function(id) {
         return '<i class="arrow fa fa-angle-right fa-lg import-contact" id="' + id + '"></i>';
     },
 
     favoriteButton: function(active) {
-        var html = ['<button class="favorite-button fa fa-star fa-lg'];
+        var html = ['<i class="favorite-button fa fa-star fa-2x'];
         if (active) html.push(' active');
-        html.push('"></button>');
+        html.push('"></i>');
+        console.log(html);
         return html.join('');
     },
 
@@ -169,7 +181,7 @@ module.exports = {
         ].join('');
     },
 
-    contactItemView: function(isFirst, model) {
+    contactItemView: function(model) {
         var name;
         if (model.get('firstname') || model.get('lastname')) {
             name = [model.get('firstname'), ' <b>',  model.get('lastname') , '</b>'].join('');
@@ -177,8 +189,6 @@ module.exports = {
             name = model.get('email');
         }
         var contact = '<div class="source">' + name;
-        contact = [this.deleteButton(), this.favoriteButton(model.get('favorite')), contact].join('');
-        if (isFirst) contact = ['<div class="first-char">', isFirst , '</div>' , contact].join('');
         if (model.attributes.email) contact = [contact , '<i class="fa fa-envelope contact-icon"></i>'].join('');
         if (model.attributes.facebook) contact = [contact , '<i class="fa fa-facebook-square contact-icon"></i>'].join('');
         if (model.attributes.google) contact = [contact , '<i class="fa fa-google-plus-square contact-icon"></i>'].join('');

@@ -187,7 +187,7 @@ ItemView.prototype.animateItemEnd = function(){
 
 ItemView.prototype.animateLeftButtons = function(){
     for (var i = 0; i < this.options.nButtons; i++) {
-        var Opacity = Math.min((this.pos[0] - this.options.buttonSizeX * i )/(this.options.nButtons*this.options.buttonSizeX), 1);
+        var Opacity = Math.min((this.pos[0] - this.options.buttonSizeX * (i))/(this.options.buttonSizeX), 1);
         this['leftButton'+i+'Mod'].setOpacity(Opacity);
     }
 };

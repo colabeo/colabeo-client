@@ -24,6 +24,18 @@ module.exports = Backbone.Firebase.Collection.extend({
         })
     },
 
+    lastnameInitial: function(keyword) {
+        return this.filter(function(item){
+            if (item.get('lastname')){
+                return item.get('lastname').toUpperCase()[0] == keyword;
+            } else if (item.get('firstname')){
+                return item.get('firstname').toUpperCase()[0] == keyword;
+            } else if (item.get('email')){
+                return item.get('email').toUpperCase()[0] == keyword;
+            }
+        });
+    },
+
     comparator: function(model) {
         var l = model.get('lastname');
         var f = model.get('firstname');

@@ -1,103 +1,90 @@
-var RenderNode = require('famous/render-node');
 var Surface = require('famous/surface');
-var View = require('famous/view');
 var Modifier = require('famous/modifier');
-var GenericSync = require('famous/input/generic-sync');
-var MouseSync = require('famous/input/mouse-sync');
-var TouchSync = require('famous/input/touch-sync');
 var Transform = require('famous/transform');
-var Easing = require('famous/transitions/easing');
-var Transitionable   = require('famous/transitions/transitionable');
-var WallTransition   = require('famous/transitions/wall-transition');
-var SpringTransition   = require('famous/transitions/spring-transition');
 var Engine = require('famous/engine');
-var Utility = require('famous/utilities/utility');
 
 var Templates = require('templates');
+var RowView = require('row-view');
 
-Transitionable.registerMethod('wall', WallTransition);
-Transitionable.registerMethod('spring', SpringTransition);
+function HeaderView(options){
+    RowView.call(this);
 
-function ItemHeaderView(options){
-    View.apply(this, arguments);
     this.model = options.model;
     this.options = {
-        buttonSizeY: 20,
+        collection: undefined,
         header: undefined,
+        buttonSizeY: 20,
         classes: [],
-        content: '',
-        size: [true, 20]
+        content: ''
     };
 
     this.setOptions(options);
-    this.collection=options.collection.lastnameInit(this.options.content);
-    this.containElements = this.collection.length != 0;
 
-    this.itemHeight = this.containElements? this.options.buttonSizeY : 1;
+    this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
 
+    this.setItemSize();
     this.setupSurfaces();
-
     this.events();
 
     window.hh=this;
 
 }
 
-ItemHeaderView.prototype = Object.create(View.prototype);
-ItemHeaderView.prototype.constructor = ItemHeaderView;
+HeaderView.prototype = Object.create(RowView.prototype);
+HeaderView.prototype.constructor = HeaderView;
 
-ItemHeaderView.prototype.setOptions = function(options){
+HeaderView.prototype.setOptions = function(options){
     _.extend(this.options, options);
 };
 
-ItemHeaderView.prototype.setupSurfaces = function(){
-    this.surfaces = new RenderNode ();
-    this.surfacesMod = new Modifier();
+HeaderView.prototype.setupSurfaces = function(){
+    this.headerMod = new Modifier();
     this.headerSurface = new Surface({
         classes: this.options.classes,
-        content: this.options.content,
-        size: [true, this.itemHeight],
+        size: this.options.size,
         properties:{
             backgroundColor: "black",
             color: "white"
         }
     });
-    this.headerMod = new Modifier();
+    this.setContent();
     this.headerSurface.pipe(this.eventOutput);
     this.surfaces.link(this.headerMod).link(this.headerSurface);
-    this.node.link(this.surfacesMod).link(this.surfaces);
 };
 
-ItemHeaderView.prototype.resizeItem = function(){
+HeaderView.prototype.setContent = function (){
+    if (this.containElements) {
+        this.headerSurface.setContent(this.options.content);
+    }
+};
+
+HeaderView.prototype.setItemSize = function (){
+    this.itemHeight = this.containElements? this.options.buttonSizeY : 1;
+    this.options.size = [true, this.itemHeight];
+    console.log(this.options.size);
+};
+
+HeaderView.prototype.resizeItem = function(){
     if (this.headerSurface._currTarget) this.headerSurface._currTarget.children[0].style.width = window.innerWidth + 'px';
 };
 
-ItemHeaderView.prototype.collapse = function(callback) {
-    this.surfacesMod.setOpacity(0,{duration:600}, callback);
-};
+HeaderView.prototype.events = function() {
 
+    Engine.on('resize', this.resizeItem.bind(this));
 
-ItemHeaderView.prototype.expand = function(callback) {
-    this.surfacesMod.setOpacity(1,{duration:600}, callback);
-};
-
-ItemHeaderView.prototype.getSize = function() {
-    var sh = this.surfacesMod.opacityState.get();
-    return [this.options.size[0], Math.floor(this.options.size[1]*sh) || 1];
-};
-
-ItemHeaderView.prototype.events = function() {
-    this.collection.on('all', function(e, model, collection, options) {
-        if (this.containElements && this.collection.length == 0){
+    this.options.collection.on('all', function(e, model, collection, options) {
+        this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
+        if (this.containElements && this.options.collection.length == 0){
             this.containElements = false;
             this.collapse();
         }
-        if (!!this.containElements && this.collection.length != 1){
+        if (!!this.containElements && this.options.collection.length != 1){
+            this.setContent();
             this.containElements = true;
             this.expand();
         }
     }.bind(this))
 };
 
-module.exports = ItemHeaderView;
+module.exports = HeaderView;
 

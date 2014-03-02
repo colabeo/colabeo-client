@@ -9,6 +9,7 @@ var Transform          = require('famous/transform');
 var Surface            = require('famous/surface');
 
 var LightBox = require('light-box');
+var Templates    = require('templates');
 
 var ConversationCollection = require('models').ConversationCollection;
 var ConversationItemView   = require('conversation-item-view');
@@ -51,7 +52,7 @@ function ConversationView() {
     this.inputSurface = new Surface({
         size:[undefined, this.headerFooterLayout.footerSize],
         classes: ['conversation-input-bar'],
-        content: '<div><button class="fa fa-comments-o menu-toggle-button fade"></button><button class="fa fa-phone menu-end-button"></button><input type = "text"  class="input-msg" name="message"><button class="send-text-button">Send</button></div>',
+        content: Templates.conversationInputBar(),
         properties:{
             backgroundColor: '#000',
             opacity: 0.9,
@@ -107,7 +108,7 @@ function ConversationView() {
             this.toggleMenuToggleButton();
         } else if (target.hasClass("menu-end-button")) {
             this.eventOutput.emit('end-call',$('.someRandomNull'));
-        } else if ($('input')[0].tagName == 'INPUT') {
+        } else if (target.hasClass("input-msg")) {
             this.setConversationOn();
         }
     }.bind(this));
@@ -118,13 +119,14 @@ function ConversationView() {
         }
     }.bind(this));
 
-//        window.scrollview = this.scrollview;
+        window.scrollview = this.scrollview;
 //        window.con = this;
     var resizeTimeout;
     var onResize = function() {
         if (!this.scrollview) return;
         // just in case horizontal resize from wide to narrow
-        if (!Utils.isMobile()) this.scrollview.setVelocity(-99);
+//        if (!Utils.isMobile())
+            this.scrollview.setVelocity(-99);
         this.loadMsg();
     }
 //        Engine.on('resize', onResize.bind(this));
@@ -172,10 +174,9 @@ ConversationView.prototype.loadMsg = function (){
 };
 
 ConversationView.prototype.addChat = function(){
-    if (document.getElementsByClassName('input-msg')[0].value == "") return;
     var message= document.getElementsByClassName('input-msg')[0].value;
+    if (!message) return;
     document.getElementsByClassName('input-msg')[0].value = "";
-
     // TODO: this is for testing
 //        this.inputSourceLocal = !this.inputSourceLocal;
     if (this.inputSourceLocal) this.addLocal(message);
@@ -214,7 +215,6 @@ ConversationView.prototype.makeEmptySurface = function (screenHeight){
             size: [undefined, screenHeight/10],
             properties:{
             background: "transparent"
-                // TODO: TEST
 //                    background: "yellow"
             }
         });

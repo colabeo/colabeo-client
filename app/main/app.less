@@ -51,6 +51,13 @@
   src: local('Oleo Script'), local('OleoScript-Regular'), url(http://themes.googleusercontent.com/static/fonts/oleoscript/v3/_weQNDK6Uf40CiGFKBBUjrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
 }
 
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+}
+
 body {
   font-family: open_sansregular, sans-serif;
   color: @text-color;
@@ -1201,6 +1208,9 @@ input {
   box-sizing: border-box;
   margin: 7px 0px;
   -webkit-transition: border-left 0.3s;
+  resize: none;
+  border-top: none;
+  border-bottom: none;
 }
 
 .conversation-input-bar .input-msg.short{

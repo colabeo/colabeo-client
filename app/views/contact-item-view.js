@@ -5,6 +5,7 @@ var ItemView = RowView.ItemView;
 function ContactItemView(options, isFirst) {
 
     this.model = options.model;
+    options.paddingRight = 40;
 
     options.leftButtons =[{
         content: Templates.crossButton(),
@@ -18,8 +19,8 @@ function ContactItemView(options, isFirst) {
         event: 'outgoingCall'
     };
     options.itemButton = {
-        classes: ['contact-item', 'favorite-item', 'recent-item', 'editable'],
-        content: Templates.favoriteItemView(options.model),
+        classes: ['contact-item', 'editable'],
+        content: Templates.contactItemView(options.model),
         event: 'editContact'
     };
 

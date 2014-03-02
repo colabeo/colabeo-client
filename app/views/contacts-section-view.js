@@ -1,6 +1,5 @@
 // import famous modules
 var View               = require('famous/view');
-var Scrollview         = require('famous/views/scrollview');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Utility            = require('famous/utilities/utility');
 var Modifier           = require('famous/modifier');
@@ -10,6 +9,8 @@ var Surface            = require('famous/surface');
 // import custom modules
 var TouchSync          = require('custom-touch-sync');
 // import views
+
+var VerticalScrollView       = require('vertical-scroll-view');
 var ContactItemView    = require('contact-item-view');
 
 function ContactsSection(options) {
@@ -62,9 +63,10 @@ function ContactsSection(options) {
     };
 
     this.collection = options.collection;
-    this.scrollview = new Scrollview({
+    this.scrollview = new VerticalScrollView({
         direction: Utility.Direction.Y,
         margin: 10000
+
     });
 
     this.headerFooterLayout.id.header.link(this.searchSurface);

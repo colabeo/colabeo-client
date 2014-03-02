@@ -146,7 +146,7 @@ module.exports = {
             marginLeft,
             'px; margin-right: ',
             marginRight,
-            '"></div>'
+            'px"></div>'
         ].join('');
     },
 

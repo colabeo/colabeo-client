@@ -221,6 +221,23 @@ module.exports = {
         ].join('');
     },
 
+    headerItemView: function(isFirst,marginLeft,marginRight){
+        var realWidth = window.innerWidth - marginLeft - marginRight;
+
+        return [
+            '<div class="header-view" style="width: ',
+            realWidth,
+            'px; margin-left: ',
+            marginLeft,
+            'px; margin-right: ',
+            marginRight,
+            'px">',
+            isFirst,
+            '</div>'
+        ].join('');
+    },
+
+
     editContactHeader: function(title) {
         return [
             '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>',

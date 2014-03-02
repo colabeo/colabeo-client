@@ -166,9 +166,6 @@ ItemView.prototype.setupSurfaces = function(){
     });
 
     this.surfaces.add(this.itemMod).link(this.itemSurface);
-
-    this.node.link(this.surfacesMod).link(this.surfaces)
-
 };
 
 ItemView.prototype.animateItem = function(){

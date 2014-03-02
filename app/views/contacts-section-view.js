@@ -24,7 +24,7 @@ function ContactsSection(options) {
     this.abcSurfaceHeight = undefined;
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
-    this.setupSurfaces(options);
+    this.setupLayout(options);
     this.collectionEvents();
     this.abcSurfaceEvents();
     this.searchSurfaceEvents();
@@ -34,7 +34,7 @@ function ContactsSection(options) {
 ContactsSection.prototype = Object.create(View.prototype);
 ContactsSection.prototype.constructor = ContactsSection;
 
-ContactsSection.prototype.setupSurfaces = function(options) {
+ContactsSection.prototype.setupLayout = function(options) {
     this.headerFooterLayout = new HeaderFooterLayout({
         headerSize: this.searchBarSize,
         footerSize: 0
@@ -93,6 +93,20 @@ ContactsSection.prototype.scrollTo = function(index, position) {
     this.scrollview.node.index = index;
     if (!position) position = 0;
     this.scrollview.setPosition(position);
+};
+
+ContactsSection.prototype.setupHeaderSurfaces = function() {
+    this.headerSequence = _.map(this.a2zString, function(i){
+        var headerSurface = new Surface({
+            size:[undefined,20],
+            content: ['<div class="contact-header">', i, '</div>'].join(''),
+            properties:{
+                backgroundColor: "grey"
+            }
+        });
+        headerSurface.pipe(this.scrollview);
+        return headerSurface;
+    }.bind(this));
 };
 
 ContactsSection.prototype.loadContacts = function(searchKey) {
@@ -193,8 +207,8 @@ ContactsSection.prototype.collectionEvents = function() {
             case 'remove':
                 this.curIndex = this.scrollview.getCurrentNode().index;
                 this.curPosition = this.scrollview.getPosition();
-                this.loadContacts();
-                this.scrollTo(this.curIndex,this.curPosition);
+                this.removeItemByIndex(options.index);
+//                this.scrollTo(this.curIndex,this.curPosition);
                 break;
     //                    this.removeContact(options.index);
     //                    break;
@@ -230,6 +244,9 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
     }.bind(this));
 };
 
+ContactsSection.prototype.removeItemByIndex = function(index) {
+    this.scrollview.removeByIndex(index);
+};
 
 ContactsSection.prototype.searchSurfaceEvents = function() {
     this.searchSurface.on('keyup', function(e){

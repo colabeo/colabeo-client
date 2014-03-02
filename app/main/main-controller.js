@@ -172,7 +172,7 @@ function MainController() {
         }
 
         function onDeleteContact (model) {
-            model.destroy();
+            model.collection.remove(model);
         }
 
         function onEditContactDone (formContact){

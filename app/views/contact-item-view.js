@@ -30,7 +30,6 @@ function ContactItemView(options, isFirst) {
         switch(e)
         {
             case 'change:favorite':
-                 console.log('change')
                 $(this['leftButton1']._currTarget).find('.favorite-button').toggleClass('active');
                 break;
         }

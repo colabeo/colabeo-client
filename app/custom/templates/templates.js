@@ -117,7 +117,6 @@ module.exports = {
         var html = ['<i class="favorite-button fa fa-star fa-2x'];
         if (active) html.push(' active');
         html.push('"></i>');
-        console.log(html);
         return html.join('');
     },
 

@@ -12,6 +12,8 @@ var TouchSync          = require('custom-touch-sync');
 
 var VerticalScrollView       = require('vertical-scroll-view');
 var ContactItemView    = require('contact-item-view');
+var RowView   = require('row-view');
+var HeaderView = RowView.HeaderView;
 
 function ContactsSection(options) {
 
@@ -22,7 +24,17 @@ function ContactsSection(options) {
     this.abcSurfaceHeight = undefined;
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
+    this.setupSurfaces(options);
+    this.collectionEvents();
+    this.abcSurfaceEvents();
+    this.searchSurfaceEvents();
+    this.events();
+}
 
+ContactsSection.prototype = Object.create(View.prototype);
+ContactsSection.prototype.constructor = ContactsSection;
+
+ContactsSection.prototype.setupSurfaces = function(options) {
     this.headerFooterLayout = new HeaderFooterLayout({
         headerSize: this.searchBarSize,
         footerSize: 0
@@ -54,8 +66,6 @@ function ContactsSection(options) {
         origin: [1.0, 0.0]
     });
 
-    // Set up navigation and title bar information
-//        this.title = '<button class="left import-contacts">Import</button><div>All Contacts</div><button class="right add-contact"><i class="fa fa-plus"></i></button>';
     this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
     this.navigation = {
         caption: 'Contacts',
@@ -75,78 +85,7 @@ function ContactsSection(options) {
 
     this.pipe(this.scrollview);
     this._add(this.headerFooterLayout);
-
-    // When Firebase returns the data switch out of the loading screen
-    this.collection.on('all', function(e, model, collection, options) {
-//            console.log(e);
-        switch(e)
-        {
-            case 'remove':
-                this.curIndex = this.scrollview.getCurrentNode().index;
-                this.curPosition = this.scrollview.getPosition();
-                this.loadContacts();
-                this.scrollTo(this.curIndex,this.curPosition);
-                break;
-//                    this.removeContact(options.index);
-//                    break;
-            case 'sync':
-                this.loadContacts();
-                break;
-
-        }
-    }.bind(this));
-
-    // abc-bar effect for laptop
-    this.abcSurface.on('mousemove', function(e){
-        this.onAbcTouch(e);
-    }.bind(this));
-
-    // abc-bar effect for cellphone
-    var mousePosition = [0,0];
-    var sync = new GenericSync(function(){
-        return mousePosition;
-    },{
-        syncClasses:[TouchSync]
-    });
-    this.abcSurface.pipe(sync);
-    sync.on('update',function(data){
-        var target = document.elementFromPoint(data.ap[0], data.ap[1]);
-        if (target.id == undefined || target.id =='' ) return;
-        var index = this.a2zString.indexOf(target.id);
-        index = this.a2zIndexArray[index];
-        if (index == undefined || index == this.curAbcIndex) return;
-        this.curAbcIndex = index;
-        this.scrollTo(index);
-
-    }.bind(this));
-
-//        this.abcSurface.on('touchmove', function(e){
-//            this.onAbcTouch(e);
-//        }.bind(this));
-//        this.abcSurface.on('mousedown',onAbcTouch.bind(this));
-//        this.abcSurface.on('mouseup',onAbcTouch.bind(this));
-//        this.abcSurface.on('touchstart',onAbcTouch.bind(this));
-//        this.abcSurface.on('touchmove',onAbcTouch.bind(this));
-//        this.abcSurface.on('touchend',onAbcTouch.bind(this));
-//        window.addEventListener('resize', onResize.bind(this), false);
-
-//        $('body').on('keyup', '.search-contact', function(e){
-//            this.loadContacts(e.target.value);
-//        }.bind(this));
-
-    this.searchSurface.on('keyup', function(e){
-        this.loadContacts(e.target.value);
-    }.bind(this));
-
-    function onResize(e) {
-        console.log('resize');
-        this.loadContacts();
-    }
-
-}
-
-ContactsSection.prototype = Object.create(View.prototype);
-ContactsSection.prototype.constructor = ContactsSection;
+};
 
 ContactsSection.prototype.scrollTo = function(index, position) {
     if (index<0) return;
@@ -161,7 +100,6 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
     else this.currentCollection = this.collection;
     this.firstChar = undefined;
     this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
-    this.currentCollection;
 
     var sequence = this.currentCollection.map(function(item) {
         return this.getIndex(item);
@@ -188,14 +126,14 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
         emptySurface.pipe(this.eventOutput);
 
         if (this.collection.length == 0) {
-            var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>'
+            var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>';
             emptySurface.setContent(firstAdd);
             emptySurface.on('click',function(e){
                 if ($(e.target).hasClass('fa-plus'))
                     this.eventOutput.emit('editContact');
             }.bind(this))
         } else if (this.currentCollection.length == 0) {
-            var noMatch = '<div class="no-match-found"><div> No match found</div></div>'
+            var noMatch = '<div class="no-match-found"><div> No match found</div></div>';
             emptySurface.setContent(noMatch);
         }
     }
@@ -213,8 +151,7 @@ ContactsSection.prototype.removeContact = function(index) {
 };
 
 ContactsSection.prototype.getCurrentIndex = function (item){
-    var index = this.currentCollection.indexOf(item);
-    this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = index;
+    this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = this.currentCollection.indexOf(item);
 };
 
 ContactsSection.prototype.getIndex = function (item){
@@ -245,6 +182,65 @@ ContactsSection.prototype.onAbcTouch = function(e) {
     if (index == undefined || index == this.curAbcIndex) return;
     this.curAbcIndex = index;
     this.scrollTo(index);
+};
+
+ContactsSection.prototype.collectionEvents = function() {
+    // When Firebase returns the data switch out of the loading screen
+    this.collection.on('all', function(e, model, collection, options) {
+    //            console.log(e);
+        switch(e)
+        {
+            case 'remove':
+                this.curIndex = this.scrollview.getCurrentNode().index;
+                this.curPosition = this.scrollview.getPosition();
+                this.loadContacts();
+                this.scrollTo(this.curIndex,this.curPosition);
+                break;
+    //                    this.removeContact(options.index);
+    //                    break;
+            case 'sync':
+                this.loadContacts();
+                break;
+
+        }
+    }.bind(this));
+};
+
+ContactsSection.prototype.abcSurfaceEvents = function() {
+    // abc-bar effect for laptop
+    this.abcSurface.on('mousemove', function(e){
+        this.onAbcTouch(e);
+    }.bind(this));
+    // abc-bar effect for cellphone
+    var mousePosition = [0,0];
+    var sync = new GenericSync(function(){
+        return mousePosition;
+    },{
+        syncClasses:[TouchSync]
+    });
+    this.abcSurface.pipe(sync);
+    sync.on('update',function(data){
+        var target = document.elementFromPoint(data.ap[0], data.ap[1]);
+        if (target.id == undefined || target.id =='' ) return;
+        var index = this.a2zString.indexOf(target.id);
+        index = this.a2zIndexArray[index];
+        if (index == undefined || index == this.curAbcIndex) return;
+        this.curAbcIndex = index;
+        this.scrollTo(index);
+    }.bind(this));
+};
+
+
+ContactsSection.prototype.searchSurfaceEvents = function() {
+    this.searchSurface.on('keyup', function(e){
+        this.loadContacts(e.target.value);
+    }.bind(this));
+};
+
+ContactsSection.prototype.events = function() {
+    function onResize() {
+        this.loadContacts();
+    }
 };
 
 module.exports = ContactsSection;

@@ -108,17 +108,22 @@ ContactsSection.prototype.setupHeaderSurfaces = function() {
 };
 
 ContactsSection.prototype.loadContacts = function(searchKey) {
+    $('body').removeClass('editing');
 
-    this.setupHeaderSurfaces();
-
+    this.headerSequence = [];
+    console.log(searchKey)
     if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
-    else this.currentCollection = this.collection;
+    else this.currentCollection = this.collection.models;
+    if (searchKey == undefined || searchKey =='') this.setupHeaderSurfaces();
+
     this.firstChar = undefined;
     this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 
-    var sequence = this.currentCollection.map(function(item) {
-        return this.getIndex(item);
-    }.bind(this));
+    this.sequence = this.headerSequence;
+    for (var ii=0; ii<this.currentCollection.length;ii++){
+        var surface = this.createItem(this.currentCollection[ii], ii);
+        this.sequence.splice(surface[1],0,surface[0]);
+    }
 
     while (this.a2zIndexArray.indexOf(-1) != -1){
         this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
@@ -129,15 +134,15 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
 
     var lastGroupIndex = _.last(this.a2zIndexArray);
     var extraHeight = this.scrollview.getSize()[1] + 40;
-    for (var i = lastGroupIndex; i<sequence.length; i++) {
-        extraHeight -= sequence[i].getSize()[1];
+    for (var i = lastGroupIndex; i<this.sequence.length; i++) {
+        extraHeight -= this.sequence[i].getSize()[1];
     }
 
     if (extraHeight > 0) {
         var emptySurface = new Surface({
             size: [undefined, extraHeight]
         });
-        sequence.push(emptySurface);
+        this.sequence.push(emptySurface);
         emptySurface.pipe(this.eventOutput);
 
         if (this.collection.length == 0) {
@@ -153,31 +158,29 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
         }
     }
 
-    this.scrollview.sequenceFrom((sequence));
+    this.scrollview.sequenceFrom(this.sequence);
 };
 
-ContactsSection.prototype.getCurrentIndex = function (item){
-    this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = this.currentCollection.indexOf(item);
+ContactsSection.prototype.getCurrentIndex = function (item, index, isFirst){
+    var value = this.currentCollection.indexOf(item)+this.a2zString.indexOf(this.firstChar)+1;
+    if (isFirst) this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = value - 1;
+    return value;
 };
 
-ContactsSection.prototype.getIndex = function (item){
+ContactsSection.prototype.createItem = function (item, index){
     var isFirst = false;
-    if (!/^[a-zA-Z]+$/.test(item.get('lastname')[0])){
-        if (this.firstChar != "#"){
-            this.firstChar = "#";
-            isFirst = "#";
-            this.getCurrentIndex(item);
-        }
+    var initialChar = this.getInitialChar(item);
+    if (this.firstChar != initialChar) {
+        this.firstChar = initialChar;
+        isFirst = this.firstChar
     }
-    else if (item.get('lastname') && this.firstChar != item.get('lastname')[0].toUpperCase()) {
-        this.firstChar = item.get('lastname')[0].toUpperCase();
-        isFirst = this.firstChar;
-        this.getCurrentIndex(item);
-    }
+
+    var currIndex = this.getCurrentIndex(item, index, isFirst);
+
     var surface = new ContactItemView({model: item}, isFirst);
     surface.pipe(this.eventOutput);
     this.eventInput.pipe(surface);
-    return surface;
+    return [surface, currIndex];
 };
 
 ContactsSection.prototype.onAbcTouch = function(e) {
@@ -199,7 +202,7 @@ ContactsSection.prototype.collectionEvents = function() {
             case 'remove':
 //                this.curIndex = this.scrollview.getCurrentNode().index;
 //                this.curPosition = this.scrollview.getPosition();
-                this.removeItemByIndex(options.index);
+                this.removeItemByIndex(model, options.index);
 //                this.scrollTo(this.curIndex,this.curPosition);
                 break;
     //                    this.removeContact(options.index);
@@ -236,14 +239,29 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
     }.bind(this));
 };
 
-ContactsSection.prototype.removeItemByIndex = function(index) {
-    this.scrollview.removeByIndex(index);
+ContactsSection.prototype.removeItemByIndex = function(item, index) {
+    var indexInScrollview = index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
+    this.scrollview.removeByIndex(indexInScrollview);
 };
 
 ContactsSection.prototype.searchSurfaceEvents = function() {
     this.searchSurface.on('keyup', function(e){
         this.loadContacts(e.target.value);
     }.bind(this));
+};
+
+ContactsSection.prototype.getInitialChar = function(item){
+    if (item.get('lastname')) {
+        return isEnglish(item.get('lastname')) ? item.get('lastname')[0].toUpperCase() : '#';
+    } else if (item.get('firstname')){
+        return isEnglish(item.get('firstname')) ? item.get('firstname')[0].toUpperCase() : '#';
+    } else {
+        return isEnglish(item.get('email')) ? item.get('email')[0].toUpperCase() : '#';
+    }
+
+    function isEnglish (words){
+        return /^[a-zA-Z]+$/.test(words[0])
+    }
 };
 
 module.exports = ContactsSection;

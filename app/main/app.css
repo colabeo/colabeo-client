@@ -396,6 +396,10 @@ input {
   width: 210px;
 }
 /* contacts */
+.header-view {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding-left: 20px;
+}
 .contact-item .first-char {
   background-color: rgba(0, 0, 0, 0.5);
   line-height: 26px;

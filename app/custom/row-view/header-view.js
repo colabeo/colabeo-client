@@ -43,7 +43,6 @@ HeaderView.prototype.setupSurfaces = function(){
         classes: this.options.classes,
         size: this.options.size,
         properties:{
-            backgroundColor: "black",
             color: "white"
         }
     });
@@ -55,13 +54,14 @@ HeaderView.prototype.setupSurfaces = function(){
 HeaderView.prototype.setContent = function (){
     if (this.containElements) {
         this.headerSurface.setContent(this.options.content);
+    } else {
+        this.headerSurface.setContent(Templates.fateHeaderItemView(0,0));
     }
 };
 
 HeaderView.prototype.setItemSize = function (){
     this.itemHeight = this.containElements? this.options.buttonSizeY : 1;
     this.options.size = [true, this.itemHeight];
-    console.log(this.options.size);
 };
 
 HeaderView.prototype.resizeItem = function(){
@@ -73,12 +73,14 @@ HeaderView.prototype.events = function() {
     Engine.on('resize', this.resizeItem.bind(this));
 
     this.options.collection.on('all', function(e, model, collection, options) {
-        this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
-        if (this.containElements && this.options.collection.length == 0){
+//        this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
+//        console.log(this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length)
+        if (this.containElements && this.options.collection.lastnameInitial(this.options.header).length == 0){
+//            console.log('header collapse',this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length);
             this.containElements = false;
             this.collapse();
-        }
-        if (!!this.containElements && this.options.collection.length != 1){
+        } else if (!this.containElements && this.options.collection.lastnameInitial(this.options.header).length != 0){
+//            console.log('header expand',this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length);
             this.setContent();
             this.containElements = true;
             this.expand();

@@ -22,8 +22,9 @@ Scrollview.prototype.scrollToEnd = function() {
         if (d.getSize()[1]===true) return 100;
         return d.getSize()[1];
     });
-
-    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+    var sum = _.reduce(_(heightArray).last(lastNode-currNode + 1),function(memo,key){return memo + num;},0);
+    var totalPixelsToMove = sum - currPos - screenSize + 100;
+//    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
 
     // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
     var v = Math.max(2*totalPixelsToMove/200,0);

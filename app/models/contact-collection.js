@@ -26,14 +26,21 @@ module.exports = Backbone.Firebase.Collection.extend({
 
     lastnameInitial: function(keyword) {
         return this.filter(function(item){
+            var firstChar;
             if (item.get('lastname')){
-                return item.get('lastname').toUpperCase()[0] == keyword;
+                firstChar = isEnglish(item.get('lastname'))? item.get('lastname')[0].toUpperCase() : '#';
+                return firstChar == keyword;
             } else if (item.get('firstname')){
-                return item.get('firstname').toUpperCase()[0] == keyword;
+                firstChar = isEnglish(item.get('firstname'))? item.get('firstname')[0].toUpperCase() : '#';
+                return firstChar == keyword;
             } else if (item.get('email')){
-                return item.get('email').toUpperCase()[0] == keyword;
+                firstChar = isEnglish(item.get('email'))? item.get('email')[0].toUpperCase() : '#';
+                return firstChar == keyword;
             }
         });
+        function isEnglish (words){
+            return /^[a-zA-Z]+$/.test(words[0])
+        }
     },
 
     comparator: function(model) {

@@ -237,6 +237,19 @@ module.exports = {
         ].join('');
     },
 
+    fateHeaderItemView: function(marginLeft,marginRight){
+        var realWidth = window.innerWidth - marginLeft - marginRight;
+
+        return [
+            '<div class="header-view" style="width: ',
+            realWidth,
+            'px; margin-left: ',
+            marginLeft,
+            'px; margin-right: ',
+            marginRight,
+            'px"></div>'
+        ].join('');
+    },
 
     editContactHeader: function(title) {
         return [

@@ -19,6 +19,7 @@
     "content/**/*.ico"
   ],
   "files": [
+    "content/audio/beep.mp3",
     "content/audio/calltone.mp3",
     "content/audio/ringtone.mp3"
   ],

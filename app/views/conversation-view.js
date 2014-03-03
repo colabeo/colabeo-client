@@ -7,6 +7,7 @@ var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Engine             = require('famous/engine');
 var Transform          = require('famous/transform');
 var Surface            = require('famous/surface');
+var SoundPlayer  = require('famous/audio/sound-player');
 
 var LightBox = require('light-box');
 var Templates    = require('templates');
@@ -18,6 +19,10 @@ var ConversationItemView   = require('conversation-item-view');
 function ConversationView() {
 
     View.call(this);
+
+    this.messageTone = new SoundPlayer([
+        'content/audio/beep.mp3'
+    ]);
 
     this.inputSourceLocal=true;
 
@@ -70,6 +75,7 @@ function ConversationView() {
         switch(e){
             case 'add':
                 this.addMsg(model);
+                this.messageTone.playSound(0, 0.3);
                 break;
         }
     }.bind(this));

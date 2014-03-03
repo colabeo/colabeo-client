@@ -272,5 +272,14 @@ module.exports = {
 
     favoriteHeader: function() {
         return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
+    },
+
+    conversationInputBar: function() {
+        return [
+            '<div><button class="fa fa-comments-o menu-toggle-button fade"></button>',
+            '<button class="fa fa-phone menu-end-button"></button>',
+            '<textarea class="input-msg" name="message"></textarea>',
+            '<button class="send-text-button">Send</button></div>'
+        ].join('');
     }
 };

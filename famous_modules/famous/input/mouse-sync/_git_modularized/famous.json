@@ -1,0 +1,18 @@
+{
+    "name": "famous/input/mouse-sync",
+    "namespace": "famous/input",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-sync.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

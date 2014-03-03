@@ -1,0 +1,21 @@
+{
+    "name": "famous/transitions/wall-transition",
+    "namespace": "famous/transitions",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/physics/engine": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/forces/spring": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/physics/constraints/wall": "git+ssh://git@github.com:Famous/famous-physics.git#modularized",
+        "famous/math/vector": "git+ssh://git@github.com:Famous/math.git#modularized"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

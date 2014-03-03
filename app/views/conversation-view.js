@@ -10,34 +10,10 @@ var Surface            = require('famous/surface');
 
 var LightBox = require('light-box');
 var Templates    = require('templates');
+var VerticalScrollView       = require('vertical-scroll-view');
 
 var ConversationCollection = require('models').ConversationCollection;
 var ConversationItemView   = require('conversation-item-view');
-
-Scrollview.prototype.scrollToEnd = function() {
-    var lastNode = this.node.array.length-1;
-    var currNode = this.node.index;
-    var screenSize = this.getSize()[1];
-    var currPos = this.getPosition();
-    var heightArray = this.node.array.map(function(d){
-        if (d.getSize()[1]===true) return 100;
-        return d.getSize()[1];
-    });
-    var sum = _.reduce(_(heightArray).last(lastNode-currNode + 1),function(memo,num){return memo + num;},0);
-    var totalPixelsToMove = sum - currPos - screenSize + 100;
-//    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
-
-    // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
-    var v = Math.max(2*totalPixelsToMove/200,0);
-    // TODO: hack, so it will never onEdge when scrollToEnd
-    var pos = this.getPosition();
-    if (this._onEdge==-1) {
-        this.setPosition(pos+20);
-    } else if (this._onEdge==1) {
-        this.setPosition(pos-20);
-    }
-    Engine.defer(function(){this.setVelocity(v)}.bind(this));
-};
 
 function ConversationView() {
 
@@ -77,7 +53,8 @@ function ConversationView() {
     });
 
     this.collection = new ConversationCollection();
-    this.scrollview = new Scrollview({
+    this.scrollview = new VerticalScrollView({
+        startAt:'bottom',
         direction: Utility.Direction.Y
     });
 
@@ -87,11 +64,6 @@ function ConversationView() {
     this.pipe(this.scrollview);
     this._add(this.headerFooterLayout);
 
-    this.emptyViews = this.makeEmptySurface(this.scrollview.getSize()[1]);
-
-    this.scrollview.sequenceFrom(this.emptyViews);
-    this.scrollview.scrollToEnd();
-    // init empty surface
     this.loadMsg();
 
     this.collection.on('all', function(e,model,collection,options){
@@ -120,8 +92,8 @@ function ConversationView() {
         }
     }.bind(this));
 
-        window.scrollview = this.scrollview;
-//        window.con = this;
+//        window.scrollview = this.scrollview;
+        window.con = this;
     var resizeTimeout;
     var onResize = function() {
         if (!this.scrollview) return;
@@ -152,12 +124,11 @@ ConversationView.prototype.start = function(){
 ConversationView.prototype.addMsg = function (model){
     var surface = new ConversationItemView({model: model});
     surface.pipe(this.eventOutput);
-    this.scrollview.node.push(surface);
+    this.scrollview.push(surface);
 //        this.scrollview.node.splice(this.scrollview.node.array.length-1, 0, surface);
 
 //        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
-//        setTimeout(this.emptySurfaceResize.bind(this), 100);
 };
 
 ConversationView.prototype.loadMsg = function (){
@@ -166,12 +137,9 @@ ConversationView.prototype.loadMsg = function (){
         surface.pipe(this.eventOutput);
         return surface;
     }.bind(this));
-    sequence = this.emptyViews.concat(sequence);
     this.scrollview.sequenceFrom(sequence);
 
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
-//        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
-//        if (!Utils.isMobile()) setTimeout(function(){ this.emptySurfaceResize();}.bind(this),300);
 };
 
 ConversationView.prototype.addChat = function(){
@@ -206,46 +174,6 @@ ConversationView.prototype.addLocal = function(message){
     this.collection.add(newMsg);
     this.setConversationOn();
     this.eventOutput.emit('outgoingChat', newMsg);
-};
-
-ConversationView.prototype.makeEmptySurface = function (screenHeight){
-    var views = [];
-    for (var i = 0; i< 10; i++) {
-        var emptyView = new View({})
-        var emptySurface = new Surface({
-            size: [undefined, screenHeight/10],
-            properties:{
-            background: "transparent"
-//                    background: "yellow"
-            }
-        });
-        emptySurface.pipe(this.eventOutput);
-        emptyView._link(emptySurface);
-        views.push(emptyView);
-    }
-    return views;
-};
-
-ConversationView.prototype.emptySurfaceResize = function (){
-    var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
-    heightArray.shift();
-    var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);
-    var height = this.scrollview.getSize()[1] - totalHeight;
-    if (height < 0) height = 0;
-    // make sure the content is at less 1px longer than the scrollview
-//        this.emptySurface.setSize([undefined, height]);
-    this.emptyViews = this.makeEmptySurface(height);
-};
-
-ConversationView.prototype.emptySurfaceResize1 = function (){
-    var heightArray = this.scrollview.node.array.map(function(item){return item.getSize()[1]});
-    heightArray.pop();
-    var totalHeight = _.reduce(heightArray,function(memo,num){return memo + num}, 0);
-    var height = this.scrollview.getSize()[1] - totalHeight;
-    if (height < 0) height = 0;
-    // make sure the content is at less 1px longer than the scrollview
-    height ++;
-    this.emptySurface.setSize([undefined, height]);
 };
 
 ConversationView.prototype.toggleMenuToggleButton = function (){

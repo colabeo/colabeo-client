@@ -26,7 +26,7 @@ VerticalScrollView.prototype.setOptions = function (options){
 VerticalScrollView.prototype.prepareEmptySurface = function(){
     this.emptySurface = new Surface({
         properties: {
-//            backgroundColor: 'yellow'
+            backgroundColor: 'transparent'
         },
         size:[undefined, 0]
     });
@@ -56,13 +56,16 @@ VerticalScrollView.prototype.sequenceFrom = function(node){
     }
     // TODO: this.sequence need garbage collection
     Object.getPrototypeOf (VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
-    Engine.defer( function() {
-        this.emptySurfaceResize();
-    }.bind(this));
+    this.emptySurfaceResize();
 };
 
-VerticalScrollView.prototype.emptySurfaceResize = function (){
+VerticalScrollView.prototype.emptySurfaceResize = function (msg){
+    console.log(msg)
     if (this.emptySurface) {
+//        Engine.defer( doResize.bind(this));
+        setTimeout(doResize.bind(this),300);
+    }
+    function doResize() {
         var extraHeight = this.getSize()[1];
         if (this.node) {
             var itemSequence = _.filter(this.node.array, function(i){return i instanceof Surface == false});
@@ -81,8 +84,8 @@ VerticalScrollView.prototype.emptySurfaceResize = function (){
 VerticalScrollView.prototype.scrollTo = function(index, position){
     if (!index) index = 0;
     if (!position) position = 0;
-    this.setPosition(position);
     this.node.index = index;
+    this.setPosition(position);
 };
 
 VerticalScrollView.prototype.removeByIndex = function(index) {
@@ -108,6 +111,45 @@ VerticalScrollView.prototype.addByIndex = function(index, item) {
     // reset position
     this.node.index = 0;
     this.emptySurfaceResize();
+};
+
+VerticalScrollView.prototype.push = function(item) {
+//  this will work for start at bottom only.
+    this.itemArray.push(item);
+    this.node.push(item);
+    // reset position
+//    this.node.index = 0;
+    this.emptySurfaceResize('push');
+};
+
+VerticalScrollView.prototype.scrollToEnd = function() {
+    var lastNode = this.node.array.length-1;
+    var currNode = this.node.index;
+    var screenSize = this.getSize()[1];
+    var currPos = this.getPosition();
+    var heightArray = this.node.array.map(function(d){
+        if (d.getSize()[1]===true) return 100;
+        return d.getSize()[1];
+    });
+    var sum = _.reduce(_(heightArray).last(lastNode-currNode + 1),function(memo,num){return memo + num;},0);
+    var totalPixelsToMove = sum - currPos - screenSize + 100;
+//    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+
+    // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
+    var v = Math.max(2*totalPixelsToMove/200,0);
+    // TODO: hack, so it will never onEdge when scrollToEnd
+    var pos = this.getPosition();
+    if (this._onEdge==-1) {
+        //TODO: set a high velocity to hack this.
+        if (this.emptySurface.getSize()[1]<=1) {
+            this.scrollTo(1,30);
+            v = 500;
+        }
+    } else if (this._onEdge==1) {
+        this.setPosition(pos-20);
+    }
+    console.log(v)
+    Engine.defer(function(){this.setVelocity(v)}.bind(this));
 };
 
 module.exports = VerticalScrollView;

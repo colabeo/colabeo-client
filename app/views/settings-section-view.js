@@ -3,8 +3,6 @@ var View             = require('famous/view');
 var Utility          = require('famous/utilities/utility');
 var Surface          = require('famous/surface');
 var Scrollview       = require('famous/views/scrollview');
-var Utils            = require('famous/utilities/utils');
-
 var Templates        = require('templates');
 
 // Todo: hack, need this for packaging
@@ -160,39 +158,7 @@ function SettingsSectionView(options) {
 SettingsSectionView.prototype = Object.create(View.prototype);
 SettingsSectionView.prototype.constructor = SettingsSectionView;
 SettingsSectionView.prototype.template = function() {
-    var html = '<div class="box">';
-    html += '<div class="info">' + this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
-    html += '<button class="logout-button">Log Out</button></div>';
-
-    html += '<div class="desc"></div>';
-    html += '<div class="info">ID: ' + this.appSettings.get('username') + "</div>";
-
-    html += '<div class="desc"></div>';
-    html += '<div class="info">Camera ';
-    html += Templates.toggleSwitch("camera", this.appSettings.get('camera')) + '</div>';
-    html += '<div class="info">Blur ';
-    html += Templates.toggleSwitch("blur", this.appSettings.get('blur')) + '</div>';
-    if (!Utils.isMobile()) {
-        html += '<div class="info">Notification ';
-        html += Templates.toggleSwitch("notification", this.appSettings.get('notification')) + '</div>';
-    }
-
-    html += '<div class="desc">YOU CAN BE REACHED AT</div>';
-    html += '<div class="info">Facebook ';
-    html += Templates.toggleSwitch("facebook", this.appSettings.get('linkAccounts').facebook) + '</div>';
-    html += '<div class="info">Google ';
-    html += Templates.toggleSwitch("google", this.appSettings.get('linkAccounts').google) + '</div>';
-    html += '<div class="info">Linkedin ';
-    html += Templates.toggleSwitch("linkedin", this.appSettings.get('linkAccounts').linkedin) + '</div>';
-    html += '<div class="info">Github ';
-    html += Templates.toggleSwitch("github", this.appSettings.get('linkAccounts').github) + '</div>';
-    html += '<div class="info">Yammer ';
-    html += Templates.toggleSwitch("yammer", this.appSettings.get('linkAccounts').yammer) + '</div>';
-
-//        html += '<div class="desc">Testing</div>';
-        html += '<div class="info"><button class="call-button">Call</button><button class="incoming-button">Incoming</button><button class="connected-button">Connected</button><button class="conversations-button">Message</button></div>';
-    html += '</div>';
-    this.surface.setContent(html);
+    this.surface.setContent(Templates.settingsPage(this.appSettings));
 };
 
 module.exports = SettingsSectionView;

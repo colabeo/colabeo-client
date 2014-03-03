@@ -138,18 +138,13 @@ VerticalScrollView.prototype.scrollToEnd = function() {
     // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
     var v = Math.max(2*totalPixelsToMove/200,0);
     // TODO: hack, so it will never onEdge when scrollToEnd
-    var pos = this.getPosition();
-    if (this._onEdge==-1) {
-        //TODO: set a high velocity to hack this.
-        if (this.emptySurface.getSize()[1]<=1) {
-            this.scrollTo(1,30);
-            v = 500;
-        }
-    } else if (this._onEdge==1) {
-        this.setPosition(pos-20);
+    if (this._onEdge==-1 && this.emptySurface.getSize()[1]<=1 && this._springAttached) {
+            this.scrollTo(1,0);
+            setTimeout(function(){this.setVelocity(v)}.bind(this), 300);
+    } else {
+        Engine.defer(function(){this.setVelocity(v)}.bind(this));
     }
-    console.log(v)
-    Engine.defer(function(){this.setVelocity(v)}.bind(this));
+//    console.log(v)
 };
 
 module.exports = VerticalScrollView;

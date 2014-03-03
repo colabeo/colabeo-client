@@ -226,8 +226,8 @@ function MainController() {
 
         function onIncomingCall(eventData) {
             if (this.appSettings.get('notification')) {
-                var myNotification = new Notify('Incoming Call From', {
-                    icon: 'famous-time/content/ios_icon_x144.png',
+                this.callNotification = new Notify('Incoming Call From', {
+                    icon: 'content/ios_icon_x144.png',
                     body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
                     notifyShow: onShowNotification.bind(this),
                     notifyClose: onCloseNotification.bind(this),
@@ -241,7 +241,7 @@ function MainController() {
                 function onClickNotification() {
                     parent.focus();
                 }
-                myNotification.show();
+                this.callNotification.show();
             }
 
             var curView = myLightbox.nodes[0].get();
@@ -500,6 +500,8 @@ MainController.prototype.setupCallListener = function() {
     function onIncomingCallEnd(call) {
         if (this.listenRef) this.listenRef.remove();
         this.exitRoom();
+        if (this.callNotification && this.callNotification.myNotify)
+            this.callNotification.myNotify.close();
     }
     function onIncomingCallAnswer(call) {
         if (call instanceof Call) {
@@ -513,6 +515,8 @@ MainController.prototype.setupCallListener = function() {
                 this.joinRoom(caller, callee, roomId);
             }
         }
+        if (this.callNotification && this.callNotification.myNotify)
+            this.callNotification.myNotify.close();
     }
     function onOutgoingCall(call) {
         this.callByContact(call);

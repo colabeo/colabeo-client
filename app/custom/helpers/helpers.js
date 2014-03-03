@@ -18,5 +18,8 @@ module.exports = {
             var days = ~~(difference/day);
             return days + "d ago";
         }
+    },
+    isDev: function(){
+        return window.location.host.indexOf('localhost')==0;
     }
 };

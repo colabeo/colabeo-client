@@ -1,4 +1,5 @@
 var Helpers        = require('helpers');
+var Utils            = require('famous/utilities/utils');
 
 module.exports = {
     toggleSwitch: function(id, checked, disabled) {
@@ -281,5 +282,48 @@ module.exports = {
             '<textarea class="input-msg" name="message"></textarea>',
             '<button class="send-text-button">Send</button></div>'
         ].join('');
+    },
+
+    settingsPage: function(appSettings) {
+        var html = [
+            '<div class="box">',
+            '<div class="info">' + appSettings.get('firstname') + " " + appSettings.get('lastname'),
+            '<button class="logout-button">Log Out</button></div>',
+            '<div class="desc"></div>',
+            '<div class="info">ID: ' + appSettings.get('username') + "</div>",
+            '<div class="desc"></div>',
+            '<div class="info">Camera ',
+            this.toggleSwitch("camera", appSettings.get('camera')) + '</div>',
+            '<div class="info">Blur ',
+            this.toggleSwitch("blur", appSettings.get('blur')) + '</div>'
+        ];
+        if (!Utils.isMobile()) {
+            html.push('<div class="info">Notification ');
+            html.push(this.toggleSwitch("notification", appSettings.get('notification')) + '</div>');
+        }
+        html = html.concat([
+            '<div class="desc">YOU CAN BE REACHED AT</div>',
+            '<div class="info">Facebook ',
+            this.toggleSwitch("facebook", appSettings.get('linkAccounts').facebook) + '</div>',
+            '<div class="info">Google ',
+            this.toggleSwitch("google", appSettings.get('linkAccounts').google) + '</div>',
+            '<div class="info">Linkedin ',
+            this.toggleSwitch("linkedin", appSettings.get('linkAccounts').linkedin) + '</div>',
+            '<div class="info">Github ',
+            this.toggleSwitch("github", appSettings.get('linkAccounts').github) + '</div>',
+            '<div class="info">Yammer ',
+            this.toggleSwitch("yammer", appSettings.get('linkAccounts').yammer) + '</div>'
+        ]);
+        if (Helpers.isDev()) {
+            html = html.concat([
+                '<div class="desc">Testing</div>',
+                '<div class="info"><button class="call-button">Call</button>',
+                '<button class="incoming-button">Incoming</button>',
+                '<button class="connected-button">Connected</button>',
+                '<button class="conversations-button">Message</button></div>',
+                '</div>'
+            ]);
+        }
+        return html.join('');
     }
 };

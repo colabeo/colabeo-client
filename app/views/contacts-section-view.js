@@ -111,7 +111,6 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
     $('body').removeClass('editing');
 
     this.headerSequence = [];
-    console.log(searchKey)
     if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
     else this.currentCollection = this.collection.models;
     if (searchKey == undefined || searchKey =='') this.setupHeaderSurfaces();
@@ -167,6 +166,18 @@ ContactsSection.prototype.getCurrentIndex = function (item, index, isFirst){
     return value;
 };
 
+ContactsSection.prototype.reIndex = function (item){
+    var firstChar = this.getInitialChar(item);
+    var index = this.a2zString.indexOf(firstChar);
+    for (var i = index+1; i<this.a2zIndexArray.length; i++){
+        this.a2zIndexArray[i] = this.a2zIndexArray[i] - 1
+    }
+};
+
+ContactsSection.prototype.getIndexInScrollview = function (item, index){
+    return index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
+};
+
 ContactsSection.prototype.createItem = function (item, index){
     var isFirst = false;
     var initialChar = this.getInitialChar(item);
@@ -200,13 +211,9 @@ ContactsSection.prototype.collectionEvents = function() {
         switch(e)
         {
             case 'remove':
-//                this.curIndex = this.scrollview.getCurrentNode().index;
-//                this.curPosition = this.scrollview.getPosition();
                 this.removeItemByIndex(model, options.index);
-//                this.scrollTo(this.curIndex,this.curPosition);
+                this.reIndex(model);
                 break;
-    //                    this.removeContact(options.index);
-    //                    break;
             case 'sync':
                 this.loadContacts();
                 break;
@@ -240,7 +247,7 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
 };
 
 ContactsSection.prototype.removeItemByIndex = function(item, index) {
-    var indexInScrollview = index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
+    var indexInScrollview = this.getIndexInScrollview(item,index);
     this.scrollview.removeByIndex(indexInScrollview);
 };
 

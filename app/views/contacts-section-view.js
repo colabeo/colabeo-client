@@ -5,10 +5,12 @@ var Utility            = require('famous/utilities/utility');
 var Modifier           = require('famous/modifier');
 var GenericSync        = require('famous/input/generic-sync');
 var Surface            = require('famous/surface');
+var Easing = require('famous/transitions/easing');
 
 // import custom modules
 var TouchSync          = require('custom-touch-sync');
 var Templates          = require('templates');
+var Transform = require('famous/transform');
 
 // import views
 var VerticalScrollView       = require('vertical-scroll-view');
@@ -25,6 +27,7 @@ function ContactsSection(options) {
     this.abcSurfaceHeight = undefined;
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
+    window.cc = this;
     this.setupLayout(options);
     this.collectionEvents();
     this.abcSurfaceEvents();
@@ -39,6 +42,7 @@ ContactsSection.prototype.setupLayout = function(options) {
         headerSize: this.searchBarSize,
         footerSize: 0
     });
+    this.LayoutMod = new Modifier();
 
     this.searchSurface = new Surface({
         size: [undefined, this.searchBarSize],
@@ -48,9 +52,16 @@ ContactsSection.prototype.setupLayout = function(options) {
         properties:{
             backgroundColor: 'rgba(15,15,15,0.9)',
             color: 'white',
-            zIndex:2
+            zIndex: 10
         }
     });
+    this.searchSurfaceMod = new Modifier({
+        transform:Transform.translate(0,0,3)
+    });
+    this.searhBarTransition = {
+        'curve' : Easing.linearNorm,
+        'duration' : 300
+    };
 
     this.abcSurface = new Surface({
         size: [this.abcSurfaceWidth, this.abcSurfaceHeight],
@@ -61,7 +72,7 @@ ContactsSection.prototype.setupLayout = function(options) {
             zIndex:2
         }
     });
-
+    this.eventInput.pipe(this.searchSurface);
     this.abcMod = new Modifier({
         origin: [1.0, 0.0]
     });
@@ -79,12 +90,12 @@ ContactsSection.prototype.setupLayout = function(options) {
 
     });
 
-    this.headerFooterLayout.id.header.link(this.searchSurface);
+    this.headerFooterLayout.id.header.link(this.searchSurfaceMod).link(this.searchSurface);
     this.headerFooterLayout.id.content.add(this.scrollview);
     this.headerFooterLayout.id.content.add(this.abcMod).link(this.abcSurface);
 
     this.pipe(this.scrollview);
-    this._add(this.headerFooterLayout);
+    this._add(this.LayoutMod).link(this.headerFooterLayout);
 };
 
 ContactsSection.prototype.scrollTo = function(index, position) {
@@ -130,32 +141,32 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
 
     // added empty item
     // media access bar messed up the height so add 40
-
-    var lastGroupIndex = _.last(this.a2zIndexArray);
-    var extraHeight = this.scrollview.getSize()[1] + 40;
-    for (var i = lastGroupIndex; i<this.sequence.length; i++) {
-        extraHeight -= this.sequence[i].getSize()[1];
-    }
-
-    if (extraHeight > 0) {
-        var emptySurface = new Surface({
-            size: [undefined, extraHeight]
-        });
-        this.sequence.push(emptySurface);
-        emptySurface.pipe(this.eventOutput);
-
-        if (this.collection.length == 0) {
-            var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>';
-            emptySurface.setContent(firstAdd);
-            emptySurface.on('click',function(e){
-                if ($(e.target).hasClass('fa-plus'))
-                    this.eventOutput.emit('editContact');
-            }.bind(this))
-        } else if (this.currentCollection.length == 0) {
-            var noMatch = '<div class="no-match-found"><div> No match found</div></div>';
-            emptySurface.setContent(noMatch);
-        }
-    }
+//
+//    var lastGroupIndex = _.last(this.a2zIndexArray);
+//    var extraHeight = this.scrollview.getSize()[1] + 40;
+//    for (var i = lastGroupIndex; i<this.sequence.length; i++) {
+//        extraHeight -= this.sequence[i].getSize()[1];
+//    }
+//
+//    if (extraHeight > 0) {
+//        var emptySurface = new Surface({
+//            size: [undefined, extraHeight]
+//        });
+//        this.sequence.push(emptySurface);
+//        emptySurface.pipe(this.eventOutput);
+//
+//        if (this.collection.length == 0) {
+//            var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact</div></div>';
+//            emptySurface.setContent(firstAdd);
+//            emptySurface.on('click',function(e){
+//                if ($(e.target).hasClass('fa-plus'))
+//                    this.eventOutput.emit('editContact');
+//            }.bind(this))
+//        } else if (this.currentCollection.length == 0) {
+//            var noMatch = '<div class="no-match-found"><div> No match found</div></div>';
+//            emptySurface.setContent(noMatch);
+//        }
+//    }
 
     this.scrollview.sequenceFrom(this.sequence);
 };
@@ -207,13 +218,14 @@ ContactsSection.prototype.onAbcTouch = function(e) {
 ContactsSection.prototype.collectionEvents = function() {
     // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
-    //            console.log(e);
+        console.log(e, model, collection, options);
         switch(e)
         {
             case 'remove':
                 this.removeItemByIndex(model, options.index);
                 this.reIndex(model);
                 break;
+//            case 'change':
             case 'sync':
                 this.loadContacts();
                 break;
@@ -252,6 +264,8 @@ ContactsSection.prototype.removeItemByIndex = function(item, index) {
 };
 
 ContactsSection.prototype.searchSurfaceEvents = function() {
+    this.eventInput.on('searchOnFocus', this.searchOnFocus.bind(this));
+    this.eventInput.on('searchOnBlur', this.searchOnBlur.bind(this));
     this.searchSurface.on('keyup', function(e){
         this.loadContacts(e.target.value);
     }.bind(this));
@@ -269,6 +283,16 @@ ContactsSection.prototype.getInitialChar = function(item){
     function isEnglish (words){
         return /^[a-zA-Z]+$/.test(words[0])
     }
+};
+
+ContactsSection.prototype.searchOnFocus = function(){
+    console.log('on')
+    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition)
+};
+ContactsSection.prototype.searchOnBlur = function(){
+    console.log('off')
+
+    this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
 };
 
 module.exports = ContactsSection;

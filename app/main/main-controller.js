@@ -326,6 +326,7 @@ function MainController() {
                 if (this._input) {
                     $(this._input).blur();
                     this._input = null;
+                    this.eventInput.emit('searchOnBlur');
                 }
             }
         }
@@ -349,7 +350,10 @@ function MainController() {
         // fastclick hack
         $('body').on('click', 'input', function(e) {
             $(e.target).focus();
-        });
+            if(Utils.isMobile()){
+                this.eventInput.emit('searchOnFocus');
+            }
+        }.bind(this));
 
         this.init();
 

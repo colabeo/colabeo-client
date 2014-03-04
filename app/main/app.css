@@ -455,6 +455,8 @@ input {
   padding: 10px;
   font-size: 20px;
   line-height: 30px;
+  -webkit-transition: padding 0.3s;
+  -o-transition: padding 0.3s;
 }
 .contact-section-search-bar div {
   border-radius: 5px;
@@ -468,6 +470,19 @@ input {
 .contact-section-search-bar div input.search-contact {
   font-size: 18px;
   width: 90%;
+  z-index: 2;
+}
+.contact-section-search-bar div span {
+  opacity: 0;
+  color: #3398cd;
+  position: absolute;
+  right: 10px;
+  line-height: 27px;
+  padding-right: 10px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-transition: opacity 0.3s;
+  -o-transition: opacity 0.3s;
 }
 .contact-icon {
   float: right;

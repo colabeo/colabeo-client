@@ -48,7 +48,7 @@ ContactsSection.prototype.setupLayout = function(options) {
         size: [undefined, this.searchBarSize],
         classes: ['contact-section-search-bar'],
         content: '<div><i class="fa fa-search"></i>   ' +
-            '<input type="text" class="search-contact" placeholder = "Search" ></div></div>',
+            '<input type="text" class="search-contact" placeholder = "Search" ><span>cancel</span></input></div></div>',
         properties:{
             backgroundColor: 'rgba(15,15,15,0.9)',
             color: 'white',
@@ -59,7 +59,7 @@ ContactsSection.prototype.setupLayout = function(options) {
         transform:Transform.translate(0,0,3)
     });
     this.searhBarTransition = {
-        'curve' : Easing.linearNorm,
+//        'curve' : Easing.linearNorm,
         'duration' : 300
     };
 
@@ -218,7 +218,6 @@ ContactsSection.prototype.onAbcTouch = function(e) {
 ContactsSection.prototype.collectionEvents = function() {
     // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
-        console.log(e, model, collection, options);
         switch(e)
         {
             case 'remove':
@@ -286,13 +285,14 @@ ContactsSection.prototype.getInitialChar = function(item){
 };
 
 ContactsSection.prototype.searchOnFocus = function(){
-    console.log('on')
-    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition)
+    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
+    this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
+    this.searchSurface._currTarget.style.paddingRight = "100px";
 };
 ContactsSection.prototype.searchOnBlur = function(){
-    console.log('off')
-
     this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
+    this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
+    this.searchSurface._currTarget.style.paddingRight = "10px";
 };
 
 module.exports = ContactsSection;

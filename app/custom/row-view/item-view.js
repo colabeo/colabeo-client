@@ -105,7 +105,7 @@ ItemView.prototype.setupEvent = function(){
         } else {
             this.setEditingOff();
         }
-        if (this.pos[0] < -0.5 * window.innerWidth) {
+        if (this.pos[0] < -0.33 * window.innerWidth) {
             this.eventOutput.emit(this.options.rightButton.event, this.model);
             this.setEditingOff();
         }

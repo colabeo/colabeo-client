@@ -350,9 +350,9 @@ function MainController() {
         // fastclick hack
         $('body').on('click', 'input', function(e) {
             $(e.target).focus();
-            if(Utils.isMobile()){
+//            if(Utils.isMobile()){
                 this.eventInput.emit('searchOnFocus');
-            }
+//            }
         }.bind(this));
 
         this.init();

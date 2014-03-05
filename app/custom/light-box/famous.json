@@ -1,10 +1,10 @@
 {
   "name": "light-box",
   "dependencies": {
-    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
   },
   "main": "light-box.js",
   "scripts": [

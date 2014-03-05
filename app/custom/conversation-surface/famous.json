@@ -3,7 +3,7 @@
   "dependencies": {},
   "main": "conversation-surface.js",
   "dependencies": {
-    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master"
   },
   "scripts": [
     "conversation-surface.js"

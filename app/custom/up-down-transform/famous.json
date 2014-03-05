@@ -1,8 +1,8 @@
 {
   "name": "up-down-transform",
   "dependencies": {
-    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#modularized"
+    "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
   },
   "main": "up-down-transform.js",
   "scripts": [

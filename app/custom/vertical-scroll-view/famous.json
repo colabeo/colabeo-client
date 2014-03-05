@@ -1,11 +1,11 @@
 {
   "name": "vertical-scroll-view",
   "dependencies": {
-    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/view": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
-    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
-    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
+    "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/view": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#master",
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
   },
   "main": "vertical-scroll-view.js",
   "scripts": [

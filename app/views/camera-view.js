@@ -32,8 +32,8 @@ function CameraView(options) {
     });
     this._add(new Modifier({
         transform: Transform.translate(0,0,-5)
-    })).link(this.remoteVideoSurface);
-    this._add(this.transform).link(this.localVideoSurface);
+    })).add(this.remoteVideoSurface);
+    this._add(this.transform).add(this.localVideoSurface);
     this.turnOff();
 }
 

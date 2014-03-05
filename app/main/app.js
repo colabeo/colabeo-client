@@ -26,9 +26,9 @@ function App(options) {
     this.contentArea = new EdgeSwapper(this.options.content);
 
     // link endpoints of layout to widgets
-    this.layout.id['header'].link(this.header);
-    this.layout.id['footer'].link(Utility.transformInFront).link(this.navigation);
-    this.layout.id['content'].link(Utility.transformBehind).link(this.contentArea);
+    this.layout.id['header'].add(this.header);
+    this.layout.id['footer'].add(Utility.transformInFront).add(this.navigation);
+    this.layout.id['content'].add(Utility.transformBehind).add(this.contentArea);
 
     // assign received events to content area
     this.eventInput.pipe(this.contentArea);
@@ -133,7 +133,7 @@ App.prototype.initSections = function(sections) {
             title: item.title,
             navigation: item.navigation
         });
-        this.section(id).link(item);
+        this.section(id).add(item);
 
         if(item.pipe) {
             item.pipe(this.eventInput);

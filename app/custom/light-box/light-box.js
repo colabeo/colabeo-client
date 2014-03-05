@@ -74,7 +74,7 @@ LightBox.prototype.show = function(renderable, transition, callback) {
         origin: this.options.inOrigin
     });
     var node = new RenderNode();
-    node.link(transform).link(renderable);
+    node.add(transform).add(renderable);
     this.nodes.push(node);
     this.transforms.push(transform);
 

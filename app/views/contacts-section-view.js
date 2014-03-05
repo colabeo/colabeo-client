@@ -93,12 +93,12 @@ ContactsSection.prototype.setupLayout = function(options) {
 
     });
 
-    this.headerFooterLayout.id.header.link(this.searchSurfaceMod).link(this.searchSurface);
+    this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);
     this.headerFooterLayout.id.content.add(this.scrollview);
-    this.headerFooterLayout.id.content.add(this.abcMod).link(this.abcSurface);
+    this.headerFooterLayout.id.content.add(this.abcMod).add(this.abcSurface);
 
     this.pipe(this.scrollview);
-    this._add(this.LayoutMod).link(this.headerFooterLayout);
+    this._add(this.LayoutMod).add(this.headerFooterLayout);
 };
 
 ContactsSection.prototype.scrollTo = function(index, position) {

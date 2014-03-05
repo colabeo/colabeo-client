@@ -61,8 +61,8 @@ function AddContactView(options) {
         }
     });
 
-    this.headerFooterLayout.id.header.link(this.header);
-    this.headerFooterLayout.id.content.link(this.content);
+    this.headerFooterLayout.id.header.add(this.header);
+    this.headerFooterLayout.id.content.add(this.content);
 
     var edgeSwapper = new EdgeSwapper();
 

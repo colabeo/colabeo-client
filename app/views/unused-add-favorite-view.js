@@ -40,8 +40,8 @@ function AddFavoriteView(options) {
         }
     });
 
-    this.id.header.link(this.header);
-    this.id.content.link(this.content);
+    this.id.header.add(this.header);
+    this.id.content.add(this.content);
 
     this.content.on('click', function() {
 

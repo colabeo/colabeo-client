@@ -6,7 +6,7 @@ function RowView(options){
     View.apply(this, arguments);
     this.surfaces = new RenderNode ();
     this.surfacesMod = new Modifier();
-    this.node.link(this.surfacesMod).link(this.surfaces);
+    this.node.add(this.surfacesMod).add(this.surfaces);
 }
 
 RowView.prototype = Object.create(View.prototype);

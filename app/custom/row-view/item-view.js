@@ -138,7 +138,7 @@ ItemView.prototype.setupSurfaces = function(){
             transform:Transform.translate(this.options.paddingLeft + this.options.buttonSizeX * (i) ,0,0)
         });
         this['leftButton'+i].pipe(this.eventOutput);
-        this.surfaces.add(this['leftButton'+i+'Mod']).link(this['leftButton'+i]);
+        this.surfaces.add(this['leftButton'+i+'Mod']).add(this['leftButton'+i]);
     }.bind(this));
 
     this.rightButton = new Surface({
@@ -150,7 +150,7 @@ ItemView.prototype.setupSurfaces = function(){
         opacity: 0,
         transform: Transform.translate(-this.options.paddingRight,0,0)
     });
-    this.surfaces.add(this.rightButtonMod).link(this.rightButton);
+    this.surfaces.add(this.rightButtonMod).add(this.rightButton);
 
     this.itemSurface = new Surface({
         classes: this.options.itemButton.classes,
@@ -165,7 +165,7 @@ ItemView.prototype.setupSurfaces = function(){
         origin: this.options._leftEndOrigin
     });
 
-    this.surfaces.add(this.itemMod).link(this.itemSurface);
+    this.surfaces.add(this.itemMod).add(this.itemSurface);
 };
 
 ItemView.prototype.updateItem = function(){

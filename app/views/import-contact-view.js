@@ -28,8 +28,8 @@ function ImportContactView(options){
         collection: this.collection
     });
 
-    this.id.header.link(this.header);
-    this.id.content.link(this.content);
+    this.id.header.add(this.header);
+    this.id.content.add(this.content);
 
     this.header.pipe(this.eventOutput);
     this.content.pipe(this.eventOutput);

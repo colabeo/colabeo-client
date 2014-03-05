@@ -48,7 +48,7 @@ HeaderView.prototype.setupSurfaces = function(){
     });
     this.setContent();
     this.headerSurface.pipe(this.eventOutput);
-    this.surfaces.link(this.headerMod).link(this.headerSurface);
+    this.surfaces.add(this.headerMod).add(this.headerSurface);
 };
 
 HeaderView.prototype.setContent = function (){

@@ -72,8 +72,8 @@ function ConversationView(appSettings, callee) {
         direction: Utility.Direction.Y
     });
 
-    this.headerFooterLayout.id.content.link(this.contentLightBox);
-    this.headerFooterLayout.id.footer.link(this.inputSurface);
+    this.headerFooterLayout.id.content.add(this.contentLightBox);
+    this.headerFooterLayout.id.footer.add(this.inputSurface);
 
     this.pipe(this.scrollview);
     this._add(this.headerFooterLayout);

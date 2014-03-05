@@ -66,9 +66,9 @@ function SocialView(options) {
         margin: 10000
     });
 
-    this.headerFooterLayout.id.header.link(this.searchSurface);
+    this.headerFooterLayout.id.header.add(this.searchSurface);
     this.headerFooterLayout.id.content.add(this.scrollview);
-    this.headerFooterLayout.id.content.add(this.abcMod).link(this.abcSurface);
+    this.headerFooterLayout.id.content.add(this.abcMod).add(this.abcSurface);
 
     this.pipe(this.scrollview);
     this._add(this.headerFooterLayout);

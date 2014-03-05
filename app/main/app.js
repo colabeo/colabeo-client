@@ -51,6 +51,7 @@ function App(options) {
     // respond to the the selection of a different section
     this.navigation.on('select', function(data) {
         this.eventOutput.emit('triggerBackToNoneEditing');
+        this.eventOutput.emit('updateRecent');
         $('body').removeClass('editing');
         this._currentSection = data.id;
         this.header.show(this._sectionTitles[data.id]);

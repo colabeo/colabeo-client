@@ -12,7 +12,8 @@ var LightBox = require('light-box');
 var Models            = require("models");
 var Contact           = Models.Contact;
 var Call              = Models.Call;
-var CallCollection    = Models.CallCollection;
+//var CallCollection    = Models.CallCollection;
+var RecentsCollection    = Models.RecentsCollection;
 var Settings          = Models.Settings;
 var ContactCollection = Models.ContactCollection;
 
@@ -74,9 +75,11 @@ function MainController() {
         this.appSettings = this.appSettings;
 
         this.contactCollection = new ContactCollection([], {
-            firebase: this.appSettings.get('userDatabaseUrl') + this.appSettings.get('cid')+'/contacts'
+            firebase: this.appSettings.get('firebaseUrl') + 'users/' + this.appSettings.get('cid')+'/contacts'
         });
-        this.recentCalls = new CallCollection();
+        this.recentCalls = new RecentsCollection([], {
+            firebase: this.appSettings.get('firebaseUrl') + 'history/' + this.appSettings.get('cid')+'/recents'
+        });
         this.curCall = new Call();
 
         // Set up views
@@ -144,10 +147,12 @@ function MainController() {
         this.eventOutput.on('connectedCall', onConnectedCall);
         this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
         this.eventOutput.on('editContact', onEditContact);
+        this.eventOutput.on('chatContact', onChatContact);
         this.eventOutput.on('showApp', onShowApp);
         this.eventOutput.on('chatOn', onChatOn);
         this.eventOutput.on('chatOff', onChatOff);
         this.eventOutput.on('loadRecent', onLoadRecent);
+        this.eventOutput.on('updateRecent', onUpdateRecent);
         this.eventOutput.on('clearRecent', onClearRecent);
         this.eventOutput.on('deleteRecent', onDeleteRecent);
         this.eventOutput.on('deleteContact', onDeleteContact);
@@ -168,7 +173,8 @@ function MainController() {
         }
 
         function onDeleteRecent (model) {
-            model.destroy();
+//            model.destroy();
+            model.collection.remove(model);
         }
 
         function onDeleteContact (model) {
@@ -183,6 +189,10 @@ function MainController() {
         function onAddContactDone (formContact){
 //                this.contactCollection.add(formContact);
 //                this.contactCollection.trigger('sync');
+        }
+
+        function onUpdateRecent (e){
+            recentsSection.updateItems();
         }
 
         function onLoadRecent (e){
@@ -202,16 +212,19 @@ function MainController() {
             myLightbox.show(myApp, true, callback);
         }
 
-        function onOutGoingCallAccept() {
-            outgoingCallView.accept();
+        function onOutGoingCallAccept(callee) {
+            outgoingCallView.accept(callee);
         }
 
         function onConnectedCall(eventData) {
             var callback;
+            var callee;
             if (eventData instanceof Function) {
                 callback = eventData;
+            } else {
+                callee = eventData
             }
-            connectedCallView.start(this.appSettings);
+            connectedCallView.start(this.appSettings, callee);
             myLightbox.show(connectedCallView, true, callback);
             this.eventOutput.emit('chatOn');
             if (!this.localStream){
@@ -248,7 +261,7 @@ function MainController() {
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
                 return;
             if (curView instanceof OutgoingCallView) {
-                outgoingCallView.accept();
+                outgoingCallView.accept(eventData.get('caller'));
                 this.eventOutput.emit('incomingCallAnswer', eventData);
             }
             else {
@@ -279,6 +292,19 @@ function MainController() {
             else addContactView.setContact(undefined);
             addContactView.renderContact();
             myLightbox.show(addContactView, true);
+        }
+
+        function onChatContact(eventData) {
+            if (eventData instanceof Contact || eventData instanceof Call) {
+                if (eventData.get('cid')) {
+                    chatById.bind(this)(eventData.get('cid'));
+                } else {
+                    this.lookup(eventData, chatById.bind(this));
+                }
+                function chatById(id) {
+                    this.eventOutput.emit('connectedCall', id);
+                }
+            }
         }
 
         function onChatOn() {
@@ -369,6 +395,8 @@ function MainController() {
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
+        window._cola_g = {};
+        _cola_g.cid = this.appSettings.get('cid');
 
 
     }.bind(this));
@@ -381,7 +409,7 @@ MainController.prototype.init = function() {
     this.disableNow = false;
     var userId = this.appSettings.get('cid');
     var userFullName = this.appSettings.get('firstname') + " " + this.appSettings.get('lastname');
-    this.listenRef = new Firebase(this.appSettings.get('callDatabaseUrl') + userId);
+    this.listenRef = new Firebase(this.appSettings.get('firebaseUrl') + 'calls/' + userId);
     // remove zombie call after disconnect
     this.listenRef.onDisconnect().remove();
 
@@ -421,6 +449,9 @@ MainController.prototype.init = function() {
 MainController.prototype.setupSettingsListener = function() {
     this.eventOutput.on('outgoingChat', function(evt) {
         this.sendChat(evt.content, evt.type);
+    }.bind(this));
+    this.eventOutput.on('sendChat', function(chat) {
+        this.sendChatById(chat.id, chat.message);
     }.bind(this));
     this.eventOutput.on('setCamera', function() {
         this.setCamera();
@@ -478,7 +509,7 @@ MainController.prototype.setupCallListener = function() {
         var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
         var e = snapshot.val().email;
         var p = snapshot.val().pictureUrl || false;
-        var c = snapshot.val()['name'];
+        var c = snapshot.val()['name'] == 'unknown' ? "" : snapshot.val()['name'];
         var r = snapshot.name();
         var call = new Call({
             firstname: f,
@@ -731,33 +762,39 @@ MainController.prototype.callByContact = function(data) {
         return;
     }
     if (data.get('cid')) {
-        this.callById(data.get('cid'), data.get('provider'));
+        this.callById(data.get('cid'));
     } else {
-        var query = [];
-        // TODO: add more providers here in the future
-        ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
-            if (data.get(provider)) {
-                query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
-            }
-        });
-        if (query.length) {
-            multipleLookup(query, function(result) {
-                if (result.length) {
-                    var callee = _.last(result);
-                    var cid;
-                    if (callee.user && callee.user.objectId) cid = callee.user.objectId;
-                    else if (callee.objectId) cid = callee.objectId;
-                    this.callById(cid, callee.provider);
-                }
-                else {
-                    this.setupChatroom(data, query);
-//                        alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
-                }
-            }.bind(this));
-        } else {
-            alert('This contact is empty.');
-        }
+        this.lookup(data, this.callById.bind(this));
+    }
+};
 
+MainController.prototype.lookup = function(data, callback) {
+    var query = [];
+    // TODO: add more providers here in the future
+    ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+        if (data.get(provider)) {
+            query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
+        }
+    });
+    if (query.length) {
+        multipleLookup(query, function(result) {
+            if (result.length) {
+                var callee = _.last(result);
+                var cid;
+                if (callee.user && callee.user.objectId) cid = callee.user.objectId;
+                else if (callee.objectId) cid = callee.objectId;
+                // This might not be good if the user's cid changes in the future
+                console.log(data);
+                data.set({cid: cid});
+                if (callback) callback(cid);
+            }
+            else {
+                this.setupChatroom(data, query);
+                alert('The user you are calling is not a beepe user. Invite him to beepe.me.');
+            }
+        }.bind(this));
+    } else {
+        alert('This contact is empty.');
     }
 };
 
@@ -779,7 +816,19 @@ MainController.prototype.callByContactSingle = function(data) {
 
 MainController.prototype.callById = function(id, provider) {
     if (!id) return;
-    this.callRef = new Firebase(this.appSettings.get('callDatabaseUrl') + id);
+    var recentsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + id +'/recents');
+    var newCall = {
+        firstname: this.appSettings.get('firstname'),
+        lastname: this.appSettings.get('lastname'),
+        email: this.appSettings.get('email'),
+        pictureUrl: false,
+        type: 'incoming',
+        time: Firebase.ServerValue.TIMESTAMP,
+        caller: this.appSettings.get('cid')
+    };
+    recentsRef.push(newCall);
+    delete recentsRef;
+    this.callRef = new Firebase(this.appSettings.get('firebaseUrl') + 'calls/' + id);
     // remove zombie call after disconnect
     this.callRef.onDisconnect().remove();
 
@@ -810,9 +859,7 @@ MainController.prototype.callById = function(id, provider) {
             var callee = id;
             var roomId = snapshot.name();
             this.startRoom(caller, callee, roomId);
-            this.eventOutput.emit('outGoingCallAccept', function(){
-
-            });
+            this.eventOutput.emit('outGoingCallAccept', callee);
         }
     }
     function onRemove(snapshot){
@@ -820,6 +867,21 @@ MainController.prototype.callById = function(id, provider) {
         this.exitRoom();
     }
 };
+
+MainController.prototype.sendChatById = function(id, message) {
+    if (!id) return;
+    var userId = this.appSettings.get('cid');
+    var toRef = new Firebase(this.appSettings.get('firebaseUrl') + 'chats/' + id + '/' + userId);
+    var fromRef = new Firebase(this.appSettings.get('firebaseUrl') + 'chats/' + userId + '/' + id);
+    var chatObj = {
+        content: message,
+        type: 'text',
+        from: userId,
+        time: Firebase.ServerValue.TIMESTAMP
+    }
+    toRef.push(chatObj);
+    fromRef.push(chatObj);
+}
 
 MainController.prototype.loadUser = function(done) {
     if (location.pathname == '/call') {

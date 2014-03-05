@@ -168,6 +168,10 @@ ItemView.prototype.setupSurfaces = function(){
     this.surfaces.add(this.itemMod).link(this.itemSurface);
 };
 
+ItemView.prototype.updateItem = function(){
+    this.itemSurface.setContent(Templates.recentItemView(this.model));
+};
+
 ItemView.prototype.animateItem = function(){
     this.itemMod.setTransform(Transform.translate(this.pos[0], 0, 0));
 };

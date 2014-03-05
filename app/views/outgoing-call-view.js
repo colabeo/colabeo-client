@@ -163,7 +163,7 @@ OutgoingCallView.prototype.start = function(eventData, appSettings) {
         firstname: data.firstname,
         lastname: data.lastname,
         email: data.email,
-        facebook: data.facebook,
+//        facebook: data.facebook,
         pictureUrl: false,
         type: 'outgoing',
         time: Date.now()
@@ -178,7 +178,7 @@ OutgoingCallView.prototype.stop = function(button) {
     this.on = false;
 
     if (button) {
-        this.model.save({
+        this.model.set({
             success: false
         });
         button.addClass('exiting');
@@ -196,18 +196,16 @@ OutgoingCallView.prototype.stop = function(button) {
     }
 };
 
-OutgoingCallView.prototype.accept = function() {
+OutgoingCallView.prototype.accept = function(callee) {
     this.on = false;
-    this.model.save({
+    this.model.set({
         success: true
     });
     this.stopCalltone();
     setTimeout(function() {
         this.footerLightBox.hide();
         this.headerLightBox.hide();
-        this.eventOutput.emit('connectedCall', function(){
-
-        });
+        this.eventOutput.emit('connectedCall', callee);
     }.bind(this), duration);
 };
 

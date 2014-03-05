@@ -21,7 +21,8 @@ function ContactItemView(options, isFirst) {
     options.itemButton = {
         classes: ['contact-item', 'editable'],
         content: Templates.contactItemView(options.model),
-        event: 'editContact'
+//        event: 'editContact'
+        event: 'chatContact'
     };
 
     ItemView.apply(this, arguments);

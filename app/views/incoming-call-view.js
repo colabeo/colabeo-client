@@ -145,19 +145,7 @@ IncomingCallView.prototype.start = function(eventData) {
         this.model = this.collection.models[0] || new Call();
         data = this.model.attributes;
     }
-    // TODO: use extend instead
-    var newCall = {
-        firstname: data.firstname,
-        lastname: data.lastname,
-        email: data.email,
-        facebook: data.facebook,
-        pictureUrl: false,
-        type: 'incoming',
-        time: Date.now(),
-        roomId: data.roomId,
-        caller: data.caller
-    };
-    this.collection.create(newCall);
+    this.model.set({roomId: data.roomId});
     this.startRingtone();
     $('.camera').removeClass('blur');
 }
@@ -167,7 +155,7 @@ IncomingCallView.prototype.stop = function() {
     if (!this.on) return;
     this.on = false;
     if (button) {
-        this.model.save({
+        this.model.set({
             success: false
         });
         button.addClass('exiting');
@@ -190,7 +178,7 @@ IncomingCallView.prototype.stop = function() {
 IncomingCallView.prototype.accept = function() {
     var button = $('.answer-button');
     this.on = false;
-    this.model.save({
+    this.model.set({
         success: true
     });
     if (button) button.addClass('exiting');
@@ -198,9 +186,10 @@ IncomingCallView.prototype.accept = function() {
     setTimeout(function() {
         this.footerLightBox.hide();
         this.headerLightBox.hide();
-        this.eventOutput.emit('connectedCall', function(){
+        setTimeout(function(){
             if (button) button.removeClass('exiting');
-        });
+        }, 1000);
+        this.eventOutput.emit('connectedCall', this.model.get('caller'));
     }.bind(this), duration);
     if (button) {
         this.eventOutput.emit('incomingCallAnswer', this.model);

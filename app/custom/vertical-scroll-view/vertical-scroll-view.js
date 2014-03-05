@@ -60,7 +60,7 @@ VerticalScrollView.prototype.sequenceFrom = function(node){
 };
 
 VerticalScrollView.prototype.emptySurfaceResize = function (msg){
-    console.log(msg)
+//    console.log(msg)
     if (this.emptySurface) {
 //        Engine.defer( doResize.bind(this));
         setTimeout(doResize.bind(this),300);

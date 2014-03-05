@@ -107,7 +107,7 @@ function SettingsSectionView(options) {
 //                    this.eventOutput.emit('imcomingCall');
 //                    break;
             case "connected-button":
-                this.eventOutput.emit('connectedCall');
+                this.eventOutput.emit('connectedCall', 'o9ycaGmnq0');
                 break;
             case "conversations-button":
                 this.eventOutput.emit('conversations');

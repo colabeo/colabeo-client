@@ -38,8 +38,11 @@ ConversationItemView.prototype.constructor = ConversationItemView;
 
 ConversationItemView.prototype.template = function(){
     var content = this.model.get('content');
-    if (this.model.get('source') == "local") {content = '<div class="conversation-item triangle-border right">' + content + '</div>';}
-    else if (this.model.get('source') == "remote") content = '<div class="conversation-item triangle-border left">' + content + '</div>';
+    if (this.model.isLocal()) {
+        content = '<div class="conversation-item triangle-border right">' + content + '</div>';
+    }
+    else
+        content = '<div class="conversation-item triangle-border left">' + content + '</div>';
     this.surface.setContent(content);
 };
 

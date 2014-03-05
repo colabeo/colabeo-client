@@ -14,12 +14,13 @@ var Templates    = require('templates');
 var VerticalScrollView       = require('vertical-scroll-view');
 
 var ConversationCollection = require('models').ConversationCollection;
+var ChatCollection = require('models').ChatCollection;
 var ConversationItemView   = require('conversation-item-view');
 
-function ConversationView() {
+function ConversationView(appSettings, callee) {
 
     View.call(this);
-
+    this.callee = callee;
     this.messageTone = new SoundPlayer([
         'content/audio/beep.mp3'
     ]);
@@ -57,7 +58,15 @@ function ConversationView() {
         overlap: false
     });
 
-    this.collection = new ConversationCollection();
+    if (callee) {
+            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + callee;
+        this.collection = new ChatCollection([], {
+            firebase: url
+        });
+    } else {
+        this.collection = new ConversationCollection();
+    }
+
     this.scrollview = new VerticalScrollView({
         startAt:'bottom',
         direction: Utility.Direction.Y
@@ -152,13 +161,16 @@ ConversationView.prototype.addChat = function(){
     var message= document.getElementsByClassName('input-msg')[0].value;
     if (!message) return;
     document.getElementsByClassName('input-msg')[0].value = "";
-    // TODO: this is for testing
+    if (this.callee) {
+        this.eventOutput.emit('sendChat', {id: this.callee, message: message});
+    } else {
+        // TODO: this is for testing
 //        this.inputSourceLocal = !this.inputSourceLocal;
-    if (this.inputSourceLocal) this.addLocal(message);
-    else this.addRemote(message);
+        if (this.inputSourceLocal) this.addLocal(message);
+        else this.addRemote(message);
+    }
 };
 
-//TODO: will delete this part
 ConversationView.prototype.addRemote = function(message){
     var newMsg = {
         content: message,
@@ -175,6 +187,7 @@ ConversationView.prototype.addLocal = function(message){
         content: message,
         source: 'local',
         type: 'text',
+        from: _cola_g.cid,
         time: Date.now()
     };
     this.collection.add(newMsg);

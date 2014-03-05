@@ -27,14 +27,20 @@ function RecentsSectionView(options) {
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
+//        console.log(e, model, collection, options);
         switch(e)
         {
             case 'remove':
                 this.scrollview.removeByIndex(options.index);
-//                this.removeItemByIndex(options.index);
+                this.updateItems();
                 break;
             case 'add':
                 this.addItem(model);
+                this.updateItems();
+                break;
+            case 'change':
+                var i = model.collection.indexOf(model);
+                this.sequence[i].updateItem();
                 break;
         }
     }.bind(this));
@@ -42,6 +48,12 @@ function RecentsSectionView(options) {
 
 RecentsSectionView.prototype = Object.create(View.prototype);
 RecentsSectionView.prototype.constructor = RecentsSectionView;
+
+RecentsSectionView.prototype.updateItems = function() {
+    _.each(this.sequence, function(itemView){
+        if (itemView.updateItem) itemView.updateItem();
+    });
+};
 
 RecentsSectionView.prototype.loadItems = function() {
     this.collection.fetch();
@@ -67,7 +79,8 @@ RecentsSectionView.prototype.removeItemByIndex = function(index) {
 };
 
 RecentsSectionView.prototype.clearAll = function(){
-    _.invoke(this.collection.all(), 'destroy');
+//    _.invoke(this.collection.all(), 'destroy');
+    _(this.collection.all()).each(function(item){item.collection.remove(item)});
 };
 
 RecentsSectionView.prototype.setMissedOnly = function(miss){

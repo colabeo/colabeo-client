@@ -1,8 +1,8 @@
 // Import app specific dependencies
 var Call = require('call');
 
-module.exports = Backbone.Collection.extend({
-    localStorage: new Backbone.LocalStorage("colabeo-call-collection"),
+module.exports = Backbone.Firebase.Collection.extend({
+
     model: Call,
 
     missed: function() {

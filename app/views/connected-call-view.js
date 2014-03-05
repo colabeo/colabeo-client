@@ -97,9 +97,9 @@ function ConnectedCallView(options){
 ConnectedCallView.prototype = Object.create(View.prototype);
 ConnectedCallView.prototype.constructor = ConnectedCallView;
 
-ConnectedCallView.prototype.start = function(appSetting) {
+ConnectedCallView.prototype.start = function(appSetting, callee) {
 
-    this.conversationView = new ConversationView();
+    this.conversationView = new ConversationView(appSetting, callee);
     this.conversationView.pipe(this.eventOutput);
     this.eventInput.pipe(this.conversationView);
     this.conversationLightBox.show(this.conversationView)

@@ -1,6 +1,3 @@
-// Todo: hack, need this for packaging
-//    require("lib/backboneLocalStorage");
-
 // Generic Backbone Model
 module.exports = Backbone.Model.extend({
     // if url changed, need new name for the localstorage
@@ -22,8 +19,7 @@ module.exports = Backbone.Model.extend({
         video: true,
         audio: true,
         blur: undefined,
-        userDatabaseUrl: "https://colabeo.firebaseio.com/users/",
-        callDatabaseUrl: "https://colabeo.firebaseio.com/calls/",
+        firebaseUrl: "https://colabeo.firebaseio.com/",
         pHost: "dashboard.colabeo.com",
         pPort: 9000,
         pSecure: true

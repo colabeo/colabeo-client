@@ -27,7 +27,8 @@ function ContactsSection(options) {
     this.abcSurfaceHeight = undefined;
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
-    window.cc = this;
+    window.ccc = this;
+
     this.setupLayout(options);
     this.collectionEvents();
     this.abcSurfaceEvents();
@@ -48,7 +49,7 @@ ContactsSection.prototype.setupLayout = function(options) {
         size: [undefined, this.searchBarSize],
         classes: ['contact-section-search-bar'],
         content: '<div><i class="fa fa-search"></i>   ' +
-            '<input type="text" class="search-contact" placeholder = "Search" ><span>cancel</span></input></div></div>',
+            '<input type="text" class="search-contact" placeholder = "Search" ><span class="cancel">cancel</span></input></div></div>',
         properties:{
             backgroundColor: 'rgba(15,15,15,0.9)',
             color: 'white',
@@ -62,6 +63,7 @@ ContactsSection.prototype.setupLayout = function(options) {
 //        'curve' : Easing.linearNorm,
         'duration' : 300
     };
+    this.searchMode = false;
 
     this.abcSurface = new Surface({
         size: [this.abcSurfaceWidth, this.abcSurfaceHeight],
@@ -74,7 +76,8 @@ ContactsSection.prototype.setupLayout = function(options) {
     });
     this.eventInput.pipe(this.searchSurface);
     this.abcMod = new Modifier({
-        origin: [1.0, 0.0]
+        origin: [1.0, 0.0],
+        transform: Transform.translate(0,0,10)
     });
 
     this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
@@ -107,7 +110,7 @@ ContactsSection.prototype.scrollTo = function(index, position) {
 };
 
 ContactsSection.prototype.setupHeaderSurfaces = function() {
-    this.headerSequence = _.map(this.a2zString, function(i){
+    return _.map(this.a2zString, function(i){
         var headerSurface = new HeaderView({
             content: Templates.headerItemView(i,0,0),
             header: i,
@@ -118,21 +121,42 @@ ContactsSection.prototype.setupHeaderSurfaces = function() {
     }.bind(this));
 };
 
-ContactsSection.prototype.loadContacts = function(searchKey) {
+
+
+ContactsSection.prototype.refreshContacts = function(searchKey) {
     $('body').removeClass('editing');
 
-    this.headerSequence = [];
-    if (searchKey) this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
-    else this.currentCollection = this.collection.models;
-    if (searchKey == undefined || searchKey =='') this.setupHeaderSurfaces();
+    if (this.searchMode == true) {
+        this.abcSurface.setContent('');
+        this.currentSequence = [];
+        if (searchKey == undefined || searchKey == '') {
+            this.scrollview.sequenceFrom(this.currentSequence);
+            return
+        }
+        this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
+    } else {
+        this.currentCollection = this.collection.models;
+        this.currentSequence = _.clone(this.headerSequence);
+        this.abcSurface.setContent('<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>');
+    }
+
+    this.currentContactsSequence = _.map(this.currentCollection, function(item){
+        return this.contactSequence[item.collection.indexOf(item)];
+    }.bind(this));
 
     this.firstChar = undefined;
     this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
 
-    this.sequence = this.headerSequence;
-    for (var ii=0; ii<this.currentCollection.length;ii++){
-        var surface = this.createItem(this.currentCollection[ii], ii);
-        this.sequence.splice(surface[1],0,surface[0]);
+
+    for (var ii=0; ii<this.currentContactsSequence.length; ii++){
+        var isFirst = false;
+        var initialChar = this.getInitialChar(this.currentContactsSequence[ii].model);
+        if (this.firstChar != initialChar) {
+            this.firstChar = initialChar;
+            isFirst = this.firstChar
+        }
+        var currIndex = this.getCurrentIndex(this.currentContactsSequence[ii], ii, isFirst);
+        this.currentSequence.splice(currIndex,0,this.currentContactsSequence[ii]);
     }
 
     while (this.a2zIndexArray.indexOf(-1) != -1){
@@ -168,11 +192,21 @@ ContactsSection.prototype.loadContacts = function(searchKey) {
 //        }
 //    }
 
-    this.scrollview.sequenceFrom(this.sequence);
+    this.scrollview.sequenceFrom(this.currentSequence);
+};
+
+ContactsSection.prototype.initContacts = function() {
+
+    this.headerSequence = this.setupHeaderSurfaces();
+    this.contactSequence = this.collection.map(function(item){
+        return this.createItem(item);
+    }.bind(this));
+    this.refreshContacts();
 };
 
 ContactsSection.prototype.getCurrentIndex = function (item, index, isFirst){
-    var value = this.currentCollection.indexOf(item)+this.a2zString.indexOf(this.firstChar)+1;
+    console.log(item.model.get('lastname'),this.currentContactsSequence.indexOf(item),this.a2zString.indexOf(this.firstChar));
+    var value = this.currentContactsSequence.indexOf(item)+this.a2zString.indexOf(this.firstChar)+1;
     if (isFirst) this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = value - 1;
     return value;
 };
@@ -189,20 +223,11 @@ ContactsSection.prototype.getIndexInScrollview = function (item, index){
     return index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
 };
 
-ContactsSection.prototype.createItem = function (item, index){
-    var isFirst = false;
-    var initialChar = this.getInitialChar(item);
-    if (this.firstChar != initialChar) {
-        this.firstChar = initialChar;
-        isFirst = this.firstChar
-    }
-
-    var currIndex = this.getCurrentIndex(item, index, isFirst);
-
-    var surface = new ContactItemView({model: item}, isFirst);
+ContactsSection.prototype.createItem = function (item){
+    var surface = new ContactItemView({model: item});
     surface.pipe(this.eventOutput);
     this.eventInput.pipe(surface);
-    return [surface, currIndex];
+    return surface;
 };
 
 ContactsSection.prototype.onAbcTouch = function(e) {
@@ -218,15 +243,30 @@ ContactsSection.prototype.onAbcTouch = function(e) {
 ContactsSection.prototype.collectionEvents = function() {
     // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
+        console.log(e, model, collection, options);
         switch(e)
         {
+            case 'change':
+                this.changeItem(model);
+                this.refreshContacts();
+                break;
             case 'remove':
                 this.removeItemByIndex(model, options.index);
                 this.reIndex(model);
                 break;
 //            case 'change':
+            case 'add':
+                if (this.noInit == true){
+                    console.log('adddd')
+                    this.addItemByIndex(model);
+                }
+                break;
             case 'sync':
-                this.loadContacts();
+                if (!this.noInit){
+                    this.noInit = true;
+                    console.log('dsfdsfdfsdf')
+                    this.initContacts();
+                }
                 break;
 
         }
@@ -262,18 +302,46 @@ ContactsSection.prototype.removeItemByIndex = function(item, index) {
     this.scrollview.removeByIndex(indexInScrollview);
 };
 
+ContactsSection.prototype.addItemByIndex = function(item) {
+    var indexInCollection = this.collection.indexOf(item)
+    var indexInScrollview = this.getIndexInScrollview(item, indexInCollection);
+    var newContact = this.createItem(item);
+    this.collection.models.map(function(i){console.log(i.attributes.lastname)})
+    this.contactSequence.splice(this.collection.indexOf(item),0,newContact);
+    this.refreshContacts();
+};
+
+ContactsSection.prototype.changeItem = function(item) {
+    var newContact = this.createItem(item);
+    this.contactSequence.splice(this.collection.indexOf(item),1,newContact);
+    this.refreshContacts();
+
+};
+
 ContactsSection.prototype.searchSurfaceEvents = function() {
+    this.searchSurface.on('click', function(e){
+        console.log(e);
+        if (e.target.className == 'search-contact') {
+            this.eventInput.emit('searchOnFocus');
+        }
+        else if  (e.target.className == 'cancel') {
+            e.currentTarget.children[0].children[1].value = '';
+            this.eventInput.emit('searchOnBlur');
+            this.refreshContacts('');
+        }
+    }.bind(this));
+
     this.eventInput.on('searchOnFocus', this.searchOnFocus.bind(this));
     this.eventInput.on('searchOnBlur', this.searchOnBlur.bind(this));
     this.searchSurface.on('keyup', function(e){
-        this.loadContacts(e.target.value);
+        this.refreshContacts(e.target.value);
     }.bind(this));
 };
 
 ContactsSection.prototype.getInitialChar = function(item){
-    if (item.get('lastname')) {
+    if (item.get('lastname') != undefined && item.get('lastname') != '') {
         return isEnglish(item.get('lastname')) ? item.get('lastname')[0].toUpperCase() : '#';
-    } else if (item.get('firstname')){
+    } else if (item.get('firstname') != undefined && item.get('firstname') != ''){
         return isEnglish(item.get('firstname')) ? item.get('firstname')[0].toUpperCase() : '#';
     } else {
         return isEnglish(item.get('email')) ? item.get('email')[0].toUpperCase() : '#';
@@ -285,14 +353,20 @@ ContactsSection.prototype.getInitialChar = function(item){
 };
 
 ContactsSection.prototype.searchOnFocus = function(){
+    this.searchMode =true;
+    this.scrollview.scrollTo(0,0);
+    this.refreshContacts();
     this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
     this.searchSurface._currTarget.style.paddingRight = "100px";
 };
 ContactsSection.prototype.searchOnBlur = function(){
+    this.searchMode = false;
     this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
     this.searchSurface._currTarget.style.paddingRight = "10px";
 };
+
+
 
 module.exports = ContactsSection;

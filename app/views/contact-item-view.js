@@ -2,7 +2,7 @@ var Templates    = require('templates');
 var RowView    = require('row-view');
 var ItemView = RowView.ItemView;
 
-function ContactItemView(options, isFirst) {
+function ContactItemView(options) {
 
     this.model = options.model;
     options.paddingRight = 40;

@@ -83,7 +83,8 @@ HeaderView.prototype.events = function() {
 //            console.log('header expand',this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length);
             this.setContent();
             this.containElements = true;
-            this.expand();
+            this.headerSurface.setContent(this.options.content);
+            this.expand(20);
         }
     }.bind(this))
 };

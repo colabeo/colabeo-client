@@ -21,5 +21,11 @@ module.exports = {
     },
     isDev: function(){
         return window.location.host.indexOf('localhost')==0;
+    },
+    isMobile: function() {
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+            return true;
+        }
+        return false;
     }
 };

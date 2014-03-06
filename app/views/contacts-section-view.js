@@ -135,7 +135,7 @@ ContactsSection.prototype.refreshContacts = function(searchKey) {
     } else {
         this.currentCollection = this.collection.models;
         this.currentSequence = _.clone(this.headerSequence);
-        this.abcSurface.setContent('<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>');
+        this.abcSurface.setContent(Templates.abcButtons());
     }
 
     this.currentContactsSequence = _.map(this.currentCollection, function(item){
@@ -361,6 +361,33 @@ ContactsSection.prototype.searchOnBlur = function(){
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
     this.searchSurface._currTarget.style.paddingRight = "10px";
 };
+ContactsSection.prototype.filterContactSequence = function(searchKey){
+    if (this.searchMode == true) {
+        this.abcSurface.setContent('');
+        this.currentSequence = [];
+        this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
+    } else {
+        this.abcSurface.setContent(Templates.abcButtons());
+        this.currentSequence = _.clone(this.headerSequence);
+        this.currentCollection = this.collection.models;
+    }
+
+    this.currentContactsSequence = _.map(this.currentCollection, function(item){
+        return this.contactSequence[item.collection.indexOf(item)];
+    }.bind(this));
+
+    this.currentSequence = this.currentSequence.concat(this.currentContactsSequence)
+};
+
+ContactsSection.prototype.sortByLastname = function(){
+    this.currentSequence = _.sortBy(this.currentSequence, sortByLastname);
+    this.scrollview.sequenceFrom(this.currentSequence);
+};
+
+ContactsSection.prototype.sortByFirstname = function(){
+    this.currentSequence = _.sortBy(this.currentSequence, sortByFirstname);
+    this.scrollview.sequenceFrom(this.currentSequence);
+};
 
 function sortByLastname(item){
     var l, f, h;
@@ -373,6 +400,32 @@ function sortByLastname(item){
         str = "zzzz" + str;
     return str.toUpperCase();
 }
+
+function sortByLastname(item){
+    var l, f, h;
+    l = f = h = '';
+    if (item.model) l = item.model.get('lastname');
+    if (item.model) f = item.model.get('firstname');
+    if (item.options && item.options.header) h = item.options.header;
+    var str = h + l + ' ' + f;
+    if (!/^[a-zA-Z]+$/.test(str[0]))
+        str = "zzzz" + str;
+    return str.toUpperCase();
+}
+
+function sortByFirstname(item){
+    var l, f, h;
+    l = f = h = '';
+    if (item.model) l = item.model.get('lastname');
+    if (item.model) f = item.model.get('firstname');
+    if (item.options && item.options.header) h = item.options.header;
+    var str = h + f + ' ' + l;
+    if (!/^[a-zA-Z]+$/.test(str[0]))
+        str = "zzzz" + str;
+    return str.toUpperCase();
+}
+
+
 
 module.exports = ContactsSection;
 

@@ -238,6 +238,14 @@ function MainController() {
         }
 
         function onIncomingCall(eventData) {
+            function onShowNotification() {
+            }
+            function onCloseNotification() {
+                parent.focus();
+            }
+            function onClickNotification() {
+                parent.focus();
+            }
             if (this.appSettings.get('notification')) {
                 this.callNotification = new Notify('Incoming Call From', {
                     icon: 'content/ios_icon_x144.png',
@@ -246,14 +254,6 @@ function MainController() {
                     notifyClose: onCloseNotification.bind(this),
                     notifyClick: onClickNotification.bind(this)
                 });
-                function onShowNotification() {
-                }
-                function onCloseNotification() {
-                    parent.focus();
-                }
-                function onClickNotification() {
-                    parent.focus();
-                }
                 this.callNotification.show();
             }
 
@@ -295,14 +295,14 @@ function MainController() {
         }
 
         function onChatContact(eventData) {
+            function chatById(id) {
+                this.eventOutput.emit('connectedCall', id);
+            }
             if (eventData instanceof Contact || eventData instanceof Call) {
                 if (eventData.get('cid')) {
                     chatById.bind(this)(eventData.get('cid'));
                 } else {
                     this.lookup(eventData, chatById.bind(this));
-                }
-                function chatById(id) {
-                    this.eventOutput.emit('connectedCall', id);
                 }
             }
         }
@@ -823,7 +823,8 @@ MainController.prototype.callById = function(id, provider) {
         caller: this.appSettings.get('cid')
     };
     recentsRef.push(newCall);
-    delete recentsRef;
+    // TODO: delete hack
+//    delete recentsRef;
     this.callRef = new Firebase(this.appSettings.get('firebaseUrl') + 'calls/' + id);
     // remove zombie call after disconnect
     this.callRef.onDisconnect().remove();
@@ -844,7 +845,8 @@ MainController.prototype.callById = function(id, provider) {
             this.callRef.once('child_changed', onChanged.bind(this));
             this.callRef.once('child_removed', onRemove.bind(this));
         } else {
-            delete this.callRef;
+            // TODO: delete hack
+//            delete this.callRef;
         }
     }.bind(this));
 

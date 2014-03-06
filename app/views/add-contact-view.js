@@ -91,6 +91,21 @@ function AddContactView(options) {
 
     this.content.on('click', function(e){
         var target = $(e.target);
+        function onDataHandler() {
+            if (_.isArray(this.social[source].models)) {
+                //TODO: pull collections from server
+                var newSocialView = new ImportContactView({
+                    title: Helpers.capitalize(source),
+                    collection: this.social[source]});
+                newSocialView.pipe(this.eventOutput);
+                edgeSwapper.show(newSocialView, true);
+            }
+        }
+        function onErrorHandler() {
+            this.eventOutput.emit('onSocialLink', source);
+            delete this.social[source];
+//                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
+        }
         if (target.hasClass('import-contact')){
             var source = target[0].id;
             if (!this.social[source]) {
@@ -102,21 +117,6 @@ function AddContactView(options) {
                 });
             } else {
                 onDataHandler.bind(this)();
-            }
-            function onDataHandler() {
-                if (_.isArray(this.social[source].models)) {
-                    //TODO: pull collections from server
-                    var newSocialView = new ImportContactView({
-                        title: Helpers.capitalize(source),
-                        collection: this.social[source]});
-                    newSocialView.pipe(this.eventOutput);
-                    edgeSwapper.show(newSocialView, true);
-                }
-            }
-            function onErrorHandler() {
-                this.eventOutput.emit('onSocialLink', source);
-                delete this.social[source];
-//                    alert("Go to Settings and link before adding " + Helpers.capitalize(source) + " contact.");
             }
 
         } else if (target.hasClass('remove-button')){

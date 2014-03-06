@@ -248,7 +248,6 @@ ContactsSection.prototype.collectionEvents = function() {
         {
             case 'change':
                 this.changeItem(model);
-                this.refreshContacts();
                 break;
             case 'remove':
                 this.removeItemByIndex(model, options.index);
@@ -313,6 +312,8 @@ ContactsSection.prototype.addItemByIndex = function(item) {
 
 ContactsSection.prototype.changeItem = function(item) {
     var newContact = this.createItem(item);
+//    var OldIndex =
+//    this.contactSequence.splice(OldIndex,1);
     this.contactSequence.splice(this.collection.indexOf(item),1,newContact);
     this.refreshContacts();
 
@@ -341,10 +342,8 @@ ContactsSection.prototype.searchSurfaceEvents = function() {
 ContactsSection.prototype.getInitialChar = function(item){
     if (item.get('lastname') != undefined && item.get('lastname') != '') {
         return isEnglish(item.get('lastname')) ? item.get('lastname')[0].toUpperCase() : '#';
-    } else if (item.get('firstname') != undefined && item.get('firstname') != ''){
-        return isEnglish(item.get('firstname')) ? item.get('firstname')[0].toUpperCase() : '#';
     } else {
-        return isEnglish(item.get('email')) ? item.get('email')[0].toUpperCase() : '#';
+        return '#';
     }
 
     function isEnglish (words){
@@ -367,6 +366,21 @@ ContactsSection.prototype.searchOnBlur = function(){
     this.searchSurface._currTarget.style.paddingRight = "10px";
 };
 
-
+function sortByLastname(item){
+    var l, f, h;
+    l = f = h = '';
+    if (item.model) l = item.model.get('lastname');
+    if (item.model) f = item.model.get('firstname');
+    if (item.options && item.options.header) h = item.options.header;
+    var str = h + l + ' ' + f;
+    if (!/^[a-zA-Z]+$/.test(str[0]))
+        str = "zzzz" + str;
+    return str.toUpperCase();
+}
 
 module.exports = ContactsSection;
+
+
+
+//A a1 B b1 C c1 D d1 E e1    b1->d2
+//A a1 B C c1 D d1 d2 E e1

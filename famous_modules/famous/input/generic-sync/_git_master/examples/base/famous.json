@@ -1,0 +1,28 @@
+{
+    "name": "famous/input/generic-sync/examples/base",
+    "namespace": "famous/input/generic-sync",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-sync.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
+        "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/input/mouse-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized",
+        "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#modularized"
+    },
+    "local": [
+        "famous/input/generic-sync"
+    ],
+    "paths": [
+        "../.."
+    ],
+    "scripts": [
+        "index.js"
+    ]
+}

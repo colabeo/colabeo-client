@@ -1,0 +1,23 @@
+{
+    "name": "famous/context",
+    "namespace": "famous",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/spec-parser": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/element-allocator": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

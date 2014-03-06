@@ -1,0 +1,20 @@
+{
+    "name": "famous/view",
+    "namespace": "famous",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "name": "famous/views/fader",
+    "namespace": "famous/views",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

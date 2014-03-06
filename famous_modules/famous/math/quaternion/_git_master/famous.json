@@ -1,0 +1,16 @@
+{
+    "name": "famous/math/quaternion",
+    "namespace": "famous/math",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/math.git"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "scripts": [
+        "index.js"
+    ]
+}

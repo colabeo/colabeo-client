@@ -1,0 +1,16 @@
+{
+    "name": "famous/utilities/utility",
+    "namespace": "famous/utilities",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-utilities.git"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "scripts": [
+        "index.js"
+    ]
+}

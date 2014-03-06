@@ -1,0 +1,26 @@
+{
+    "name": "famous/views/scrollview/examples/base",
+    "namespace": "famous/views/scrollview/examples",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-views.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/polyfills": "git+ssh://git@github.com:Famous/famous-polyfills.git#master",
+        "famous/engine": "git+ssh://git@github.com:Famous/famous.git#modularized",
+        "famous/surface": "git+ssh://git@github.com:Famous/famous.git#modularized"
+    },
+    "local": [
+        "famous/views/scrollview"
+    ],
+    "paths": [
+        "../.."
+    ],
+    "scripts": [
+        "index.js"
+    ]
+}

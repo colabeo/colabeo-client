@@ -1,0 +1,20 @@
+{
+    "name": "famous/transitions/transitionable",
+    "namespace": "famous/transitions",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
+        "famous/transitions/multiple-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
+        "famous/transitions/tween-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

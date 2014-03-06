@@ -1,0 +1,20 @@
+{
+    "name": "famous/physics/forces/spring",
+    "namespace": "famous/physics/forces",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-physics.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/physics/forces/force": "git+ssh://git@github.com:Famous/famous-physics.git#master",
+        "famous/math/vector": "git+ssh://git@github.com:Famous/math.git#master",
+        "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

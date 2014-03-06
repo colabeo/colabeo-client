@@ -1,0 +1,20 @@
+{
+    "name": "famous/widgets/title-bar",
+    "namespace": "famous/widgets",
+    "type": "famous",
+    "description": "",
+    "version": "0.0.1",
+    "repository" : { 
+        "type" : "git", 
+        "url" : "https://github.com/Famous/famous-widgets.git"
+    },
+    "keywords": [],
+    "dependencies": {
+        "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
+        "famous/views/light-box": "git+ssh://git@github.com:Famous/famous-views.git#master"
+    },
+    "scripts": [
+        "index.js"
+    ]
+}

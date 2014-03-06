@@ -3,7 +3,7 @@ var FamousEngine = require('famous/engine');
 var Surface      = require('famous/surface');
 var Easing       = require('famous/transitions/easing');
 var EventHandler = require('famous/event-handler');
-var Utils        = require('famous/utilities/utils');
+var Helpers            = require('helpers');
 
 // import custom views
 var LightBox = require('light-box');
@@ -409,7 +409,7 @@ MainController.prototype.init = function() {
     // remove zombie call after disconnect
     this.listenRef.onDisconnect().remove();
 
-    if (Utils.isMobile()) {
+    if (Helpers.isMobile()) {
         $('body').addClass('mobile');
         if (this.appSettings.get('blur') == undefined)
             this.appSettings.set('blur', false);
@@ -471,7 +471,7 @@ MainController.prototype.setupSettingsListener = function() {
         }
 
         if (url) {
-//                if (Utils.isMobile()) {
+//                if (Helpers.isMobile()) {
 //                    window.location = url;
 //                } else {
             $.oauthpopup({
@@ -1023,7 +1023,7 @@ function multipleLookup(query, done) {
     });
 }
 function sendMessage(type, data) {
-    if (Utils.isMobile()) return;
+    if (Helpers.isMobile()) return;
     if (!window.colabeoBody)
         return;
     var evt = new CustomEvent("FromKoala", {
@@ -1073,7 +1073,7 @@ function onMessage(e) {
     if (evt.action=="chat") {
         this.eventOutput.emit('incomingChat', evt);
     } else {
-        if (Utils.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
+        if (Helpers.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
             window.open(evt.data.url);
         }
         sendMessage("event", evt);

@@ -1,8 +1,5 @@
 {
   "name": "templates",
-  "dependencies": {
-      "famous/utilities/utils": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
-  },
   "local":[
     "helpers"
   ],

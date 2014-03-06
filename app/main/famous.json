@@ -7,7 +7,6 @@
     "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
-    "famous/utilities/utils": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
     "famous/view": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/options-manager": "git+ssh://git@github.com:Famous/famous.git#master",
@@ -22,7 +21,8 @@
     "models",
     "views",
     "vendor",
-    "light-box"
+    "light-box",
+    "helpers"
   ],
   "scripts": [
     "index.js",

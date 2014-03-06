@@ -1,5 +1,4 @@
 var Helpers        = require('helpers');
-var Utils            = require('famous/utilities/utils');
 
 module.exports = {
     toggleSwitch: function(id, checked, disabled) {

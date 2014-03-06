@@ -1,7 +1,7 @@
 // Import core Famous dependencies
 var View               = require('famous/view');
 var Utility            = require('famous/utilities/utility');
-var Utils              = require('famous/utilities/utils');
+var Helpers            = require('helpers');
 var Scrollview         = require('famous/views/scrollview');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Engine             = require('famous/engine');
@@ -113,13 +113,13 @@ function ConversationView(appSettings, callee) {
     var onResize = function() {
         if (!this.scrollview) return;
         // just in case horizontal resize from wide to narrow
-//        if (!Utils.isMobile())
+//        if (!Helpers.isMobile())
             this.scrollview.setVelocity(-99);
         this.loadMsg();
     }
 //        Engine.on('resize', onResize.bind(this));
     Engine.on('resize', function(e){
-//            if (Utils.isMobile()) return;
+//            if (Helpers.isMobile()) return;
         if (resizeTimeout) clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(onResize.bind(this), 300);
     }.bind(this));

@@ -42,10 +42,10 @@ function OutgoingCallView(options){
     });
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
 
     this.header = new Surface({
@@ -187,12 +187,12 @@ OutgoingCallView.prototype.stop = function(button) {
     setTimeout(function() {
         this.footerLightBox.hide();
         this.headerLightBox.hide();
-        this.eventOutput.emit('showApp', function(){
+        this._eventOutput.emit('showApp', function(){
             if (button) button.removeClass('exiting');
         });
     }.bind(this), duration);
     if (button) {
-        this.eventOutput.emit('outgoingCallEnd', this.model);
+        this._eventOutput.emit('outgoingCallEnd', this.model);
     }
 };
 
@@ -205,7 +205,7 @@ OutgoingCallView.prototype.accept = function(callee) {
     setTimeout(function() {
         this.footerLightBox.hide();
         this.headerLightBox.hide();
-        this.eventOutput.emit('connectedCall', callee);
+        this._eventOutput.emit('connectedCall', callee);
     }.bind(this), duration);
 };
 

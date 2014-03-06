@@ -19,8 +19,8 @@ function RecentItemView(options){
 
     ItemView.apply(this, arguments);
 
-    this.eventInput.on('toggleAllRecent', this.onToggleAll.bind(this));
-    this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
+    this._eventInput.on('toggleAllRecent', this.onToggleAll.bind(this));
+    this._eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
 
 }
 

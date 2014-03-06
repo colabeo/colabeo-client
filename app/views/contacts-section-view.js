@@ -27,8 +27,6 @@ function ContactsSection(options) {
     this.abcSurfaceHeight = undefined;
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
-    window.ccc = this;
-
     this.setupLayout(options);
     this.collectionEvents();
     this.abcSurfaceEvents();
@@ -74,7 +72,7 @@ ContactsSection.prototype.setupLayout = function(options) {
             zIndex:2
         }
     });
-    this.eventInput.pipe(this.searchSurface);
+    this._eventInput.pipe(this.searchSurface);
     this.abcMod = new Modifier({
         origin: [1.0, 0.0],
         transform: Transform.translate(0,0,10)
@@ -205,7 +203,7 @@ ContactsSection.prototype.initContacts = function() {
 };
 
 ContactsSection.prototype.getCurrentIndex = function (item, index, isFirst){
-    console.log(item.model.get('lastname'),this.currentContactsSequence.indexOf(item),this.a2zString.indexOf(this.firstChar));
+    //console.log(item.model.get('lastname'),this.currentContactsSequence.indexOf(item),this.a2zString.indexOf(this.firstChar));
     var value = this.currentContactsSequence.indexOf(item)+this.a2zString.indexOf(this.firstChar)+1;
     if (isFirst) this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = value - 1;
     return value;
@@ -225,8 +223,8 @@ ContactsSection.prototype.getIndexInScrollview = function (item, index){
 
 ContactsSection.prototype.createItem = function (item){
     var surface = new ContactItemView({model: item});
-    surface.pipe(this.eventOutput);
-    this.eventInput.pipe(surface);
+    surface.pipe(this._eventOutput);
+    this._eventInput.pipe(surface);
     return surface;
 };
 
@@ -243,7 +241,7 @@ ContactsSection.prototype.onAbcTouch = function(e) {
 ContactsSection.prototype.collectionEvents = function() {
     // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
-        console.log(e, model, collection, options);
+        //console.log(e, model, collection, options);
         switch(e)
         {
             case 'change':
@@ -256,14 +254,12 @@ ContactsSection.prototype.collectionEvents = function() {
 //            case 'change':
             case 'add':
                 if (this.noInit == true){
-                    console.log('adddd')
                     this.addItemByIndex(model);
                 }
                 break;
             case 'sync':
                 if (!this.noInit){
                     this.noInit = true;
-                    console.log('dsfdsfdfsdf')
                     this.initContacts();
                 }
                 break;
@@ -323,17 +319,17 @@ ContactsSection.prototype.searchSurfaceEvents = function() {
     this.searchSurface.on('click', function(e){
         console.log(e);
         if (e.target.className == 'search-contact') {
-            this.eventInput.emit('searchOnFocus');
+            this._eventInput.emit('searchOnFocus');
         }
         else if  (e.target.className == 'cancel') {
             e.currentTarget.children[0].children[1].value = '';
-            this.eventInput.emit('searchOnBlur');
+            this._eventInput.emit('searchOnBlur');
             this.refreshContacts('');
         }
     }.bind(this));
 
-    this.eventInput.on('searchOnFocus', this.searchOnFocus.bind(this));
-    this.eventInput.on('searchOnBlur', this.searchOnBlur.bind(this));
+    this._eventInput.on('searchOnFocus', this.searchOnFocus.bind(this));
+    this._eventInput.on('searchOnBlur', this.searchOnBlur.bind(this));
     this.searchSurface.on('keyup', function(e){
         this.refreshContacts(e.target.value);
     }.bind(this));

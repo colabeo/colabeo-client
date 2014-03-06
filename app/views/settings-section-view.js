@@ -28,9 +28,9 @@ function SettingsSectionView(options) {
         size: [undefined, 700]
     });
     this.template();
-    this.surface.pipe(this.eventOutput);
+    this.surface.pipe(this._eventOutput);
     this.scrollview.sequenceFrom([this.surface]);
-    this._link(this.scrollview);
+    this._add(this.scrollview);
 
     function onPermissionGranted () {
         myNotification.show();
@@ -79,13 +79,13 @@ function SettingsSectionView(options) {
                 break;
             case "facebook":
                 if (JSON.parse($("#facebook").prop('checked')))
-                    this.eventOutput.emit('onSocialLink', e.target.id);
+                    this._eventOutput.emit('onSocialLink', e.target.id);
                 else
                     window.location = "/disconnect/facebook";
                 break;
             case "google":
                 if (JSON.parse($("#google").prop('checked')))
-                    this.eventOutput.emit('onSocialLink', e.target.id);
+                    this._eventOutput.emit('onSocialLink', e.target.id);
                 else
                     window.location = "/disconnect/google";
                 break;
@@ -107,10 +107,10 @@ function SettingsSectionView(options) {
 //                    this.eventOutput.emit('imcomingCall');
 //                    break;
             case "connected-button":
-                this.eventOutput.emit('connectedCall', 'o9ycaGmnq0');
+                this._eventOutput.emit('connectedCall', 'o9ycaGmnq0');
                 break;
             case "conversations-button":
-                this.eventOutput.emit('conversations');
+                this._eventOutput.emit('conversations');
                 break;
             case "logout-button":
                 window.location = "/logout";
@@ -133,25 +133,25 @@ function SettingsSectionView(options) {
     function onCamera() {
         console.log('camera change');
 //            $("#camera").prop('checked', this.appSettings.get('camera'));
-        this.eventOutput.emit('setCamera');
+        this._eventOutput.emit('setCamera');
     }
 
     function onAudio() {
         console.log('audio change');
 //            $("#audio").prop('checked', this.appSettings.get('audio'));
-        this.eventOutput.emit('setAudio');
+        this._eventOutput.emit('setAudio');
     }
 
     function onVideo() {
         console.log('video change');
 //            $("#video").prop('checked', this.appSettings.get('video'));
-        this.eventOutput.emit('setVideo');
+        this._eventOutput.emit('setVideo');
     }
 
     function onBlur() {
         console.log('blur change');
 //            $("#blur").prop('checked', this.appSettings.get('blur'));
-        this.eventOutput.emit('setBlur');
+        this._eventOutput.emit('setBlur');
     }
 }
 

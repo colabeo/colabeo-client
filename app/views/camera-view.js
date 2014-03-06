@@ -10,10 +10,10 @@ function CameraView(options) {
     this.model = options.model;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.localVideoSurface = new Surface({
         content: '<div class="camera local-video blur off"><video muted="true" autoplay poster="content/images/transparent.png"></video></div>'
@@ -24,8 +24,8 @@ function CameraView(options) {
         },
         content: '<div class="camera remote-video"><video autoplay poster="content/images/transparent.png"></video></div>'
     });
-    this.localVideoSurface.pipe(this.eventOutput);
-    this.remoteVideoSurface.pipe(this.eventOutput);
+    this.localVideoSurface.pipe(this._eventOutput);
+    this.remoteVideoSurface.pipe(this._eventOutput);
 
     this.transform = new Modifier({
         origin: [0.9, 0.1]

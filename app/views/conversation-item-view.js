@@ -11,10 +11,10 @@ function ConversationItemView(options){
 
     this.model = options.model;
 
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.surface = new ConversationSurface({
         properties:{
@@ -25,12 +25,12 @@ function ConversationItemView(options){
 
     this.template();
 
-    this.surface.pipe(this.eventOutput);
+    this.surface.pipe(this._eventOutput);
     this.mod = new Modifier({
         transform: undefined
     });
-    this._link(this.mode);
-    this._link(this.surface);
+    this._add(this.mode);
+    this._add(this.surface);
 }
 
 ConversationItemView.prototype = Object.create(View.prototype);

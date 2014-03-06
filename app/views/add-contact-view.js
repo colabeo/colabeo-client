@@ -42,10 +42,10 @@ function AddContactView(options) {
     this.model = options.model;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.header = new Surface({
         classes: ['header'],
@@ -67,11 +67,11 @@ function AddContactView(options) {
 
     var edgeSwapper = new EdgeSwapper();
 
-    this._link (edgeSwapper);
+    this._add(edgeSwapper);
     edgeSwapper.show(this.headerFooterLayout);
 
-    this.content.pipe(this.eventOutput);
-    this.header.pipe(this.eventOutput);
+    this.content.pipe(this._eventOutput);
+    this.header.pipe(this._eventOutput);
 
     this.renderContact();
 
@@ -80,10 +80,10 @@ function AddContactView(options) {
         if (target.hasClass("done-contact")) {
             this.submitForm();
             $('body').removeClass('editing');
-            this.eventOutput.emit('triggerBackToNoneEditing');
-            this.eventOutput.emit('showApp');
+            this._eventOutput.emit('triggerBackToNoneEditing');
+            this._eventOutput.emit('showApp');
         } else if (target.hasClass("close-button")){
-            this.eventOutput.emit('showApp');
+            this._eventOutput.emit('showApp');
         }
     }.bind(this));
 
@@ -97,12 +97,12 @@ function AddContactView(options) {
                 var newSocialView = new ImportContactView({
                     title: Helpers.capitalize(source),
                     collection: this.social[source]});
-                newSocialView.pipe(this.eventOutput);
+                newSocialView.pipe(this._eventOutput);
                 edgeSwapper.show(newSocialView, true);
             }
         }
         function onErrorHandler() {
-            this.eventOutput.emit('onSocialLink', source);
+            this._eventOutput.emit('onSocialLink', source);
             delete this.social[source];
 //                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
         }
@@ -128,7 +128,7 @@ function AddContactView(options) {
     }.bind(this));
 
 //        this.eventOutput.on('importSource', onImportSource);
-    this.eventOutput.on('goBack', onGoBack);
+    this._eventOutput.on('goBack', onGoBack);
 
     function onImportSource(eventData){
         if (!eventData || !eventData.attributes) return;

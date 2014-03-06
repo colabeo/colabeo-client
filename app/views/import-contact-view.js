@@ -12,10 +12,10 @@ function ImportContactView(options){
     this.collection = options.collection;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.header = new Surface({
         content: '<button class="left back-button">Back</button><div>' + options.title + ' Contacts</div>',
@@ -31,8 +31,8 @@ function ImportContactView(options){
     this.id.header.add(this.header);
     this.id.content.add(this.content);
 
-    this.header.pipe(this.eventOutput);
-    this.content.pipe(this.eventOutput);
+    this.header.pipe(this._eventOutput);
+    this.content.pipe(this._eventOutput);
 
     this.header.on('click', function(e) {
         var target = $(e.target);
@@ -43,10 +43,10 @@ function ImportContactView(options){
 
     this.header.on('click', function(e){
         if ($(e.target).hasClass('back-button'))
-            this.eventOutput.emit('goBack');
+            this._eventOutput.emit('goBack');
     }.bind(this));
 
-    this.header.pipe(this.eventOutput);
+    this.header.pipe(this._eventOutput);
 
 }
 ImportContactView.prototype = Object.create(HeaderFooterLayout.prototype);

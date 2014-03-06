@@ -6,5 +6,8 @@
   "main": "templates.js",
   "scripts": [
     "templates.js"
-  ]
+  ],
+  "dependencies": {
+     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
+  }
 }

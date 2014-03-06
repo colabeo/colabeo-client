@@ -36,8 +36,8 @@ function ContactItemView(options) {
         }
     }.bind(this));
 
-    this.eventInput.on('toggleAllContact', this.onToggleAll.bind(this));
-    this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
+    this._eventInput.on('toggleAllContact', this.onToggleAll.bind(this));
+    this._eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
 }
 
 ContactItemView.prototype = Object.create(ItemView.prototype);

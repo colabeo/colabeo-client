@@ -45,10 +45,10 @@ var defaultIceConfig = {'iceServers': [
 
 function MainController() {
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    this._eventInput = new EventHandler();
+    EventHandler.setInputHandler(this, this._eventInput);
+    this._eventOutput = new EventHandler();
+    EventHandler.setOutputHandler(this, this._eventOutput);
 
     this.loadUser(function(data) {
         if (data.chatroom) {
@@ -95,13 +95,13 @@ function MainController() {
         var settingsSection = new SettingsSectionView({
             model: this.appSettings
         });
-        favoritesSection.pipe(this.eventOutput);
-        this.eventInput.pipe(favoritesSection);
-        recentsSection.pipe(this.eventOutput);
-        this.eventInput.pipe(recentsSection);
-        contactsSection.pipe(this.eventOutput);
-        this.eventInput.pipe(contactsSection);
-        settingsSection.pipe(this.eventOutput);
+        favoritesSection.pipe(this._eventOutput);
+        this._eventInput.pipe(favoritesSection);
+        recentsSection.pipe(this._eventOutput);
+        this._eventInput.pipe(recentsSection);
+        contactsSection.pipe(this._eventOutput);
+        this._eventInput.pipe(contactsSection);
+        settingsSection.pipe(this._eventOutput);
 
         // Config and initialize app
         config.sections = [
@@ -117,8 +117,8 @@ function MainController() {
         var alertLightbox = new LightBox({overlap:true});
         var addContactView = new AddContactView({collection: this.contactCollection});
 
-        myApp.pipe(this.eventOutput);
-        addContactView.pipe(this.eventOutput);
+        myApp.pipe(this._eventOutput);
+        addContactView.pipe(this._eventOutput);
         var cameraView = new CameraView({});
 
         // create a display context and hook in the App
@@ -135,34 +135,34 @@ function MainController() {
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});
         var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
-        outgoingCallView.pipe(this.eventOutput);
-        incomingCallView.pipe(this.eventOutput);
-        connectedCallView.pipe(this.eventOutput);
-        this.pipe(connectedCallView.eventInput);
+        outgoingCallView.pipe(this._eventOutput);
+        incomingCallView.pipe(this._eventOutput);
+        connectedCallView.pipe(this._eventOutput);
+        this.pipe(connectedCallView._eventInput);
 
         // events handling
-        this.eventOutput.on('callEnd', onCallEnd);
-        this.eventOutput.on('incomingCall', onIncomingCall);
-        this.eventOutput.on('outgoingCall', onOutgoingCall);
-        this.eventOutput.on('connectedCall', onConnectedCall);
-        this.eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
-        this.eventOutput.on('editContact', onEditContact);
-        this.eventOutput.on('chatContact', onChatContact);
-        this.eventOutput.on('showApp', onShowApp);
-        this.eventOutput.on('chatOn', onChatOn);
-        this.eventOutput.on('chatOff', onChatOff);
-        this.eventOutput.on('loadRecent', onLoadRecent);
-        this.eventOutput.on('updateRecent', onUpdateRecent);
-        this.eventOutput.on('clearRecent', onClearRecent);
-        this.eventOutput.on('deleteRecent', onDeleteRecent);
-        this.eventOutput.on('deleteContact', onDeleteContact);
-        this.eventOutput.on('deleteFavorite', onDeleteFavorite);
-        this.eventOutput.on('toggleFavorite', onToggleFavorite);
-        this.eventOutput.on('onEngineClick', onEngineClick);
-        this.eventOutput.on('closeAlert', onCloseAlert);
-        this.eventOutput.on('editContactDone', onEditContactDone);
-        this.eventOutput.on('addContactDone', onAddContactDone);
-        this.eventOutput.on('triggerBackToNoneEditing',onTriggerBackToNoneEditing.bind(this));
+        this._eventOutput.on('callEnd', onCallEnd);
+        this._eventOutput.on('incomingCall', onIncomingCall);
+        this._eventOutput.on('outgoingCall', onOutgoingCall);
+        this._eventOutput.on('connectedCall', onConnectedCall);
+        this._eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
+        this._eventOutput.on('editContact', onEditContact);
+        this._eventOutput.on('chatContact', onChatContact);
+        this._eventOutput.on('showApp', onShowApp);
+        this._eventOutput.on('chatOn', onChatOn);
+        this._eventOutput.on('chatOff', onChatOff);
+        this._eventOutput.on('loadRecent', onLoadRecent);
+        this._eventOutput.on('updateRecent', onUpdateRecent);
+        this._eventOutput.on('clearRecent', onClearRecent);
+        this._eventOutput.on('deleteRecent', onDeleteRecent);
+        this._eventOutput.on('deleteContact', onDeleteContact);
+        this._eventOutput.on('deleteFavorite', onDeleteFavorite);
+        this._eventOutput.on('toggleFavorite', onToggleFavorite);
+        this._eventOutput.on('onEngineClick', onEngineClick);
+        this._eventOutput.on('closeAlert', onCloseAlert);
+        this._eventOutput.on('editContactDone', onEditContactDone);
+        this._eventOutput.on('addContactDone', onAddContactDone);
+        this._eventOutput.on('triggerBackToNoneEditing',onTriggerBackToNoneEditing.bind(this));
 
         function onDeleteFavorite (model) {
             model.toggleFavorite();
@@ -226,7 +226,7 @@ function MainController() {
             }
             connectedCallView.start(this.appSettings, callee);
             myLightbox.show(connectedCallView, true, callback);
-            this.eventOutput.emit('chatOn');
+            this._eventOutput.emit('chatOn');
             if (!this.localStream){
                 alert("Please allow camera/microphone access for Beepe");
             }
@@ -262,7 +262,7 @@ function MainController() {
                 return;
             if (curView instanceof OutgoingCallView) {
                 outgoingCallView.accept(eventData.get('caller'));
-                this.eventOutput.emit('incomingCallAnswer', eventData);
+                this._eventOutput.emit('incomingCallAnswer', eventData);
             }
             else {
                 incomingCallView.start(eventData);
@@ -272,7 +272,7 @@ function MainController() {
 
         function onCallEnd(eventData) {
 
-            this.eventOutput.emit('chatOff');
+            this._eventOutput.emit('chatOff');
             // ligntbox shown object stop
             var curView = myLightbox.nodes[0].object;
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
@@ -296,7 +296,7 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatById(id) {
-                this.eventOutput.emit('connectedCall', id);
+                this._eventOutput.emit('connectedCall', id);
             }
             if (eventData instanceof Contact || eventData instanceof Call) {
                 if (eventData.get('cid')) {
@@ -320,28 +320,28 @@ function MainController() {
             switch (e.target.id)
             {
                 case 'clear-button':
-                    this.eventOutput.emit('clearRecent');
+                    this._eventOutput.emit('clearRecent');
                     break;
                 case 'add-contact':
-                    this.eventOutput.emit('editContact');
+                    this._eventOutput.emit('editContact');
                     break;
                 case 'recent-edit-contact':
                     $('body').toggleClass('editing');
-                    this.eventInput.emit('toggleAllRecent');
+                    this._eventInput.emit('toggleAllRecent');
                     break;
                 case 'favorite-edit-contact':
                     $('body').toggleClass('editing');
-                    this.eventInput.emit('toggleAllFavorite');
+                    this._eventInput.emit('toggleAllFavorite');
                     break;
                 case 'contact-edit-contact':
                     $('body').toggleClass('editing');
-                    this.eventInput.emit('toggleAllContact');
+                    this._eventInput.emit('toggleAllContact');
                     break;
                 case 'recent-toggle':
-                    this.eventOutput.emit('loadRecent', e);
+                    this._eventOutput.emit('loadRecent', e);
                     break;
                 case 'close-alert':
-                    this.eventOutput.emit('closeAlert');
+                    this._eventOutput.emit('closeAlert');
             }
             if (e.target.tagName == 'INPUT' || e.target.tagName == 'TEXTAREA') {
                 $(e.target).focus();
@@ -357,7 +357,7 @@ function MainController() {
         }
 
         function onTriggerBackToNoneEditing(e) {
-            this.eventInput.emit('backToNoneEditing');
+            this._eventInput.emit('backToNoneEditing');
         }
 
         function onAlert(word, okHidden){
@@ -443,25 +443,25 @@ MainController.prototype.init = function() {
 };
 
 MainController.prototype.setupSettingsListener = function() {
-    this.eventOutput.on('outgoingChat', function(evt) {
+    this._eventOutput.on('outgoingChat', function(evt) {
         this.sendChat(evt.content, evt.type);
     }.bind(this));
-    this.eventOutput.on('sendChat', function(chat) {
+    this._eventOutput.on('sendChat', function(chat) {
         this.sendChatById(chat.id, chat.message);
     }.bind(this));
-    this.eventOutput.on('setCamera', function() {
+    this._eventOutput.on('setCamera', function() {
         this.setCamera();
     }.bind(this));
-    this.eventOutput.on('setVideo', function() {
+    this._eventOutput.on('setVideo', function() {
         this.setVideo();
     }.bind(this));
-    this.eventOutput.on('setBlur', function() {
+    this._eventOutput.on('setBlur', function() {
         this.setBlur();
     }.bind(this));
-    this.eventOutput.on('setAudio', function() {
+    this._eventOutput.on('setAudio', function() {
         this.setAudio();
     }.bind(this));
-    this.eventOutput.on('onSocialLink', function(source) {
+    this._eventOutput.on('onSocialLink', function(source) {
         var url;
         if (source == 'facebook') {
             url = "/connect/facebook/email";
@@ -495,11 +495,11 @@ MainController.prototype.setupCallListener = function() {
     this.listenRef.on('child_added', onAdd.bind(this));
     this.listenRef.on('child_changed', onChanged.bind(this));
     this.listenRef.on('child_removed', onRemove.bind(this));
-    this.eventOutput.on('outgoingCallEnd', onOutgoingCallEnd.bind(this));
-    this.eventOutput.on('incomingCallEnd', onIncomingCallEnd.bind(this));
-    this.eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
-    this.eventOutput.on('outgoingCall', onOutgoingCall.bind(this));
-    this.eventOutput.on('sync', onSync.bind(this));
+    this._eventOutput.on('outgoingCallEnd', onOutgoingCallEnd.bind(this));
+    this._eventOutput.on('incomingCallEnd', onIncomingCallEnd.bind(this));
+    this._eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
+    this._eventOutput.on('outgoingCall', onOutgoingCall.bind(this));
+    this._eventOutput.on('sync', onSync.bind(this));
     function onAdd(snapshot) {
         var f = snapshot.val().firstname || snapshot.val().person.split(' ')[0];
         var l = snapshot.val().lastname || snapshot.val().person.split(' ')[1];
@@ -515,13 +515,13 @@ MainController.prototype.setupCallListener = function() {
             roomId: r,
             caller: c
         });
-        this.eventOutput.emit('incomingCall', call);
+        this._eventOutput.emit('incomingCall', call);
     }
     function onChanged(snapshot){
 
     }
     function onRemove(snapshot){
-        this.eventOutput.emit('callEnd', snapshot);
+        this._eventOutput.emit('callEnd', snapshot);
         this.exitRoom();
     }
     function onOutgoingCallEnd(call) {
@@ -579,7 +579,7 @@ MainController.prototype.initLocalMedia = function(options) {
             if (options.video) $('.camera').removeClass('off');
             else $('.camera').addClass('off');
 
-            this.eventOutput.emit('closeAlert');
+            this._eventOutput.emit('closeAlert');
 
             if (this.chatroom) {
                 var call = new Call({
@@ -589,7 +589,7 @@ MainController.prototype.initLocalMedia = function(options) {
                     cid: this.chatroom.caller || "",
                     provider: this.chatroom.calleeAccountProvider || ""
                 });
-                this.eventOutput.emit('outgoingCall', call);
+                this._eventOutput.emit('outgoingCall', call);
             }
         }.bind(this),
         function(){
@@ -857,11 +857,11 @@ MainController.prototype.callById = function(id, provider) {
             var callee = id;
             var roomId = snapshot.name();
             this.startRoom(caller, callee, roomId);
-            this.eventOutput.emit('outGoingCallAccept', callee);
+            this._eventOutput.emit('outGoingCallAccept', callee);
         }
     }
     function onRemove(snapshot){
-        this.eventOutput.emit('callEnd', snapshot);
+        this._eventOutput.emit('callEnd', snapshot);
         this.exitRoom();
     }
 };
@@ -1059,7 +1059,7 @@ function onExtensionMessage(e) {
             pictureUrl: null,
             roomId: e.detail.room
         });
-        this.eventOutput.emit('incomingCall', call);
+        this._eventOutput.emit('incomingCall', call);
     }
     else if (this.conn) {
         // peer message forward
@@ -1073,7 +1073,7 @@ function onMessage(e) {
     }.bind(this),1000);
     var evt = e;
     if (evt.action=="chat") {
-        this.eventOutput.emit('incomingChat', evt);
+        this._eventOutput.emit('incomingChat', evt);
     } else {
         if (Helpers.isMobile() && evt.data && evt.data.url && evt.data.action == "urlChange") {
             window.open(evt.data.url);

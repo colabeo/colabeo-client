@@ -1,4 +1,5 @@
 var Helpers        = require('helpers');
+var Utility        = require('famous/utilities/utility');
 
 module.exports = {
     toggleSwitch: function(id, checked, disabled) {
@@ -296,7 +297,7 @@ module.exports = {
             '<div class="info">Blur ',
             this.toggleSwitch("blur", appSettings.get('blur')) + '</div>'
         ];
-        if (!Utils.isMobile()) {
+        if (!Utility.isMobile()) {
             html.push('<div class="info">Notification ');
             html.push(this.toggleSwitch("notification", appSettings.get('notification')) + '</div>');
         }

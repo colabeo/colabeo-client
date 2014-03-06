@@ -19,8 +19,8 @@ function FavoriteItemView(options){
 
     ItemView.apply(this, arguments);
 
-    this.eventInput.on('toggleAllFavorite', this.onToggleAll.bind(this));
-    this.eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
+    this._eventInput.on('toggleAllFavorite', this.onToggleAll.bind(this));
+    this._eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
 }
 
 FavoriteItemView.prototype = Object.create(ItemView.prototype);

@@ -23,7 +23,8 @@ function FavoritesSectionView(options) {
         startAt: 'top'
     });
     this.pipe(this.scrollview);
-    this._link(this.scrollview);
+
+    this._add(this.scrollview);
     this.scrollview.sequenceFrom([]);
 
     this.collection.on('all', function(e, model, collection, options) {
@@ -65,8 +66,8 @@ FavoritesSectionView.prototype.loadItems = function() {
     this.pastCollection = this.collection.favorites();
     this.sequence = this.collection.favorites().map(function(item){
         var surface = new FavoriteItemView({model: item});
-        surface.pipe(this.eventOutput);
-        this.eventInput.pipe(surface);
+        surface.pipe(this._eventOutput);
+        this._eventInput.pipe(surface);
         return surface;
     }.bind(this));
     this.scrollview.sequenceFrom(this.sequence);
@@ -77,8 +78,8 @@ FavoritesSectionView.prototype.addItem = function(contact) {
     var i = this.collection.favorites().indexOf(contact);
     if (i>=0) {
         var surface = new FavoriteItemView({model: contact});
-        surface.pipe(this.eventOutput);
-        this.eventInput.pipe(surface);
+        surface.pipe(this._eventOutput);
+        this._eventInput.pipe(surface);
         this.scrollview.addByIndex(i, surface);
     }
 };

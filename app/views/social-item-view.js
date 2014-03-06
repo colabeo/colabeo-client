@@ -10,10 +10,10 @@ function SocialItemView(options, isFirst) {
     this.model = options.model;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     var height = 51;
     if (isFirst) height = 77;
@@ -27,19 +27,19 @@ function SocialItemView(options, isFirst) {
     this.surface.on('click', function(e) {
         var target = $(e.target);
         if (target.hasClass("import-source")) {
-            this.eventOutput.emit('goBack', this.model);
+            this._eventOutput.emit('goBack', this.model);
         }
     }.bind(this));
 
     this.template(isFirst);
 
-    this.surface.pipe(this.eventOutput);
+    this.surface.pipe(this._eventOutput);
 
     this.mod = new Modifier({
         transform: undefined
     });
-    this._link(this.mod);
-    this._link(this.surface);
+    this._add(this.mod);
+    this._add(this.surface);
 }
 
 SocialItemView.prototype = Object.create(View.prototype);

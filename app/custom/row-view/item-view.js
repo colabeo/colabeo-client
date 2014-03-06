@@ -66,7 +66,7 @@ ItemView.prototype.setupEvent = function(){
         }
     );
     this.itemSurface.pipe(sync);
-    this.itemSurface.pipe(this.eventOutput);
+    this.itemSurface.pipe(this._eventOutput);
     this.pos = [0,0];
 
     sync.on('start', function() {
@@ -82,10 +82,10 @@ ItemView.prototype.setupEvent = function(){
             this.direction = diffX > diffY ? Utility.Direction.X : Utility.Direction.Y;
             this._directionChosen = true;
             if (this.direction == Utility.Direction.X) {
-                this.itemSurface.unpipe(this.eventOutput);
+                this.itemSurface.unpipe(this._eventOutput);
             }
             else {
-                this.itemSurface.pipe(this.eventOutput);
+                this.itemSurface.pipe(this._eventOutput);
             }
         } else {
             if (this.direction == Utility.Direction.X) {
@@ -106,7 +106,7 @@ ItemView.prototype.setupEvent = function(){
             this.setEditingOff();
         }
         if (this.pos[0] < -0.33 * window.innerWidth) {
-            this.eventOutput.emit(this.options.rightButton.event, this.model);
+            this._eventOutput.emit(this.options.rightButton.event, this.model);
             this.setEditingOff();
         }
     }.bind(this));
@@ -137,7 +137,7 @@ ItemView.prototype.setupSurfaces = function(){
             opacity: 0,
             transform:Transform.translate(this.options.paddingLeft + this.options.buttonSizeX * (i) ,0,0)
         });
-        this['leftButton'+i].pipe(this.eventOutput);
+        this['leftButton'+i].pipe(this._eventOutput);
         this.surfaces.add(this['leftButton'+i+'Mod']).add(this['leftButton'+i]);
     }.bind(this));
 
@@ -257,17 +257,17 @@ ItemView.prototype.events = function() {
     _(this.options.leftButtons).each(function (b, i) {
         this['leftButton'+i].on('click', function(b) {
 //            console.log(b.event);
-            this.eventOutput.emit(b.event, this.model);
+            this._eventOutput.emit(b.event, this.model);
         }.bind(this,b));
     }.bind(this));
 
     this.itemSurface.on('click', function(){
         if (this.pos[0] == 0 && this.pos[1] == 0 && this.isEditingMode == false){
-            this.eventOutput.emit(this.options.itemButton.event, this.model);
+            this._eventOutput.emit(this.options.itemButton.event, this.model);
         }
     }.bind(this));
 
-    this.eventInput.on('backToNoneEditing', function(){this.areEditingMode = false}.bind(this))
+    this._eventInput.on('backToNoneEditing', function(){this.areEditingMode = false}.bind(this))
 };
 
 module.exports = ItemView;

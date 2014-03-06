@@ -95,7 +95,7 @@ function ConversationView(appSettings, callee) {
         else if (target.hasClass("menu-toggle-button")) {
             this.toggleMenuToggleButton();
         } else if (target.hasClass("menu-end-button")) {
-            this.eventOutput.emit('end-call',$('.someRandomNull'));
+            this._eventOutput.emit('end-call',$('.someRandomNull'));
         } else if (target.hasClass("input-msg")) {
             this.setConversationOn();
         }
@@ -124,7 +124,7 @@ function ConversationView(appSettings, callee) {
         resizeTimeout = setTimeout(onResize.bind(this), 300);
     }.bind(this));
 
-    this.eventInput.on('incomingChat', function(evt){
+    this._eventInput.on('incomingChat', function(evt){
         this.addRemote(evt.content);
     }.bind(this));
 }
@@ -138,7 +138,7 @@ ConversationView.prototype.start = function(){
 
 ConversationView.prototype.addMsg = function (model){
     var surface = new ConversationItemView({model: model});
-    surface.pipe(this.eventOutput);
+    surface.pipe(this._eventOutput);
     this.scrollview.push(surface);
 //        this.scrollview.node.splice(this.scrollview.node.array.length-1, 0, surface);
 
@@ -149,7 +149,7 @@ ConversationView.prototype.addMsg = function (model){
 ConversationView.prototype.loadMsg = function (){
     var sequence =  this.collection.map(function(item){
         var surface = new ConversationItemView({model: item});
-        surface.pipe(this.eventOutput);
+        surface.pipe(this._eventOutput);
         return surface;
     }.bind(this));
     this.scrollview.sequenceFrom(sequence);
@@ -162,7 +162,7 @@ ConversationView.prototype.addChat = function(){
     if (!message) return;
     document.getElementsByClassName('input-msg')[0].value = "";
     if (this.callee) {
-        this.eventOutput.emit('sendChat', {id: this.callee, message: message});
+        this._eventOutput.emit('sendChat', {id: this.callee, message: message});
     } else {
         // TODO: this is for testing
 //        this.inputSourceLocal = !this.inputSourceLocal;
@@ -192,7 +192,7 @@ ConversationView.prototype.addLocal = function(message){
     };
     this.collection.add(newMsg);
     this.setConversationOn();
-    this.eventOutput.emit('outgoingChat', newMsg);
+    this._eventOutput.emit('outgoingChat', newMsg);
 };
 
 ConversationView.prototype.toggleMenuToggleButton = function (){
@@ -209,7 +209,7 @@ ConversationView.prototype.setConversationOff = function (){
     $('.menu-end-button').removeClass('toShow');
     $('.input-msg').removeClass('short');
     this.contentLightBox.hide();
-    this.eventOutput.emit('menu-toggle-button', false);
+    this._eventOutput.emit('menu-toggle-button', false);
 };
 
 ConversationView.prototype.setConversationOn = function (){
@@ -217,7 +217,7 @@ ConversationView.prototype.setConversationOn = function (){
     $('.menu-end-button').addClass('toShow');
     $('.input-msg').addClass('short');
     if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
-    this.eventOutput.emit('menu-toggle-button', true);
+    this._eventOutput.emit('menu-toggle-button', true);
 };
 
 module.exports = ConversationView;

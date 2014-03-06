@@ -23,7 +23,7 @@ function RecentsSectionView(options) {
         startAt: 'top'
     });
     this.pipe(this.scrollview);
-    this._link(this.scrollview);
+    this._add(this.scrollview);
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
@@ -60,8 +60,8 @@ RecentsSectionView.prototype.loadItems = function() {
     this.scrollview.setPosition(0);
     this.sequence = this.collection.map(function(item){
         var surface = new RecentItemView({model: item});
-        surface.pipe(this.eventOutput);
-        this.eventInput.pipe(surface);
+        surface.pipe(this._eventOutput);
+        this._eventInput.pipe(surface);
         return surface;
     }.bind(this));
     this.scrollview.sequenceFrom(this.sequence);
@@ -69,8 +69,8 @@ RecentsSectionView.prototype.loadItems = function() {
 
 RecentsSectionView.prototype.addItem = function(call) {
     var surface = new RecentItemView({model: call});
-    surface.pipe(this.eventOutput);
-    this.eventInput.pipe(surface);
+    surface.pipe(this._eventOutput);
+    this._eventInput.pipe(surface);
     this.scrollview.addByIndex(0, surface);
 };
 

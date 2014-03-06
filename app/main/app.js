@@ -31,14 +31,14 @@ function App(options) {
     this.layout.id['content'].add(Utility.transformBehind).add(this.contentArea);
 
     // assign received events to content area
-    this.eventInput.pipe(this.contentArea);
+    this._eventInput.pipe(this.contentArea);
 
     // navigation events are app events
     EventHandler.setOutputHandler(this, this.navigation)
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    this._eventInput = new EventHandler();
+    EventHandler.setInputHandler(this, this._eventInput);
+    this._eventOutput = new EventHandler();
+    EventHandler.setOutputHandler(this, this._eventOutput);
 
     // declare the render nodes
     this._currentSection = undefined;
@@ -50,8 +50,8 @@ function App(options) {
 
     // respond to the the selection of a different section
     this.navigation.on('select', function(data) {
-        this.eventOutput.emit('triggerBackToNoneEditing');
-        this.eventOutput.emit('updateRecent');
+        this._eventOutput.emit('triggerBackToNoneEditing');
+        this._eventOutput.emit('updateRecent');
         $('body').removeClass('editing');
         this._currentSection = data.id;
         this.header.show(this._sectionTitles[data.id]);
@@ -60,7 +60,7 @@ function App(options) {
     }.bind(this));
 
     // assign the layout to this view
-    this._link(this.layout);
+    this._add(this.layout);
 }
 App.prototype = Object.create(View.prototype);
 App.prototype.constructor = App;
@@ -136,7 +136,7 @@ App.prototype.initSections = function(sections) {
         this.section(id).add(item);
 
         if(item.pipe) {
-            item.pipe(this.eventInput);
+            item.pipe(this._eventInput);
         }
     }.bind(this));
 };
@@ -147,20 +147,20 @@ App.prototype.onHeaderClick = function(data){
         switch (e.target.id)
         {
             case 'clear-button':
-                this.eventOutput.emit('clearRecent');
+                this._eventOutput.emit('clearRecent');
                 break;
             case 'add-contact':
-                this.eventOutput.emit('editContact');
+                this._eventOutput.emit('editContact');
                 break;
             case 'edit-contact':
                 $('body').toggleClass('editing');
                 break;
             case 'recent-toggle':
-                this.eventOutput.emit('loadRecent', e);
+                this._eventOutput.emit('loadRecent', e);
                 break;
         }
     }.bind(this));
-    this.header._surfaces[data.id].pipe(this.eventOutput);
+    this.header._surfaces[data.id].pipe(this._eventOutput);
 };
 
 module.exports = App;

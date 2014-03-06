@@ -20,10 +20,10 @@ function AddFavoriteView(options) {
     this.model = options.model;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.header = new Surface({
         classes: ['header'],
@@ -49,11 +49,11 @@ function AddFavoriteView(options) {
 
     this.template();
 
-    this.content.pipe(this.eventOutput);
-    this.header.pipe(this.eventOutput);
+    this.content.pipe(this._eventOutput);
+    this.header.pipe(this._eventOutput);
 
     this.header.on('click', function(e){
-        if (target.hasClass("close-button")) this.eventOutput.emit('showApp');
+        if (target.hasClass("close-button")) this._eventOutput.emit('showApp');
     }.bind(this));
 
 }

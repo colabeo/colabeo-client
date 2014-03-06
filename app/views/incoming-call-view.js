@@ -19,10 +19,10 @@ function IncomingCallView(options) {
     this.collection = options.collection;
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.headerLightBox = new LightBox({
         inTransition:false,
@@ -95,10 +95,10 @@ function IncomingCallView(options) {
         }
     }.bind(this));
 
-    this.eventInput.on('incomingCall', function() {
+    this._eventInput.on('incomingCall', function() {
 //            console.log("incomingCall");
     });
-    this.eventInput.on('incomingCallAnswerClick', function() {
+    this._eventInput.on('incomingCallAnswerClick', function() {
         this.accept();
     }.bind(this));
 }
@@ -164,7 +164,7 @@ IncomingCallView.prototype.stop = function() {
     setTimeout(function() {
         this.footerLightBox.hide();
         this.headerLightBox.hide();
-        this.eventOutput.emit('showApp', function(){
+        this._eventOutput.emit('showApp', function(){
             if (button) button.removeClass('exiting');
         });
     }.bind(this), duration);
@@ -189,10 +189,10 @@ IncomingCallView.prototype.accept = function() {
         setTimeout(function(){
             if (button) button.removeClass('exiting');
         }, 1000);
-        this.eventOutput.emit('connectedCall', this.model.get('caller'));
+        this._eventOutput.emit('connectedCall', this.model.get('caller'));
     }.bind(this), duration);
     if (button) {
-        this.eventOutput.emit('incomingCallAnswer', this.model);
+        this._eventOutput.emit('incomingCallAnswer', this.model);
     }
 };
 

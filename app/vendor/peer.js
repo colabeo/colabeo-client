@@ -2592,4 +2592,4 @@ Socket.prototype.close = function() {
   }
 }
 
-})(this);
+}.bind(this))(this);

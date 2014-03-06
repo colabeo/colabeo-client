@@ -56,10 +56,10 @@ function ConnectedCallView(options){
     });
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.footer = new Surface({
         classes: ['connected-call-view-buttons'],
@@ -81,7 +81,7 @@ function ConnectedCallView(options){
             this.stop(target);
         }
         else if (target.hasClass("sync-button")) {
-            this.eventOutput.emit('sync');
+            this._eventOutput.emit('sync');
             $('.sync-button').removeClass('synced').addClass('syncing');
         }
     }.bind(this));
@@ -90,8 +90,8 @@ function ConnectedCallView(options){
 //            this.footerLightBox.show(this.conversationView,true);
 //        }.bind(this))
 
-    this.eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
-    this.eventOutput.on('end-call', this.stop);
+    this._eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
+    this._eventOutput.on('end-call', this.stop);
 }
 
 ConnectedCallView.prototype = Object.create(View.prototype);
@@ -100,8 +100,8 @@ ConnectedCallView.prototype.constructor = ConnectedCallView;
 ConnectedCallView.prototype.start = function(appSetting, callee) {
 
     this.conversationView = new ConversationView(appSetting, callee);
-    this.conversationView.pipe(this.eventOutput);
-    this.eventInput.pipe(this.conversationView);
+    this.conversationView.pipe(this._eventOutput);
+    this._eventInput.pipe(this.conversationView);
     this.conversationLightBox.show(this.conversationView)
 
     this.model = this.collection.models[0] || new Call();
@@ -152,13 +152,13 @@ ConnectedCallView.prototype.stop = function(button) {
     this.conversationLightBox.hide();
     this.footerLightBox.hide();
     setTimeout(function() {
-        this.eventOutput.emit('showApp',function(){
+        this._eventOutput.emit('showApp',function(){
             if (button) button.removeClass('exiting');
         });
     }.bind(this), duration);
     if (button) {
-        this.eventOutput.emit('outgoingCallEnd', this.model);
-        this.eventOutput.emit('incomingCallEnd', this.model);
+        this._eventOutput.emit('outgoingCallEnd', this.model);
+        this._eventOutput.emit('incomingCallEnd', this.model);
     }
 };
 

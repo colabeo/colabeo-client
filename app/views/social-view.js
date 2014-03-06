@@ -24,10 +24,10 @@ function SocialView(options) {
     this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
     // Set up event handlers
-    this.eventInput = new EventHandler();
-    EventHandler.setInputHandler(this, this.eventInput);
-    this.eventOutput = new EventHandler();
-    EventHandler.setOutputHandler(this, this.eventOutput);
+    // this.eventInput = new EventHandler();
+    // EventHandler.setInputHandler(this, this.eventInput);
+    // this.eventOutput = new EventHandler();
+    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.headerFooterLayout = new HeaderFooterLayout({
         headerSize: this.searchBarSize,
@@ -138,7 +138,7 @@ SocialView.prototype.loadContacts = function(searchKey) {
         var emptySurface = new Surface({
             size: [undefined, extraHeight]
         });
-        emptySurface.pipe(this.eventOutput);
+        emptySurface.pipe(this._eventOutput);
         sequence.push(emptySurface);
     }
 
@@ -170,7 +170,7 @@ SocialView.prototype.getIndex = function (item){
         this.getCurrentIndex(item);
     }
     var surface = new SocialItemView({model: item}, isFirst);
-    surface.pipe(this.eventOutput);
+    surface.pipe(this._eventOutput);
     return surface;
 };
 

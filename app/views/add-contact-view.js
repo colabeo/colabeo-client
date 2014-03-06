@@ -8,6 +8,7 @@ var EdgeSwapper        = require('famous/views/edge-swapper');
 //import custom modules
 var UpDownTransform = require('up-down-transform');
 var Templates       = require('templates');
+var Helpers            = require('helpers');
 
 // import models
 var Models = require("models");
@@ -106,7 +107,7 @@ function AddContactView(options) {
                 if (_.isArray(this.social[source].models)) {
                     //TODO: pull collections from server
                     var newSocialView = new ImportContactView({
-                        title: _(source).capitalize(),
+                        title: Helpers.capitalize(source),
                         collection: this.social[source]});
                     newSocialView.pipe(this.eventOutput);
                     edgeSwapper.show(newSocialView, true);
@@ -115,7 +116,7 @@ function AddContactView(options) {
             function onErrorHandler() {
                 this.eventOutput.emit('onSocialLink', source);
                 delete this.social[source];
-//                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
+//                    alert("Go to Settings and link before adding " + Helpers.capitalize(source) + " contact.");
             }
 
         } else if (target.hasClass('remove-button')){

@@ -1081,21 +1081,3 @@ function onMessage(e) {
 }
 
 module.exports = MainController;
-
-// underscore util functions
-_.mixin({
-    capitalize: function(string) {
-        return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
-    }
-});
-
-//Array.prototype.sum = function () {
-//    var total = 0;
-//    var i = this.length;
-//
-//    while (i--) {
-//        total += this[i];
-//    }
-//
-//    return total;
-//}

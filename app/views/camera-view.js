@@ -8,21 +8,27 @@ var Transform    = require("famous/transform");
 function CameraView(options) {
     View.call(this);
     this.model = options.model;
-
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     // Set up event handlers
     // this.eventInput = new EventHandler();
     // EventHandler.setInputHandler(this, this.eventInput);
     // this.eventOutput = new EventHandler();
     // EventHandler.setOutputHandler(this, this.eventOutput);
 
+    var videoHtml = '<div class="camera local-video blur off">';
+    if (navigator.getUserMedia) videoHtml += '<video muted="true" autoplay poster="content/images/transparent.png"></video>';
+    videoHtml += '</div>';
     this.localVideoSurface = new Surface({
-        content: '<div class="camera local-video blur off"><video muted="true" autoplay poster="content/images/transparent.png"></video></div>'
+        content: videoHtml
     });
+    var videoHtml = '<div class="camera remote-video">';
+    if (navigator.getUserMedia) videoHtml += '<video autoplay poster="content/images/transparent.png"></video>';
+    videoHtml += '</div>';
     this.remoteVideoSurface = new Surface({
         properties: {
             zIndex: -3
         },
-        content: '<div class="camera remote-video"><video autoplay poster="content/images/transparent.png"></video></div>'
+        content: videoHtml
     });
     this.localVideoSurface.pipe(this._eventOutput);
     this.remoteVideoSurface.pipe(this._eventOutput);

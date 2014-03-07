@@ -72,7 +72,7 @@ function ConnectedCallView(options){
     });
 
     this._add(this.backSurface);
-    this._add(this.footerLightBox);
+//    this._add(this.footerLightBox);
     this._add(this.conversationLightBox);
 
     this.footer.on('click', function(e) {

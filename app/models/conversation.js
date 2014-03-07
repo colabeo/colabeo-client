@@ -7,6 +7,6 @@ module.exports = Backbone.Model.extend({
         from: ""
     },
     isLocal: function () {
-        return this.get('source') == 'local' || this.get('from') == _cola_g.cid;
+        return this.get('source') == 'local' || this.get('from') == window._cola_g.cid;
     }
 });

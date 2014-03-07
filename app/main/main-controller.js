@@ -78,7 +78,10 @@ function MainController() {
             firebase: this.appSettings.get('firebaseUrl') + 'users/' + this.appSettings.get('cid')+'/contacts'
         });
         this.recentCalls = new RecentsCollection([], {
-            firebase: this.appSettings.get('firebaseUrl') + 'history/' + this.appSettings.get('cid')+'/recents'
+            firebase: this.appSettings.get('firebaseUrl') + 'history/' + this.appSettings.get('cid')+'/calls'
+        });
+        this.recentChats = new RecentsCollection([], {
+            firebase: this.appSettings.get('firebaseUrl') + 'history/' + this.appSettings.get('cid')+'/chats'
         });
         this.curCall = new Call();
 
@@ -387,7 +390,7 @@ function MainController() {
         colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
-//            colabeo.connectedCallView = connectedCallView;
+            colabeo.connectedCallView = connectedCallView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
@@ -812,7 +815,7 @@ MainController.prototype.callByContactSingle = function(data) {
 
 MainController.prototype.callById = function(id, provider) {
     if (!id) return;
-    var recentsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + id +'/recents');
+    var recentsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + id +'/calls');
     var newCall = {
         firstname: this.appSettings.get('firstname'),
         lastname: this.appSettings.get('lastname'),
@@ -879,6 +882,18 @@ MainController.prototype.sendChatById = function(id, message) {
     }
     toRef.push(chatObj);
     fromRef.push(chatObj);
+    var recentsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + id +'/chats/' + userId);
+    var newChat = {
+        firstname: this.appSettings.get('firstname'),
+        lastname: this.appSettings.get('lastname'),
+        email: this.appSettings.get('email'),
+        pictureUrl: false,
+        time: Firebase.ServerValue.TIMESTAMP,
+        caller: this.appSettings.get('cid'),
+        content: message,
+        type: 'text'
+    };
+    recentsRef.set(newChat);
 }
 
 MainController.prototype.loadUser = function(done) {

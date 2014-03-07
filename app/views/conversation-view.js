@@ -187,7 +187,7 @@ ConversationView.prototype.addLocal = function(message){
         content: message,
         source: 'local',
         type: 'text',
-        from: _cola_g.cid,
+        from: window._cola_g.cid,
         time: Date.now()
     };
     this.collection.add(newMsg);

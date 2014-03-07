@@ -26,10 +26,6 @@ function ConversationItemView(options){
     this.template();
 
     this.surface.pipe(this._eventOutput);
-    this.mod = new Modifier({
-        transform: undefined
-    });
-    this._add(this.mode);
     this._add(this.surface);
 }
 

@@ -529,7 +529,15 @@ input {
 .contact-item.recent-item .source {
   margin-right:20px;
 }
-
+.contact-item.chat-item .source {
+  line-height: 28px;
+}
+.contact-item.chat-item .message {
+  color: @color-grey;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+  overflow:hidden;
+}
 .contact-item .source.missed {
   color: @button-color-end-call;
 }
@@ -564,7 +572,11 @@ input {
   margin: 8px 5px 0px 0px;
   font-size: 13px;
 }
-
+.contact-item.chat-item .source .call-time {
+  height: 20px;
+  line-height: 20px;
+  margin: 3px 5px 0px 0px;
+}
 .contact-section-search-bar{
   padding: 10px;
 //  padding-right: 100px;

@@ -150,6 +150,8 @@ module.exports = {
         ].join('');
     },
 
+
+
     recentItemView: function(call) {
         var name;
         if (call.get('firstname') || call.get('lastname')) {
@@ -178,6 +180,33 @@ module.exports = {
             '<div class="call-time">',
             Helpers.timeSince(call.get('time')),
             '</div></div></div>'
+        ].join('');
+    },
+
+    chatItemView: function(contact) {
+        var name;
+        var initial = "";
+        if (contact.get('firstname') || contact.get('lastname')) {
+            name = contact.get('firstname') + " <b>" + contact.get('lastname') + "</b>";
+            if (contact.get('firstname')) initial = contact.get('firstname')[0];
+            if (contact.get('lastname')) initial +=  contact.get('lastname')[0];
+        } else {
+            name = contact.get('email');
+            if (name) initial = name[0];
+        }
+        return [
+            '<div style = " width: ',
+            window.innerWidth,
+            'px"><div class="source"><div class="initial">',
+            initial,
+            '</div>',
+            name,
+            '<div class="call-time">',
+            Helpers.timeSince(contact.get('time')),
+            '</div>',
+            '<div class="message">',
+            contact.get('content'),
+            '</div></div>'
         ].join('');
     },
 
@@ -268,6 +297,12 @@ module.exports = {
             '<input type="radio" id="missed" name="recents-toggle" value="missed">',
             '<label for="missed" class="last" id="recent-toggle">missed</label></div>',
             '<button class="right edit-button" id="recent-edit-contact"></button>'
+        ].join('');
+    },
+
+    chatsHeader: function() {
+        return [
+            '<button class="left edit-button" id="chats-edit-contact"></button><div>Messages</div>'
         ].join('');
     },
 

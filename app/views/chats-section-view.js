@@ -6,16 +6,16 @@ var VerticalScrollView       = require('vertical-scroll-view');
 var Engine           = require('famous/engine');
 
 var Templates        = require('templates');
-var RecentItemView   = require('recent-item-view');
+var ChatItemView   = require('chat-item-view');
 
-function RecentsSectionView(options) {
+function ChatsSectionView(options) {
 
     View.call(this);
 
-    this.title = Templates.recentsHeader();
+    this.title = Templates.chatsHeader();
     this.navigation = {
-        caption: 'Calls',
-        icon: '<i class="fa fa-phone"></i>'
+        caption: 'Messages',
+        icon: '<i class="fa fa-comments-o"></i>'
     };
 
     this.collection = options.collection;
@@ -46,20 +46,22 @@ function RecentsSectionView(options) {
     }.bind(this));
 }
 
-RecentsSectionView.prototype = Object.create(View.prototype);
-RecentsSectionView.prototype.constructor = RecentsSectionView;
+ChatsSectionView.prototype = Object.create(View.prototype);
+ChatsSectionView.prototype.constructor = ChatsSectionView;
 
-RecentsSectionView.prototype.updateItems = function() {
+ChatsSectionView.prototype.updateItems = function() {
     _.each(this.sequence, function(itemView){
         if (itemView.updateItem) itemView.updateItem();
     });
 };
 
-RecentsSectionView.prototype.loadItems = function() {
+ChatsSectionView.prototype.loadItems = function() {
     this.collection.fetch();
     this.scrollview.setPosition(0);
     this.sequence = this.collection.map(function(item){
-        var surface = new RecentItemView({model: item});
+        var surface = new ChatItemView({
+            model: item
+        });
         surface.pipe(this._eventOutput);
         this._eventInput.pipe(surface);
         return surface;
@@ -67,33 +69,15 @@ RecentsSectionView.prototype.loadItems = function() {
     this.scrollview.sequenceFrom(this.sequence);
 };
 
-RecentsSectionView.prototype.addItem = function(call) {
-    var surface = new RecentItemView({model: call});
+ChatsSectionView.prototype.addItem = function(call) {
+    var surface = new ChatItemView({model: call});
     surface.pipe(this._eventOutput);
     this._eventInput.pipe(surface);
     this.scrollview.addByIndex(0, surface);
 };
 
-RecentsSectionView.prototype.removeItemByIndex = function(index) {
+ChatsSectionView.prototype.removeItemByIndex = function(index) {
     this.scrollview.removeByIndex(index);
 };
 
-RecentsSectionView.prototype.clearAll = function(){
-//    _.invoke(this.collection.all(), 'destroy');
-    _(this.collection.all()).each(function(item){item.collection.remove(item)});
-};
-
-RecentsSectionView.prototype.setMissedOnly = function(miss){
-    var missedOnly = (miss == 'missed');
-    _.each(this.sequence, function(itemView){
-        if (!itemView.collapse) return;
-        if (missedOnly) {
-            if (!itemView.model.isMissed()) {
-                itemView.collapse();
-            }
-        }
-        else itemView.expand();
-    }.bind(this));
-};
-
-module.exports = RecentsSectionView;
+module.exports = ChatsSectionView;

@@ -27,5 +27,9 @@ function RecentItemView(options){
 RecentItemView.prototype = Object.create(ItemView.prototype);
 RecentItemView.prototype.constructor = RecentItemView;
 
+RecentItemView.prototype.updateItem = function(){
+    this.itemSurface.setContent(Templates.recentItemView(this.model));
+};
+
 module.exports = RecentItemView;
 

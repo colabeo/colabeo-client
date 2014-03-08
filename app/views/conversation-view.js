@@ -59,7 +59,7 @@ function ConversationView(appSettings, callee) {
     });
 
     if (callee) {
-            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + callee;
+            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + callee.cid;
         this.collection = new ChatCollection([], {
             firebase: url
         });
@@ -162,7 +162,7 @@ ConversationView.prototype.addChat = function(){
     if (!message) return;
     document.getElementsByClassName('input-msg')[0].value = "";
     if (this.callee) {
-        this._eventOutput.emit('sendChat', {id: this.callee, message: message});
+        this._eventOutput.emit('sendChat', {contact: this.callee, message: message});
     } else {
         // TODO: this is for testing
 //        this.inputSourceLocal = !this.inputSourceLocal;

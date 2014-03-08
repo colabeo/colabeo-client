@@ -169,7 +169,7 @@ ItemView.prototype.setupSurfaces = function(){
 };
 
 ItemView.prototype.updateItem = function(){
-    this.itemSurface.setContent(Templates.recentItemView(this.model));
+
 };
 
 ItemView.prototype.animateItem = function(){

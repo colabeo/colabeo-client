@@ -16,9 +16,8 @@ RowView.prototype.collapse = function(callback) {
     this.surfacesMod.setOpacity(0,{duration:600}, callback);
 };
 
-RowView.prototype.expand = function (size,callback) {
-    if (!size) var size = 1;
-    this.surfacesMod.setOpacity(size,{duration:0}, callback);
+RowView.prototype.expand = function (callback) {
+    this.surfacesMod.setOpacity(1,{duration:600}, callback);
 };
 
 RowView.prototype.getSize = function() {

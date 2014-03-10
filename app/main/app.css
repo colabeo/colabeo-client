@@ -1038,7 +1038,7 @@ input {
 }
 .conversation-input-bar div {
   font-size: 30px;
-  line-height: 30px;
+  line-height: 40px;
   width: 100%;
 }
 .conversation-input-bar .menu-toggle-button {
@@ -1081,7 +1081,8 @@ input {
   background-color: rgba(185, 185, 185, 0.2);
   color: #ffffff;
   font-size: 18px;
-  height: 50px;
+  margin-top: 5px;
+  height: 40px;
   width: 100%;
   display: block;
   border-left: solid #000000 5px;
@@ -1095,28 +1096,30 @@ input {
   border-left: solid #000000 90px;
 }
 .conversation-exit {
-  color: #c23635;
+  color: #ffffff;
   width: 100%;
   height: 100%;
   text-align: center;
-  font-size: 35px;
   background: black;
 }
 .conversation-exit i {
   float: left;
   line-height: 45px;
-  padding-left: 10px;
+  padding-left: 20px;
 }
 .conversation-exit .conversation-callee {
-  font-size: 32px;
+  float: left;
+  line-height: 45px;
+  padding-left: 20px;
   color: #ffffff;
 }
 .conversation-call {
   color: #5db04c;
   width: 100%;
   height: 100%;
-  font-size: 35px;
   text-align: center;
+  line-height: 45px;
+  border-left: thin solid rgba(255, 255, 255, 0.2);
   background: black;
 }
 .conversation-endCall {
@@ -1125,17 +1128,39 @@ input {
   height: 100%;
   color: #c23635;
   font-size: 35px;
+  border-left: thin solid rgba(255, 255, 255, 0.2);
 }
 .conversation-endCall button {
   -webkit-transform: rotate(135deg);
   -moz-transform: rotate(135deg);
 }
 .conversation-camera {
-  color: #3398cd;
-  font-size: 35px;
   background: black;
   width: 100%;
   height: 100%;
+  text-align: center;
+  line-height: 45px;
+  border-left: thin solid rgba(255, 255, 255, 0.2);
+}
+.conversation-camera .on {
+  color: #3398cd;
+}
+.conversation-camera .off {
+  color: rgba(255, 255, 255, 0.2);
+}
+.conversation-audio {
+  background: black;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 45px;
+  border-left: thin solid rgba(255, 255, 255, 0.2);
+}
+.conversation-audio .on {
+  color: #3398cd;
+}
+.conversation-audio .off {
+  color: rgba(255, 255, 255, 0.2);
 }
 .item-buttons {
   text-align: center;

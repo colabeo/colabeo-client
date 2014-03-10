@@ -1183,7 +1183,7 @@ input {
 
 .conversation-input-bar div{
   font-size: 30px;
-  line-height: 30px;
+  line-height: 40px;
   width: 100%;
 }
 
@@ -1234,7 +1234,8 @@ input {
   background-color: rgba(185, 185, 185, 0.2);
   color: @text-color;
   font-size: 18px;
-  height: 50px;
+  margin-top:5px;
+  height: 40px;
   width: 100%;
   display: block;
   border-left: solid @theme-background-color 5px;
@@ -1250,11 +1251,10 @@ input {
 }
 
 .conversation-exit {
-  color: @button-color-end-call;
+  color: @color-white;
   width: 100%;
   height: 100%;
   text-align: center;
-  font-size: 35px;
 //  border: @button-color-end-call solid 3px;
 //  box-sizing: border-box;
   background: black;
@@ -1262,10 +1262,13 @@ input {
 .conversation-exit i{
   float: left;
   line-height: 45px;
-  padding-left: 10px;
+  padding-left: 20px;
 }
 .conversation-exit .conversation-callee{
-  font-size:32px;
+//  font-size:32px;
+  float: left;
+  line-height: 45px;
+  padding-left: 20px;
   color: @text-color;
 }
 
@@ -1273,8 +1276,9 @@ input {
   color: @color-green;
   width: 100%;
   height: 100%;
-  font-size: 35px;
   text-align: center;
+  line-height: 45px;
+  border-left: thin solid @tranlucent-white-v;
 //  box-sizing: border-box;
 //  border: @color-green solid 3px;
   background: black;
@@ -1286,7 +1290,8 @@ input {
   height: 100%;
   color: @button-color-end-call;
   font-size: 35px;
-//  border: @button-color-end-call solid 3px;
+  border-left: thin solid @tranlucent-white-v;
+  //  border: @button-color-end-call solid 3px;
 //  box-sizing: border-box;
 }
 .conversation-endCall button{
@@ -1295,14 +1300,39 @@ input {
 }
 
 .conversation-camera{
-  color: @color-blue;
-  font-size:35px;
   background: black;
   //  border: @color-blue solid 3px;
 //  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  text-align: center;
+  line-height: 45px;
+  border-left: thin solid @tranlucent-white-v;
 }
+.conversation-camera .on{
+  color: @color-blue;
+}
+.conversation-camera .off{
+  color: @tranlucent-white-v;
+}
+
+.conversation-audio{
+  background: black;
+  //  border: @color-blue solid 3px;
+  //  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 45px;
+  border-left: thin solid @tranlucent-white-v;
+}
+.conversation-audio .on{
+  color: @color-blue;
+}
+.conversation-audio .off{
+  color: @tranlucent-white-v;
+}
+
 //item-view css
 .item-buttons{
   //  padding-top: 4px;

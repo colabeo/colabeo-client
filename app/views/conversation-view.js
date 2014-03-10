@@ -25,7 +25,6 @@ var Helper = require('helpers');
 function ConversationView(appSettings, call) {
 
     View.call(this);
-    this.call = call;
 
     this.setupBeepeTone();
     this.setupcall(appSettings,call);
@@ -67,6 +66,15 @@ ConversationView.prototype.setupBeepeTone = function(){
 };
 
 ConversationView.prototype.setupcall = function(appSettings,call){
+    this.appSettings = appSettings;
+
+    this.appSettings.on({
+        'change:camera': this._eventOutput.emit('setCamera'),
+        'change:audio': this._eventOutput.emit('setAudio')
+    });
+
+    this.call = call;
+
     // TODO: hack for no real users
     if (Helper.isDev()){
         this.collection = new ConversationCollection();
@@ -99,7 +107,7 @@ ConversationView.prototype.initHeader = function(){
 
     this.callSurface = new Surface({
         size:[150, 50],
-        content:'<div class="conversation-call"><i class="fa fa-phone"></i></div>',
+        content:'<div class="conversation-call"><i class="fa fa-phone fa-lg"></i></div>',
         properties:{
             cursor: "pointer"
         }
@@ -111,7 +119,8 @@ ConversationView.prototype.initHeader = function(){
 
     this.endCallSurface = new Surface({
         size:[75, 50],
-        content: '<button class="fa fa-phone conversation-endCall"></button>',
+        classes:['conversation-endCall'],
+        content: '<button class="fa fa-phone"></button>',
         properties:{
             cursor: "pointer"
         }
@@ -119,10 +128,23 @@ ConversationView.prototype.initHeader = function(){
     this.endCallSurface.pipe(this._eventOutput);
     this.endCallSurfaceMod = new Modifier({
         origin:[1,0]
+    }); 
+    
+    this.audioSurface = new Surface({
+        size:[75, 50],
+        classes:['conversation-audio'],
+        properties:{
+            cursor: "pointer"
+        }
+    });
+    this.audioSurface.pipe(this._eventOutput);
+    this.audioSurfaceMod = new Modifier({
+        origin:[1,0]
     });
 
     this.cameraSurface = new Surface({
         size:[75, 50],
+        classes:['conversation-camera'],
         properties:{
             cursor: "pointer"
         }
@@ -132,13 +154,21 @@ ConversationView.prototype.initHeader = function(){
         transform: Transform.translate(-75,0,0)
     });
     this.cameraSurfaceSetContent();
+    this.audioSurfaceSetContent();
 };
 
 ConversationView.prototype.cameraSurfaceSetContent = function(){
-    if (this.camera == true) {
-        this.cameraSurface.setContent('<button class="conversation-camera fa fa-eye fa-lg"></button>');
+    if (this.appSettings.attributes.camera == true) {
+        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg on"></button>');
     } else {
-        this.cameraSurface.setContent('<button class="conversation-camera fa fa-eye-slash fa-lg"></button>');
+        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg off"></button>');
+    }
+};
+ConversationView.prototype.audioSurfaceSetContent = function(){
+    if (this.appSettings.attributes.audio == true) {
+        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg on"></button>');
+    } else {
+        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg off"></button>');
     }
 };
 
@@ -198,15 +228,6 @@ ConversationView.prototype.setupLayout = function(){
         headerSize:50,
         footerSize:50
     });
-
-    this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
-    this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
-    this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
-    this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
-    this.headerFooterLayout.id.content.add(this.conversationLightbox);
-    this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
-    this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
-
     this.backSurface = new Surface({
         classes:['backGroundSurface'],
         size:[undefined,undefined]
@@ -215,8 +236,17 @@ ConversationView.prototype.setupLayout = function(){
         transform:Transform.translate(0,0,0)
     });
 
+    this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
+    this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
+//    this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
+    this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
+    this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
+    this.headerFooterLayout.id.content.add(this.conversationLightbox);
+    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
+    this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
+    this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
+
     this._add(this.headerFooterLayout);
-    this._add(this.backSurfaceMod).add(this.backSurface);
 };
 
 ConversationView.prototype.onResize = function(){
@@ -270,14 +300,22 @@ ConversationView.prototype.buttonsEvents = function(){
     this.exitSurface.on('click', function(){
         this._eventOutput.emit('end-call',$('.someRandomNull'));
     }.bind(this));
+
     this.callSurface.on('click', function(){
         this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition)
     }.bind(this));
+
     this.endCallSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(0,0,1), this.buttonTransition)
+        this._eventOutput.emit('end-call',$('.someRandomNull'));
     }.bind(this));
+
+    this.audioSurface.on('click', function(){
+        this.appSettings.save({audio : !this.appSettings.attributes.audio});
+        this.audioSurfaceSetContent();
+    }.bind(this));
+    
     this.cameraSurface.on('click', function(){
-        this.camera = !this.camera;
+        this.appSettings.save({camera : !this.appSettings.attributes.camera});
         this.cameraSurfaceSetContent();
     }.bind(this));
 
@@ -289,6 +327,7 @@ ConversationView.prototype.buttonsEvents = function(){
         this._eventOutput.emit('toggleMsg');
     }.bind(this));
 };
+
 ConversationView.prototype.addMsg = function (model){
     var surface = new ConversationItemView({model: model});
     surface.pipe(this._eventOutput);
@@ -311,6 +350,8 @@ ConversationView.prototype.textingEvents = function(){
     }.bind(this));
 
     this._eventOutput.on('toggleMsg',function(){
+        // TODO: disable toggle function.
+        if (Helper.isDev()) return;
         console.log('conversation');
         if(this.conversationLightbox._showing) this.conversationLightbox.hide();
         else this.conversationLightbox.show(this.scrollview);
@@ -382,14 +423,6 @@ ConversationView.prototype.showConversation = function (){
 };
 
 ConversationView.prototype.addMsg = function(model){
-//    var surface = new Surface({
-//        size:[undefined,50],
-//        content: model.content,
-//        properties:{
-//            backgroundColor:"grey"
-//        }
-//    });
-//    surface.pipe(this._eventOutput);
     this.scrollview.push(this.createMsgItem(model));
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };

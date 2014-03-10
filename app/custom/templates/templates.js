@@ -323,7 +323,7 @@ module.exports = {
         } else {
             name = 'Shana <b> Ho </b>';
         }
-        var content = ['<div class="conversation-exit"><i class="fa fa-arrow-left"></i><span class="conversation-callee">',
+        var content = ['<div class="conversation-exit"><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">',
             name,
             '</span></div>'].join('');
         return content;

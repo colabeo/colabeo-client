@@ -69,7 +69,7 @@ ConversationView.prototype.setupcall = function(appSettings,call){
     this.appSettings = appSettings;
 
     this.appSettings.on({
-        'change:camera': this._eventOutput.emit('setCamera'),
+        'change:video': this._eventOutput.emit('setVideo'),
         'change:audio': this._eventOutput.emit('setAudio')
     });
 
@@ -150,7 +150,7 @@ ConversationView.prototype.initHeader = function(){
 };
 
 ConversationView.prototype.cameraSurfaceSetContent = function(){
-    if (this.appSettings.attributes.camera == true) {
+    if (this.appSettings.attributes.video == true) {
         this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg on"></button>');
     } else {
         this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg off"></button>');
@@ -307,7 +307,7 @@ ConversationView.prototype.buttonsEvents = function(){
     }.bind(this));
     
     this.cameraSurface.on('click', function(){
-        this.appSettings.save({camera : !this.appSettings.attributes.camera});
+        this.appSettings.save({video : !this.appSettings.attributes.video});
         this.cameraSurfaceSetContent();
     }.bind(this));
 

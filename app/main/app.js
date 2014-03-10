@@ -8,6 +8,7 @@ var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var EdgeSwapper        = require('famous/views/edge-swapper');
 var TabBar             = require('famous/widgets/tab-bar');
 var TitleBar           = require('famous/widgets/title-bar');
+var Templates          = require('templates');
 
 function App(options) {
     // extend from view
@@ -57,6 +58,14 @@ function App(options) {
         this.header.show(this._sectionTitles[data.id]);
         this.contentArea.show(this._sections[data.id].get());
 //            if (!this.header._surfaces[data.id].eventHandled) this.onHeaderClick(data);
+    }.bind(this));
+
+    var recentsChats = options.sections[0].collection;
+    recentsChats.on('all', function(e, model) {
+        var badge = recentsChats.getUnreadCount() || '';
+        var badgeButton = $(this.navigation.buttons[0].options.content);
+        badgeButton.find('.badge').text(badge);
+        this.navigation.buttons[0].setOptions({content: badgeButton[0].outerHTML});
     }.bind(this));
 
     // assign the layout to this view
@@ -111,7 +120,7 @@ App.prototype.section = function(id) {
         this._sections[id].setOptions = (function(options) {
             this._sectionTitles[id] = options.title;
             this.navigation.defineSection(id, {
-                content: '<span class="icon">' + options.navigation.icon + '</span><br />' + options.navigation.caption
+                content: Templates.navigationButton(options.navigation)
             });
         }).bind(this);
     }

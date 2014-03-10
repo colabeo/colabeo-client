@@ -17,10 +17,10 @@ var ConversationCollection = require('models').ConversationCollection;
 var ChatCollection = require('models').ChatCollection;
 var ConversationItemView   = require('conversation-item-view');
 
-function ConversationView(appSettings, callee) {
+function ConversationView(appSettings, call) {
 
     View.call(this);
-    this.callee = callee;
+    this.call = call;
     this.messageTone = new SoundPlayer([
         'content/audio/beep.mp3'
     ]);
@@ -58,8 +58,8 @@ function ConversationView(appSettings, callee) {
         overlap: false
     });
 
-    if (callee) {
-            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + callee.cid;
+    if (call) {
+            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call.get('cid');
         this.collection = new ChatCollection([], {
             firebase: url
         });
@@ -80,11 +80,18 @@ function ConversationView(appSettings, callee) {
 
     this.loadMsg();
 
+    var playBeepe = _.debounce(function(){
+        this.messageTone.playSound(0, 0.3);
+    }.bind(this), 300);
     this.collection.on('all', function(e,model,collection,options){
         switch(e){
             case 'add':
                 this.addMsg(model);
-                this.messageTone.playSound(0, 0.3);
+                playBeepe();
+                // only keep at most 100 messages
+                if (this.collection.size()>=100) {
+                    this.collection.shift();
+                }
                 break;
         }
     }.bind(this));
@@ -136,6 +143,10 @@ ConversationView.prototype.start = function(){
     //TODO: NOthing yet
 };
 
+ConversationView.prototype.stop = function(){
+    this.collection.off();
+};
+
 ConversationView.prototype.addMsg = function (model){
     var surface = new ConversationItemView({model: model});
     surface.pipe(this._eventOutput);
@@ -161,8 +172,8 @@ ConversationView.prototype.addChat = function(){
     var message= document.getElementsByClassName('input-msg')[0].value;
     if (!message) return;
     document.getElementsByClassName('input-msg')[0].value = "";
-    if (this.callee) {
-        this._eventOutput.emit('sendChat', {contact: this.callee, message: message});
+    if (this.call) {
+        this._eventOutput.emit('sendChat', {contact: this.call, message: message});
     } else {
         // TODO: this is for testing
 //        this.inputSourceLocal = !this.inputSourceLocal;

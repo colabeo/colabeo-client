@@ -1910,6 +1910,11 @@ require.register("app/models/recents-collection.js", function(exports, require, 
         },
         comparator: function(model) {
             return -1 * model.get("time");
+        },
+        getUnreadCount: function() {
+            return this.filter(function(item) {
+                return !item.get("read");
+            }).length;
         }
     });
 }.bind(this));
@@ -15992,6 +15997,186 @@ require.register("app/custom/helpers/helpers.js", function(exports, require, mod
     };
 }.bind(this));
 
+require.register("app/custom/templates/templates.js", function(exports, require, module) {
+    var Helpers = require("helpers");
+    var Utility = require("famous/utilities/utility");
+    module.exports = {
+        toggleSwitch: function(id, checked, disabled) {
+            var html = [ '<div class="onoffswitch">', '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="', id, '" ' ];
+            if (checked) html.push("checked ");
+            if (disabled) html.push("disabled ");
+            html.push('><label class="onoffswitch-label');
+            if (disabled) html.push(" disabled");
+            html = html.concat([ '" for="', id, '">', '<div class="onoffswitch-inner"></div>', '<div class="onoffswitch-switch"></div>', "</label>", "</div>" ]);
+            return html.join("");
+        },
+        toggleButton: function(options) {
+            if (!options.id) options.id = "toggleButton" + Math.floor(1e5 * Math.random());
+            if (!options.classes) options.classes = [];
+            var html = [ '<div class="onoffbutton ' + options.classes.join(" ") + '">', '<input type="checkbox" name="onoffbutton" class="onoffbutton-checkbox"' ];
+            if (options.id) html.push(' id="' + options.id + '" ');
+            if (options.checked) html.push("checked");
+            html.push('><label class="onoffbutton-label" for="' + options.id + '"');
+            if (options.size) {
+                html = html.concat([ 'style="width:' + options.size[0] + "px;", "line-height:" + options.size[1] + 'px;"' ]);
+            }
+            html.push('><div class="onoffbutton-on"');
+            if (options.onBackgroundColor) {
+                html.push('style="background-color:' + options.onBackgroundColor + ';"');
+            }
+            html.push(">" + options.onContent + "</div>");
+            html.push('<div class="onoffbutton-off"');
+            if (options.offBackgroundColor) {
+                html.push('style="background-color:' + options.offBackgroundColor + ';"');
+            }
+            html = html.concat([ ">" + options.offContent + "</div>", "</label>", "</div>" ]);
+            return html.join("");
+        },
+        deleteButton: function() {
+            return '<button class="delete-button fa fa-trash-o fa-lg"></button>';
+        },
+        addButton: function(id) {
+            return '<i class="fa fa-plus add-button" id="' + id + '"></i>';
+        },
+        plusButton: function(id) {
+            return [ '<span class="fa-stack fa-lg delete-button2" id="', id, '"><i class="fa fa-circle fa-stack"></i>', '<i class="fa fa-plus fa-stack"></i>', "</span>" ].join("");
+        },
+        phoneButton: function(id) {
+            return [ '<span class="fa-stack fa-lg phone-button" id="', id, '"><i class="fa fa-square fa-stack-2x fa-background"></i>', '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
+        },
+        removeButton: function(id) {
+            return '<i class="fa fa-times remove-button" id="' + id + '"></i>';
+        },
+        crossButton: function(id) {
+            return [ '<span class="fa-stack delete-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-times fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
+        },
+        favoriteButton2: function(ative, id) {
+            var html = [ '<span class="fa-stack favorite-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-star fa-stack-1x fa-frontground' ];
+            if (ative) html.push(" active");
+            html.push('"></i></span>');
+            return html.join("");
+        },
+        nextButton: function(id) {
+            return '<i class="arrow fa fa-angle-right fa-lg import-contact" id="' + id + '"></i>';
+        },
+        favoriteButton: function(active) {
+            var html = [ '<i class="favorite-button fa fa-star fa-2x' ];
+            if (active) html.push(" active");
+            html.push('"></i>');
+            return html.join("");
+        },
+        button: function(options) {
+            if (!options.id) options.id = "button" + Math.floor(1e5 * Math.random());
+            if (!options.classes) options.classes = [];
+            var html = [ '<button class="button ' + options.classes.join(" ") + '" style="' ];
+            if (options.size) {
+                html = html.concat([ "width:" + options.size[0] + "px;", "height:" + options.size[1] + "px;", "line-height:" + options.size[1] + "px;" ]);
+            }
+            html.push('">' + options.content + "</button>");
+            return html.join("");
+        },
+        itemFrame: function(marginLeft, marginRight) {
+            var realWidth = window.innerWidth - marginLeft - marginRight;
+            return [ '<div class="item-frame" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px"></div>' ].join("");
+        },
+        recentItemView: function(call) {
+            var name;
+            if (call.get("firstname") || call.get("lastname")) {
+                name = call.get("firstname") + " <b>" + call.get("lastname") + "</b>";
+            } else {
+                name = call.get("email");
+            }
+            var icon = "";
+            var missed = "";
+            if (call.get("type") == "outgoing") icon = '<i class="fa fa-sign-out"></i>'; else {
+                if (!call.get("success")) missed = "missed";
+            }
+            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source ', missed, '"><div class="call-type">', icon, "</div>", name, '<div class="call-time">', Helpers.timeSince(call.get("time")), "</div></div></div>" ].join("");
+        },
+        chatItemView: function(contact) {
+            var name;
+            var initial = "";
+            if (contact.get("firstname") || contact.get("lastname")) {
+                name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
+                if (contact.get("firstname")) initial = contact.get("firstname")[0];
+                if (contact.get("lastname")) initial += contact.get("lastname")[0];
+            } else {
+                name = contact.get("email");
+                if (name) initial = name[0];
+            }
+            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial ', contact.get("read") ? "" : "unread", '">', initial, "</div>", name, '<div class="call-time">', Helpers.timeSince(contact.get("time")), "</div>", '<div class="message">', contact.get("content"), "</div></div>" ].join("");
+        },
+        contactItemView: function(model) {
+            var name;
+            if (model.get("firstname") || model.get("lastname")) {
+                name = [ model.get("firstname"), " <b>", model.get("lastname"), "</b>" ].join("");
+            } else {
+                name = model.get("email");
+            }
+            var contact = [ '<div style = " width: ', window.innerWidth, 'px"><div class="source">', name ].join("");
+            if (model.attributes.email) contact = [ contact, '<i class="fa fa-envelope contact-icon"></i>' ].join("");
+            if (model.attributes.facebook) contact = [ contact, '<i class="fa fa-facebook-square contact-icon"></i>' ].join("");
+            if (model.attributes.google) contact = [ contact, '<i class="fa fa-google-plus-square contact-icon"></i>' ].join("");
+            contact = [ contact, "</div></div>" ].join("");
+            return contact;
+        },
+        favoriteItemView: function(contact) {
+            var name;
+            var initial = "";
+            if (contact.get("firstname") || contact.get("lastname")) {
+                name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
+                if (contact.get("firstname")) initial = contact.get("firstname")[0];
+                if (contact.get("lastname")) initial += contact.get("lastname")[0];
+            } else {
+                name = contact.get("email");
+                if (name) initial = name[0];
+            }
+            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial">', initial, "</div>", name, "</div></div>" ].join("");
+        },
+        headerItemView: function(isFirst, marginLeft, marginRight) {
+            var realWidth = window.innerWidth - marginLeft - marginRight;
+            return [ '<div class="header-view" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px">', isFirst, "</div>" ].join("");
+        },
+        fateHeaderItemView: function(marginLeft, marginRight) {
+            var realWidth = window.innerWidth - marginLeft - marginRight;
+            return [ '<div class="header-view" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px"></div>' ].join("");
+        },
+        editContactHeader: function(title) {
+            return [ '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>', title, '</div><button class="right close-button done-contact">Done</button>' ].join("");
+        },
+        recentsHeader: function() {
+            return [ '<button class="left clear-button" id="clear-button"></button>', '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>', '<label for="all" class="first" id="recent-toggle">all</label>', '<input type="radio" id="missed" name="recents-toggle" value="missed">', '<label for="missed" class="last" id="recent-toggle">missed</label></div>', '<button class="right edit-button" id="recent-edit-contact"></button>' ].join("");
+        },
+        chatsHeader: function() {
+            return [ '<button class="left edit-button" id="chats-edit-contact"></button><div>Messages</div>' ].join("");
+        },
+        favoriteHeader: function() {
+            return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
+        },
+        conversationInputBar: function() {
+            return [ '<div><button class="fa fa-comments-o menu-toggle-button fade"></button>', '<button class="fa fa-phone menu-end-button"></button>', '<textarea class="input-msg" name="message"></textarea>', '<button class="send-text-button">Send</button></div>' ].join("");
+        },
+        settingsPage: function(appSettings) {
+            var html = [ '<div class="box">', '<div class="info">' + appSettings.get("firstname") + " " + appSettings.get("lastname"), '<button class="logout-button">Log Out</button></div>', '<div class="desc"></div>', '<div class="info">ID: ' + appSettings.get("username") + "</div>", '<div class="desc"></div>', '<div class="info">Camera ', this.toggleSwitch("camera", appSettings.get("camera")) + "</div>", '<div class="info">Blur ', this.toggleSwitch("blur", appSettings.get("blur")) + "</div>" ];
+            if (!Utility.isMobile()) {
+                html.push('<div class="info">Notification ');
+                html.push(this.toggleSwitch("notification", appSettings.get("notification")) + "</div>");
+            }
+            html = html.concat([ '<div class="desc">YOU CAN BE REACHED AT</div>', '<div class="info">Facebook ', this.toggleSwitch("facebook", appSettings.get("linkAccounts").facebook) + "</div>", '<div class="info">Google ', this.toggleSwitch("google", appSettings.get("linkAccounts").google) + "</div>", '<div class="info">Linkedin ', this.toggleSwitch("linkedin", appSettings.get("linkAccounts").linkedin) + "</div>", '<div class="info">Github ', this.toggleSwitch("github", appSettings.get("linkAccounts").github) + "</div>", '<div class="info">Yammer ', this.toggleSwitch("yammer", appSettings.get("linkAccounts").yammer) + "</div>" ]);
+            if (Helpers.isDev()) {
+                html = html.concat([ '<div class="desc">Testing</div>', '<div class="info"><button class="call-button">Call</button>', '<button class="incoming-button">Incoming</button>', '<button class="connected-button">Connected</button>', '<button class="conversations-button">Message</button></div>', "</div>" ]);
+            }
+            return html.join("");
+        },
+        abcButtons: function() {
+            return '<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>';
+        },
+        navigationButton: function(options, badge) {
+            return [ '<div><span class="icon ', options.caption.toLowerCase(), '"><div class="badge">', badge, "</div>", options.icon, "</span><br />", options.caption, "</div>" ].join("");
+        }
+    };
+}.bind(this));
+
 require.register("famous_modules/famous/entity/_git_master/index.js", function(exports, require, module) {
     /**
      * @class Entity.
@@ -19487,183 +19672,6 @@ require.register("app/custom/up-down-transform/up-down-transform.js", function(e
     module.exports = UpDownTransform;
 }.bind(this));
 
-require.register("app/custom/templates/templates.js", function(exports, require, module) {
-    var Helpers = require("helpers");
-    var Utility = require("famous/utilities/utility");
-    module.exports = {
-        toggleSwitch: function(id, checked, disabled) {
-            var html = [ '<div class="onoffswitch">', '<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="', id, '" ' ];
-            if (checked) html.push("checked ");
-            if (disabled) html.push("disabled ");
-            html.push('><label class="onoffswitch-label');
-            if (disabled) html.push(" disabled");
-            html = html.concat([ '" for="', id, '">', '<div class="onoffswitch-inner"></div>', '<div class="onoffswitch-switch"></div>', "</label>", "</div>" ]);
-            return html.join("");
-        },
-        toggleButton: function(options) {
-            if (!options.id) options.id = "toggleButton" + Math.floor(1e5 * Math.random());
-            if (!options.classes) options.classes = [];
-            var html = [ '<div class="onoffbutton ' + options.classes.join(" ") + '">', '<input type="checkbox" name="onoffbutton" class="onoffbutton-checkbox"' ];
-            if (options.id) html.push(' id="' + options.id + '" ');
-            if (options.checked) html.push("checked");
-            html.push('><label class="onoffbutton-label" for="' + options.id + '"');
-            if (options.size) {
-                html = html.concat([ 'style="width:' + options.size[0] + "px;", "line-height:" + options.size[1] + 'px;"' ]);
-            }
-            html.push('><div class="onoffbutton-on"');
-            if (options.onBackgroundColor) {
-                html.push('style="background-color:' + options.onBackgroundColor + ';"');
-            }
-            html.push(">" + options.onContent + "</div>");
-            html.push('<div class="onoffbutton-off"');
-            if (options.offBackgroundColor) {
-                html.push('style="background-color:' + options.offBackgroundColor + ';"');
-            }
-            html = html.concat([ ">" + options.offContent + "</div>", "</label>", "</div>" ]);
-            return html.join("");
-        },
-        deleteButton: function() {
-            return '<button class="delete-button fa fa-trash-o fa-lg"></button>';
-        },
-        addButton: function(id) {
-            return '<i class="fa fa-plus add-button" id="' + id + '"></i>';
-        },
-        plusButton: function(id) {
-            return [ '<span class="fa-stack fa-lg delete-button2" id="', id, '"><i class="fa fa-circle fa-stack"></i>', '<i class="fa fa-plus fa-stack"></i>', "</span>" ].join("");
-        },
-        phoneButton: function(id) {
-            return [ '<span class="fa-stack fa-lg phone-button" id="', id, '"><i class="fa fa-square fa-stack-2x fa-background"></i>', '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
-        },
-        removeButton: function(id) {
-            return '<i class="fa fa-times remove-button" id="' + id + '"></i>';
-        },
-        crossButton: function(id) {
-            return [ '<span class="fa-stack delete-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-times fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
-        },
-        favoriteButton2: function(ative, id) {
-            var html = [ '<span class="fa-stack favorite-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-star fa-stack-1x fa-frontground' ];
-            if (ative) html.push(" active");
-            html.push('"></i></span>');
-            return html.join("");
-        },
-        nextButton: function(id) {
-            return '<i class="arrow fa fa-angle-right fa-lg import-contact" id="' + id + '"></i>';
-        },
-        favoriteButton: function(active) {
-            var html = [ '<i class="favorite-button fa fa-star fa-2x' ];
-            if (active) html.push(" active");
-            html.push('"></i>');
-            return html.join("");
-        },
-        button: function(options) {
-            if (!options.id) options.id = "button" + Math.floor(1e5 * Math.random());
-            if (!options.classes) options.classes = [];
-            var html = [ '<button class="button ' + options.classes.join(" ") + '" style="' ];
-            if (options.size) {
-                html = html.concat([ "width:" + options.size[0] + "px;", "height:" + options.size[1] + "px;", "line-height:" + options.size[1] + "px;" ]);
-            }
-            html.push('">' + options.content + "</button>");
-            return html.join("");
-        },
-        itemFrame: function(marginLeft, marginRight) {
-            var realWidth = window.innerWidth - marginLeft - marginRight;
-            return [ '<div class="item-frame" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px"></div>' ].join("");
-        },
-        recentItemView: function(call) {
-            var name;
-            if (call.get("firstname") || call.get("lastname")) {
-                name = call.get("firstname") + " <b>" + call.get("lastname") + "</b>";
-            } else {
-                name = call.get("email");
-            }
-            var icon = "";
-            var missed = "";
-            if (call.get("type") == "outgoing") icon = '<i class="fa fa-sign-out"></i>'; else {
-                if (!call.get("success")) missed = "missed";
-            }
-            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source ', missed, '"><div class="call-type">', icon, "</div>", name, '<div class="call-time">', Helpers.timeSince(call.get("time")), "</div></div></div>" ].join("");
-        },
-        chatItemView: function(contact) {
-            var name;
-            var initial = "";
-            if (contact.get("firstname") || contact.get("lastname")) {
-                name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
-                if (contact.get("firstname")) initial = contact.get("firstname")[0];
-                if (contact.get("lastname")) initial += contact.get("lastname")[0];
-            } else {
-                name = contact.get("email");
-                if (name) initial = name[0];
-            }
-            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial">', initial, "</div>", name, '<div class="call-time">', Helpers.timeSince(contact.get("time")), "</div>", '<div class="message">', contact.get("content"), "</div></div>" ].join("");
-        },
-        contactItemView: function(model) {
-            var name;
-            if (model.get("firstname") || model.get("lastname")) {
-                name = [ model.get("firstname"), " <b>", model.get("lastname"), "</b>" ].join("");
-            } else {
-                name = model.get("email");
-            }
-            var contact = [ '<div style = " width: ', window.innerWidth, 'px"><div class="source">', name ].join("");
-            if (model.attributes.email) contact = [ contact, '<i class="fa fa-envelope contact-icon"></i>' ].join("");
-            if (model.attributes.facebook) contact = [ contact, '<i class="fa fa-facebook-square contact-icon"></i>' ].join("");
-            if (model.attributes.google) contact = [ contact, '<i class="fa fa-google-plus-square contact-icon"></i>' ].join("");
-            contact = [ contact, "</div></div>" ].join("");
-            return contact;
-        },
-        favoriteItemView: function(contact) {
-            var name;
-            var initial = "";
-            if (contact.get("firstname") || contact.get("lastname")) {
-                name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
-                if (contact.get("firstname")) initial = contact.get("firstname")[0];
-                if (contact.get("lastname")) initial += contact.get("lastname")[0];
-            } else {
-                name = contact.get("email");
-                if (name) initial = name[0];
-            }
-            return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial">', initial, "</div>", name, "</div></div>" ].join("");
-        },
-        headerItemView: function(isFirst, marginLeft, marginRight) {
-            var realWidth = window.innerWidth - marginLeft - marginRight;
-            return [ '<div class="header-view" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px">', isFirst, "</div>" ].join("");
-        },
-        fateHeaderItemView: function(marginLeft, marginRight) {
-            var realWidth = window.innerWidth - marginLeft - marginRight;
-            return [ '<div class="header-view" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px"></div>' ].join("");
-        },
-        editContactHeader: function(title) {
-            return [ '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>', title, '</div><button class="right close-button done-contact">Done</button>' ].join("");
-        },
-        recentsHeader: function() {
-            return [ '<button class="left clear-button" id="clear-button"></button>', '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>', '<label for="all" class="first" id="recent-toggle">all</label>', '<input type="radio" id="missed" name="recents-toggle" value="missed">', '<label for="missed" class="last" id="recent-toggle">missed</label></div>', '<button class="right edit-button" id="recent-edit-contact"></button>' ].join("");
-        },
-        chatsHeader: function() {
-            return [ '<button class="left edit-button" id="chats-edit-contact"></button><div>Messages</div>' ].join("");
-        },
-        favoriteHeader: function() {
-            return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
-        },
-        conversationInputBar: function() {
-            return [ '<div><button class="fa fa-comments-o menu-toggle-button fade"></button>', '<button class="fa fa-phone menu-end-button"></button>', '<textarea class="input-msg" name="message"></textarea>', '<button class="send-text-button">Send</button></div>' ].join("");
-        },
-        settingsPage: function(appSettings) {
-            var html = [ '<div class="box">', '<div class="info">' + appSettings.get("firstname") + " " + appSettings.get("lastname"), '<button class="logout-button">Log Out</button></div>', '<div class="desc"></div>', '<div class="info">ID: ' + appSettings.get("username") + "</div>", '<div class="desc"></div>', '<div class="info">Camera ', this.toggleSwitch("camera", appSettings.get("camera")) + "</div>", '<div class="info">Blur ', this.toggleSwitch("blur", appSettings.get("blur")) + "</div>" ];
-            if (!Utility.isMobile()) {
-                html.push('<div class="info">Notification ');
-                html.push(this.toggleSwitch("notification", appSettings.get("notification")) + "</div>");
-            }
-            html = html.concat([ '<div class="desc">YOU CAN BE REACHED AT</div>', '<div class="info">Facebook ', this.toggleSwitch("facebook", appSettings.get("linkAccounts").facebook) + "</div>", '<div class="info">Google ', this.toggleSwitch("google", appSettings.get("linkAccounts").google) + "</div>", '<div class="info">Linkedin ', this.toggleSwitch("linkedin", appSettings.get("linkAccounts").linkedin) + "</div>", '<div class="info">Github ', this.toggleSwitch("github", appSettings.get("linkAccounts").github) + "</div>", '<div class="info">Yammer ', this.toggleSwitch("yammer", appSettings.get("linkAccounts").yammer) + "</div>" ]);
-            if (Helpers.isDev()) {
-                html = html.concat([ '<div class="desc">Testing</div>', '<div class="info"><button class="call-button">Call</button>', '<button class="incoming-button">Incoming</button>', '<button class="connected-button">Connected</button>', '<button class="conversations-button">Message</button></div>', "</div>" ]);
-            }
-            return html.join("");
-        },
-        abcButtons: function() {
-            return '<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>';
-        }
-    };
-}.bind(this));
-
 require.register("app/custom/conversation-surface/conversation-surface.js", function(exports, require, module) {
     var Surface = require("famous/surface");
     function ConversationSurface(opts) {
@@ -22321,6 +22329,13 @@ require.register("app/custom/vertical-scroll-view/vertical-scroll-view.js", func
             resizeTimeout = setTimeout(onResize.bind(this), 300);
         }.bind(this));
     };
+    VerticalScrollView.prototype.sortBy = function(iterator) {
+        this.sequenceFrom(_.sortBy(this.itemArray, iterator));
+    };
+    VerticalScrollView.prototype.filter = function(predicate) {
+        // Not doing filter yet
+        this.sequenceFrom(_.filter(this.itemArray, predicate));
+    };
     VerticalScrollView.prototype.sequenceFrom = function(node) {
         this.itemArray = _.clone(node);
         //    _.each(this.itemArray, function(item) {
@@ -23752,30 +23767,30 @@ require.register("app/views/chats-section-view.js", function(exports, require, m
             switch (e) {
               case "remove":
                 this.scrollview.removeByIndex(options.index);
-                this.updateItems();
                 break;
 
               case "add":
                 this.addItem(model);
-                this.updateItems();
                 break;
 
               case "change":
-                var i = model.collection.indexOf(model);
-                this.sequence[i].updateItem();
                 break;
             }
+            this.scrollview.sortBy(function(item) {
+                return -1 * item.model.get("time");
+            });
+            this.updateItems();
         }.bind(this));
     }
     ChatsSectionView.prototype = Object.create(View.prototype);
     ChatsSectionView.prototype.constructor = ChatsSectionView;
     ChatsSectionView.prototype.updateItems = function() {
-        _.each(this.sequence, function(itemView) {
+        _.each(this.scrollview.node.array, function(itemView) {
             if (itemView.updateItem) itemView.updateItem();
         });
     };
     ChatsSectionView.prototype.loadItems = function() {
-        this.collection.fetch();
+        //    this.collection.fetch();
         this.scrollview.setPosition(0);
         this.sequence = this.collection.map(function(item) {
             var surface = new ChatItemView({
@@ -23894,8 +23909,8 @@ require.register("app/views/connected-call-view.js", function(exports, require, 
     }
     ConnectedCallView.prototype = Object.create(View.prototype);
     ConnectedCallView.prototype.constructor = ConnectedCallView;
-    ConnectedCallView.prototype.start = function(appSetting, callee) {
-        this.conversationView = new ConversationView(appSetting, callee);
+    ConnectedCallView.prototype.start = function(appSetting, call) {
+        this.conversationView = new ConversationView(appSetting, call);
         this.conversationView.pipe(this._eventOutput);
         this._eventInput.pipe(this.conversationView);
         this.conversationLightBox.show(this.conversationView);
@@ -23951,6 +23966,7 @@ require.register("app/views/connected-call-view.js", function(exports, require, 
             this._eventOutput.emit("outgoingCallEnd", this.model);
             this._eventOutput.emit("incomingCallEnd", this.model);
         }
+        this.conversationView.stop();
     };
     ConnectedCallView.prototype.onMenuToggleButton = function(toHide) {
         if (toHide === true) {
@@ -24432,9 +24448,9 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
     var ConversationCollection = require("models").ConversationCollection;
     var ChatCollection = require("models").ChatCollection;
     var ConversationItemView = require("conversation-item-view");
-    function ConversationView(appSettings, callee) {
+    function ConversationView(appSettings, call) {
         View.call(this);
-        this.callee = callee;
+        this.call = call;
         this.messageTone = new SoundPlayer([ "content/audio/beep.mp3" ]);
         this.inputSourceLocal = true;
         this.headerFooterLayout = new HeaderFooterLayout({
@@ -24465,8 +24481,8 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
             outTransition: true,
             overlap: false
         });
-        if (callee) {
-            var url = appSettings.get("firebaseUrl") + "chats/" + appSettings.get("cid") + "/" + callee.cid;
+        if (call) {
+            var url = appSettings.get("firebaseUrl") + "chats/" + appSettings.get("cid") + "/" + call.get("cid");
             this.collection = new ChatCollection([], {
                 firebase: url
             });
@@ -24482,11 +24498,18 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
         this.pipe(this.scrollview);
         this._add(this.headerFooterLayout);
         this.loadMsg();
+        var playBeepe = _.debounce(function() {
+            this.messageTone.playSound(0, .3);
+        }.bind(this), 300);
         this.collection.on("all", function(e, model, collection, options) {
             switch (e) {
               case "add":
                 this.addMsg(model);
-                this.messageTone.playSound(0, .3);
+                playBeepe();
+                // only keep at most 100 messages
+                if (this.collection.size() >= 100) {
+                    this.collection.shift();
+                }
                 break;
             }
         }.bind(this));
@@ -24528,6 +24551,9 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
     ConversationView.prototype = Object.create(View.prototype);
     ConversationView.prototype.constructor = ConversationView;
     ConversationView.prototype.start = function() {};
+    ConversationView.prototype.stop = function() {
+        this.collection.off();
+    };
     ConversationView.prototype.addMsg = function(model) {
         var surface = new ConversationItemView({
             model: model
@@ -24557,9 +24583,9 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
         var message = document.getElementsByClassName("input-msg")[0].value;
         if (!message) return;
         document.getElementsByClassName("input-msg")[0].value = "";
-        if (this.callee) {
+        if (this.call) {
             this._eventOutput.emit("sendChat", {
-                contact: this.callee,
+                contact: this.call,
                 message: message
             });
         } else {
@@ -24926,7 +24952,7 @@ require.register("app/views/incoming-call-view.js", function(exports, require, m
             setTimeout(function() {
                 if (button) button.removeClass("exiting");
             }, 1e3);
-            this._eventOutput.emit("connectedCall", this.model.get("caller"));
+            this._eventOutput.emit("connectedCall", this.model);
         }.bind(this), duration);
         if (button) {
             this._eventOutput.emit("incomingCallAnswer", this.model);
@@ -25085,20 +25111,21 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
         this.on = true;
         var data;
         if (eventData instanceof Contact || eventData instanceof Call) {
-            data = eventData.attributes;
+            data = eventData;
         } else {
             this.model = this.collection.models[0] || new Call();
-            data = this.model.attributes;
+            data = this.model;
         }
         // TODO: extend data
         var newCall = {
-            firstname: data.firstname,
-            lastname: data.lastname,
-            email: data.email,
-            //        facebook: data.facebook,
+            firstname: data.get("firstname"),
+            lastname: data.get("lastname"),
+            email: data.get("email"),
+            //        facebook: data.get('facebook'),
             pictureUrl: false,
             type: "outgoing",
-            time: Date.now()
+            time: Date.now(),
+            cid: data.get("cid")
         };
         this.collection.create(newCall);
         this.startCalltone();
@@ -25125,7 +25152,7 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
             this._eventOutput.emit("outgoingCallEnd", this.model);
         }
     };
-    OutgoingCallView.prototype.accept = function(callee) {
+    OutgoingCallView.prototype.accept = function(call) {
         this.on = false;
         this.model.set({
             success: true
@@ -25134,7 +25161,7 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
         setTimeout(function() {
             this.footerLightBox.hide();
             this.headerLightBox.hide();
-            this._eventOutput.emit("connectedCall", callee);
+            this._eventOutput.emit("connectedCall", this.model);
         }.bind(this), duration);
     };
     module.exports = OutgoingCallView;
@@ -25908,17 +25935,20 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             }
             function onConnectedCall(eventData) {
                 var callback;
-                var callee;
+                var call;
                 if (eventData instanceof Function) {
                     callback = eventData;
                 } else {
-                    callee = eventData;
+                    call = eventData;
                 }
-                connectedCallView.start(this.appSettings, callee);
+                connectedCallView.start(this.appSettings, call);
                 myLightbox.show(connectedCallView, true, callback);
-                this._eventOutput.emit("chatOn");
-                if (!this.localStream) {
-                    alert("Please allow camera/microphone access for Beepe");
+                if (call.get("success")) {
+                    if (!this.localStream) {
+                        alert("Please allow camera/microphone access for Beepe");
+                    } else {
+                        this._eventOutput.emit("chatOn");
+                    }
                 }
             }
             function onOutgoingCall(eventData) {
@@ -25946,7 +25976,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                 var curView = myLightbox.nodes[0].get();
                 if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) return;
                 if (curView instanceof OutgoingCallView) {
-                    outgoingCallView.accept(eventData.get("caller"));
+                    outgoingCallView.accept(eventData);
                     this._eventOutput.emit("incomingCallAnswer", eventData);
                 } else {
                     incomingCallView.start(eventData);
@@ -25975,6 +26005,9 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             }
             function onChatContact(eventData) {
                 function chatByContact(contact) {
+                    contact.set({
+                        read: true
+                    });
                     this._eventOutput.emit("connectedCall", contact);
                 }
                 if (eventData instanceof Contact || eventData instanceof Call) {
@@ -26065,6 +26098,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             //        colabeo.app = myApp;
             //        colabeo.engine = FamousEngine;
             //        colabeo.social = {};
+            colabeo.app = myApp;
             window._cola_g = {};
             _cola_g.cid = this.appSettings.get("cid");
         }.bind(this));
@@ -26212,7 +26246,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                 return;
             }
             if (contact.get("cid")) {
-                callByContact(contact);
+                callByContact.bind(this)(contact);
             } else {
                 this.lookup(contact, callByContact.bind(this));
             }
@@ -26513,7 +26547,8 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             time: Firebase.ServerValue.TIMESTAMP,
             cid: this.appSettings.get("cid"),
             content: message,
-            type: "text"
+            type: "text",
+            read: false
         };
         recentsRef.set(newChat);
         var chatsRef = new Firebase(this.appSettings.get("firebaseUrl") + "history/" + userId + "/chats/" + id);
@@ -26525,7 +26560,8 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             time: Firebase.ServerValue.TIMESTAMP,
             cid: id,
             content: message,
-            type: "text"
+            type: "text",
+            read: true
         };
         chatsRef.set(newChat);
     };
@@ -26743,6 +26779,7 @@ require.register("app/main/app.js", function(exports, require, module) {
     var EdgeSwapper = require("famous/views/edge-swapper");
     var TabBar = require("famous/widgets/tab-bar");
     var TitleBar = require("famous/widgets/title-bar");
+    var Templates = require("templates");
     function App(options) {
         // extend from view
         View.apply(this, arguments);
@@ -26780,6 +26817,15 @@ require.register("app/main/app.js", function(exports, require, module) {
             this._currentSection = data.id;
             this.header.show(this._sectionTitles[data.id]);
             this.contentArea.show(this._sections[data.id].get());
+        }.bind(this));
+        var recentsChats = options.sections[0].collection;
+        recentsChats.on("all", function(e, model) {
+            var badge = recentsChats.getUnreadCount() || "";
+            var badgeButton = $(this.navigation.buttons[0].options.content);
+            badgeButton.find(".badge").text(badge);
+            this.navigation.buttons[0].setOptions({
+                content: badgeButton[0].outerHTML
+            });
         }.bind(this));
         // assign the layout to this view
         this._add(this.layout);
@@ -26833,7 +26879,7 @@ require.register("app/main/app.js", function(exports, require, module) {
             this._sections[id].setOptions = function(options) {
                 this._sectionTitles[id] = options.title;
                 this.navigation.defineSection(id, {
-                    content: '<span class="icon">' + options.navigation.icon + "</span><br />" + options.navigation.caption
+                    content: Templates.navigationButton(options.navigation)
                 });
             }.bind(this);
         }
@@ -27027,6 +27073,10 @@ require.config({
         "app/vendor/underscore.js": {},
         "app/vendor/zepto.js": {},
         "app/custom/helpers/helpers.js": {},
+        "app/custom/templates/templates.js": {
+            helpers: "app/custom/helpers/helpers.js",
+            "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js"
+        },
         "famous_modules/famous/entity/_git_master/index.js": {},
         "famous_modules/famous/surface/_git_master/index.js": {
             "famous/entity": "famous_modules/famous/entity/_git_master/index.js",
@@ -27140,10 +27190,6 @@ require.config({
         "app/custom/up-down-transform/up-down-transform.js": {
             "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
             "famous/transitions/easing": "famous_modules/famous/transitions/easing/_git_master/index.js"
-        },
-        "app/custom/templates/templates.js": {
-            helpers: "app/custom/helpers/helpers.js",
-            "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js"
         },
         "app/custom/conversation-surface/conversation-surface.js": {
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js"
@@ -27506,7 +27552,8 @@ require.config({
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
             "famous/views/edge-swapper": "famous_modules/famous/views/edge-swapper/_git_master/index.js",
             "famous/widgets/tab-bar": "famous_modules/famous/widgets/tab-bar/_git_master/index.js",
-            "famous/widgets/title-bar": "famous_modules/famous/widgets/title-bar/_git_master/index.js"
+            "famous/widgets/title-bar": "famous_modules/famous/widgets/title-bar/_git_master/index.js",
+            templates: "app/custom/templates/templates.js"
         },
         "app/main/config.js": {
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js"

@@ -22,7 +22,8 @@
     "views",
     "vendor",
     "light-box",
-    "helpers"
+    "helpers",
+    "templates"
   ],
   "scripts": [
     "index.js",

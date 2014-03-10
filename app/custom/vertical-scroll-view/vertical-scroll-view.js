@@ -44,6 +44,15 @@ VerticalScrollView.prototype.prepareResize = function(){
     }.bind(this));
 };
 
+VerticalScrollView.prototype.sortBy = function(iterator){
+    this.sequenceFrom(_.sortBy(this.itemArray, iterator));
+};
+
+VerticalScrollView.prototype.filter = function(predicate){
+    // Not doing filter yet
+    this.sequenceFrom(_.filter(this.itemArray, predicate));
+};
+
 VerticalScrollView.prototype.sequenceFrom = function(node){
     this.itemArray = _.clone(node);
 //    _.each(this.itemArray, function(item) {

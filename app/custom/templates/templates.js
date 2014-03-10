@@ -197,7 +197,9 @@ module.exports = {
         return [
             '<div style = " width: ',
             window.innerWidth,
-            'px"><div class="source"><div class="initial">',
+            'px"><div class="source"><div class="initial ',
+            contact.get('read') ? '':'unread',
+            '">',
             initial,
             '</div>',
             name,
@@ -364,5 +366,19 @@ module.exports = {
 
     abcButtons :function (){
         return '<button id="A">A</button><button id="B">B</button><button id="C">C</button><button id="D">D</button><button id="E">E</button><button id="F">F</button><button id="G">G</button><button id="H">H</button><button id="I">I</button><button id="J">J</button><button id="K">K</button><button id="L">L</button><button id="M">M</button><button id="N">N</button><button id="O">O</button><button id="P">P</button><button id="Q">Q</button><button id="R">R</button><button id="S">S</button><button id="T">T</button><button id="U">U</button><button id="V">V</button><button id="W">W</button><button id="X">X</button><button id="Y">Y</button><button id="Z">Z</button><button id="#">#</button>'
+    },
+
+    navigationButton : function (options, badge) {
+        return [
+            '<div><span class="icon ',
+            options.caption.toLowerCase(),
+            '"><div class="badge">',
+            badge,
+            '</div>',
+            options.icon,
+            '</span><br />',
+            options.caption,
+            '</div>'
+        ].join('');
     }
 };

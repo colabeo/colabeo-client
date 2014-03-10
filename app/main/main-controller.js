@@ -227,17 +227,20 @@ function MainController() {
 
         function onConnectedCall(eventData) {
             var callback;
-            var callee;
+            var call;
             if (eventData instanceof Function) {
                 callback = eventData;
             } else {
-                callee = eventData
+                call = eventData
             }
-            connectedCallView.start(this.appSettings, callee);
+            connectedCallView.start(this.appSettings, call);
             myLightbox.show(connectedCallView, true, callback);
-            this._eventOutput.emit('chatOn');
-            if (!this.localStream){
-                alert("Please allow camera/microphone access for Beepe");
+            if (call.get('success')) {
+                if (!this.localStream){
+                    alert("Please allow camera/microphone access for Beepe");
+                } else {
+                    this._eventOutput.emit('chatOn');
+                }
             }
         }
 
@@ -270,7 +273,7 @@ function MainController() {
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
                 return;
             if (curView instanceof OutgoingCallView) {
-                outgoingCallView.accept(eventData.get('caller'));
+                outgoingCallView.accept(eventData);
                 this._eventOutput.emit('incomingCallAnswer', eventData);
             }
             else {
@@ -305,6 +308,9 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
+                contact.set({
+                    read: true
+                });
                 this._eventOutput.emit('connectedCall', contact);
             }
             if (eventData instanceof Contact || eventData instanceof Call) {
@@ -401,6 +407,7 @@ function MainController() {
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
+        colabeo.app = myApp;
         window._cola_g = {};
         _cola_g.cid = this.appSettings.get('cid');
 
@@ -563,7 +570,7 @@ MainController.prototype.setupCallListener = function() {
             return;
         }
         if (contact.get('cid')) {
-            callByContact(contact);
+            callByContact.bind(this)(contact);
         } else {
             this.lookup(contact, callByContact.bind(this));
         }
@@ -879,7 +886,8 @@ MainController.prototype.sendChat = function(chat) {
         time: Firebase.ServerValue.TIMESTAMP,
         cid: this.appSettings.get('cid'),
         content: message,
-        type: 'text'
+        type: 'text',
+        read: false
     };
     recentsRef.set(newChat);
     var chatsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + userId +'/chats/' + id);
@@ -891,7 +899,8 @@ MainController.prototype.sendChat = function(chat) {
         time: Firebase.ServerValue.TIMESTAMP,
         cid: id,
         content: message,
-        type: 'text'
+        type: 'text',
+        read: true
     };
     chatsRef.set(newChat);
 }

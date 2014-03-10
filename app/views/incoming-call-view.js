@@ -189,7 +189,7 @@ IncomingCallView.prototype.accept = function() {
         setTimeout(function(){
             if (button) button.removeClass('exiting');
         }, 1000);
-        this._eventOutput.emit('connectedCall', this.model.get('caller'));
+        this._eventOutput.emit('connectedCall', this.model);
     }.bind(this), duration);
     if (button) {
         this._eventOutput.emit('incomingCallAnswer', this.model);

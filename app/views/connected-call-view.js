@@ -97,9 +97,9 @@ function ConnectedCallView(options){
 ConnectedCallView.prototype = Object.create(View.prototype);
 ConnectedCallView.prototype.constructor = ConnectedCallView;
 
-ConnectedCallView.prototype.start = function(appSetting, callee) {
+ConnectedCallView.prototype.start = function(appSetting, call) {
 
-    this.conversationView = new ConversationView(appSetting, callee);
+    this.conversationView = new ConversationView(appSetting, call);
     this.conversationView.pipe(this._eventOutput);
     this._eventInput.pipe(this.conversationView);
     this.conversationLightBox.show(this.conversationView)
@@ -160,6 +160,7 @@ ConnectedCallView.prototype.stop = function(button) {
         this._eventOutput.emit('outgoingCallEnd', this.model);
         this._eventOutput.emit('incomingCallEnd', this.model);
     }
+    this.conversationView.stop();
 };
 
 ConnectedCallView.prototype.onMenuToggleButton = function(toHide){

@@ -444,6 +444,9 @@ input {
   margin-right: 12px;
   color: rgba(0, 0, 0, 0.5);
 }
+.contact-item .source .initial.unread {
+  background: #c23635;
+}
 .contact-item .source .call-type {
   float: left;
   width: 20px;
@@ -1105,4 +1108,15 @@ input {
   box-sizing: border-box;
   border-bottom: solid thin rgba(255, 255, 255, 0.2);
   height: 100%;
+}
+.badge {
+  font-size: 10px;
+  color: #ffffff;
+  background-color: #c23635;
+  border-radius: 30px;
+  line-height: 15px;
+  width: 15px;
+  position: absolute;
+  margin-top: 5px;
+  margin-left: 20px;
 }

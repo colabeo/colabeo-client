@@ -538,6 +538,7 @@ input {
   text-overflow: ellipsis;
   overflow:hidden;
 }
+
 .contact-item .source.missed {
   color: @button-color-end-call;
 }
@@ -553,6 +554,10 @@ input {
   margin: 8px 0px;
   margin-right: 12px;
   color: rgba(0,0,0,0.5);
+}
+
+.contact-item .source .initial.unread {
+  background: @color-red;
 }
 
 .contact-item .source .call-type {
@@ -1261,4 +1266,16 @@ input {
   box-sizing: border-box;
   border-bottom: solid thin @tranlucent-white-v;
   height: 100%;
+}
+
+.badge {
+  font-size: 10px;
+  color: #ffffff;
+  background-color: #c23635;
+  border-radius: 30px;
+  line-height: 15px;
+  width: 15px;
+  position: absolute;
+  margin-top: 5px;
+  margin-left: 20px;
 }

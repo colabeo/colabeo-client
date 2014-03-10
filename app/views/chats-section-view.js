@@ -32,17 +32,15 @@ function ChatsSectionView(options) {
         {
             case 'remove':
                 this.scrollview.removeByIndex(options.index);
-                this.updateItems();
                 break;
             case 'add':
                 this.addItem(model);
-                this.updateItems();
                 break;
             case 'change':
-                var i = model.collection.indexOf(model);
-                this.sequence[i].updateItem();
                 break;
         }
+        this.scrollview.sortBy(function(item){return -1*item.model.get('time')});
+        this.updateItems();
     }.bind(this));
 }
 
@@ -50,13 +48,13 @@ ChatsSectionView.prototype = Object.create(View.prototype);
 ChatsSectionView.prototype.constructor = ChatsSectionView;
 
 ChatsSectionView.prototype.updateItems = function() {
-    _.each(this.sequence, function(itemView){
+    _.each(this.scrollview.node.array, function(itemView){
         if (itemView.updateItem) itemView.updateItem();
     });
 };
 
 ChatsSectionView.prototype.loadItems = function() {
-    this.collection.fetch();
+//    this.collection.fetch();
     this.scrollview.setPosition(0);
     this.sequence = this.collection.map(function(item){
         var surface = new ChatItemView({

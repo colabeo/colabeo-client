@@ -15,5 +15,9 @@ module.exports = Backbone.Firebase.Collection.extend({
 
     comparator: function(model) {
         return -1*model.get('time');
+    },
+
+    getUnreadCount: function() {
+        return this.filter(function(item){ return !item.get('read'); }).length;
     }
 });

@@ -60,8 +60,9 @@ HeaderView.prototype.setContent = function (){
 };
 
 HeaderView.prototype.setItemSize = function (){
-    this.itemHeight = this.containElements? this.options.buttonSizeY : 1;
+    this.itemHeight = this.options.buttonSizeY;
     this.options.size = [true, this.itemHeight];
+    if (!this.containElements) this.collapse();
 };
 
 HeaderView.prototype.resizeItem = function(){
@@ -84,7 +85,7 @@ HeaderView.prototype.events = function() {
             this.setContent();
             this.containElements = true;
             this.headerSurface.setContent(this.options.content);
-            this.expand(20);
+            this.expand();
         }
     }.bind(this))
 };

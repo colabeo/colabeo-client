@@ -481,15 +481,20 @@ input {
 .contact-section-search-bar i {
   color: #aaaaaa;
   font-size: 17px;
+  position: absolute;
+  line-height: 30px;
 }
 .contact-section-search-bar div input.search-contact {
   font-size: 18px;
-  width: 90%;
+  width: 100%;
   z-index: 11;
+  border-left: solid transparent 20px;
+  border-right: solid transparent 10px;
+  box-sizing: border-box;
 }
 .contact-section-search-bar div .cancel {
   opacity: 0;
-  z-index: 6;
+  z-index: -1;
   color: #3398cd;
   position: absolute;
   right: 10px;

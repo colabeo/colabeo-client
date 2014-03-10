@@ -5,9 +5,6 @@ var Surface          = require('famous/surface');
 var Scrollview       = require('famous/views/scrollview');
 var Templates        = require('templates');
 
-// Todo: hack, need this for packaging
-//    var Notify           = require('notify');
-
 function SettingsSectionView(options) {
     View.call(this);
     this.appSettings = options.model;

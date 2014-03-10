@@ -74,23 +74,15 @@ ConversationView.prototype.setupcall = function(appSettings,call){
     });
 
     this.call = call;
-
-    // TODO: hack for no real users
-    if (Helper.isDev()){
-        this.collection = new ConversationCollection();
-        this.call = undefined;
-        call = undefined;
-        return;
-    }
-
-
-    if (call) {
-        var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call;
+    
+    if (!Helper.isDev()) {
+        var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call.get('cid');
         this.collection = new ChatCollection([], {
             firebase: url
         });
     } else {
         this.collection = new ConversationCollection();
+        this.call = undefined;
     }
 };
 
@@ -350,9 +342,8 @@ ConversationView.prototype.textingEvents = function(){
     }.bind(this));
 
     this._eventOutput.on('toggleMsg',function(){
-        // TODO: disable toggle function.
-        if (Helper.isDev()) return;
-        console.log('conversation');
+        // TODO: no toggle for now
+        return;
         if(this.conversationLightbox._showing) this.conversationLightbox.hide();
         else this.conversationLightbox.show(this.scrollview);
     }.bind(this));
@@ -378,7 +369,7 @@ ConversationView.prototype.addChat = function(){
     if (this.call) {
         // TODO: this is for testing
         if (Helper.isDev()) return;
-        this._eventOutput.emit('sendChat', {id: this.call, message: message});
+        this._eventOutput.emit('sendChat', {contact: this.call, message: message});
     } else {
         // TODO: this is for testing
         this.inputSourceLocal = !this.inputSourceLocal;

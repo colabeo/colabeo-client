@@ -3,7 +3,8 @@ module.exports = Backbone.Model.extend({
         firstname: "John",
         lastname: "Doe",
         email: "",
-        pictureUrl: ""
+        pictureUrl: "",
+        cid: "testcid"
     },
     isMissed: function () {
         return !this.get('success') && this.get('type')=='incoming';

@@ -37,9 +37,6 @@ var SettingsSectionView  = Views.SettingsSectionView;
 var config = require('config');
 var App = require('app');
 
-// Todo: hack, need this for packaging
-//    var Notify = require('notify');
-
 var defaultIceConfig = {'iceServers': [
     { url: 'stun:stun.l.google.com:19302' }
 ]};
@@ -398,8 +395,8 @@ function MainController() {
         window.colabeo = this;
 //            window.myLightbox = myLightbox;
         colabeo.chatsSection = chatsSection;
-//        colabeo.recentsSection = recentsSection;
-//        colabeo.contactsSection = contactsSection;
+        colabeo.recentsSection = recentsSection;
+        colabeo.contactsSection = contactsSection;
         colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
@@ -985,7 +982,7 @@ MainController.prototype.setupChatroom = function(contact, eids) {
     for (var i = 0; i < eids.length; i++) {
         var c = eids[i];
         if (c) {
-            callee = {
+            var callee = {
                 provider : c.provider ,
                 eid : c.eid ,
                 name: contact.get('firstname') + " " + contact.get('lastname'),

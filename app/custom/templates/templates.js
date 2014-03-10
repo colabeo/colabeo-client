@@ -312,6 +312,23 @@ module.exports = {
         return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
     },
 
+    conversationViewHeader: function(callee){
+        var name;
+        if (callee){
+            if (callee.get('firstname') || callee.get('lastname')) {
+                name = [callee.get('firstname'), ' <b>',  callee.get('lastname') , '</b>'].join('');
+            } else {
+                name = callee.get('email');
+            }
+        } else {
+            name = 'Shana <b> Ho </b>';
+        }
+        var content = ['<div class="conversation-exit"><i class="fa fa-arrow-left"></i><span class="conversation-callee">',
+            name,
+            '</span></div>'].join('');
+        return content;
+    },
+
     conversationInputBar: function() {
         return [
             '<div><button class="fa fa-comments-o menu-toggle-button fade"></button>',

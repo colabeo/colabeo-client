@@ -24,13 +24,20 @@ function ConversationItemView(options){
     });
 
     this.template();
-
+    this.event();
     this.surface.pipe(this._eventOutput);
     this._add(this.surface);
 }
 
 ConversationItemView.prototype = Object.create(View.prototype);
 ConversationItemView.prototype.constructor = ConversationItemView;
+
+ConversationItemView.prototype.event = function(){
+    this.surface.on('click',function(){
+        console.log('surface')
+        this._eventOutput.emit('toggleMsg');
+    }.bind(this));
+};
 
 ConversationItemView.prototype.template = function(){
     var content = this.model.get('content');

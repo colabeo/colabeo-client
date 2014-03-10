@@ -1040,7 +1040,6 @@ input {
   font-size: 30px;
   line-height: 30px;
   width: 100%;
-  border-top: solid rgba(255, 255, 255, 0.3) 1px;
 }
 .conversation-input-bar .menu-toggle-button {
   margin: 2px;
@@ -1073,33 +1072,70 @@ input {
   color: #999999;
 }
 .conversation-input-bar .send-text-button {
-  margin: 2px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  margin-left: 18px;
   background: transparent;
-  width: 50px;
   color: #3398cd;
-  font-size: 18px;
+  font-size: 20px;
 }
 .conversation-input-bar .input-msg {
   background-color: rgba(185, 185, 185, 0.2);
   color: #ffffff;
   font-size: 18px;
-  height: 35px;
+  height: 50px;
   width: 100%;
   display: block;
-  border-left: solid #000000 50px;
-  border-right: solid #000000 70px;
+  border-left: solid #000000 5px;
+  border-right: solid #000000 5px;
   box-sizing: border-box;
-  margin: 7px 0px;
-  -webkit-transition: border-left 0.3s;
   resize: none;
   border-top: none;
   border-bottom: none;
 }
 .conversation-input-bar .input-msg.short {
   border-left: solid #000000 90px;
+}
+.conversation-exit {
+  color: #c23635;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-size: 35px;
+  background: black;
+}
+.conversation-exit i {
+  float: left;
+  line-height: 45px;
+  padding-left: 10px;
+}
+.conversation-exit .conversation-callee {
+  font-size: 32px;
+  color: #ffffff;
+}
+.conversation-call {
+  color: #5db04c;
+  width: 100%;
+  height: 100%;
+  font-size: 35px;
+  text-align: center;
+  background: black;
+}
+.conversation-endCall {
+  background: black;
+  width: 100%;
+  height: 100%;
+  color: #c23635;
+  font-size: 35px;
+}
+.conversation-endCall button {
+  -webkit-transform: rotate(135deg);
+  -moz-transform: rotate(135deg);
+}
+.conversation-camera {
+  color: #3398cd;
+  font-size: 35px;
+  background: black;
+  width: 100%;
+  height: 100%;
 }
 .item-buttons {
   text-align: center;

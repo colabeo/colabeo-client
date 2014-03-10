@@ -1,49 +1,183 @@
 // Import core Famous dependencies
-var View               = require('famous/view');
-var Utility            = require('famous/utilities/utility');
-var Helpers            = require('helpers');
-var Scrollview         = require('famous/views/scrollview');
-var HeaderFooterLayout = require('famous/views/header-footer-layout');
-var Engine             = require('famous/engine');
+var View = require('famous/view');
+var Surface = require('famous/surface');
+var Modifier = require('famous/modifier');
 var Transform          = require('famous/transform');
-var Surface            = require('famous/surface');
+var Lightbox            = require('famous/views/light-box');
+var Scrollview = require('famous/views/scrollview');
+var Utility = require('famous/utilities/utility');
+var HeaderFooterLayout = require('famous/views/header-footer-layout');
+var Engine = require('famous/engine');
 var SoundPlayer  = require('famous/audio/sound-player');
+var Transitionable   = require('famous/transitions/transitionable');
+var WallTransition   = require('famous/transitions/wall-transition');
+Transitionable.registerMethod('wall', WallTransition);
 
-var LightBox = require('light-box');
 var Templates    = require('templates');
 var VerticalScrollView       = require('vertical-scroll-view');
+var ConversationItemView   = require('conversation-item-view');
 
 var ConversationCollection = require('models').ConversationCollection;
 var ChatCollection = require('models').ChatCollection;
-var ConversationItemView   = require('conversation-item-view');
+
+var Helper = require('helpers');
 
 function ConversationView(appSettings, call) {
 
     View.call(this);
     this.call = call;
+
+    this.setupBeepeTone();
+    this.setupcall(appSettings,call);
+    this.initHeader();
+    this.initFooter();
+    this.initConversation();
+    this.setupLayout();
+    this.setupTransition();
+    this.loadMsg();
+    this.onResize();
+    this.collectionEvents();
+    this.buttonsEvents();
+    this.textingEvents();
+
+    // TODO: hack, for Dev;
+    this.inputSourceLocal=true;
+
+//    this.loadMsg();
+
+
+    window.con = this;
+
+
+    this._eventInput.on('incomingChat', function(evt){
+        this.addRemote(evt.content);
+    }.bind(this));
+}
+
+ConversationView.prototype = Object.create(View.prototype);
+ConversationView.prototype.constructor = ConversationView;
+
+ConversationView.prototype.setupBeepeTone = function(){
     this.messageTone = new SoundPlayer([
         'content/audio/beep.mp3'
     ]);
+    this.playBeepe = _.debounce(function(){
+        this.messageTone.playSound(0, 0.3);
+    }.bind(this), 300);
+};
 
-    this.inputSourceLocal=true;
+ConversationView.prototype.setupcall = function(appSettings,call){
+    // TODO: hack for no real users
+    if (Helper.isDev()){
+        this.collection = new ConversationCollection();
+        this.call = undefined;
+        call = undefined;
+        return;
+    }
 
-    this.headerFooterLayout = new HeaderFooterLayout({
-        headerSize: 0,
-        footerSize: 50
-    });
 
-    this.inputSurface = new Surface({
-        size:[undefined, this.headerFooterLayout.footerSize],
-        classes: ['conversation-input-bar'],
-        content: Templates.conversationInputBar(),
+    if (call) {
+        var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call;
+        this.collection = new ChatCollection([], {
+            firebase: url
+        });
+    } else {
+        this.collection = new ConversationCollection();
+    }
+};
+
+ConversationView.prototype.initHeader = function(){
+    this.exitSurface = new Surface({
+        size:[window.innerWidth - 150, 50],
+        content: Templates.conversationViewHeader(this.call),
         properties:{
-            backgroundColor: '#000',
-            opacity: 0.9,
-            zIndex: 4
+            cursor: "pointer"
         }
     });
+    this.exitSurface.pipe(this._eventOutput);
+    this.exitSurfaceMod = new Modifier();
 
-    this.contentLightBox = new LightBox({
+    this.callSurface = new Surface({
+        size:[150, 50],
+        content:'<div class="conversation-call"><i class="fa fa-phone"></i></div>',
+        properties:{
+            cursor: "pointer"
+        }
+    });
+    this.callSurfaceMod = new Modifier({
+        origin:[1,0],
+        transform: Transform.translate(0,0,1)
+    });
+
+    this.endCallSurface = new Surface({
+        size:[75, 50],
+        content: '<button class="fa fa-phone conversation-endCall"></button>',
+        properties:{
+            cursor: "pointer"
+        }
+    });
+    this.endCallSurface.pipe(this._eventOutput);
+    this.endCallSurfaceMod = new Modifier({
+        origin:[1,0]
+    });
+
+    this.cameraSurface = new Surface({
+        size:[75, 50],
+        properties:{
+            cursor: "pointer"
+        }
+    });
+    this.cameraSurfaceMod = new Modifier({
+        origin:[1,0],
+        transform: Transform.translate(-75,0,0)
+    });
+    this.cameraSurfaceSetContent();
+};
+
+ConversationView.prototype.cameraSurfaceSetContent = function(){
+    if (this.camera == true) {
+        this.cameraSurface.setContent('<button class="conversation-camera fa fa-eye fa-lg"></button>');
+    } else {
+        this.cameraSurface.setContent('<button class="conversation-camera fa fa-eye-slash fa-lg"></button>');
+    }
+};
+
+ConversationView.prototype.initFooter = function(){
+    this.inputSurface = new Surface({
+        size:[window.innerWidth - 100, 50],
+        classes:['conversation-input-bar'],
+        content: '<textarea class="input-msg" name="message"></textarea>',
+        properties:{
+            backgroundColor: "black"
+        }
+    });
+    this.inputSurfaceMod = new Modifier({
+        transform:Transform.translate(0,0,2)
+    });
+
+    this.sendSurface = new Surface({
+        size:[100, 50],
+        classes:['conversation-input-bar'],
+        content: '<div><button class="send-text-button">Send</button></div>',
+        properties:{
+            backgroundColor: "black",
+            cursor: "pointer"
+        }
+    });
+    this.sendSurfaceMod = new Modifier({
+        origin:[1,0],
+        transform:Transform.translate(0,0,2)
+    });
+};
+
+ConversationView.prototype.initConversation = function(){
+    this.scrollview = new VerticalScrollView({
+        startAt:'bottom',
+        direction:Utility.Direction.Y
+    });
+    this.pipe(this.scrollview);
+    this.scrollview.sequenceFrom([]);
+    this.conversationLightbox = new Lightbox({
         inTransform: Transform.identity,
         inOpacity: 0,
         inOrigin: [0.0, 0.0],
@@ -55,98 +189,106 @@ function ConversationView(appSettings, call) {
         showOrigin: [0.0, 0.0],
         inTransition: true,
         outTransition: true,
-        overlap: false
+        overlap: false});
+    this.conversationLightbox.show(this.scrollview);
+};
+
+ConversationView.prototype.setupLayout = function(){
+    this.headerFooterLayout = new HeaderFooterLayout({
+        headerSize:50,
+        footerSize:50
     });
 
-    if (call) {
-            var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call.get('cid');
-        this.collection = new ChatCollection([], {
-            firebase: url
-        });
-    } else {
-        this.collection = new ConversationCollection();
-    }
+    this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
+    this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
+    this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
+    this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
+    this.headerFooterLayout.id.content.add(this.conversationLightbox);
+    this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
+    this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
 
-    this.scrollview = new VerticalScrollView({
-        startAt:'bottom',
-        direction: Utility.Direction.Y
+    this.backSurface = new Surface({
+        classes:['backGroundSurface'],
+        size:[undefined,undefined]
+    });
+    this.backSurfaceMod = new Modifier({
+        transform:Transform.translate(0,0,0)
     });
 
-    this.headerFooterLayout.id.content.add(this.contentLightBox);
-    this.headerFooterLayout.id.footer.add(this.inputSurface);
-
-    this.pipe(this.scrollview);
     this._add(this.headerFooterLayout);
+    this._add(this.backSurfaceMod).add(this.backSurface);
+};
 
-    this.loadMsg();
-
-    var playBeepe = _.debounce(function(){
-        this.messageTone.playSound(0, 0.3);
-    }.bind(this), 300);
-    this.collection.on('all', function(e,model,collection,options){
-        switch(e){
-            case 'add':
-                this.addMsg(model);
-                playBeepe();
-                // only keep at most 100 messages
-                if (this.collection.size()>=100) {
-                    this.collection.shift();
-                }
-                break;
-        }
-    }.bind(this));
-
-    this.inputSurface.on('click', function(e){
-        var target = $(e.target);
-        if (target.hasClass("send-text-button")) this.addChat();
-        else if (target.hasClass("menu-toggle-button")) {
-            this.toggleMenuToggleButton();
-        } else if (target.hasClass("menu-end-button")) {
-            this._eventOutput.emit('end-call',$('.someRandomNull'));
-        } else if (target.hasClass("input-msg")) {
-            this.setConversationOn();
-        }
-    }.bind(this));
-
-    this.inputSurface.on('keyup', function(e){
-        if (e.keyCode == 13){
-            this.addChat();
-        }
-    }.bind(this));
-
-//        window.scrollview = this.scrollview;
-        window.con = this;
+ConversationView.prototype.onResize = function(){
     var resizeTimeout;
     var onResize = function() {
         if (!this.scrollview) return;
         // just in case horizontal resize from wide to narrow
 //        if (!Helpers.isMobile())
-            this.scrollview.setVelocity(-99);
-        this.loadMsg();
-    }
+        this.scrollview.setVelocity(-99);
+//        this.loadMsg();
+    };
 //        Engine.on('resize', onResize.bind(this));
-    Engine.on('resize', function(e){
+    Engine.on('resize', function(){
 //            if (Helpers.isMobile()) return;
+        this.exitSurface.setSize([window.innerWidth-150,50]);
+        this.inputSurface.setSize([window.innerWidth-100,50]);
         if (resizeTimeout) clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(onResize.bind(this), 300);
     }.bind(this));
+};
 
-    this._eventInput.on('incomingChat', function(evt){
-        this.addRemote(evt.content);
-    }.bind(this));
-}
-
-ConversationView.prototype = Object.create(View.prototype);
-ConversationView.prototype.constructor = ConversationView;
-
-ConversationView.prototype.start = function(){
-    //TODO: NOthing yet
+ConversationView.prototype.setupTransition = function(){
+    this.buttonTransition = {
+        method: 'wall',
+        period: 200,
+        dampingRatio: 1
+    }
 };
 
 ConversationView.prototype.stop = function(){
     this.collection.off();
 };
 
+ConversationView.prototype.collectionEvents = function(){
+    this.collection.on('all', function(e,model,collection,options){
+        switch(e){
+            case 'add':
+                this.addMsg(model);
+                this.playBeepe();
+                // only keep at most 100 messages
+                if (this.collection.size()>=100) {
+                    this.collection.shift();
+                }
+                this.showConversation();
+                break;
+        }
+    }.bind(this));
+};
+
+ConversationView.prototype.buttonsEvents = function(){
+    this.exitSurface.on('click', function(){
+        this._eventOutput.emit('end-call',$('.someRandomNull'));
+    }.bind(this));
+    this.callSurface.on('click', function(){
+        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition)
+    }.bind(this));
+    this.endCallSurface.on('click', function(){
+        this.callSurfaceMod.setTransform(Transform.translate(0,0,1), this.buttonTransition)
+    }.bind(this));
+    this.cameraSurface.on('click', function(){
+        this.camera = !this.camera;
+        this.cameraSurfaceSetContent();
+    }.bind(this));
+
+    this.sendSurface.on('click', function(){
+        this.addChat();
+    }.bind(this));
+
+    this.backSurface.on('click',function(){
+        this._eventOutput.emit('toggleMsg');
+    }.bind(this));
+};
 ConversationView.prototype.addMsg = function (model){
     var surface = new ConversationItemView({model: model});
     surface.pipe(this._eventOutput);
@@ -157,29 +299,67 @@ ConversationView.prototype.addMsg = function (model){
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };
 
-ConversationView.prototype.loadMsg = function (){
-    var sequence =  this.collection.map(function(item){
-        var surface = new ConversationItemView({model: item});
-        surface.pipe(this._eventOutput);
-        return surface;
+ConversationView.prototype.textingEvents = function(){
+    this.inputSurface.on('keyup', function(e){
+        if (e.keyCode == 13 && this.inputSurface._currTarget.children[0].value != ''){
+            this.addChat();
+        }
     }.bind(this));
-    this.scrollview.sequenceFrom(sequence);
 
+    this._eventInput.on('incomingChat', function(evt){
+        this.addRemote(evt.content);
+    }.bind(this));
+
+    this._eventOutput.on('toggleMsg',function(){
+        console.log('conversation');
+        if(this.conversationLightbox._showing) this.conversationLightbox.hide();
+        else this.conversationLightbox.show(this.scrollview);
+    }.bind(this));
+};
+ConversationView.prototype.createMsgItem = function(model){
+    var surface = new ConversationItemView({model:model});
+    surface.pipe(this._eventOutput);
+    return surface;
+};
+
+ConversationView.prototype.loadMsg = function(){
+    this.sequence = this.collection.map(function(item){
+        return this.createMsgItem(item);
+    }.bind(this));
+    this.scrollview.sequenceFrom(this.sequence);
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };
 
 ConversationView.prototype.addChat = function(){
-    var message= document.getElementsByClassName('input-msg')[0].value;
-    if (!message) return;
+    var message = document.getElementsByClassName('input-msg')[0].value;
+    if (!message || message == '') return;
     document.getElementsByClassName('input-msg')[0].value = "";
     if (this.call) {
-        this._eventOutput.emit('sendChat', {contact: this.call, message: message});
+        // TODO: this is for testing
+        if (Helper.isDev()) return;
+        this._eventOutput.emit('sendChat', {id: this.call, message: message});
     } else {
         // TODO: this is for testing
-//        this.inputSourceLocal = !this.inputSourceLocal;
+        this.inputSourceLocal = !this.inputSourceLocal;
         if (this.inputSourceLocal) this.addLocal(message);
         else this.addRemote(message);
     }
+};
+
+ConversationView.prototype.addLocal = function(message){
+    var newMsg = {
+        content:message,
+        source:'local',
+        type:'text',
+        from: window._cola_g.cid,
+        time:Date.now()
+    };
+    if (Helper.isDev()) {
+        this.collection.create(newMsg);
+        return;
+    }
+    this.collection.add(newMsg);
+    this._eventOutput.emit('outgoingChat', newMsg);
 };
 
 ConversationView.prototype.addRemote = function(message){
@@ -189,46 +369,32 @@ ConversationView.prototype.addRemote = function(message){
         type: 'text',
         time: Date.now()
     };
-    this.setConversationOn();
+    if (Helper.isDev()) {
+        this.collection.create(newMsg);
+        return;
+    }
     this.collection.add(newMsg);
 };
 
-ConversationView.prototype.addLocal = function(message){
-    var newMsg = {
-        content: message,
-        source: 'local',
-        type: 'text',
-        from: window._cola_g.cid,
-        time: Date.now()
-    };
-    this.collection.add(newMsg);
-    this.setConversationOn();
-    this._eventOutput.emit('outgoingChat', newMsg);
+ConversationView.prototype.showConversation = function (){
+    if (this.conversationLightbox._showing == false)
+        this.conversationLightbox.show(this.scrollview);
 };
 
-ConversationView.prototype.toggleMenuToggleButton = function (){
-    if ($('.menu-toggle-button').hasClass('fade')) {
-        this.setConversationOn();
-    }
-    else {
-        this.setConversationOff();
-    }
+ConversationView.prototype.addMsg = function(model){
+//    var surface = new Surface({
+//        size:[undefined,50],
+//        content: model.content,
+//        properties:{
+//            backgroundColor:"grey"
+//        }
+//    });
+//    surface.pipe(this._eventOutput);
+    this.scrollview.push(this.createMsgItem(model));
+    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };
 
-ConversationView.prototype.setConversationOff = function (){
-    $('.menu-toggle-button').addClass('fade');
-    $('.menu-end-button').removeClass('toShow');
-    $('.input-msg').removeClass('short');
-    this.contentLightBox.hide();
-    this._eventOutput.emit('menu-toggle-button', false);
-};
 
-ConversationView.prototype.setConversationOn = function (){
-    $('.menu-toggle-button').removeClass('fade');
-    $('.menu-end-button').addClass('toShow');
-    $('.input-msg').addClass('short');
-    if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
-    this._eventOutput.emit('menu-toggle-button', true);
-};
+
 
 module.exports = ConversationView;

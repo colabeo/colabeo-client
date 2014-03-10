@@ -20,7 +20,7 @@ module.exports = {
         }
     },
     isDev: function(){
-        return window.location.host.indexOf('localhost')==0;
+        return window.location.host.indexOf('localhost:3')==0;
     },
     isMobile: function() {
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {

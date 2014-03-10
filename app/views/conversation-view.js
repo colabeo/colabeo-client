@@ -147,6 +147,10 @@ ConversationView.prototype.initHeader = function(){
     });
     this.cameraSurfaceSetContent();
     this.audioSurfaceSetContent();
+
+    if (this.call.get('success')) {
+        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition);
+    }
 };
 
 ConversationView.prototype.cameraSurfaceSetContent = function(){
@@ -294,7 +298,8 @@ ConversationView.prototype.buttonsEvents = function(){
     }.bind(this));
 
     this.callSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition)
+        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition);
+        this._eventOutput.emit('outgoingCall',this.call);
     }.bind(this));
 
     this.endCallSurface.on('click', function(){

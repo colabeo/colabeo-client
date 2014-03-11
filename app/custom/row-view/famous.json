@@ -14,10 +14,12 @@
     "famous/transitions/wall-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/transitions/spring-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
-    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
+    "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
+    "famous/widgets/title-bar": "git+ssh://git@github.com:Famous/famous-widgets.git#master"
   },
   "local":[
-      "templates"
+      "templates",
+      "helpers"
   ],
   "main": "index.js",
   "scripts": [

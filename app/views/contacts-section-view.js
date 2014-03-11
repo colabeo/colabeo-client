@@ -359,13 +359,15 @@ ContactsSection.prototype.searchOnFocus = function(){
     this.searchMode =true;
     this.scrollview.scrollTo(0,0);
     this.refreshContacts();
-    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
+    colabeo.app.header.collapse();
+//    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
     this.searchSurface._currTarget.style.paddingRight = "100px";
 };
 ContactsSection.prototype.searchOnBlur = function(){
     this.searchMode = false;
-    this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
+    colabeo.app.header.expand();
+//    this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
     this.searchSurface._currTarget.style.paddingRight = "10px";
 };

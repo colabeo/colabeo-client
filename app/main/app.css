@@ -552,6 +552,9 @@ input {
 .fa-plus {
   cursor: pointer;
 }
+.fa-lg {
+  line-height: 0.9em;
+}
 .fa-envelope {
   color: #a7a7a7;
 }

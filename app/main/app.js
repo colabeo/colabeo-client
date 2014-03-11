@@ -7,8 +7,10 @@ var Matrix             = require('famous/transform');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var EdgeSwapper        = require('famous/views/edge-swapper');
 var TabBar             = require('famous/widgets/tab-bar');
-var TitleBar           = require('famous/widgets/title-bar');
+//var TitleBar           = require('famous/widgets/title-bar');
 var Templates          = require('templates');
+var RowView     = require('row-view');
+var HeaderBar   = RowView.HeaderBar;
 
 function App(options) {
     // extend from view
@@ -18,7 +20,7 @@ function App(options) {
     this.layout = new HeaderFooterLayout();
 
     // create the header
-    this.header = new TitleBar(this.options.header);
+    this.header = new HeaderBar(this.options.header);
 
     // create the navigation bar
     this.navigation = new TabBar(this.options.navigation);

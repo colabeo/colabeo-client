@@ -13,7 +13,8 @@ var Engine = require('famous/engine');
 var Utility = require('famous/utilities/utility');
 
 var Templates = require('templates');
-var RowView = require('row-view');
+var RowView   = require('row-view');
+var Helpers   = require('helpers');
 
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);
@@ -76,7 +77,7 @@ ItemView.prototype.setupEvent = function(){
 
     sync.on('update', function(data) {
         this.pos = data.p;  // the displacement from the start touch point.
-        if( !this._directionChosen ) {
+        if( Helpers.isMobile() && !this._directionChosen ) {
             var diffX = this.isEditingMode? Math.abs( this.pos[0] - this.options.nButtons*this.options.buttonSizeX ) : Math.abs( this.pos[0] ),
                 diffY = Math.abs( this.pos[1] );
             this.direction = diffX > diffY ? Utility.Direction.X : Utility.Direction.Y;
@@ -99,7 +100,7 @@ ItemView.prototype.setupEvent = function(){
 
     sync.on('end', function(data) {
         this.pos = data.p;
-        if (this.direction != Utility.Direction.X) return;
+        if ( Helpers.isMobile() && this.direction != Utility.Direction.X) return;
         if (this.pos[0] > this.options.nButtons*this.options.buttonSizeX){
             this.toggleEditing();
         } else {
@@ -169,7 +170,7 @@ ItemView.prototype.setupSurfaces = function(){
 };
 
 ItemView.prototype.updateItem = function(){
-
+    this.itemSurface.setContent(Templates.recentItemView(this.model));
 };
 
 ItemView.prototype.animateItem = function(){

@@ -303,12 +303,12 @@ module.exports = {
 
     recentsHeader: function() {
         return [
-            '<button class="right clear-button" id="clear-button"></button>',
+            '<button class="left edit-button" id="recent-edit-contact"></button>',
             '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
             '<label for="all" class="first" id="recent-toggle">all</label>',
             '<input type="radio" id="missed" name="recents-toggle" value="missed">',
             '<label for="missed" class="last" id="recent-toggle">missed</label></div>',
-            '<button class="left edit-button" id="recent-edit-contact"></button>'
+            '<button class="right clear-button" id="clear-button"></button>'
         ].join('');
     },
 

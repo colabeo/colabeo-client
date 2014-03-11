@@ -23,7 +23,8 @@
     "vendor",
     "light-box",
     "helpers",
-    "templates"
+    "templates",
+    "row-view"
   ],
   "scripts": [
     "index.js",

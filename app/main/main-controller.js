@@ -3,7 +3,7 @@ var FamousEngine = require('famous/engine');
 var Surface      = require('famous/surface');
 var Easing       = require('famous/transitions/easing');
 var EventHandler = require('famous/event-handler');
-var Helpers            = require('helpers');
+var Helpers      = require('helpers');
 
 // import custom views
 var LightBox = require('light-box');
@@ -447,7 +447,7 @@ MainController.prototype.init = function() {
     }.bind(this));
 
     // TODO: hack for android chrome DATAconnection
-    util.supports.sctp = false;
+//    util.supports.sctp = false;
     sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
 //        window.addEventListener("message", onMessage.bind(this), false);

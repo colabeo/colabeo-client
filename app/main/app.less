@@ -650,28 +650,25 @@ input {
   margin-top:150px;
   font-size: 25px;
 }
-.delete-button2 .fa-background{
-  color:@color-red;
+.fa-frontground{
+  color:@color-white;
+  line-height: 50px;
+  cursor: pointer;
+}
+.edit-button2 .fa-background{
+  color:@color-blue;
   line-height: 50px;
 }
-.delete-button2 .fa-frontground{
-  color:@color-white;
+.delete-button2 .fa-background{
+  color:@color-red;
   line-height: 50px;
 }
 .phone-button .fa-background{
   color:@color-green;
   line-height: 50px;
 }
-.phone-button .fa-frontground{
-  color:@color-white;
-  line-height: 50px;
-}
 .favorite-button2 .fa-background{
   color:@color-green;
-  line-height: 50px;
-}
-.favorite-button2 .fa-frontground{
-  color:@color-white;
   line-height: 50px;
 }
 .favorite-button2 .fa-frontground.active{
@@ -1267,9 +1264,6 @@ input {
   border-bottom: thin solid @color-grey;
   width: 100%;
   height: 100%;
-  text-align: center;
-//  border: @button-color-end-call solid 3px;
-//  box-sizing: border-box;
   background: black;
 }
 .conversation-exit i{
@@ -1278,14 +1272,17 @@ input {
   padding-left: 20px;
 }
 .conversation-exit .conversation-callee{
-//  font-size:32px;
-  float: left;
-  line-height: 45px;
-  padding-left: 20px;
-  color: @text-color;
+  line-height: 42px;
+  color: #ffffff;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  width: 100%;
+  position: absolute;
+  left: 0px;
+  border-left: solid transparent 50px;
+  box-sizing: border-box;
+  border-right: solid transparent 5px;
 }
 
 .conversation-call {

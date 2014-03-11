@@ -160,8 +160,7 @@ function MainController() {
         this._eventOutput.on('loadRecent', onLoadRecent);
         this._eventOutput.on('updateRecent', onUpdateRecent);
         this._eventOutput.on('clearRecent', onClearRecent);
-        this._eventOutput.on('deleteRecent', onDeleteRecent);
-        this._eventOutput.on('deleteContact', onDeleteContact);
+        this._eventOutput.on('deleteItem', onDeleteItem);
         this._eventOutput.on('deleteFavorite', onDeleteFavorite);
         this._eventOutput.on('toggleFavorite', onToggleFavorite);
         this._eventOutput.on('onEngineClick', onEngineClick);
@@ -178,12 +177,7 @@ function MainController() {
             model.toggleFavorite();
         }
 
-        function onDeleteRecent (model) {
-//            model.destroy();
-            model.collection.remove(model);
-        }
-
-        function onDeleteContact (model) {
+        function onDeleteItem (model) {
             model.collection.remove(model);
         }
 
@@ -280,12 +274,12 @@ function MainController() {
         }
 
         function onCallEnd(eventData) {
-
             this._eventOutput.emit('chatOff');
             // ligntbox shown object stop
-            var curView = myLightbox.nodes[0].object;
+            // TODO: hack
+            var curView = myLightbox.nodes[0]._child._child._object;
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
-                curView.stop();
+                curView.stop(eventData);
             }
             if (this.chatroom) {
                 var url = '/login?r=' + this.chatroom.objectId;
@@ -337,6 +331,10 @@ function MainController() {
                 case 'add-contact':
                     this._eventOutput.emit('editContact');
                     break;
+                case 'chats-edit-contact':
+                    $('body').toggleClass('editing');
+                    this._eventInput.emit('toggleAllChat');
+                    break;
                 case 'recent-edit-contact':
                     $('body').toggleClass('editing');
                     this._eventInput.emit('toggleAllRecent');
@@ -355,6 +353,7 @@ function MainController() {
                 case 'close-alert':
                     this._eventOutput.emit('closeAlert');
             }
+
             if (e.target.tagName == 'INPUT' || e.target.tagName == 'TEXTAREA') {
                 $(e.target).focus();
                 this._input = e.target;
@@ -367,6 +366,11 @@ function MainController() {
                 }
             }
         }
+
+        // fastclick hack
+//        $('body').on('click', 'input', function(e) {
+//            $(e.target).focus();
+//        }.bind(this));
 
         function onTriggerBackToNoneEditing(e) {
             this._eventInput.emit('backToNoneEditing');
@@ -383,11 +387,6 @@ function MainController() {
 
         window.alert = onAlert;
         if (this.chatroom) alert('Please allow Beepe to use your camera/microphone for phone calls.', true);
-
-        // fastclick hack
-        $('body').on('click', 'input', function(e) {
-            $(e.target).focus();
-        }.bind(this));
 
         this.init();
 
@@ -424,6 +423,7 @@ MainController.prototype.init = function() {
     this.listenRef.onDisconnect().remove();
 
     if (Helpers.isMobile()) {
+        window._disableResize = true;
         $('body').addClass('mobile');
         if (this.appSettings.get('blur') == undefined)
             this.appSettings.set('blur', false);
@@ -533,7 +533,7 @@ MainController.prototype.setupCallListener = function() {
 
     }
     function onRemove(snapshot){
-        this._eventOutput.emit('callEnd', snapshot);
+        this._eventOutput.emit('callEnd', {exit: false});
         this.exitRoom();
     }
     function onOutgoingCallEnd(call) {
@@ -624,7 +624,7 @@ MainController.prototype.setupCallListener = function() {
                 }
             }
             function onRemove(snapshot){
-                this._eventOutput.emit('callEnd', snapshot);
+                this._eventOutput.emit('callEnd', {exit: false});
                 this.exitRoom();
             }
         };

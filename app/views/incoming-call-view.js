@@ -150,7 +150,7 @@ IncomingCallView.prototype.start = function(eventData) {
     $('.camera').removeClass('blur');
 }
 
-IncomingCallView.prototype.stop = function() {
+IncomingCallView.prototype.stop = function(evt) {
     var button = $('.decline-button');
     if (!this.on) return;
     this.on = false;

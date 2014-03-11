@@ -5,7 +5,11 @@ var ItemView = RowView.ItemView;
 function RecentItemView(options){
     options.leftButtons =[{
         content: Templates.crossButton(),
-        event: 'deleteRecent'
+        event: 'deleteItem'
+    },
+    {
+        content: Templates.editButton(),
+        event: 'editContact'
     }];
     options.rightButton ={
         content: Templates.phoneButton(),
@@ -14,7 +18,7 @@ function RecentItemView(options){
     options.itemButton = {
         classes: ['contact-item', 'recent-item'],
         content: Templates.recentItemView(options.model),
-        event: 'editContact'
+        event: 'chatContact'
     };
 
     ItemView.apply(this, arguments);

@@ -9,11 +9,17 @@ function ContactItemView(options) {
 
     options.leftButtons =[{
         content: Templates.crossButton(),
-        event: 'deleteContact'
-    },{
-        content: Templates.favoriteButton(this.model.get('favorite')),
-        event: 'toggleFavorite'
-    }];
+        event: 'deleteItem'
+    },
+    {
+        content: Templates.editButton(),
+        event: 'editContact'
+    }
+//    {
+//        content: Templates.favoriteButton(this.model.get('favorite')),
+//        event: 'toggleFavorite'
+//    }
+    ];
     options.rightButton ={
         content: Templates.phoneButton(),
         event: 'outgoingCall'

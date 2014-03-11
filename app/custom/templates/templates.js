@@ -89,6 +89,16 @@ module.exports = {
         return '<i class="fa fa-times remove-button" id="' + id + '"></i>';
     },
 
+    editButton: function (id) {
+        return [
+            '<span class="fa-stack edit-button2" id="',
+            id ,
+            '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+            '<i class="fa fa-info fa-stack-1x fa-frontground"></i>',
+            '</span>'
+        ].join('');
+    },
+
     crossButton: function(id) {
         return [
             '<span class="fa-stack delete-button2" id="',
@@ -293,12 +303,12 @@ module.exports = {
 
     recentsHeader: function() {
         return [
-            '<button class="left clear-button" id="clear-button"></button>',
+            '<button class="right clear-button" id="clear-button"></button>',
             '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
             '<label for="all" class="first" id="recent-toggle">all</label>',
             '<input type="radio" id="missed" name="recents-toggle" value="missed">',
             '<label for="missed" class="last" id="recent-toggle">missed</label></div>',
-            '<button class="right edit-button" id="recent-edit-contact"></button>'
+            '<button class="left edit-button" id="recent-edit-contact"></button>'
         ].join('');
     },
 

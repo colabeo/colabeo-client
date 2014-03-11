@@ -27,19 +27,24 @@ function ChatsSectionView(options) {
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
-//        console.log(e, model, collection, options);
+//        console.log(e);
         switch(e)
         {
             case 'remove':
-                this.scrollview.removeByIndex(options.index);
+                var index = options.index;
+                console.log(index);
+                this.scrollview.removeByIndex(index);
                 break;
             case 'add':
                 this.addItem(model);
+                this.collection.sort();
+                this.scrollview.sortBy(function(item){return -1*item.model.get('time')});
                 break;
             case 'change':
+                this.collection.sort();
+                this.scrollview.sortBy(function(item){return -1*item.model.get('time')});
                 break;
         }
-        this.scrollview.sortBy(function(item){return -1*item.model.get('time')});
         this.updateItems();
     }.bind(this));
 }

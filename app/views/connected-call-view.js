@@ -16,31 +16,30 @@ function ConnectedCallView(options){
     this.collection = options.collection;
 
     this._eventOutput.on('menu-toggle-button', this.onMenuToggleButton);
-    this._eventOutput.on('end-call', this.stop);
+
+    this.conversationView = new ConversationView();
+    this.conversationView.pipe(this._eventOutput);
+    this._eventInput.pipe(this.conversationView);
+    this._add(this.conversationView);
 }
 
 ConnectedCallView.prototype = Object.create(View.prototype);
 ConnectedCallView.prototype.constructor = ConnectedCallView;
 
 ConnectedCallView.prototype.start = function(appSetting, call) {
-
-    this.conversationView = new ConversationView(appSetting, call);
-    this.conversationView.pipe(this._eventOutput);
-    this._eventInput.pipe(this.conversationView);
-
+    this.conversationView.start(appSetting, call);
     this.model = this.collection.models[0] || new Call();
     this.appSettings = appSetting;
     $('.camera').removeClass('blur');
-    this._add(this.conversationView);
 };
 
 ConnectedCallView.prototype.stop = function(evt) {
+    this._eventOutput.emit('outgoingCallEnd', this.model);
+    this._eventOutput.emit('incomingCallEnd', this.model);
     if (evt.exit){
         this._eventOutput.emit('showApp');
     }
-    this._eventOutput.emit('outgoingCallEnd', this.model);
-    this._eventOutput.emit('incomingCallEnd', this.model);
-    this.conversationView.stop();
+    this.conversationView.stop(evt);
 };
 
 module.exports = ConnectedCallView;

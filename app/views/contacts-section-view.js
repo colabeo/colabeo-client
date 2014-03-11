@@ -317,7 +317,7 @@ ContactsSection.prototype.changeItem = function(item) {
 
 ContactsSection.prototype.searchSurfaceEvents = function() {
     this.searchSurface.on('click', function(e){
-        console.log(e);
+//        console.log(e);
         if (e.target.className == 'search-contact') {
             this._eventInput.emit('searchOnFocus');
         }

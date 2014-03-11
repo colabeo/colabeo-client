@@ -5,7 +5,11 @@ var ItemView = RowView.ItemView;
 function ChatItemView(options){
     options.leftButtons =[{
         content: Templates.crossButton(),
-        event: 'deleteChat'
+        event: 'deleteItem'
+    },
+    {
+        content: Templates.editButton(),
+        event: 'editContact'
     }];
     options.rightButton ={
         content: Templates.phoneButton(),

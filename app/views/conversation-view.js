@@ -20,31 +20,22 @@ var ConversationItemView   = require('conversation-item-view');
 var ConversationCollection = require('models').ConversationCollection;
 var ChatCollection = require('models').ChatCollection;
 
-var Helper = require('helpers');
+var Helpers = require('helpers');
 
 function ConversationView(appSettings, call) {
-
     View.call(this);
-
     this.setupBeepeTone();
-    this.setupcall(appSettings,call);
     this.initHeader();
     this.initFooter();
     this.initConversation();
     this.setupLayout();
     this.setupTransition();
-    this.loadMsg();
     this.onResize();
-    this.collectionEvents();
     this.buttonsEvents();
     this.textingEvents();
-
     // TODO: hack, for Dev;
     this.inputSourceLocal=true;
-
     window.con = this;
-
-
     this._eventInput.on('incomingChat', function(evt){
         this.addRemote(evt.content);
     }.bind(this));
@@ -72,7 +63,7 @@ ConversationView.prototype.setupcall = function(appSettings,call){
 
     this.call = call;
     
-    if (!Helper.isDev()) {
+    if (!Helpers.isDev()) {
         var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call.get('cid');
         this.collection = new ChatCollection([], {
             firebase: url
@@ -81,13 +72,13 @@ ConversationView.prototype.setupcall = function(appSettings,call){
         this.collection = new ConversationCollection();
         this.call = undefined;
     }
+    this.synced = false;
 };
 
 ConversationView.prototype.initHeader = function(){
     this.exitSurface = new Surface({
         size:[window.innerWidth - 225, 50],
         classes:["conversation-exit"],
-        content: Templates.conversationViewHeader(this.call),
         properties:{
             cursor: "pointer"
         }
@@ -148,12 +139,6 @@ ConversationView.prototype.initHeader = function(){
         origin:[1,0],
         transform: Transform.translate(-75,0,3)
     });
-    this.cameraSurfaceSetContent();
-    this.audioSurfaceSetContent();
-
-    if (!Helper.isDev() && this.call.get('success')) {
-        this.callSurfaceMod.setTransform(Transform.translate(225,0,0), this.buttonTransition);
-    }
 };
 
 ConversationView.prototype.cameraSurfaceSetContent = function(){
@@ -205,7 +190,6 @@ ConversationView.prototype.initConversation = function(){
         direction:Utility.Direction.Y
     });
     this.pipe(this.scrollview);
-    this.scrollview.sequenceFrom([]);
     this.conversationLightbox = new Lightbox({
         inTransform: Transform.identity,
         inOpacity: 0,
@@ -275,14 +259,46 @@ ConversationView.prototype.setupTransition = function(){
     }
 };
 
-ConversationView.prototype.stop = function(){
-    this.collection.off();
+ConversationView.prototype.start = function(appSettings, call){
+    this.setupcall(appSettings,call);
+    this.cameraSurfaceSetContent();
+    this.audioSurfaceSetContent();
+    this.exitSurface.setContent(Templates.conversationViewHeader(call));
+
+    if (!Helpers.isDev() && this.call.get('success')) {
+        this.callSurfaceMod.setTransform(Transform.translate(225,0,0), this.buttonTransition);
+    }
+
+    this.scrollview.sequenceFrom([]);
+    this.collectionEvents();
+    if (this.collection.size()) {
+        // if locally loaded, then load right away
+        setTimeout(this.loadMsg.bind(this), 400);
+    }
+    if (Helpers.isMobile()) window._disableResize = false;
+};
+
+ConversationView.prototype.stop = function(evt){
+    this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
+    this.appSettings.save({video : true});
+    this.appSettings.save({audio : true});
+    if (evt.exit) {
+        this.collection.off();
+        this.appSettings.off();
+        if (Helpers.isMobile()) {
+            setTimeout(function() {
+                window._disableResize = true;
+            }, 500);
+        }
+    }
 };
 
 ConversationView.prototype.collectionEvents = function(){
     this.collection.on('all', function(e,model,collection,options){
+//        console.log(e);
         switch(e){
             case 'add':
+                if (!this.synced) break;
                 this.addMsg(model);
                 this.playBeepe();
                 // only keep at most 100 messages
@@ -291,23 +307,27 @@ ConversationView.prototype.collectionEvents = function(){
                 }
                 this.showConversation();
                 break;
+            case 'sync':
+                setTimeout(this.loadMsg.bind(this), 400);
+                break;
         }
     }.bind(this));
 };
 
 ConversationView.prototype.buttonsEvents = function(){
     this.exitSurface.on('click', function(){
-        this._eventOutput.emit('end-call', {exit:true});
+        this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
+        this._eventOutput.emit('callEnd', {exit:true});
     }.bind(this));
 
     this.callSurface.on('click', function(){
         this.callSurfaceMod.setTransform(Transform.translate(225,0,4), this.buttonTransition);
-//        this._eventOutput.emit('outgoingCall',this.call);
+        this._eventOutput.emit('outgoingCall',this.call);
     }.bind(this));
 
     this.endCallSurface.on('click', function(){
         this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
-        this._eventOutput.emit('end-call', {exit:true});
+        this._eventOutput.emit('callEnd', {exit:false});
     }.bind(this));
 
     this.audioSurface.on('click', function(){
@@ -353,21 +373,13 @@ ConversationView.prototype.createMsgItem = function(model){
     return surface;
 };
 
-ConversationView.prototype.loadMsg = function(){
-    this.sequence = this.collection.map(function(item){
-        return this.createMsgItem(item);
-    }.bind(this));
-    this.scrollview.sequenceFrom(this.sequence);
-    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
-};
-
 ConversationView.prototype.addChat = function(){
     var message = document.getElementsByClassName('input-msg')[0].value;
     if (!message || message == '') return;
     document.getElementsByClassName('input-msg')[0].value = "";
     if (this.call) {
         // TODO: this is for testing
-        if (Helper.isDev()) return;
+        if (Helpers.isDev()) return;
         this._eventOutput.emit('sendChat', {contact: this.call, message: message});
     } else {
         // TODO: this is for testing
@@ -385,7 +397,7 @@ ConversationView.prototype.addLocal = function(message){
         from: window._cola_g.cid,
         time:Date.now()
     };
-    if (Helper.isDev()) {
+    if (Helpers.isDev()) {
         this.collection.create(newMsg);
         return;
     }
@@ -400,7 +412,7 @@ ConversationView.prototype.addRemote = function(message){
         type: 'text',
         time: Date.now()
     };
-    if (Helper.isDev()) {
+    if (Helpers.isDev()) {
         this.collection.create(newMsg);
         return;
     }
@@ -414,7 +426,15 @@ ConversationView.prototype.showConversation = function (){
 
 ConversationView.prototype.addMsg = function(model){
     this.scrollview.push(this.createMsgItem(model));
-    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
+    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
+};
+
+ConversationView.prototype.loadMsg = function(){
+    this.synced = true;
+    this.scrollview.sequenceFrom([]);
+    this.collection.each(function(item){
+        this.addMsg(item);
+    }.bind(this));
 };
 
 module.exports = ConversationView;

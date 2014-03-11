@@ -639,7 +639,7 @@ MainController.prototype.setupVideo = function() {
     // Compatibility shim
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 //        this.startRoom();
-    this.setCamera();
+    if (navigator.getUserMedia) this.setCamera();
 };
 
 MainController.prototype.initLocalMedia = function(options) {

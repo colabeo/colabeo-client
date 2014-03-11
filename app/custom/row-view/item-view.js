@@ -89,7 +89,7 @@ ItemView.prototype.setupEvent = function(){
                 this.itemSurface.pipe(this._eventOutput);
             }
         } else {
-            if (this.direction == Utility.Direction.X) {
+            if (!Helpers.isMobile() || this.direction == Utility.Direction.X) {
                 this.animateItem();
                 this.animateLeftButtons();
                 this.animateRightButtons();

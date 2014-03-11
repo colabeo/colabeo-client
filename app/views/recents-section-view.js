@@ -56,7 +56,7 @@ RecentsSectionView.prototype.updateItems = function() {
 };
 
 RecentsSectionView.prototype.loadItems = function() {
-    this.collection.fetch();
+//    this.collection.fetch();
     this.scrollview.setPosition(0);
     this.sequence = this.collection.map(function(item){
         var surface = new RecentItemView({model: item});

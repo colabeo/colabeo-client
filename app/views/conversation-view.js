@@ -166,7 +166,7 @@ ConversationView.prototype.initFooter = function(){
         }
     });
     this.inputSurfaceMod = new Modifier({
-        transform:Transform.translate(0,0,2)
+        transform:Transform.translate(0,0,9)
     });
 
     this.sendSurface = new Surface({
@@ -180,7 +180,7 @@ ConversationView.prototype.initFooter = function(){
     });
     this.sendSurfaceMod = new Modifier({
         origin:[1,0],
-        transform:Transform.translate(0,0,2)
+        transform:Transform.translate(0,0,9)
     });
 };
 

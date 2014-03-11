@@ -61,7 +61,7 @@ ContactsSection.prototype.setupLayout = function(options) {
     });
     this.searhBarTransition = {
 //        'curve' : Easing.linearNorm,
-        'duration' : 300
+        'duration' : 0
     };
     this.searchMode = false;
 
@@ -291,7 +291,7 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
     this.abcSurface.pipe(sync);
     sync.on('update',function(data){
         var target = document.elementFromPoint(data.ap[0], data.ap[1]);
-        if (target.id == undefined || target.id =='' ) return;
+        if (!target || !target.id) return;
         var index = this.a2zString.indexOf(target.id);
         index = this.a2zIndexArray[index];
         if (index == undefined || index == this.curAbcIndex) return;
@@ -359,17 +359,17 @@ ContactsSection.prototype.searchOnFocus = function(){
     this.searchMode =true;
     this.scrollview.scrollTo(0,0);
     this.refreshContacts();
-    colabeo.app.header.collapse();
-//    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
+    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
     this.searchSurface._currTarget.style.paddingRight = "100px";
+//    colabeo.app.header.collapse();
 };
 ContactsSection.prototype.searchOnBlur = function(){
     this.searchMode = false;
-    colabeo.app.header.expand();
-//    this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
+    this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
     this.searchSurface._currTarget.style.paddingRight = "10px";
+//    colabeo.app.header.expand();
 };
 ContactsSection.prototype.filterContactSequence = function(searchKey){
     if (this.searchMode == true) {

@@ -42,9 +42,6 @@ function ConversationView(appSettings, call) {
     // TODO: hack, for Dev;
     this.inputSourceLocal=true;
 
-//    this.loadMsg();
-
-
     window.con = this;
 
 
@@ -88,7 +85,7 @@ ConversationView.prototype.setupcall = function(appSettings,call){
 
 ConversationView.prototype.initHeader = function(){
     this.exitSurface = new Surface({
-        size:[window.innerWidth - 150, 50],
+        size:[window.innerWidth - 225, 50],
         classes:["conversation-exit"],
         content: Templates.conversationViewHeader(this.call),
         properties:{
@@ -101,7 +98,7 @@ ConversationView.prototype.initHeader = function(){
     });
 
     this.callSurface = new Surface({
-        size:[150, 50],
+        size:[225, 50],
         classes:["conversation-call"],
         content:'<div><i class="fa fa-phone fa-lg"></i></div>',
         properties:{
@@ -116,7 +113,7 @@ ConversationView.prototype.initHeader = function(){
     this.endCallSurface = new Surface({
         size:[75, 50],
         classes:['conversation-endCall'],
-        content: '<button class="fa fa-phone"></button>',
+        content: '<div><i class="fa fa-phone fa-lg"></i></div>',
         properties:{
             cursor: "pointer"
         }
@@ -124,7 +121,7 @@ ConversationView.prototype.initHeader = function(){
     this.endCallSurface.pipe(this._eventOutput);
     this.endCallSurfaceMod = new Modifier({
         origin:[1,0],
-        transform: Transform.translate(0,0,3)
+        transform: Transform.translate(-150,0,3)
     }); 
     
     this.audioSurface = new Surface({
@@ -154,8 +151,8 @@ ConversationView.prototype.initHeader = function(){
     this.cameraSurfaceSetContent();
     this.audioSurfaceSetContent();
 
-    if (this.call.get('success')) {
-        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition);
+    if (!Helper.isDev() && this.call.get('success')) {
+        this.callSurfaceMod.setTransform(Transform.translate(225,0,0), this.buttonTransition);
     }
 };
 
@@ -240,7 +237,7 @@ ConversationView.prototype.setupLayout = function(){
 
     this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
     this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
-//    this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
+    this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
     this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
     this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
     this.headerFooterLayout.id.content.add(this.conversationLightbox);
@@ -263,7 +260,7 @@ ConversationView.prototype.onResize = function(){
 //        Engine.on('resize', onResize.bind(this));
     Engine.on('resize', function(){
 //            if (Helpers.isMobile()) return;
-        this.exitSurface.setSize([window.innerWidth-150,50]);
+        this.exitSurface.setSize([window.innerWidth-225,50]);
         this.inputSurface.setSize([window.innerWidth-100,50]);
         if (resizeTimeout) clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(onResize.bind(this), 300);
@@ -300,16 +297,17 @@ ConversationView.prototype.collectionEvents = function(){
 
 ConversationView.prototype.buttonsEvents = function(){
     this.exitSurface.on('click', function(){
-        this._eventOutput.emit('end-call',$('.someRandomNull'));
+        this._eventOutput.emit('end-call', {exit:true});
     }.bind(this));
 
     this.callSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(150,0,0), this.buttonTransition);
-        this._eventOutput.emit('outgoingCall',this.call);
+        this.callSurfaceMod.setTransform(Transform.translate(225,0,4), this.buttonTransition);
+//        this._eventOutput.emit('outgoingCall',this.call);
     }.bind(this));
 
     this.endCallSurface.on('click', function(){
-        this._eventOutput.emit('end-call',$('.someRandomNull'));
+        this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
+        this._eventOutput.emit('end-call', {exit:true});
     }.bind(this));
 
     this.audioSurface.on('click', function(){
@@ -329,16 +327,6 @@ ConversationView.prototype.buttonsEvents = function(){
     this.backSurface.on('click',function(){
         this._eventOutput.emit('toggleMsg');
     }.bind(this));
-};
-
-ConversationView.prototype.addMsg = function (model){
-    var surface = new ConversationItemView({model: model});
-    surface.pipe(this._eventOutput);
-    this.scrollview.push(surface);
-//        this.scrollview.node.splice(this.scrollview.node.array.length-1, 0, surface);
-
-//        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
-    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };
 
 ConversationView.prototype.textingEvents = function(){
@@ -428,8 +416,5 @@ ConversationView.prototype.addMsg = function(model){
     this.scrollview.push(this.createMsgItem(model));
     setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),300);
 };
-
-
-
 
 module.exports = ConversationView;

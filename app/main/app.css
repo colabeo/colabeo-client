@@ -123,6 +123,9 @@ button.button {
 .camera.local-video video {
   -webkit-transform: translate(-50%, -50%) scale(-1, 1);
 }
+.camera.local-video.off {
+  display: none;
+}
 /* header */
 .header button {
   position: absolute;
@@ -1041,6 +1044,9 @@ input {
   -webkit-user-select: text;
   user-select: text;
 }
+.conversation-input-bar {
+  border-top: thin solid #999999;
+}
 .conversation-input-bar div {
   font-size: 30px;
   line-height: 40px;
@@ -1086,11 +1092,11 @@ input {
   background-color: rgba(185, 185, 185, 0.2);
   color: #ffffff;
   font-size: 18px;
-  margin-top: 5px;
-  height: 40px;
+  margin-top: 10px;
+  height: 30px;
   width: 100%;
   display: block;
-  border-left: solid #000000 5px;
+  border-left: solid #000000 10px;
   border-right: solid #000000 5px;
   box-sizing: border-box;
   resize: none;
@@ -1102,6 +1108,7 @@ input {
 }
 .conversation-exit {
   color: #ffffff;
+  border-bottom: thin solid #999999;
   width: 100%;
   height: 100%;
   text-align: center;
@@ -1125,6 +1132,7 @@ input {
   text-align: center;
   line-height: 45px;
   border-left: thin solid rgba(255, 255, 255, 0.2);
+  border-bottom: thin solid #999999;
   background: black;
 }
 .conversation-endCall {
@@ -1134,6 +1142,7 @@ input {
   color: #c23635;
   font-size: 35px;
   border-left: thin solid rgba(255, 255, 255, 0.2);
+  border-bottom: thin solid #999999;
 }
 .conversation-endCall button {
   -webkit-transform: rotate(135deg);
@@ -1141,6 +1150,7 @@ input {
 }
 .conversation-camera {
   background: black;
+  border-bottom: thin solid #999999;
   width: 100%;
   height: 100%;
   text-align: center;
@@ -1155,6 +1165,7 @@ input {
 }
 .conversation-audio {
   background: black;
+  border-bottom: thin solid #999999;
   width: 100%;
   height: 100%;
   text-align: center;

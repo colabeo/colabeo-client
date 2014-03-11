@@ -189,6 +189,10 @@ button.button {
   -webkit-transform: translate(-50%, -50%) scale(-1,1);
 }
 
+.camera.local-video.off {
+  display: none;
+}
+
 /* header */
 .header button {
   position: absolute;
@@ -1185,6 +1189,9 @@ input {
   user-select: text;
 }
 
+.conversation-input-bar{
+  border-top: thin solid @color-grey;
+}
 
 .conversation-input-bar div{
   font-size: 30px;
@@ -1239,11 +1246,11 @@ input {
   background-color: rgba(185, 185, 185, 0.2);
   color: @text-color;
   font-size: 18px;
-  margin-top:5px;
-  height: 40px;
+  margin-top:10px;
+  height: 30px;
   width: 100%;
   display: block;
-  border-left: solid @theme-background-color 5px;
+  border-left: solid @theme-background-color 10px;
   border-right: solid @theme-background-color 5px;
   box-sizing: border-box;
   resize: none;
@@ -1257,6 +1264,7 @@ input {
 
 .conversation-exit {
   color: @color-white;
+  border-bottom: thin solid @color-grey;
   width: 100%;
   height: 100%;
   text-align: center;
@@ -1284,6 +1292,7 @@ input {
   text-align: center;
   line-height: 45px;
   border-left: thin solid @tranlucent-white-v;
+  border-bottom: thin solid @color-grey;
 //  box-sizing: border-box;
 //  border: @color-green solid 3px;
   background: black;
@@ -1296,6 +1305,7 @@ input {
   color: @button-color-end-call;
   font-size: 35px;
   border-left: thin solid @tranlucent-white-v;
+  border-bottom: thin solid @color-grey;
   //  border: @button-color-end-call solid 3px;
 //  box-sizing: border-box;
 }
@@ -1306,6 +1316,7 @@ input {
 
 .conversation-camera{
   background: black;
+  border-bottom: thin solid @color-grey;
   //  border: @color-blue solid 3px;
 //  box-sizing: border-box;
   width: 100%;
@@ -1325,6 +1336,7 @@ input {
   background: black;
   //  border: @color-blue solid 3px;
   //  box-sizing: border-box;
+  border-bottom: thin solid @color-grey;
   width: 100%;
   height: 100%;
   text-align: center;

@@ -89,24 +89,28 @@ ConversationView.prototype.setupcall = function(appSettings,call){
 ConversationView.prototype.initHeader = function(){
     this.exitSurface = new Surface({
         size:[window.innerWidth - 150, 50],
+        classes:["conversation-exit"],
         content: Templates.conversationViewHeader(this.call),
         properties:{
             cursor: "pointer"
         }
     });
     this.exitSurface.pipe(this._eventOutput);
-    this.exitSurfaceMod = new Modifier();
+    this.exitSurfaceMod = new Modifier({
+        transform:Transform.translate(0,0,3)
+    });
 
     this.callSurface = new Surface({
         size:[150, 50],
-        content:'<div class="conversation-call"><i class="fa fa-phone fa-lg"></i></div>',
+        classes:["conversation-call"],
+        content:'<div><i class="fa fa-phone fa-lg"></i></div>',
         properties:{
             cursor: "pointer"
         }
     });
     this.callSurfaceMod = new Modifier({
         origin:[1,0],
-        transform: Transform.translate(0,0,1)
+        transform: Transform.translate(0,0,4)
     });
 
     this.endCallSurface = new Surface({
@@ -119,7 +123,8 @@ ConversationView.prototype.initHeader = function(){
     });
     this.endCallSurface.pipe(this._eventOutput);
     this.endCallSurfaceMod = new Modifier({
-        origin:[1,0]
+        origin:[1,0],
+        transform: Transform.translate(0,0,3)
     }); 
     
     this.audioSurface = new Surface({
@@ -131,7 +136,8 @@ ConversationView.prototype.initHeader = function(){
     });
     this.audioSurface.pipe(this._eventOutput);
     this.audioSurfaceMod = new Modifier({
-        origin:[1,0]
+        origin:[1,0],
+        transform: Transform.translate(0,0,3)
     });
 
     this.cameraSurface = new Surface({
@@ -143,7 +149,7 @@ ConversationView.prototype.initHeader = function(){
     });
     this.cameraSurfaceMod = new Modifier({
         origin:[1,0],
-        transform: Transform.translate(-75,0,0)
+        transform: Transform.translate(-75,0,3)
     });
     this.cameraSurfaceSetContent();
     this.audioSurfaceSetContent();
@@ -238,7 +244,7 @@ ConversationView.prototype.setupLayout = function(){
     this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
     this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
     this.headerFooterLayout.id.content.add(this.conversationLightbox);
-    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
+//    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
     this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
     this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
 

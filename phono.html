@@ -1,0 +1,22 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/ui-darkness/jquery-ui.css"/>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://s.phono.com/releases/1.1/jquery.phono.js"></script>
+    <script type="text/javascript" src="http://s.phono.com/addons/callme/79a53b7/jquery.callme.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    $("body").append(
+            $("<div/>")
+                    .css("width","210px")
+                    .callme({
+                        apiKey: "233f5673a7329a4cb7a5a2d0e5b6696e9ec245f8f7410e0631f4938c4395ca3163db86f7a9eda9d42633a308",
+                        numberToDial: "4158125971",
+                        buttonTextReady: "1-415-812-5971",
+                        slideOpen:true
+                    })
+    )
+</script>
+</body>
+</html>

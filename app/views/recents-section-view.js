@@ -85,15 +85,18 @@ RecentsSectionView.prototype.clearAll = function(){
 
 RecentsSectionView.prototype.setMissedOnly = function(miss){
     var missedOnly = (miss == 'missed');
-    _.each(this.sequence, function(itemView){
-        if (!itemView.collapse) return;
-        if (missedOnly) {
-            if (!itemView.model.isMissed()) {
+    if (missedOnly) {
+        _.each(this.sequence, function(itemView){
+            if (itemView.collapse && !itemView.model.isMissed()) {
                 itemView.collapse();
             }
-        }
-        else itemView.expand();
-    }.bind(this));
+        }.bind(this));
+    } else {
+        this.scrollview.setVelocity(-1);
+        _.each(this.sequence, function(itemView){
+            if (itemView.expand) itemView.expand();
+        }.bind(this));
+    }
 };
 
 module.exports = RecentsSectionView;

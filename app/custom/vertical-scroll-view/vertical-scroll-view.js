@@ -132,6 +132,7 @@ VerticalScrollView.prototype.push = function(item) {
 };
 
 VerticalScrollView.prototype.scrollToEnd = function() {
+//    this.setVelocity(-1);
     var lastNode = this.node.array.length-1;
     var currNode = this.node.index;
     var screenSize = this.getSize()[1];

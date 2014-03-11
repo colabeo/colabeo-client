@@ -9,7 +9,9 @@ var GenericSync        = require('famous/input/generic-sync');
 var Surface            = require('famous/surface');
 
 // import custom modules
-var TouchSync          = require('custom-touch-sync');
+var InputSync          = require('custom-input-sync');
+var TouchSync          = InputSync.TouchSync;
+var MouseSync          = InputSync.MouseSync;
 
 // import views
 var SocialItemView     = require('social-item-view');
@@ -79,16 +81,16 @@ function SocialView(options) {
         this.loadContacts(e.target.value);
     }.bind(this));
 
-    this.abcSurface.on('mousemove',function(e){
-        this.onAbcTouch(e);
-    }.bind(this));
+//    this.abcSurface.on('mousemove',function(e){
+//        this.onAbcTouch(e);
+//    }.bind(this));
 
     // abc-bar effect for cellphone
     var mousePosition = [0,0];
     var sync = new GenericSync(function(){
         return mousePosition;
     },{
-        syncClasses:[TouchSync]
+        syncClasses:[MouseSync, TouchSync]
     });
     this.abcSurface.pipe(sync);
     sync.on('update',function(data){

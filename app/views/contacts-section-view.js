@@ -8,7 +8,9 @@ var Surface            = require('famous/surface');
 var Easing = require('famous/transitions/easing');
 
 // import custom modules
-var TouchSync          = require('custom-touch-sync');
+var InputSync          = require('custom-input-sync');
+var TouchSync          = InputSync.TouchSync;
+var MouseSync          = InputSync.MouseSync;
 var Templates          = require('templates');
 var Transform = require('famous/transform');
 
@@ -270,21 +272,21 @@ ContactsSection.prototype.collectionEvents = function() {
 
 ContactsSection.prototype.abcSurfaceEvents = function() {
     // abc-bar effect for laptop
-    this.abcSurface.on('mousedown', function(e){
-        this.abcSurfaceTouch = true;
-    }.bind(this));
-    this.abcSurface.on('mouseup', function(e){
-        this.abcSurfaceTouch = false;
-    }.bind(this));
-    this.abcSurface.on('mousemove', function(e){
-        if (this.abcSurfaceTouch) this.onAbcTouch(e);
-    }.bind(this));
+//    this.abcSurface.on('mousedown', function(e){
+//        this.abcSurfaceTouch = true;
+//    }.bind(this));
+//    this.abcSurface.on('mouseup', function(e){
+//        this.abcSurfaceTouch = false;
+//    }.bind(this));
+//    this.abcSurface.on('mousemove', function(e){
+//        if (this.abcSurfaceTouch) this.onAbcTouch(e);
+//    }.bind(this));
     // abc-bar effect for cellphone
     var mousePosition = [0,0];
     var sync = new GenericSync(function(){
         return mousePosition;
     },{
-        syncClasses:[TouchSync]
+        syncClasses:[MouseSync,TouchSync]
     });
     this.abcSurface.pipe(sync);
     sync.on('update',function(data){

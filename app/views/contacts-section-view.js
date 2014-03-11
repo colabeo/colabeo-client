@@ -270,8 +270,14 @@ ContactsSection.prototype.collectionEvents = function() {
 
 ContactsSection.prototype.abcSurfaceEvents = function() {
     // abc-bar effect for laptop
+    this.abcSurface.on('mousedown', function(e){
+        this.abcSurfaceTouch = true;
+    }.bind(this));
+    this.abcSurface.on('mouseup', function(e){
+        this.abcSurfaceTouch = false;
+    }.bind(this));
     this.abcSurface.on('mousemove', function(e){
-        this.onAbcTouch(e);
+        if (this.abcSurfaceTouch) this.onAbcTouch(e);
     }.bind(this));
     // abc-bar effect for cellphone
     var mousePosition = [0,0];

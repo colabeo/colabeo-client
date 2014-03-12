@@ -20,6 +20,8 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background: url('../content/images/wallpaper-dark.jpg');
+  -webkit-background-size: 100%;
 }
 .header {
   border-bottom: solid 1px #999999;
@@ -98,10 +100,6 @@ button.button {
 .mobile .camera {
   height: 100% !important;
   top: 0%;
-}
-.camera.off {
-  background: url('../content/images/wallpaper.jpg');
-  -webkit-background-size: 100%;
 }
 .blur.camera {
   -webkit-filter: blur(20px) brightness(0.5);

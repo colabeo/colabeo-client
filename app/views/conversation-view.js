@@ -91,7 +91,7 @@ ConversationView.prototype.initHeader = function(){
     this.callSurface = new Surface({
         size:[225, 50],
         classes:["conversation-call"],
-        content:'<div><i class="fa fa-phone fa-lg"></i></div>',
+        content:'<div><i class="fa fa-phone fa-lg"></i> Call</div>',
         properties:{
             cursor: "pointer"
         }
@@ -266,8 +266,9 @@ ConversationView.prototype.start = function(appSettings, call){
     this.exitSurface.setContent(Templates.conversationViewHeader(call));
 
     if (!Helpers.isDev() && this.call.get('success')) {
-        this.callSurfaceMod.setTransform(Transform.translate(225,0,0), this.buttonTransition);
-    }
+        this.hideCallButton();
+    } else
+        this.showCallButton();
 
     this.scrollview.sequenceFrom([]);
     this.collectionEvents();
@@ -279,7 +280,7 @@ ConversationView.prototype.start = function(appSettings, call){
 };
 
 ConversationView.prototype.stop = function(evt){
-    this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
+    this.showCallButton();
     this.appSettings.save({video : true});
     this.appSettings.save({audio : true});
     if (evt.exit) {
@@ -314,20 +315,27 @@ ConversationView.prototype.collectionEvents = function(){
     }.bind(this));
 };
 
+ConversationView.prototype.showCallButton = function(){
+    this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
+};
+ConversationView.prototype.hideCallButton = function(){
+    this.callSurfaceMod.setTransform(Transform.translate(225,0,4), this.buttonTransition);
+};
+
 ConversationView.prototype.buttonsEvents = function(){
     this.exitSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
-        this._eventOutput.emit('callEnd', {exit:true});
+        this.showCallButton();
+        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:true});}.bind(this), 600);
     }.bind(this));
 
     this.callSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(225,0,4), this.buttonTransition);
-        this._eventOutput.emit('outgoingCall',this.call);
+        this.hideCallButton();
+        setTimeout(function() {this._eventOutput.emit('outgoingCall',this.call);}.bind(this), 600);
     }.bind(this));
 
     this.endCallSurface.on('click', function(){
-        this.callSurfaceMod.setTransform(Transform.translate(0,0,4), this.buttonTransition);
-        this._eventOutput.emit('callEnd', {exit:false});
+        this.showCallButton();
+        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:false});}.bind(this), 600);
     }.bind(this));
 
     this.audioSurface.on('click', function(){

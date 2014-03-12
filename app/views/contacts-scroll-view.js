@@ -21,15 +21,12 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 
 function ContactsScrollView(options) {
-
     window.con=this
     View.call(this);
-
-    this.searchBarSize = 50;
-    this.abcSurfaceWidth = 30;
-    this.abcSurfaceHeight = undefined;
-
+    this.sortKey = 'lastname';
+    this.searchKey = false;
     this.setupLayout(options);
+    this.prepareSequences();
     this.collectionEvents();
     this.abcSurfaceEvents();
     this.searchSurfaceEvents();
@@ -38,7 +35,45 @@ function ContactsScrollView(options) {
 ContactsScrollView.prototype = Object.create(View.prototype);
 ContactsScrollView.prototype.constructor = ContactsScrollView;
 
+ContactsScrollView.prototype.collectionEvents = function() {
+    this.collection.on('all', function(e, model, collection, options) {
+//        console.log(e);
+        switch(e)
+        {
+            case 'change':
+                this.changeItem(model);
+                break;
+            case 'remove':
+                this.removeItem(model);
+                break;
+            case 'add':
+                this.addItem(model);
+                break;
+            case 'sync':
+                this.renderScrollView();
+                break;
+
+        }
+    }.bind(this));
+};
+
+ContactsScrollView.prototype.prepareSequences = function() {
+    this.contactSequence = [];
+    this.headerSequence = _.map('ABCDEFGHIJKLMNOPQRSTUVWXYZ#', function(i){
+        var headerSurface = new HeaderView({
+            content: Templates.headerItemView(i,0,0),
+            header: i
+        });
+        headerSurface.pipe(this.scrollview);
+        return headerSurface;
+    }.bind(this));
+};
+
 ContactsScrollView.prototype.setupLayout = function(options) {
+    this.searchBarSize = 50;
+    this.abcSurfaceWidth = 30;
+    this.abcSurfaceHeight = undefined;
+
     this.headerFooterLayout = new HeaderFooterLayout({
         headerSize: this.searchBarSize,
         footerSize: 0
@@ -60,7 +95,6 @@ ContactsScrollView.prototype.setupLayout = function(options) {
         transform:Transform.translate(0,0,3)
     });
     this.searhBarTransition = {
-//        'curve' : Easing.linearNorm,
         'duration' : 0
     };
     this.searchMode = false;
@@ -87,11 +121,7 @@ ContactsScrollView.prototype.setupLayout = function(options) {
     };
 
     this.collection = options.collection;
-    this.scrollview = new VerticalScrollView({
-        direction: Utility.Direction.Y,
-        margin: 10000
-
-    });
+    this.scrollview = new VerticalScrollView();
 
     this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);
     this.headerFooterLayout.id.content.add(this.scrollview);
@@ -101,26 +131,54 @@ ContactsScrollView.prototype.setupLayout = function(options) {
     this._add(this.LayoutMod).add(this.headerFooterLayout);
 };
 
-ContactsScrollView.prototype.setupHeaderSurfaces = function() {
-    return _.map(this.a2zString, function(i){
-        var headerSurface = new HeaderView({
-            content: Templates.headerItemView(i,0,0),
-            header: i,
-            collection: this.collection
-        });
-        headerSurface.pipe(this.scrollview);
-        return headerSurface;
-    }.bind(this));
-};
+ContactsScrollView.prototype.renderScrollView = function() {
+    var sequence = this.headerSequence.concat(this.contactSequence);
+    var newSequence = arrangeSequence(sequence, sortBy(this.sortKey), searchBy(this.searchKey));
+    this.scrollview.sequenceFrom(newSequence);
+}
 
-ContactsScrollView.prototype.initContacts = function() {
+ContactsScrollView.prototype.renderHeaders = function() {
+    this.headerSequence.each()
+}
 
-    this.headerSequence = this.setupHeaderSurfaces();
-    this.contactSequence = this.collection.map(function(item){
-        return this.createItem(item);
-    }.bind(this));
-    this.refreshContacts();
-};
+function sortBy(key) {
+    key = key || 'lastname';
+    return function(item) {
+        var l, f, h;
+        l = f = h = '';
+        // " " is the earliest char
+        if (item.model) l = item.model.get('lastname') || "#";
+        if (item.model) f = item.model.get('firstname') || "#";
+        if (item.options && item.options.header) h = item.options.header;
+        if (key.toLowerCase() == 'lastname') {var str = h + l + ' ' + f;}
+        else if (key.toLowerCase() == 'firstname') {var str = h + f + ' ' + l;}
+        // "{" is the next char after "z"
+        if (!/^[a-zA-Z]+$/.test(str[0]))
+            str = "{" + str;
+        return str.toUpperCase();
+    }
+}
+
+function searchBy(key) {
+    return function(item) {
+        if (!key)
+            return key===false;
+        else {
+            key = key.toLowerCase();
+            if (!item.model) return false;
+            if (item.model.get('firstname').toLowerCase().indexOf(key) != -1 || item.model.get('lastname').toLowerCase().indexOf(key) != -1)
+                return true;
+        }
+        return false;
+    }
+}
+
+function arrangeSequence(sequence, sortFunction, searchFunction){
+    return _.chain(sequence)
+        .filter(searchFunction)
+        .sortBy(sortFunction)
+        .value();
+}
 
 ContactsScrollView.prototype.createItem = function (item){
     var surface = new ContactItemView({model: item});
@@ -129,33 +187,39 @@ ContactsScrollView.prototype.createItem = function (item){
     return surface;
 };
 
-ContactsScrollView.prototype.collectionEvents = function() {
-    // When Firebase returns the data switch out of the loading screen
-    this.collection.on('all', function(e, model, collection, options) {
-        console.log(e, model, collection, options);
-        switch(e)
-        {
-            case 'change':
-                this.changeItem(model);
-                this.collection.sort();
-                break;
-            case 'remove':
-                this.removeItem(model);
-                break;
-            case 'add':
-                if (this.noInit == true){
-                    this.addItem(model);
-                }
-                break;
-            case 'sync':
-                if (!this.noInit){
-                    this.noInit = true;
-                    this.initContacts();
-                }
-                break;
+ContactsScrollView.prototype.addItem = function(item) {
+    var newContact = this.createItem(item);
+    this.contactSequence.push(newContact);
+};
 
-        }
+ContactsScrollView.prototype.removeItem = function(item) {
+
+};
+
+ContactsScrollView.prototype.changeItem = function(item) {
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ContactsScrollView.prototype.initContacts = function() {
+
+    this.headerSequence = this.setupHeaderSurfaces();
+    this.contactSequence = this.collection.map(function(item){
+        return this.createItem(item);
     }.bind(this));
+    this.refreshContacts();
 };
 
 ContactsScrollView.prototype.abcSurfaceEvents = function() {
@@ -226,29 +290,11 @@ ContactsScrollView.prototype.searchOnBlur = function(){
 //    colabeo.app.header.expand();
 };
 
-
-
-ContactsScrollView.prototype.renderSequence = function(sequence, sortFunction, filterFunction){
-    
-};
-
 ContactsScrollView.prototype.sortSequence = function (method){
     
 };
 
 ContactsScrollView.prototype.filterSequence = function (searchKey){
-
-};
-
-ContactsScrollView.prototype.addItem = function(item) {
-
-};
-
-ContactsScrollView.prototype.removeItem = function(item) {
-
-};
-
-ContactsScrollView.prototype.changeItem = function(item) {
 
 };
 

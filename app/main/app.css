@@ -1130,7 +1130,6 @@ input {
   border-right: solid transparent 5px;
 }
 .conversation-call {
-  color: #5db04c;
   width: 100%;
   height: 100%;
   text-align: center;
@@ -1138,6 +1137,9 @@ input {
   border-left: thin solid rgba(255, 255, 255, 0.2);
   border-bottom: thin solid #999999;
   background: black;
+}
+.conversation-call i {
+  color: #5db04c;
 }
 .conversation-endCall {
   background: black;

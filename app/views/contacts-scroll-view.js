@@ -193,12 +193,32 @@ ContactsScrollView.prototype.addItem = function(item) {
 };
 
 ContactsScrollView.prototype.removeItem = function(item) {
+    for (var i in this.contactSequence){
+        if (this.contactSequence[i].model== item) {
+            var indexInContactSequence = i;
+            break
+        }
+    }
+    this.contactSequence.splice(indexInContactSequence,1);
 
+    var visibleSequence = this.scrollview.node.array;
+    for (var i in visibleSequence){
+        if (visibleSequence[i].model== item) {
+            var indexInScrollview = i;
+            break
+        }
+    }
+    this.scrollview.removeByIndex(indexInScrollview);
 };
 
 ContactsScrollView.prototype.changeItem = function(item) {
-
+    // rely on model event to update itemView
 };
+
+
+
+
+
 
 
 
@@ -289,38 +309,5 @@ ContactsScrollView.prototype.searchOnBlur = function(){
     this.searchSurface._currTarget.style.paddingRight = "10px";
 //    colabeo.app.header.expand();
 };
-
-ContactsScrollView.prototype.sortSequence = function (method){
-    
-};
-
-ContactsScrollView.prototype.filterSequence = function (searchKey){
-
-};
-
-ContactsScrollView.prototype.resort = function(item) {
-
-};
-
-ContactsScrollView.prototype.sortByLastname = function(){
-    this.currentSequence = _.sortBy(this.currentSequence, sortByLastname);
-};
-
-ContactsScrollView.prototype.sortByFirstname = function(){
-    this.currentSequence = _.sortBy(this.currentSequence, sortByFirstname);
-};
-
-function sortByName(item, method){
-    var l, f, h;
-    l = f = h = '';
-    if (item.model) l = item.model.get('lastname');
-    if (item.model) f = item.model.get('firstname');
-    if (item.options && item.options.header) h = item.options.header;
-    if (method.toLowerCase() == 'lastname') {var str = h + l + ' ' + f;}
-    else if (method.toLowerCase() == 'firstname') {var str = h + f + ' ' + l;}
-    if (!/^[a-zA-Z]+$/.test(str[0]))
-        str = "zzzz" + str;
-    return str.toUpperCase();
-}
 
 module.exports = ContactsScrollView;

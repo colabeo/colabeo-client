@@ -22,6 +22,7 @@ var HeaderView = RowView.HeaderView;
 
 function ContactsSection(options) {
 
+    window.con=this
     View.call(this);
 
     this.searchBarSize = 50;
@@ -122,7 +123,6 @@ ContactsSection.prototype.setupHeaderSurfaces = function() {
 };
 
 
-
 ContactsSection.prototype.refreshContacts = function(searchKey) {
     $('body').removeClass('editing');
 
@@ -140,28 +140,13 @@ ContactsSection.prototype.refreshContacts = function(searchKey) {
         this.abcSurface.setContent(Templates.abcButtons());
     }
 
+    this.contactSequence = _.sortBy(this.contactSequence, sortByLastname);
     this.currentContactsSequence = _.map(this.currentCollection, function(item){
         return this.contactSequence[item.collection.indexOf(item)];
     }.bind(this));
 
-    this.firstChar = undefined;
-    this.a2zIndexArray = [0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1];
-
-
-    for (var ii=0; ii<this.currentContactsSequence.length; ii++){
-        var isFirst = false;
-        var initialChar = this.getInitialChar(this.currentContactsSequence[ii].model);
-        if (this.firstChar != initialChar) {
-            this.firstChar = initialChar;
-            isFirst = this.firstChar
-        }
-        var currIndex = this.getCurrentIndex(this.currentContactsSequence[ii], ii, isFirst);
-        this.currentSequence.splice(currIndex,0,this.currentContactsSequence[ii]);
-    }
-
-    while (this.a2zIndexArray.indexOf(-1) != -1){
-        this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)]=this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)-1];
-    }
+    this.currentSequence = this.currentSequence.concat(this.currentContactsSequence);
+    this.sortByLastname();
 
     // added empty item
     // media access bar messed up the height so add 40
@@ -204,25 +189,6 @@ ContactsSection.prototype.initContacts = function() {
     this.refreshContacts();
 };
 
-ContactsSection.prototype.getCurrentIndex = function (item, index, isFirst){
-    //console.log(item.model.get('lastname'),this.currentContactsSequence.indexOf(item),this.a2zString.indexOf(this.firstChar));
-    var value = this.currentContactsSequence.indexOf(item)+this.a2zString.indexOf(this.firstChar)+1;
-    if (isFirst) this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = value - 1;
-    return value;
-};
-
-ContactsSection.prototype.reIndex = function (item){
-    var firstChar = this.getInitialChar(item);
-    var index = this.a2zString.indexOf(firstChar);
-    for (var i = index+1; i<this.a2zIndexArray.length; i++){
-        this.a2zIndexArray[i] = this.a2zIndexArray[i] - 1
-    }
-};
-
-ContactsSection.prototype.getIndexInScrollview = function (item, index){
-    return index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
-};
-
 ContactsSection.prototype.createItem = function (item){
     var surface = new ContactItemView({model: item});
     surface.pipe(this._eventOutput);
@@ -230,33 +196,22 @@ ContactsSection.prototype.createItem = function (item){
     return surface;
 };
 
-ContactsSection.prototype.onAbcTouch = function(e) {
-    if (!this.abcButtons) this.abcButtons = $('.abcButton button');
-//            var index = Math.floor(27*(e.y-$('.abcButton').position().top)/(this.abcButtons.length*this.abcButtons.height()));
-    var index = this.abcButtons.indexOf(e.target);
-    index = this.a2zIndexArray[index];
-    if (index == undefined || index == this.curAbcIndex) return;
-    this.curAbcIndex = index;
-    this.scrollTo(index);
-};
-
 ContactsSection.prototype.collectionEvents = function() {
     // When Firebase returns the data switch out of the loading screen
     this.collection.on('all', function(e, model, collection, options) {
-        //console.log(e, model, collection, options);
+        console.log(e, model, collection, options);
         switch(e)
         {
             case 'change':
                 this.changeItem(model);
+                this.collection.sort();
                 break;
             case 'remove':
-                this.removeItemByIndex(model, options.index);
-                this.reIndex(model);
+                this.removeItem(model);
                 break;
-//            case 'change':
             case 'add':
                 if (this.noInit == true){
-                    this.addItemByIndex(model);
+                    this.addItem(model);
                 }
                 break;
             case 'sync':
@@ -271,17 +226,6 @@ ContactsSection.prototype.collectionEvents = function() {
 };
 
 ContactsSection.prototype.abcSurfaceEvents = function() {
-    // abc-bar effect for laptop
-//    this.abcSurface.on('mousedown', function(e){
-//        this.abcSurfaceTouch = true;
-//    }.bind(this));
-//    this.abcSurface.on('mouseup', function(e){
-//        this.abcSurfaceTouch = false;
-//    }.bind(this));
-//    this.abcSurface.on('mousemove', function(e){
-//        if (this.abcSurfaceTouch) this.onAbcTouch(e);
-//    }.bind(this));
-    // abc-bar effect for cellphone
     var mousePosition = [0,0];
     var sync = new GenericSync(function(){
         return mousePosition;
@@ -300,34 +244,42 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
 ContactsSection.prototype.scrollToContact = function(data){
     var target = document.elementFromPoint(data.ap[0], data.ap[1]);
     if (!target || !target.id) return;
-    var index = this.a2zString.indexOf(target.id);
-    index = this.a2zIndexArray[index];
-    if (index == undefined || index == this.curAbcIndex) return;
-    this.curAbcIndex = index;
+
+    for (var i in this.headerSequence) {
+        if(this.headerSequence[i].options.header == target.id) {
+            var index= this.currentSequence.indexOf(this.headerSequence[i]);
+            break;
+        }
+    }
     this.scrollTo(index);
 };
 
-ContactsSection.prototype.removeItemByIndex = function(item, index) {
-    var indexInScrollview = this.getIndexInScrollview(item,index);
+ContactsSection.prototype.removeItem = function(item) {
+    for (var i in this.contactSequence){
+        if (this.contactSequence[i].model== item) {
+            var indexInContactSequence = i;
+            break
+        }
+    }
+    this.contactSequence.splice(indexInContactSequence,1);
+
+    for (var i in this.currentSequence){
+        if (this.currentSequence[i].model== item) {
+            var indexInScrollview = i;
+            break
+        }
+    }
     this.scrollview.removeByIndex(indexInScrollview);
 };
 
-ContactsSection.prototype.addItemByIndex = function(item) {
-    var indexInCollection = this.collection.indexOf(item)
-    var indexInScrollview = this.getIndexInScrollview(item, indexInCollection);
+ContactsSection.prototype.addItem = function(item) {
     var newContact = this.createItem(item);
-    this.collection.models.map(function(i){console.log(i.attributes.lastname)})
-    this.contactSequence.splice(this.collection.indexOf(item),0,newContact);
+    this.contactSequence.push(newContact);
     this.refreshContacts();
 };
 
 ContactsSection.prototype.changeItem = function(item) {
-    var newContact = this.createItem(item);
-//    var OldIndex =
-//    this.contactSequence.splice(OldIndex,1);
-    this.contactSequence.splice(this.collection.indexOf(item),1,newContact);
     this.refreshContacts();
-
 };
 
 ContactsSection.prototype.searchSurfaceEvents = function() {
@@ -364,6 +316,7 @@ ContactsSection.prototype.getInitialChar = function(item){
 
 ContactsSection.prototype.searchOnFocus = function(){
     this.searchMode =true;
+    this._eventInput.emit('backToNoneEditing');
     this.scrollview.scrollTo(0,0);
     this.refreshContacts();
     this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
@@ -378,45 +331,14 @@ ContactsSection.prototype.searchOnBlur = function(){
     this.searchSurface._currTarget.style.paddingRight = "10px";
 //    colabeo.app.header.expand();
 };
-ContactsSection.prototype.filterContactSequence = function(searchKey){
-    if (this.searchMode == true) {
-        this.abcSurface.setContent('');
-        this.currentSequence = [];
-        this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
-    } else {
-        this.abcSurface.setContent(Templates.abcButtons());
-        this.currentSequence = _.clone(this.headerSequence);
-        this.currentCollection = this.collection.models;
-    }
-
-    this.currentContactsSequence = _.map(this.currentCollection, function(item){
-        return this.contactSequence[item.collection.indexOf(item)];
-    }.bind(this));
-
-    this.currentSequence = this.currentSequence.concat(this.currentContactsSequence)
-};
 
 ContactsSection.prototype.sortByLastname = function(){
     this.currentSequence = _.sortBy(this.currentSequence, sortByLastname);
-    this.scrollview.sequenceFrom(this.currentSequence);
 };
 
 ContactsSection.prototype.sortByFirstname = function(){
     this.currentSequence = _.sortBy(this.currentSequence, sortByFirstname);
-    this.scrollview.sequenceFrom(this.currentSequence);
 };
-
-function sortByLastname(item){
-    var l, f, h;
-    l = f = h = '';
-    if (item.model) l = item.model.get('lastname');
-    if (item.model) f = item.model.get('firstname');
-    if (item.options && item.options.header) h = item.options.header;
-    var str = h + l + ' ' + f;
-    if (!/^[a-zA-Z]+$/.test(str[0]))
-        str = "zzzz" + str;
-    return str.toUpperCase();
-}
 
 function sortByLastname(item){
     var l, f, h;
@@ -442,11 +364,4 @@ function sortByFirstname(item){
     return str.toUpperCase();
 }
 
-
-
 module.exports = ContactsSection;
-
-
-
-//A a1 B b1 C c1 D d1 E e1    b1->d2
-//A a1 B C c1 D d1 d2 E e1

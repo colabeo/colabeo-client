@@ -44,9 +44,14 @@ function ContactItemView(options) {
 
     this._eventInput.on('toggleAllContact', this.onToggleAll.bind(this));
     this._eventInput.on('backToNoneEditing', this.setEditingOff.bind(this));
+    this.model.on('change', function(){this.changeItem()}.bind(this));
 }
 
 ContactItemView.prototype = Object.create(ItemView.prototype);
 ContactItemView.prototype.constructor = ContactItemView;
+
+ContactItemView.prototype.changeItem = function(){
+    this.itemSurface.setContent(Templates.contactItemView(this.model))
+};
 
 module.exports = ContactItemView;

@@ -246,6 +246,7 @@ ItemView.prototype.toggleEditing = function(){
 };
 
 ItemView.prototype.onToggleAll = function (){
+    console.log('toggleAll');
     if ( this.areEditingMode == false){
         this.setEditingOn();
     } else {

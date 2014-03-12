@@ -9,7 +9,7 @@ var RowView = require('row-view');
 function HeaderView(options){
     RowView.call(this);
 
-    this.model = options.model;
+//    this.model = options;
     this.options = {
         collection: undefined,
         header: undefined,

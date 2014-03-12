@@ -91,7 +91,7 @@ function _handleStart(e) {
     this._prevCoord = [e.clientX, e.clientY];
     this._prevTime = Date.now();
     this._prevVel = (this.options.direction !== undefined) ? 0 : [0, 0];
-    this.output.emit('start');
+    this.output.emit('start' , {ap: this._prevCoord});
 };
 
 function _handleMove(e) {

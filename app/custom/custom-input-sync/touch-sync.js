@@ -31,7 +31,7 @@ function TouchSync(targetSync,options) {
 /** @const */ TouchSync.DIRECTION_Y = 1;
 
 function _handleStart(data) {
-    this.output.emit('start', {count: data.count, touch: data.touch.identifier});
+    this.output.emit('start', {ap: [data.touch.clientX, data.touch.clientY], count: data.count, touch: data.touch.identifier});
 };
 
 function _handleMove(data) {

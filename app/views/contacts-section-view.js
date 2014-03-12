@@ -289,15 +289,22 @@ ContactsSection.prototype.abcSurfaceEvents = function() {
         syncClasses:[MouseSync,TouchSync]
     });
     this.abcSurface.pipe(sync);
-    sync.on('update',function(data){
-        var target = document.elementFromPoint(data.ap[0], data.ap[1]);
-        if (!target || !target.id) return;
-        var index = this.a2zString.indexOf(target.id);
-        index = this.a2zIndexArray[index];
-        if (index == undefined || index == this.curAbcIndex) return;
-        this.curAbcIndex = index;
-        this.scrollTo(index);
+    sync.on('start',function(data){
+        this.scrollToContact(data);
     }.bind(this));
+    sync.on('update',function(data){
+        this.scrollToContact(data);
+    }.bind(this));
+};
+
+ContactsSection.prototype.scrollToContact = function(data){
+    var target = document.elementFromPoint(data.ap[0], data.ap[1]);
+    if (!target || !target.id) return;
+    var index = this.a2zString.indexOf(target.id);
+    index = this.a2zIndexArray[index];
+    if (index == undefined || index == this.curAbcIndex) return;
+    this.curAbcIndex = index;
+    this.scrollTo(index);
 };
 
 ContactsSection.prototype.removeItemByIndex = function(item, index) {

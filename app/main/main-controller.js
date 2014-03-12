@@ -153,7 +153,7 @@ function MainController() {
         this._eventOutput.on('connectedCall', onConnectedCall);
         this._eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
         this._eventOutput.on('editContact', onEditContact);
-        this._eventOutput.on('chatContact', onChatContact);
+        this._eventOutput.on('chatContact', _.debounce(onChatContact,300));
         this._eventOutput.on('showApp', onShowApp);
         this._eventOutput.on('chatOn', onChatOn);
         this._eventOutput.on('chatOff', onChatOff);
@@ -299,6 +299,7 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
+                contact = new Contact(contact.omit('success'));
                 contact.set({
                     read: true
                 });

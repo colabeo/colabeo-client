@@ -73,9 +73,17 @@ ItemView.prototype.setupEvent = function(){
     sync.on('start', function() {
         this.pos = this.isEditingMode? [this.options.nButtons*this.options.buttonSizeX, 0] : [0,0];
         this._directionChosen = false;
+        this.clickTimeout = setTimeout(function(){
+            this.itemSurface.setProperties({backgroundColor: 'rgba(255,255,255,0.1)'});
+        }.bind(this),100);
     }.bind(this));
 
     sync.on('update', function(data) {
+        if (this.clickTimeout) {
+            clearTimeout(this.clickTimeout);
+            delete this.clickTimeout;
+        }
+        this.itemSurface.setProperties({backgroundColor: 'transparent'});
         this.pos = data.p;  // the displacement from the start touch point.
         if( Helpers.isMobile() && !this._directionChosen ) {
             var diffX = this.isEditingMode? Math.abs( this.pos[0] - this.options.nButtons*this.options.buttonSizeX ) : Math.abs( this.pos[0] ),
@@ -99,6 +107,9 @@ ItemView.prototype.setupEvent = function(){
     }.bind(this));
 
     sync.on('end', function(data) {
+        setTimeout(function(){
+            this.itemSurface.setProperties({backgroundColor: 'transparent'});
+        }.bind(this),300);
         this.pos = data.p;
         if ( Helpers.isMobile() && this.direction != Utility.Direction.X) return;
         if (this.pos[0] > this.options.nButtons*this.options.buttonSizeX){

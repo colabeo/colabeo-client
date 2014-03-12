@@ -3,6 +3,7 @@ module.exports = {
     AlertView: require("alert-view"),
     CameraView: require("camera-view"),
     ConnectedCallView: require("connected-call-view"),
+    ContactsScrollView: require("contacts-scroll-view"),
     ContactsSectionView: require("contacts-section-view"),
     ConversationView: require("conversation-view"),
     FavoritesSectionView: require("favorites-section-view"),

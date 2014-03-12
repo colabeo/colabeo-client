@@ -28,7 +28,6 @@ function ContactsScrollView(options) {
     this.searchBarSize = 50;
     this.abcSurfaceWidth = 30;
     this.abcSurfaceHeight = undefined;
-    this.a2zString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
     this.setupLayout(options);
     this.collectionEvents();

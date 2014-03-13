@@ -25,6 +25,8 @@ function ContactsScrollView(options) {
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;
+    this.abcArray = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
+
     this.setupLayout(options);
     this.prepareSequences();
     this.collectionEvents();
@@ -59,7 +61,7 @@ ContactsScrollView.prototype.collectionEvents = function() {
 
 ContactsScrollView.prototype.prepareSequences = function() {
     this.contactSequence = [];
-    this.headerSequence = _.map('ABCDEFGHIJKLMNOPQRSTUVWXYZ#', function(i){
+    this.headerSequence = _.map(this.abcArray, function(i){
         var headerSurface = new HeaderView({
             content: Templates.headerItemView(i,0,0),
             header: i
@@ -193,53 +195,14 @@ ContactsScrollView.prototype.addItem = function(item) {
 };
 
 ContactsScrollView.prototype.removeItem = function(item) {
-    for (var i in this.contactSequence){
-        if (this.contactSequence[i].model== item) {
-            var indexInContactSequence = i;
-            break
-        }
-    }
-    this.contactSequence.splice(indexInContactSequence,1);
-
-    var visibleSequence = this.scrollview.node.array;
-    for (var i in visibleSequence){
-        if (visibleSequence[i].model== item) {
-            var indexInScrollview = i;
-            break
-        }
-    }
-    this.scrollview.removeByIndex(indexInScrollview);
+    var i = this.contactSequence.indexOf(item);
+    this.contactSequence.splice(i,1);
+    var i = this.scrollview.node.array.indexOf(item);
+    this.scrollview.removeByIndex(i);
 };
 
 ContactsScrollView.prototype.changeItem = function(item) {
     // rely on model event to update itemView
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ContactsScrollView.prototype.initContacts = function() {
-
-    this.headerSequence = this.setupHeaderSurfaces();
-    this.contactSequence = this.collection.map(function(item){
-        return this.createItem(item);
-    }.bind(this));
-    this.refreshContacts();
 };
 
 ContactsScrollView.prototype.abcSurfaceEvents = function() {
@@ -261,13 +224,8 @@ ContactsScrollView.prototype.abcSurfaceEvents = function() {
 ContactsScrollView.prototype.scrollToContact = function(data){
     var target = document.elementFromPoint(data.ap[0], data.ap[1]);
     if (!target || !target.id) return;
-
-    for (var i in this.headerSequence) {
-        if(this.headerSequence[i].options.header == target.id) {
-            var index= this.scrollview.node.array.indexOf(this.headerSequence[i]);
-            break;
-        }
-    }
+    var i = this.abcArray.indexOf(target.id);
+    var index= this.scrollview.node.array.indexOf(this.headerSequence[i]);
     this.scrollview.scrollTo(index,0);
 };
 
@@ -278,38 +236,45 @@ ContactsScrollView.prototype.searchSurfaceEvents = function() {
             this._eventInput.emit('searchOnFocus',e);
         }
         else if  (e.target.className == 'cancel') {
-            e.currentTarget.children[0].children[1].value = '';
-            this._eventInput.emit('searchOnBlur');
+            this._eventInput.emit('searchOnCancel');
         }
     }.bind(this));
 
     this._eventInput.on('searchOnFocus', this.searchOnFocus.bind(this));
-    this._eventInput.on('searchOnBlur', this.searchOnBlur.bind(this));
+    this._eventInput.on('searchOnCancel', this.searchOnCancel.bind(this));
     this.searchSurface.on('keyup', function(e){
-        this.searchKey=e.target.value;
+        this.searchKey=this.getSearchKey();
         this.renderScrollView();
     }.bind(this));
 };
 
 ContactsScrollView.prototype.searchOnFocus = function(e){
-    this._eventInput.emit('backToNoneEditing');
-    this.abcSurface.setContent('');
-    this.scrollview.scrollTo(0,0);
-    this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
-    this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
-    this.searchSurface._currTarget.style.paddingRight = "100px";
-    this.searchKey=e.target.value;
-    this.renderScrollView();
+    this.searchKey=this.getSearchKey();
+    if (!this.searchKey) {
+        this._eventInput.emit('backToNoneEditing');
+        this.abcSurface.setContent('');
+        this.scrollview.scrollTo(0,0);
+        this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
+        this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
+        this.searchSurface._currTarget.style.paddingRight = "100px";
+        this.renderScrollView();
+    }
 };
 
-ContactsScrollView.prototype.searchOnBlur = function(){
+ContactsScrollView.prototype.searchOnCancel = function(){
     this.abcSurface.setContent(Templates.abcButtons());
     this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
     this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
     this.searchSurface._currTarget.style.paddingRight = "10px";
-//    colabeo.app.header.expand();
-    this.searchKey=false;
+    document.getElementsByClassName('search-contact')[0].value = '';
+    this.searchKey=this.getSearchKey();
     this.renderScrollView();
 };
 
+ContactsScrollView.prototype.getSearchKey = function() {
+    if ($(document.activeElement).hasClass('search-contact')) return document.activeElement.value;
+    else return false;
+}
+
+// TODO: search bar there is something blocking the seach input when focus
 module.exports = ContactsScrollView;

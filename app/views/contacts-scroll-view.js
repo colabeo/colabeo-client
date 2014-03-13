@@ -21,7 +21,7 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 
 function ContactsScrollView(options) {
-    window.con=this
+    window.con=this;
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;
@@ -39,8 +39,7 @@ ContactsScrollView.prototype = Object.create(View.prototype);
 ContactsScrollView.prototype.constructor = ContactsScrollView;
 
 ContactsScrollView.prototype.collectionEvents = function() {
-    this.collection.on('all', function(e, model, collection, options) {
-//        console.log(e);
+    this.collection.on('all', function(e, model) {
         switch(e)
         {
             case 'change':
@@ -55,7 +54,7 @@ ContactsScrollView.prototype.collectionEvents = function() {
                 break;
             case 'sync':
                 this.renderHeaders();
-                this.renderScrollView();
+                setTimeout(this.renderScrollView.bind(this), this.scrollview.node ? 0 : 1000);
                 break;
 
         }
@@ -151,8 +150,11 @@ function sortBy(key) {
         if (item.model) l = item.model.get('lastname') || "#";
         if (item.model) f = item.model.get('firstname') || "#";
         if (item.options && item.options.header) h = item.options.header;
-        if (key.toLowerCase() == 'lastname') {var str = h + l + ' ' + f;}
-        else if (key.toLowerCase() == 'firstname') {var str = h + f + ' ' + l;}
+        var str;
+        if (key.toLowerCase() == 'firstname')
+            str = h + f + ' ' + l;
+        else
+            str = h + l + ' ' + f;
         // "{" is the next char after "z"
         if (!/^[a-zA-Z]+$/.test(str[0]))
             str = "{" + str;
@@ -194,9 +196,9 @@ ContactsScrollView.prototype.addItem = function(item) {
 };
 
 ContactsScrollView.prototype.removeItem = function(item) {
-    var i = this.contactSequence.indexOf(item);
+    var i = this.contactSequence.map(function(i){return i.model}).indexOf(item);
     this.contactSequence.splice(i,1);
-    var i = this.scrollview.node.array.indexOf(item);
+    var i = this.scrollview.node.array.map(function(i){return i.model}).indexOf(item);
     this.scrollview.removeByIndex(i);
 };
 

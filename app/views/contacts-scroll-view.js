@@ -28,6 +28,7 @@ function ContactsScrollView(options) {
     this.abcArray = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
     this.setupLayout(options);
+    this.renderHeaders();
     this.prepareSequences();
     this.collectionEvents();
     this.abcSurfaceEvents();
@@ -47,11 +48,13 @@ ContactsScrollView.prototype.collectionEvents = function() {
                 break;
             case 'remove':
                 this.removeItem(model);
+                this.renderHeaders();
                 break;
             case 'add':
                 this.addItem(model);
                 break;
             case 'sync':
+                this.renderHeaders();
                 this.renderScrollView();
                 break;
 
@@ -61,7 +64,7 @@ ContactsScrollView.prototype.collectionEvents = function() {
 
 ContactsScrollView.prototype.prepareSequences = function() {
     this.contactSequence = [];
-    this.headerSequence = _.map(this.abcArray, function(i){
+    this.headerSequence = _.map('ABCDEFGHIJKLMNOPQRSTUVWXYZ#', function(i){
         var headerSurface = new HeaderView({
             content: Templates.headerItemView(i,0,0),
             header: i
@@ -137,11 +140,7 @@ ContactsScrollView.prototype.renderScrollView = function() {
     var sequence = this.headerSequence.concat(this.contactSequence);
     var newSequence = arrangeSequence(sequence, sortBy(this.sortKey), searchBy(this.searchKey));
     this.scrollview.sequenceFrom(newSequence);
-}
-
-ContactsScrollView.prototype.renderHeaders = function() {
-    this.headerSequence.each()
-}
+};
 
 function sortBy(key) {
     key = key || 'lastname';
@@ -269,6 +268,17 @@ ContactsScrollView.prototype.searchOnCancel = function(){
     document.getElementsByClassName('search-contact')[0].value = '';
     this.searchKey=this.getSearchKey();
     this.renderScrollView();
+};
+
+ContactsScrollView.prototype.renderHeaders = function(){
+    var existedAbcArray =  _.chain(this.collection.models)
+                     .map(function(item){return item.get(this.sortKey)[0] || '#'}.bind(this))
+                     .map(function(item){return (/^[a-zA-Z]+$/.test(item))? item.toUpperCase():'#'})
+                     .uniq()
+                     .value();
+    _.each(this.headerSequence,function(item){
+        (existedAbcArray.indexOf(item.options.header) == -1)? item.collapse() : item.expand()
+    }.bind(this))
 };
 
 ContactsScrollView.prototype.getSearchKey = function() {

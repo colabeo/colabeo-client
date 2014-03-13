@@ -22,7 +22,8 @@ function AddContactView(options) {
     View.call(this);
     window.addContactView = this;
     this.formObject = {};
-    this.social = {};
+    this.socialCollection = {};
+    this.socialView = {};
     this.headerFooterLayout = new HeaderFooterLayout({
         headerSize: 50,
         footerSize: 0
@@ -92,26 +93,31 @@ function AddContactView(options) {
     this.content.on('click', function(e){
         var target = $(e.target);
         function onDataHandler() {
-            if (_.isArray(this.social[source].models)) {
-                //TODO: pull collections from server
-                var newSocialView = new ImportContactView({
-                    title: Helpers.capitalize(source),
-                    collection: this.social[source]});
-                newSocialView.pipe(this._eventOutput);
-                edgeSwapper.show(newSocialView, true);
+            if (!this.socialView[source]){
+                if (_.isArray(this.socialCollection[source].models)) {
+                    //TODO: pull collections from server
+                    this.socialView[source] = new ImportContactView({
+                        title: Helpers.capitalize(source),
+                        collection: this.socialCollection[source]});
+                    this.socialView[source].pipe(this._eventOutput);
+                } else {
+                    alert("Your " + source + " contact list is empty.");
+                    return;
+                }
             }
+            edgeSwapper.show(this.socialView[source], true);
         }
         function onErrorHandler() {
             this._eventOutput.emit('onSocialLink', source);
-            delete this.social[source];
+            delete this.socialCollection[source];
 //                    alert("Go to Settings and link before adding " + _(source).capitalize() + " contact.");
         }
         if (target.hasClass('import-contact')){
             var source = target[0].id;
-            if (!this.social[source]) {
-                this.social[source] = new SocialContactCollection();
-                this.social[source].url = '/contact/'+source;
-                this.social[source].fetch({
+            if (!this.socialCollection[source]) {
+                this.socialCollection[source] = new SocialContactCollection();
+                this.socialCollection[source].url = '/contact/'+source;
+                this.socialCollection[source].fetch({
                     success : onDataHandler.bind(this),
                     error: onErrorHandler.bind(this)
                 });

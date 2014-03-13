@@ -36,6 +36,7 @@ function ItemView(options){
 
     this.setupSurfaces();
     this.setupEvent();
+    this.buttonsClickEvents();
 
     this.isEditingMode = false;
     this.areEditingMode = false;
@@ -58,7 +59,6 @@ ItemView.prototype = Object.create(RowView.prototype);
 ItemView.prototype.constructor = ItemView;
 
 ItemView.prototype.setupEvent = function(){
-    this.events();
 
     var sync = new GenericSync(function(){
         return this.pos;
@@ -268,7 +268,7 @@ ItemView.prototype.onToggleAll = function (){
     this.areEditingMode =! this.areEditingMode;
 };
 
-ItemView.prototype.events = function() {
+ItemView.prototype.buttonsClickEvents = function() {
     _(this.options.leftButtons).each(function (b, i) {
         this['leftButton'+i].on('click', function(b) {
 //            console.log(b.event);

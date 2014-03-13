@@ -281,6 +281,7 @@ function MainController() {
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
                 curView.stop(eventData);
             }
+            if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke('hangup');
             if (this.chatroom) {
                 var url = '/login?r=' + this.chatroom.objectId;
                 if (this.chatroom.callerName) {
@@ -413,6 +414,13 @@ function MainController() {
 }
 
 MainController.prototype.init = function() {
+    this.phono = $.phono({
+        apiKey: "233f5673a7329a4cb7a5a2d0e5b6696e9ec245f8f7410e0631f4938c4395ca3163db86f7a9eda9d42633a308",
+        onReady: function() {
+
+        }
+    });
+
     this.iceServerConfig = defaultIceConfig;
     // get Xirsys ice config
     this.getXirsys();
@@ -503,6 +511,33 @@ MainController.prototype.setupSettingsListener = function() {
         this.appSettings.set($(e.target)[0].id, $(e.target).prop('checked'));
     }.bind(this));
 };
+MainController.prototype.callByPhono = function(contact) {
+    var number = contact.get('email');
+    this.phono.phone.dial("app:9990036398", {
+        headers: [
+            {
+                name:"x-numbertodial",
+                value: number
+            }
+        ],
+        onRing: function() {
+            console.log("*******Ringing");
+        }.bind(this),
+        onAnswer: function() {
+            console.log("*******Answered");
+            contact = new Contact(contact.omit('success'));
+            contact.set({
+                success: true
+            });
+            this._eventOutput.emit('outGoingCallAccept', contact);
+            this._eventOutput.emit('connectedCall', contact);
+        }.bind(this),
+        onHangup: function() {
+            console.log("*******Hungup");
+            this._eventOutput.emit('callEnd', {exit: true});
+        }.bind(this)
+    });
+};
 
 MainController.prototype.setupCallListener = function() {
     this.listenRef.on('child_added', onAdd.bind(this));
@@ -567,11 +602,15 @@ MainController.prototype.setupCallListener = function() {
             alert("Please allow camera/microphone access for Beepe");
             return;
         }
-        if (contact.get('cid')) {
+        if (!isNaN(contact.get('email')) && contact.get('email').length==11) {
+            this.callByPhono(contact);
+        }
+        else if (contact.get('cid')) {
             callByContact.bind(this)(contact);
         } else {
             this.lookup(contact, callByContact.bind(this));
         }
+
         function callByContact(contact) {
             var id = contact.get('cid');
             var provider = contact.get('provider');

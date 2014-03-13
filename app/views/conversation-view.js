@@ -306,6 +306,7 @@ ConversationView.prototype.collectionEvents = function(){
                 if (this.collection.size()>=100) {
                     this.collection.shift();
                 }
+                setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
                 this.showConversation();
                 break;
             case 'sync':
@@ -434,15 +435,18 @@ ConversationView.prototype.showConversation = function (){
 
 ConversationView.prototype.addMsg = function(model){
     this.scrollview.push(this.createMsgItem(model));
-    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
 };
 
 ConversationView.prototype.loadMsg = function(){
     this.synced = true;
-    this.scrollview.sequenceFrom([]);
-    this.collection.each(function(item){
-        this.addMsg(item);
+    var sequence = this.collection.map(function(item){
+        return this.createMsgItem(item);
     }.bind(this));
+    this.scrollview.sequenceFrom(sequence);
+    var len = this.scrollview.node.array.length;
+    var index = Math.max(len-15,0);
+    this.scrollview.scrollTo(index,0);
+    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
 };
 
 module.exports = ConversationView;

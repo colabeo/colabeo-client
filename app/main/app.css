@@ -1204,3 +1204,8 @@ input {
   margin-top: 5px;
   margin-left: 20px;
 }
+#_phono-audio-webrtc0 {
+  display: none;
+  width: 0px;
+  height: 0px;
+}

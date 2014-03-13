@@ -1,4 +1,4 @@
-"use strict";
+//"use strict";
 
 /*eslint no-underscore-dangle: 1, eqeqeq:1*/
 // This is a modified version of component-require.
@@ -158,7 +158,7 @@ require.register("famous_modules/famous/polyfills/_git_master/classList.js", fun
     /*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/
     if (typeof document !== "undefined" && !("classList" in document.createElement("a"))) {
         (function(view) {
-            "use strict";
+            //"use strict";
             var classListProp = "classList", protoProp = "prototype", elemCtrProto = (view.HTMLElement || view.Element)[protoProp], objCtr = Object, strTrim = String[protoProp].trim || function() {
                 return this.replace(/^\s+|\s+$/g, "");
             }, arrIndexOf = Array[protoProp].indexOf || function(item) {
@@ -1772,7 +1772,8 @@ require.register("app/models/call.js", function(exports, require, module) {
             firstname: "John",
             lastname: "Doe",
             email: "",
-            pictureUrl: ""
+            pictureUrl: "",
+            cid: "testcid"
         },
         isMissed: function() {
             return !this.get("success") && this.get("type") == "incoming";
@@ -1843,6 +1844,10 @@ require.register("app/models/contact-collection.js", function(exports, require, 
 require.register("app/models/contact.js", function(exports, require, module) {
     // Generic Backbone Model
     module.exports = Backbone.Model.extend({
+        whiteList: [ "email", "firstname", "lastname", "id", "cid", "favorite", "phone", "facebook", "google", "linkedin", "github", "twitter" ],
+        toJSON: function(options) {
+            return _.pick(this.attributes, this.whiteList);
+        },
         toggleFavorite: function() {
             this.set({
                 favorite: !this.get("favorite")
@@ -1990,13 +1995,279 @@ require.register("app/vendor/index.js", function(exports, require, module) {
     require("backbone-firebase");
     require("peer");
     require("notify");
+    require("phono");
+    require("oauthpopup");
+}.bind(this));
+
+require.register("app/vendor/att.js", function(exports, require, module) {
+    (function() {
+        function n() {
+            this.callbacks = {};
+        }
+        function o(o) {
+            var e = this, t = o || {}, i = this.config = {
+                apiKey: "",
+                user: a.uuid(),
+                jid: "",
+                log: !0,
+                ringTone: "",
+                ringbackTone: "",
+                dependencyBaseUrl: "//js.att.io"
+            }, r = {
+                onReady: "ready",
+                onUnReady: "unready",
+                onError: "error",
+                onCallBegin: "callBegin",
+                onCallEnd: "callEnd",
+                onOutgoingCall: "outgoingCall",
+                onCalling: "calling"
+            }, l = {
+                onError: "error",
+                onCallBegin: "callBegin",
+                onCallEnd: "callEnd"
+            }, c = function() {
+                return a.isFunc(o.onIncomingCall) ? o.onIncomingCall : o.phone && a.isFunc(o.phone.onIncomingCall) ? o.phone.onIncomingCall : function() {};
+            }();
+            return n.call(this), a.extend(this.config, t), this.config.incomingCallHandler = c, 
+            delete this.config.onIncomingCall, this.config.phone && delete this.config.phone.onIncomingCall, 
+            this.phone = this, this.on("incomingCall", c), a.each(r, function(n, o) {
+                a.isFunc(e.config[n]) && (e.on(o, e.config[n]), e.config[n] = function(n) {
+                    e.emit(o, n);
+                });
+            }), t.phone && a.each(l, function(n, o) {
+                a.isFunc(e.config.phone[n]) && (e.on(o, e.config.phone[n]), e.config.phone[n] = function(n) {
+                    e.emit(o, n);
+                });
+            }), this.config.log && this.on("*", function(n, o) {
+                console.log("att.js event:", n, o);
+            }), a.getMe(this.config.apiKey, function(n) {
+                n.version = i.version || a.getQueryParam("version") || n.version, i.version = n.version, 
+                i.myNumber = n.number, console.log("using API version:", i.version), e.emit("user", n), 
+                "a1" === i.version || "a2" === i.version ? $.getScript(i.dependencyBaseUrl + "/js/att." + i.version + ".js", function() {
+                    e.fetchDependencies(i.version);
+                }) : $.getScript(i.dependencyBaseUrl + "/js/phono.06.js", function() {
+                    i.token = i.apiKey, i.apiKey = "7826110523f1241fcfd001859a67128d", i.connectionUrl = "http://gw.att.io:8080/http-bind", 
+                    e.fetchDependencies();
+                });
+            }), e;
+        }
+        function e(o, e) {
+            var t = this;
+            return this._att = o, this._call = e, this.id = e.id, n.call(this), this.on("*", function(n) {
+                t._att.emit(n, t);
+            }), this._call.bind({
+                onRing: function() {
+                    t.emit("ring");
+                },
+                onAnswer: function() {
+                    t.emit("callBegin");
+                },
+                onHangup: function() {
+                    t.emit("callEnd");
+                },
+                onHold: function() {
+                    t.emit("hold");
+                },
+                onRetrieve: function() {
+                    t.emit("retrieve");
+                },
+                onWaiting: function() {
+                    t.emit("waiting");
+                },
+                onError: function() {
+                    t.emit("error");
+                }
+            }), this;
+        }
+        var t = this, i = {}, r = {}, a = i.util = {
+            _uuidCounter: 0,
+            uuid: function() {
+                return Math.random().toString(16).substring(2) + (a._uuidCounter++).toString(16);
+            },
+            slice: Array.prototype.slice,
+            isFunc: function(n) {
+                return "[object Function]" == Object.prototype.toString.call(n);
+            },
+            extend: function(n) {
+                return this.slice.call(arguments, 1).forEach(function(o) {
+                    if (o) for (var e in o) n[e] = o[e];
+                }), n;
+            },
+            each: function(n, o) {
+                if (n) if (n instanceof Array) n.forEach(o); else for (var e in n) o(e, n[e]);
+            },
+            getQueryParam: function(n) {
+                var o = n.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]"), e = "[\\?&]" + o + "=([^&#]*)", t = RegExp(e), i = t.exec(window.location.search);
+                return i ? decodeURIComponent(i[1].replace(/\+/g, " ")) : void 0;
+            },
+            h2sSupport: function() {
+                return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/536.4 (KHTML, like Gecko) Chrome/19.0.1077.0 Safari/536.4" == window.navigator.userAgent || "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0_1 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A523" == window.navigator.userAgent || window.webkitPeerConnection00 && -1 !== window.navigator.userAgent.indexOf("Chrome/24");
+            },
+            getMe: function(n, o) {
+                var e = "https://auth.tfoundry.com", t = {
+                    access_token: n
+                };
+                return r.me ? o(r.me) : (console.log(t), $.ajax({
+                    data: t,
+                    dataType: "json",
+                    url: e + "/me.json",
+                    success: function(n) {
+                        r.me = n, $.ajax({
+                            data: t,
+                            dataType: "json",
+                            url: e + "/users/" + n.uid + "/api_services/webrtc.json",
+                            success: function(e) {
+                                var t = e && e.version, i = e && e.options && e.options.phone_number;
+                                n.version = t ? "a" + t : "a1", n.number = i || n.phone_number, o(n);
+                            }
+                        });
+                    }
+                }), void 0);
+            }
+        }, l = {};
+        l.stringify = function(n) {
+            var o, e = l.parse(n), t = e.length, i = "1" === e.charAt(0), r = e.split("");
+            return t > (i ? 11 : 10) ? e : !i && 4 > t ? e : (i && r.splice(0, 1), i ? t > 1 && (o = 4 - t, 
+            o = o > 0 ? o : 0, r.splice(0, 0, " ("), r.splice(4, 0, Array(o + 1).join(" ") + ") "), 
+            t > 7 && r.splice(8, 0, "-")) : t > 7 ? (r.splice(0, 0, "("), r.splice(4, 0, ") "), 
+            r.splice(8, 0, "-")) : t > 3 && r.splice(3, 0, "-"), (i ? "1" : "") + r.join(""));
+        }, l.parse = function(n) {
+            return (n + "").toUpperCase().replace(/[A-Z]/g, function(n) {
+                return 0 | (n.charCodeAt(0) - 65) / 3 + 2 - ("SVYZ".indexOf(n) > -1);
+            }).replace(/\D/g, "");
+        }, l.getCallable = function(n, o) {
+            var e = o || "us", t = l.parse(n);
+            return 10 !== t.length ? "us" == e && 11 === t.length && "1" === t.charAt(0) ? t : !1 : "us" == e ? "1" + t : void 0;
+        }, i.phoneNumber = l, n.prototype.on = function(n) {
+            var o = 3 === arguments.length, e = o ? arguments[1] : void 0, t = o ? arguments[2] : arguments[1];
+            return t._groupName = e, (this.callbacks[n] = this.callbacks[n] || []).push(t), 
+            this;
+        }, n.prototype.once = function(n, o) {
+            function e() {
+                t.off(n, e), o.apply(this, arguments);
+            }
+            var t = this;
+            return this.on(n, e), this;
+        }, n.prototype.releaseGroup = function(n) {
+            var o, e, t, i;
+            for (o in this.callbacks) for (i = this.callbacks[o], e = 0, t = i.length; t > e; e++) i[e]._groupName === n && (i.splice(e, 1), 
+            e--, t--);
+            return this;
+        }, n.prototype.off = function(n, o) {
+            var e, t = this.callbacks[n];
+            return t ? 1 === arguments.length ? (delete this.callbacks[n], this) : (e = t.indexOf(o), 
+            t.splice(e, 1), this) : this;
+        }, n.prototype.emit = function(n) {
+            var o, e, t = [].slice.call(arguments, 1), i = this.callbacks[n], r = this.getWildcardCallbacks(n);
+            if (i) for (o = 0, e = i.length; e > o; ++o) i[o].apply(this, t);
+            if (r) for (o = 0, e = r.length; e > o; ++o) r[o].apply(this, [ n ].concat(t));
+            return this;
+        }, n.prototype.getWildcardCallbacks = function(n) {
+            var o, e, t = [];
+            for (o in this.callbacks) e = o.split("*"), ("*" === o || 2 === e.length && n.slice(0, e[1].length) === e[1]) && (t = t.concat(this.callbacks[o]));
+            return t;
+        }, o.prototype = new n(), o.prototype.fetchDependencies = function(n) {
+            var o = this, e = this.config;
+            "a1" === n ? a.h2sSupport() ? (console.log("setting up wcgphono"), this.phono = $.wcgphono(a.extend(e, {
+                phone: {
+                    onIncomingCall: o._normalizeNonPhonoCallHandlers.bind(o)
+                },
+                onReady: function() {
+                    o.emit("ready");
+                }
+            }))) : alert("Please use the special Ericsson build of Chromium. It can be downloaded from: http://js.att.io/browsers") : "a2" === n ? a.h2sSupport() ? (console.log("setting up h2sphono"), 
+            this.phono = $.h2sphono(a.extend(e, {
+                phone: {
+                    onIncomingCall: o._normalizeNonPhonoCallHandlers.bind(o)
+                },
+                onReady: function() {
+                    o.emit("ready");
+                }
+            }))) : alert("Please use the special Ericsson build of Chromium. It can be downloaded from: http://js.att.io/browsers") : (console.log("setting up phono"), 
+            this.phono = $.phono(a.extend(e, {
+                phone: {
+                    onIncomingCall: o._normalizeNonPhonoCallHandlers.bind(o),
+                    ringTone: "",
+                    ringbackTone: ""
+                },
+                onReady: function() {
+                    o.sessionId = this.sessionId, a.getMe(e.apiKey, function(n) {
+                        o.bindNumberToPhonoSession(n.number, o.sessionId, function() {
+                            o.emit("ready");
+                        });
+                    });
+                }
+            })));
+        }, o.prototype.bindNumberToPhonoSession = function(n, o, e) {
+            $.ajax({
+                url: "http://binder.api.tfoundry.com/session/" + n + "/" + o,
+                type: "POST",
+                success: function() {
+                    e();
+                }
+            });
+        }, o.prototype.disconnect = function() {
+            this.phono.disconnect(), this.phono = null;
+        }, o.prototype.connected = function() {
+            return !!this.phono;
+        }, o.prototype._normalizeNonPhonoCallHandlers = function(n) {
+            var o, t, r = n.call;
+            r && (o = new e(this, r), t = o.initiator || o._call.recipient || "", t = t.replace("tel:", "").replace("sip:", ""), 
+            t = t.split("@")[0], o.call = o, this.emit("incomingCall", o, i.phoneNumber.parse(t)));
+        }, o.prototype.dial = function(n, o) {
+            var t, r, a = this, l = i.phoneNumber.getCallable(n);
+            return this.emit("calling", n), t = "a3" === this.config.version ? this.phono.phone.dial("sip:" + l + "@12.208.176.26", {
+                callerId: a.config.myNumber + "@phono06.tfoundry.com"
+            }) : this.phono.phone.dial(l, {}), r = new e(this, t), r.bind(o), r.emit("ring"), 
+            this.emit("outgoingCall", r), r;
+        }, e.prototype = new n(), e.prototype.bind = function(n) {
+            var o = this, e = {
+                onRing: "ring",
+                onAnswer: "callBegin",
+                onHangup: "callEnd",
+                onHold: "hold",
+                onRetrieve: "retrieve",
+                onWaiting: "waiting",
+                onError: "error"
+            }, t = n || {};
+            this._att, a.each(e, function(n, e) {
+                a.isFunc(t[n]) && o.on(e, t[n]);
+            });
+        }, e.prototype.answer = function() {
+            return this._call.answer();
+        }, e.prototype.hangup = function() {
+            return this._call.hangup();
+        }, e.prototype.digit = function(n) {
+            return this._call.digit(n);
+        }, e.prototype.pushToTalk = function(n) {
+            return this._call.pushToTalk(n);
+        }, e.prototype.talking = function(n) {
+            return this._call.talking(n);
+        }, e.prototype.mute = function(n) {
+            return this._call.mute(n);
+        }, e.prototype.hold = function(n) {
+            return this._call.hold(n);
+        }, e.prototype.volume = function(n) {
+            return this._call.volume(n);
+        }, e.prototype.gain = function(n) {
+            return this._call.gain(n);
+        }, e.prototype.__defineGetter__("initiator", function() {
+            return this._call.initiator;
+        }), e.prototype.transferto = function(n) {
+            var o = i.phoneNumber.getCallable(n);
+            this._call.transferto(o);
+        }, i.Phone = o, t.jQuery && (t.jQuery.att = function(n) {
+            return new o(n);
+        }), "undefined" != typeof exports ? module.exports = i : (t.ATT || (t.ATT = {}), 
+        a.extend(t.ATT, i));
+    }).call(this);
 }.bind(this));
 
 require.register("app/vendor/backbone-firebase.js", function(exports, require, module) {
     /**
      * Backbone Firebase Adapter.
      */
-    "use strict";
+    //"use strict";
     (function() {
         var _ = window._;
         var Backbone = window.Backbone;
@@ -7698,7 +7969,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
     var Handlebars = function() {
         // handlebars/safe-string.js
         var __module4__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             // Build out our basic SafeString type
             function SafeString(string) {
@@ -7712,7 +7983,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/utils.js
         var __module3__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             /*jshint -W004 */
             var SafeString = __dependency1__;
@@ -7787,7 +8058,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module4__);
         // handlebars/exception.js
         var __module5__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             var errorProps = [ "description", "fileName", "lineNumber", "message", "name", "number", "stack" ];
             function Exception(message, node) {
@@ -7812,7 +8083,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/base.js
         var __module2__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Utils = __dependency1__;
             var Exception = __dependency2__;
@@ -7998,7 +8269,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module3__, __module5__);
         // handlebars/runtime.js
         var __module6__ = function(__dependency1__, __dependency2__, __dependency3__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Utils = __dependency1__;
             var Exception = __dependency2__;
@@ -8128,7 +8399,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module3__, __module5__, __module2__);
         // handlebars.runtime.js
         var __module1__ = function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             /*globals Handlebars: true */
             var base = __dependency1__;
@@ -8158,7 +8429,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module2__, __module4__, __module5__, __module3__, __module6__);
         // handlebars/compiler/ast.js
         var __module7__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             var Exception = __dependency1__;
             function LocationInfo(locInfo) {
@@ -8344,7 +8615,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module5__);
         // handlebars/compiler/parser.js
         var __module9__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             /* jshint ignore:start */
             /* Jison generated parser */
@@ -9691,7 +9962,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/compiler/base.js
         var __module8__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var parser = __dependency1__;
             var AST = __dependency2__;
@@ -9709,7 +9980,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module9__, __module7__);
         // handlebars/compiler/compiler.js
         var __module10__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Exception = __dependency1__;
             function Compiler() {}
@@ -10100,7 +10371,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module5__);
         // handlebars/compiler/javascript-compiler.js
         var __module11__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             var COMPILER_REVISION = __dependency1__.COMPILER_REVISION;
             var REVISION_CHANGES = __dependency1__.REVISION_CHANGES;
@@ -10882,7 +11153,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module2__, __module5__);
         // handlebars.js
         var __module0__ = function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             /*globals Handlebars: true */
             var Handlebars = __dependency1__;
@@ -10921,7 +11192,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
 
 require.register("app/vendor/notify.js", function(exports, require, module) {
     (function(root, factory) {
-        "use strict";
+        //"use strict";
         if (typeof define === "function" && define.amd) {
             // AMD environment
             define("notify", [], function() {
@@ -10932,7 +11203,7 @@ require.register("app/vendor/notify.js", function(exports, require, module) {
             root.Notify = factory(root, document);
         }
     })(this, function(w, d) {
-        "use strict";
+        //"use strict";
         function Notify(title, options) {
             this.title = typeof title === "string" ? title : null;
             this.options = {
@@ -13488,6 +13759,8554 @@ require.register("app/vendor/peer.js", function(exports, require, module) {
     }).bind(this)(this);
 }.bind(this));
 
+require.register("app/vendor/phono.js", function(exports, require, module) {
+    /*!
+     * Copyright 2013 Voxeo Labs, Inc.
+     * 
+     * Licensed under the Apache License, Version 2.0 (the "License"); you
+     * may not use this file except in compliance with the License.
+     *
+     * You may obtain a copy of the License at
+     *
+     *   http://www.apache.org/licenses/LICENSE-2.0
+     * 
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     * implied. See the License for the specific language governing
+     * permissions and limitations under the License.
+     *
+     * Includes third party software from various sources. Portions of this
+     * software are copyright their respective owners. See
+     * http://phono.com/license for copyright statements from Adobe Systems
+     * Incorporated, Kyle Simpson, Getify Solutions, Inc., Paul Johnston, and
+     * Flowplayer.
+     *
+     */
+    /*
+     Copyright 2007 Adobe Systems Incorporated
+    
+     Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+     to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+     and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    
+     The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    
+     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+     OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    
+     */
+    /*
+     * The Bridge class, responsible for navigating AS instances
+     */
+    function FABridge(target, bridgeName) {
+        this.target = target;
+        this.remoteTypeCache = {};
+        this.remoteInstanceCache = {};
+        this.remoteFunctionCache = {};
+        this.localFunctionCache = {};
+        this.bridgeID = FABridge.nextBridgeID++;
+        this.name = bridgeName;
+        this.nextLocalFuncID = 0;
+        FABridge.instances[this.name] = this;
+        FABridge.idMap[this.bridgeID] = this;
+        return this;
+    }
+    // type codes for packed values
+    FABridge.TYPE_ASINSTANCE = 1;
+    FABridge.TYPE_ASFUNCTION = 2;
+    FABridge.TYPE_JSFUNCTION = 3;
+    FABridge.TYPE_ANONYMOUS = 4;
+    FABridge.initCallbacks = {};
+    FABridge.userTypes = {};
+    FABridge.addToUserTypes = function() {
+        for (var i = 0; i < arguments.length; i++) {
+            FABridge.userTypes[arguments[i]] = {
+                typeName: arguments[i],
+                enriched: false
+            };
+        }
+    };
+    FABridge.argsToArray = function(args) {
+        var result = [];
+        for (var i = 0; i < args.length; i++) {
+            result[i] = args[i];
+        }
+        return result;
+    };
+    function instanceFactory(objID) {
+        this.fb_instance_id = objID;
+        return this;
+    }
+    function FABridge__invokeJSFunction(args) {
+        var funcID = args[0];
+        var throughArgs = args.concat();
+        //FABridge.argsToArray(arguments);
+        throughArgs.shift();
+        var bridge = FABridge.extractBridgeFromID(funcID);
+        return bridge.invokeLocalFunction(funcID, throughArgs);
+    }
+    FABridge.addInitializationCallback = function(bridgeName, callback) {
+        var inst = FABridge.instances[bridgeName];
+        if (inst != undefined) {
+            callback.call(inst);
+            return;
+        }
+        var callbackList = FABridge.initCallbacks[bridgeName];
+        if (callbackList == null) {
+            FABridge.initCallbacks[bridgeName] = callbackList = [];
+        }
+        callbackList.push(callback);
+    };
+    function FABridge__bridgeInitialized(bridgeName) {
+        var searchStr = "bridgeName=" + bridgeName;
+        if (/Explorer/.test(navigator.appName) || /Opera/.test(navigator.appName) || /Netscape/.test(navigator.appName) || /Konqueror|Safari|KHTML/.test(navigator.appVersion)) {
+            var flashInstances = document.getElementsByTagName("object");
+            if (flashInstances.length == 1) {
+                FABridge.attachBridge(flashInstances[0], bridgeName);
+            } else {
+                for (var i = 0; i < flashInstances.length; i++) {
+                    var inst = flashInstances[i];
+                    var params = inst.childNodes;
+                    var flash_found = false;
+                    for (var j = 0; j < params.length; j++) {
+                        var param = params[j];
+                        if (param.nodeType == 1 && param.tagName.toLowerCase() == "param") {
+                            if (param["name"].toLowerCase() == "flashvars" && param["value"].indexOf(searchStr) >= 0) {
+                                FABridge.attachBridge(inst, bridgeName);
+                                flash_found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (flash_found) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            var flashInstances = document.getElementsByTagName("embed");
+            if (flashInstances.length == 1) {
+                FABridge.attachBridge(flashInstances[0], bridgeName);
+            } else {
+                for (var i = 0; i < flashInstances.length; i++) {
+                    var inst = flashInstances[i];
+                    var flashVars = inst.attributes.getNamedItem("flashVars").nodeValue;
+                    if (flashVars.indexOf(searchStr) >= 0) {
+                        FABridge.attachBridge(inst, bridgeName);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    // used to track multiple bridge instances, since callbacks from AS are global across the page.
+    FABridge.nextBridgeID = 0;
+    FABridge.instances = {};
+    FABridge.idMap = {};
+    FABridge.refCount = 0;
+    FABridge.extractBridgeFromID = function(id) {
+        var bridgeID = id >> 16;
+        return FABridge.idMap[bridgeID];
+    };
+    FABridge.attachBridge = function(instance, bridgeName) {
+        var newBridgeInstance = new FABridge(instance, bridgeName);
+        FABridge[bridgeName] = newBridgeInstance;
+        /*  FABridge[bridgeName] = function() {
+         return newBridgeInstance.root();
+         }
+         */
+        var callbacks = FABridge.initCallbacks[bridgeName];
+        if (callbacks == null) {
+            return;
+        }
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i].call(newBridgeInstance);
+        }
+        delete FABridge.initCallbacks[bridgeName];
+    };
+    // some methods can't be proxied.  You can use the explicit get,set, and call methods if necessary.
+    FABridge.blockedMethods = {
+        toString: true,
+        get: true,
+        set: true,
+        call: true
+    };
+    FABridge.prototype = {
+        // bootstrapping
+        root: function() {
+            return this.deserialize(this.target.getRoot());
+        },
+        releaseASObjects: function() {
+            return this.target.releaseASObjects();
+        },
+        releaseNamedASObject: function(value) {
+            if (typeof value != "object") {
+                return false;
+            } else {
+                var ret = this.target.releaseNamedASObject(value.fb_instance_id);
+                return ret;
+            }
+        },
+        create: function(className) {
+            return this.deserialize(this.target.create(className));
+        },
+        // utilities
+        makeID: function(token) {
+            return (this.bridgeID << 16) + token;
+        },
+        // low level access to the flash object
+        getPropertyFromAS: function(objRef, propName) {
+            if (FABridge.refCount > 0) {
+                throw new Error("You are trying to call recursively into the Flash Player which is not allowed. In most cases the JavaScript setTimeout function, can be used as a workaround.");
+            } else {
+                FABridge.refCount++;
+                retVal = this.target.getPropFromAS(objRef, propName);
+                retVal = this.handleError(retVal);
+                FABridge.refCount--;
+                return retVal;
+            }
+        },
+        setPropertyInAS: function(objRef, propName, value) {
+            if (FABridge.refCount > 0) {
+                throw new Error("You are trying to call recursively into the Flash Player which is not allowed. In most cases the JavaScript setTimeout function, can be used as a workaround.");
+            } else {
+                FABridge.refCount++;
+                retVal = this.target.setPropInAS(objRef, propName, this.serialize(value));
+                retVal = this.handleError(retVal);
+                FABridge.refCount--;
+                return retVal;
+            }
+        },
+        callASFunction: function(funcID, args) {
+            if (FABridge.refCount > 0) {
+                throw new Error("You are trying to call recursively into the Flash Player which is not allowed. In most cases the JavaScript setTimeout function, can be used as a workaround.");
+            } else {
+                FABridge.refCount++;
+                retVal = this.target.invokeASFunction(funcID, this.serialize(args));
+                retVal = this.handleError(retVal);
+                FABridge.refCount--;
+                return retVal;
+            }
+        },
+        callASMethod: function(objID, funcName, args) {
+            if (FABridge.refCount > 0) {
+                throw new Error("You are trying to call recursively into the Flash Player which is not allowed. In most cases the JavaScript setTimeout function, can be used as a workaround.");
+            } else {
+                FABridge.refCount++;
+                args = this.serialize(args);
+                retVal = this.target.invokeASMethod(objID, funcName, args);
+                retVal = this.handleError(retVal);
+                FABridge.refCount--;
+                return retVal;
+            }
+        },
+        // responders to remote calls from flash
+        invokeLocalFunction: function(funcID, args) {
+            var result;
+            var func = this.localFunctionCache[funcID];
+            if (func != undefined) {
+                result = this.serialize(func.apply(null, this.deserialize(args)));
+            }
+            return result;
+        },
+        // Object Types and Proxies
+        getUserTypeDescriptor: function(objTypeName) {
+            var simpleType = objTypeName.replace(/^([^:]*)\:\:([^:]*)$/, "$2");
+            var isUserProto = typeof window[simpleType] == "function" && typeof FABridge.userTypes[simpleType] != "undefined";
+            var protoEnriched = false;
+            if (isUserProto) {
+                protoEnriched = FABridge.userTypes[simpleType].enriched;
+            }
+            var toret = {
+                simpleType: simpleType,
+                isUserProto: isUserProto,
+                protoEnriched: protoEnriched
+            };
+            return toret;
+        },
+        // accepts an object reference, returns a type object matching the obj reference.
+        getTypeFromName: function(objTypeName) {
+            var ut = this.getUserTypeDescriptor(objTypeName);
+            var toret = this.remoteTypeCache[objTypeName];
+            if (ut.isUserProto) {
+                //enrich both of the prototypes: the FABridge one, as well as the class in the page. 
+                if (!ut.protoEnriched) {
+                    for (i in window[ut.simpleType].prototype) {
+                        toret[i] = window[ut.simpleType].prototype[i];
+                    }
+                    window[ut.simpleType].prototype = toret;
+                    this.remoteTypeCache[objTypeName] = toret;
+                    FABridge.userTypes[ut.simpleType].enriched = true;
+                }
+            }
+            return toret;
+        },
+        createProxy: function(objID, typeName) {
+            //get user created type, if it exists
+            var ut = this.getUserTypeDescriptor(typeName);
+            var objType = this.getTypeFromName(typeName);
+            if (ut.isUserProto) {
+                var instFactory = window[ut.simpleType];
+                var instance = new instFactory(this.name, objID);
+                instance.fb_instance_id = objID;
+            } else {
+                instanceFactory.prototype = objType;
+                var instance = new instanceFactory(objID);
+            }
+            this.remoteInstanceCache[objID] = instance;
+            return instance;
+        },
+        getProxy: function(objID) {
+            return this.remoteInstanceCache[objID];
+        },
+        // accepts a type structure, returns a constructed type
+        addTypeDataToCache: function(typeData) {
+            newType = new ASProxy(this, typeData.name);
+            var accessors = typeData.accessors;
+            for (var i = 0; i < accessors.length; i++) {
+                this.addPropertyToType(newType, accessors[i]);
+            }
+            var methods = typeData.methods;
+            for (var i = 0; i < methods.length; i++) {
+                if (FABridge.blockedMethods[methods[i]] == undefined) {
+                    this.addMethodToType(newType, methods[i]);
+                }
+            }
+            this.remoteTypeCache[newType.typeName] = newType;
+            return newType;
+        },
+        addPropertyToType: function(ty, propName) {
+            var c = propName.charAt(0);
+            var setterName;
+            var getterName;
+            if (c >= "a" && c <= "z") {
+                getterName = "get" + c.toUpperCase() + propName.substr(1);
+                setterName = "set" + c.toUpperCase() + propName.substr(1);
+            } else {
+                getterName = "get" + propName;
+                setterName = "set" + propName;
+            }
+            ty[setterName] = function(val) {
+                this.bridge.setPropertyInAS(this.fb_instance_id, propName, val);
+            };
+            ty[getterName] = function() {
+                return this.bridge.deserialize(this.bridge.getPropertyFromAS(this.fb_instance_id, propName));
+            };
+        },
+        addMethodToType: function(ty, methodName) {
+            ty[methodName] = function() {
+                return this.bridge.deserialize(this.bridge.callASMethod(this.fb_instance_id, methodName, FABridge.argsToArray(arguments)));
+            };
+        },
+        // Function Proxies
+        getFunctionProxy: function(funcID) {
+            var bridge = this;
+            if (this.remoteFunctionCache[funcID] == null) {
+                this.remoteFunctionCache[funcID] = function() {
+                    bridge.callASFunction(funcID, FABridge.argsToArray(arguments));
+                };
+            }
+            return this.remoteFunctionCache[funcID];
+        },
+        getFunctionID: function(func) {
+            if (func.__bridge_id__ == undefined) {
+                func.__bridge_id__ = this.makeID(this.nextLocalFuncID++);
+                this.localFunctionCache[func.__bridge_id__] = func;
+            }
+            return func.__bridge_id__;
+        },
+        // serialization / deserialization
+        serialize: function(value) {
+            var result = {};
+            var t = typeof value;
+            if (t == "number" || t == "string" || t == "boolean" || t == null || t == undefined) {
+                result = value;
+            } else if (value instanceof Array) {
+                result = [];
+                for (var i = 0; i < value.length; i++) {
+                    result[i] = this.serialize(value[i]);
+                }
+            } else if (t == "function") {
+                result.type = FABridge.TYPE_JSFUNCTION;
+                result.value = this.getFunctionID(value);
+            } else if (value instanceof ASProxy) {
+                result.type = FABridge.TYPE_ASINSTANCE;
+                result.value = value.fb_instance_id;
+            } else {
+                result.type = FABridge.TYPE_ANONYMOUS;
+                result.value = value;
+            }
+            return result;
+        },
+        deserialize: function(packedValue) {
+            var result;
+            var t = typeof packedValue;
+            if (t == "number" || t == "string" || t == "boolean" || packedValue == null || packedValue == undefined) {
+                result = this.handleError(packedValue);
+            } else if (packedValue instanceof Array) {
+                result = [];
+                for (var i = 0; i < packedValue.length; i++) {
+                    result[i] = this.deserialize(packedValue[i]);
+                }
+            } else if (t == "object") {
+                for (var i = 0; i < packedValue.newTypes.length; i++) {
+                    this.addTypeDataToCache(packedValue.newTypes[i]);
+                }
+                for (var aRefID in packedValue.newRefs) {
+                    this.createProxy(aRefID, packedValue.newRefs[aRefID]);
+                }
+                if (packedValue.type == FABridge.TYPE_PRIMITIVE) {
+                    result = packedValue.value;
+                } else if (packedValue.type == FABridge.TYPE_ASFUNCTION) {
+                    result = this.getFunctionProxy(packedValue.value);
+                } else if (packedValue.type == FABridge.TYPE_ASINSTANCE) {
+                    result = this.getProxy(packedValue.value);
+                } else if (packedValue.type == FABridge.TYPE_ANONYMOUS) {
+                    result = packedValue.value;
+                }
+            }
+            return result;
+        },
+        addRef: function(obj) {
+            this.target.incRef(obj.fb_instance_id);
+        },
+        release: function(obj) {
+            this.target.releaseRef(obj.fb_instance_id);
+        },
+        handleError: function(value) {
+            if (typeof value == "string" && value.indexOf("__FLASHERROR") == 0) {
+                var myErrorMessage = value.split("||");
+                if (FABridge.refCount > 0) {
+                    FABridge.refCount--;
+                }
+                throw new Error(myErrorMessage[1]);
+                return value;
+            } else {
+                return value;
+            }
+        }
+    };
+    // The root ASProxy class that facades a flash object
+    ASProxy = function(bridge, typeName) {
+        this.bridge = bridge;
+        this.typeName = typeName;
+        return this;
+    };
+    ASProxy.prototype = {
+        get: function(propName) {
+            return this.bridge.deserialize(this.bridge.getPropertyFromAS(this.fb_instance_id, propName));
+        },
+        set: function(propName, value) {
+            this.bridge.setPropertyInAS(this.fb_instance_id, propName, value);
+        },
+        call: function(funcName, args) {
+            this.bridge.callASMethod(this.fb_instance_id, funcName, args);
+        },
+        addRef: function() {
+            this.bridge.addRef(this);
+        },
+        release: function() {
+            this.bridge.release(this);
+        }
+    };
+    // FIXME: Needed by flXHR
+    var flensed;
+    if (typeof phonoFlensedOverride != "undefined") {
+        flensed = phonoFlensedOverride;
+    } else {
+        flensed = {
+            base_path: "//s.phono.com/deps/flensed/1.0/"
+        };
+    }
+    (function($) {
+        var Strophe = null;
+        function Phono(config) {
+            Strophe = PhonoStrophe;
+            // Define defualt config and merge from constructor
+            this.config = Phono.util.extend({
+                gateway: "gw-v6.d.phono.com",
+                connectionUrl: window.location.protocol + "//app.v1-1.phono.com/http-bind"
+            }, config);
+            if (this.config.connectionUrl.indexOf("file:") == 0) {
+                this.config.connectionUrl = "https://app.v1-1.phono.com/http-bind";
+            }
+            // Bind 'on' handlers
+            Phono.events.bind(this, config);
+            // Wrap ourselves with logging
+            Phono.util.loggify("Phono", this);
+            if (!config.apiKey) {
+                this.config.apiKey = prompt("Please enter your Phono API Key.\n\nTo get a new one sign up for a free account at: http://www.phono.com");
+                if (!this.config.apiKey) {
+                    var message = "A Phono API Key is required. Please get one at http://www.phono.com";
+                    Phono.events.trigger(this, "error", {
+                        reason: message
+                    });
+                    throw message;
+                }
+            }
+            // Initialize Fields
+            this.sessionId = null;
+            this.connTimers = [];
+            Phono.log.debug("[CONFIG] ConnectionUrl: " + this.config.connectionUrl);
+            if (navigator.appName.indexOf("Internet Explorer") > 0) {
+                xmlSerializer = {};
+                xmlSerializer.serializeToString = function(body) {
+                    return body.xml;
+                };
+            } else {
+                xmlSerializer = new XMLSerializer();
+            }
+            // Existing connection? do some voodoo to make sure we use their Strophe not PhonoStrophe
+            if (this.config.connection != null) {
+                Strophe = window.Strophe;
+                Strophe.build = $build;
+                Strophe.msg = $msg;
+                Strophe.iq = $iq;
+                Strophe.pres = $pres;
+                this.connection = this.config.connection;
+            } else {
+                // We need to make a connection
+                var phono = this;
+                var cfunc = function(curl) {
+                    if (!phono.connected()) {
+                        Phono.log.debug("trying connection URL " + curl);
+                        if (phono.connection != null) {
+                            phono.connection.disconnect();
+                        }
+                        phono.connection = new Strophe.Connection(curl);
+                        phono.connection.xmlInput = function(body) {
+                            Phono.log.debug("[WIRE] (i) " + xmlSerializer.serializeToString(body));
+                        };
+                        phono.connection.xmlOutput = function(body) {
+                            Phono.log.debug("[WIRE] (o) " + xmlSerializer.serializeToString(body));
+                        };
+                        phono.connect();
+                    } else {
+                        Phono.log.debug("[LB] already connected... not trying URL " + curl);
+                    }
+                };
+                Phono.log.debug("[LB] Invoke loadbalancer");
+                // Create a dummy object so that the Strophe plugins get loaded
+                var dummy = connection = new PhonoStrophe.Connection(this.config.connectionUrl);
+                var a = "", b = function() {}, c = "";
+                var sr = new PhonoStrophe.Request(a, b, c, 0);
+                var srvreq = sr.xhr;
+                var curls = [];
+                var uri = document.createElement("a");
+                var srv = "_phono";
+                uri.href = this.config.connectionUrl;
+                Phono.log.debug("[LB] OrigT =" + uri.hostname + " path =" + uri.pathname);
+                if (uri.protocol == "https:") {
+                    srv = srv + "s";
+                }
+                var dnsUrl = uri.protocol + "//" + uri.host + "/Phono/srvlookup/" + srv + "._tcp." + uri.hostname;
+                srvreq.open("GET", dnsUrl, false);
+                // this blocks because there is really nothing else we can do untill we have a server to talk to.
+                if (srvreq.overrideMimeType) {
+                    srvreq.overrideMimeType("application/json");
+                }
+                try {
+                    // Set the ready state handler
+                    srvreq.onreadystatechange = function() {
+                        if (srvreq.readyState == 4) {
+                            Phono.log.debug("[LB] Got reply :" + srvreq.status);
+                            if (srvreq.status == 200) {
+                                Phono.log.debug("[LB] Reply was " + srvreq.responseText);
+                                var srv = eval("(" + srvreq.responseText + ")");
+                                for (var s in srv.servers) {
+                                    var nexts = srv.servers[s];
+                                    var curl = "";
+                                    // if the target matches the original connectionURL then use the path from that
+                                    // otherwise just append /http-bind
+                                    var path = uri.pathname;
+                                    if (uri.hostname == nexts.target) {
+                                        if (path.indexOf("/") != 0) path = "/" + path;
+                                    } else {
+                                        path = "/http-bind";
+                                    }
+                                    curl = uri.protocol + "//" + nexts.target + ":" + nexts.port + path;
+                                    if (typeof nexts.target != "undefined") {
+                                        Phono.log.debug("[LB] Adding connection URL " + curl);
+                                        curls.push(curl);
+                                    }
+                                }
+                                Phono.log.debug("[LB] Adding default connection URL " + phono.config.connectionUrl);
+                                curls.push(phono.config.connectionUrl);
+                                Phono.log.debug("[LB] Initial connection URL " + curls[0]);
+                                // add timers for all possible srv entries (and default)
+                                // if any work, we will skip the rest
+                                var t = 0;
+                                for (var c in curls) {
+                                    if (curls[c].substring) {
+                                        setTimeout(function() {
+                                            if (curls[t].substring) cfunc(curls[t]);
+                                            t = t + 1;
+                                        }, 20 + c * 1e4);
+                                    }
+                                }
+                            } else {
+                                Phono.log.debug("[LB] loadbalancer status was " + srvreq.status);
+                                Phono.log.debug("[LB] Using default connection URL " + phono.config.connectionUrl);
+                                cfunc(phono.config.connectionUrl);
+                            }
+                        }
+                    };
+                    // Send the request
+                    srvreq.send(null);
+                } catch (e) {
+                    Phono.log.debug("[LB] error - ignoring a loadbalance error " + e);
+                    Phono.log.debug("[LB] Using default connection URL " + phono.config.connectionUrl);
+                    cfunc(phono.config.connectionUrl);
+                }
+            }
+        }
+        (function() {
+            Phono.util = {
+                guid: function() {
+                    return MD5.hexdigest(new String(new Date().getTime()));
+                },
+                escapeXmppNode: function(input) {
+                    var node = input;
+                    node = node.replace(/\\/g, "\\5c");
+                    node = node.replace(/ /g, "\\20");
+                    node = node.replace(/\"/, "\\22");
+                    node = node.replace(/&/g, "\\26");
+                    node = node.replace(/\'/, "\\27");
+                    node = node.replace(/\//g, "\\2f");
+                    node = node.replace(/:/g, "\\3a");
+                    node = node.replace(/</g, "\\3c");
+                    node = node.replace(/>/g, "\\3e");
+                    node = node.replace(/@/g, "\\40");
+                    return node;
+                },
+                // From jQuery 1.4.2
+                each: function(object, callback, args) {
+                    var name, i = 0, length = object.length, isObj = length === undefined || $.isFunction(object);
+                    if (args) {
+                        if (isObj) {
+                            for (name in object) {
+                                if (callback.apply(object[name], args) === false) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            for (;i < length; ) {
+                                if (callback.apply(object[i++], args) === false) {
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        if (isObj) {
+                            for (name in object) {
+                                if (callback.call(object[name], name, object[name]) === false) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            for (var value = object[0]; i < length && callback.call(value, i, value) !== false; value = object[++i]) {}
+                        }
+                    }
+                    return object;
+                },
+                isFunction: function(obj) {
+                    return toString.call(obj) === "[object Function]";
+                },
+                isArray: function(obj) {
+                    return toString.call(obj) === "[object Array]";
+                },
+                isPlainObject: function(obj) {
+                    if (!obj || toString.call(obj) !== "[object Object]" || obj.nodeType || obj.setInterval) {
+                        return false;
+                    }
+                    if (obj.constructor && !hasOwnProperty.call(obj, "constructor") && !hasOwnProperty.call(obj.constructor.prototype, "isPrototypeOf")) {
+                        return false;
+                    }
+                    var key;
+                    for (key in obj) {}
+                    return key === undefined || hasOwnProperty.call(obj, key);
+                },
+                extend: function() {
+                    var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false, options, name, src, copy;
+                    if (typeof target === "boolean") {
+                        deep = target;
+                        target = arguments[1] || {};
+                        i = 2;
+                    }
+                    if (typeof target !== "object" && !$.isFunction(target)) {
+                        target = {};
+                    }
+                    if (length === i) {
+                        target = this;
+                        --i;
+                    }
+                    for (;i < length; i++) {
+                        if ((options = arguments[i]) != null) {
+                            for (name in options) {
+                                src = target[name];
+                                copy = options[name];
+                                if (target === copy) {
+                                    continue;
+                                }
+                                if (deep && copy && ($.isPlainObject(copy) || $.isArray(copy))) {
+                                    var clone = src && ($.isPlainObject(src) || $.isArray(src)) ? src : $.isArray(copy) ? [] : {};
+                                    target[name] = $.extend(deep, clone, copy);
+                                } else if (copy !== undefined) {
+                                    target[name] = copy;
+                                }
+                            }
+                        }
+                    }
+                    return target;
+                },
+                // Inspired by...
+                // written by Dean Edwards, 2005
+                // with input from Tino Zijdel, Matthias Miller, Diego Perini   
+                eventCounter: 1,
+                addEvent: function(target, type, handler) {
+                    // assign each event handler a unique ID
+                    if (!handler.$$guid) handler.$$guid = this.eventCounter++;
+                    // create a hash table of event types for the target
+                    if (!target.events) target.events = {};
+                    // create a hash table of event handlers for each target/event pair
+                    var handlers = target.events[type];
+                    if (!handlers) {
+                        handlers = target.events[type] = {};
+                        // store the existing event handler (if there is one)
+                        if (target["on" + type]) {
+                            handlers[0] = target["on" + type];
+                        }
+                    }
+                    // store the event handler in the hash table
+                    handlers[handler.$$guid] = handler;
+                    // assign a global event handler to do all the work
+                    target["on" + type] = handleEvent;
+                },
+                removeEvent: function(target, type, handler) {
+                    // delete the event handler from the hash table
+                    if (target.events && target.events[type]) {
+                        delete target.events[type][handler.$$guid];
+                    }
+                },
+                handleEvent: function(event) {
+                    var returnValue = true;
+                    // get a reference to the hash table of event handlers
+                    var handlers = this.events[event.type];
+                    // execute each event handler
+                    for (var i in handlers) {
+                        this.$$handleEvent = handlers[i];
+                        if (this.$$handleEvent(event) === false) {
+                            returnValue = false;
+                        }
+                    }
+                    return returnValue;
+                },
+                /* parseUri JS v0.1, by Steven Levithan (http://badassery.blogspot.com)
+                 Splits any well-formed URI into the following parts (all are optional):
+                 ----------------------
+                 â€¢ source (since the exec() method returns backreference 0 [i.e., the entire match] as key 0, we might as well use it)
+                 â€¢ protocol (scheme)
+                 â€¢ authority (includes both the domain and port)
+                 â€¢ domain (part of the authority; can be an IP address)
+                 â€¢ port (part of the authority)
+                 â€¢ path (includes both the directory path and filename)
+                 â€¢ directoryPath (part of the path; supports directories with periods, and without a trailing backslash)
+                 â€¢ fileName (part of the path)
+                 â€¢ query (does not include the leading question mark)
+                 â€¢ anchor (fragment)
+                 */
+                parseUri: function(sourceUri) {
+                    var uriPartNames = [ "source", "protocol", "authority", "domain", "port", "path", "directoryPath", "fileName", "query", "anchor" ];
+                    var uriParts = new RegExp("^(?:([^:/?#.]+):)?(?://)?(([^:/?#]*)(?::(\\d*))?)?((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[\\?#]|$)))*/?)?([^?#/]*))?(?:\\?([^#]*))?(?:#(.*))?").exec(sourceUri);
+                    var uri = {};
+                    for (var i = 0; i < 10; i++) {
+                        uri[uriPartNames[i]] = uriParts[i] ? uriParts[i] : "";
+                    }
+                    // Always end directoryPath with a trailing backslash if a path was present in the source URI
+                    // Note that a trailing backslash is NOT automatically inserted within or appended to the "path" key
+                    if (uri.directoryPath.length > 0) {
+                        uri.directoryPath = uri.directoryPath.replace(/\/?$/, "/");
+                    }
+                    return uri;
+                },
+                filterWideband: function(offer, wideband) {
+                    var codecs = new Array();
+                    Phono.util.each(offer, function() {
+                        if (!wideband) {
+                            if (this.name.toUpperCase() != "G722" && this.rate != "16000") {
+                                codecs.push(this);
+                            }
+                        } else {
+                            codecs.push(this);
+                        }
+                    });
+                    return codecs;
+                },
+                isIOS: function() {
+                    var userAgent = window.navigator.userAgent;
+                    if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+                        return true;
+                    }
+                    return false;
+                },
+                isAndroid: function() {
+                    var userAgent = window.navigator.userAgent;
+                    if (userAgent.match(/Android/i)) {
+                        return true;
+                    }
+                    return false;
+                },
+                getIEVersion: function() {
+                    var rv = -1;
+                    // Return value assumes failure.
+                    if (navigator.appName == "Microsoft Internet Explorer") {
+                        var ua = navigator.userAgent;
+                        var re = new RegExp("MSIE ([0-9]{1,}[.0-9]{0,})");
+                        if (re.exec(ua) != null) rv = parseFloat(RegExp.$1);
+                    }
+                    console.log("IE Version = " + rv);
+                    return rv;
+                },
+                localUri: function(fullUri) {
+                    var splitUri = fullUri.split(":");
+                    return splitUri[0] + ":" + splitUri[1] + ":" + splitUri[2];
+                },
+                loggify: function(objName, obj) {
+                    for (prop in obj) {
+                        if (typeof obj[prop] === "function") {
+                            Phono.util.loggyFunction(objName, obj, prop);
+                        }
+                    }
+                    return obj;
+                },
+                loggyFunction: function(objName, obj, funcName) {
+                    var original = obj[funcName];
+                    obj[funcName] = function() {
+                        try {
+                            // Convert arguments to a real array
+                            var sep = "";
+                            var args = "";
+                            for (var i = 0; i < arguments.length; i++) {
+                                args += sep + arguments[i];
+                                sep = ",";
+                            }
+                            Phono.log.debug("[INVOKE] " + objName + "." + funcName + "(" + args + ")");
+                        } catch (e) {
+                            Phono.log.debug("[INVOKE] " + objName + "." + funcName + "(...)");
+                        }
+                        return original.apply(obj, arguments);
+                    };
+                },
+                padWithZeroes: function(num, len) {
+                    var str = "" + num;
+                    while (str.length < len) {
+                        str = "0" + str;
+                    }
+                    return str;
+                },
+                padWithSpaces: function(str, len) {
+                    while (str.length < len) {
+                        str += " ";
+                    }
+                    return str;
+                },
+                srtpProps: function(tag, crypto, keyparams, sessionparams, required) {
+                    var props = "";
+                    if (crypto != undefined) {
+                        props = props + "crypto-suite=" + "'" + crypto + "' \n";
+                    }
+                    if (tag != undefined) {
+                        props = props + "tag=" + "'" + tag + "' \n";
+                    }
+                    if (keyparams != undefined) {
+                        props = props + "key-params=" + "'" + keyparams + "' \n";
+                    }
+                    if (sessionparams != undefined) {
+                        props = props + "session-params=" + "'" + sessionprams + "' \n";
+                    }
+                    if (required != undefined) {
+                        props = props + "required=" + "'" + required + "' \n";
+                    }
+                    return props;
+                },
+                genKey: function(bytes) {
+                    // Generate bytes random bytes, then base64 encode and return as a string
+                    var key = "";
+                    var i;
+                    for (i = 0; i < bytes; i++) {
+                        key = key + String.fromCharCode(Math.random() * 256);
+                    }
+                    return Base64.encode(key);
+                },
+                getAttributes: function(element) {
+                    var res = {}, attr;
+                    for (var i = 0, len = element.attributes.length; i < len; i++) {
+                        if (element.attributes.hasOwnProperty(i)) {
+                            attr = element.attributes[i];
+                            res[attr.name] = attr.value;
+                        }
+                    }
+                    return res;
+                }
+            };
+            var PhonoLogger = function() {
+                var logger = this;
+                logger.eventQueue = [];
+                logger.initialized = false;
+                $(document).ready(function() {
+                    if (typeof console === "undefined" || typeof console.log === "undefined") {
+                        console = {};
+                        console.log = function(mess) {};
+                    }
+                    console.log("Phono Logger Initialized");
+                    logger.initialized = true;
+                    logger.flushEventQueue();
+                });
+            };
+            (function() {
+                var newLine = "\r\n";
+                // Logging events
+                // ====================================================================================
+                var PhonoLogEvent = function(timeStamp, level, messages, exception) {
+                    this.timeStamp = timeStamp;
+                    this.level = level;
+                    this.messages = messages;
+                    this.exception = exception;
+                };
+                PhonoLogEvent.prototype = {
+                    getThrowableStrRep: function() {
+                        return this.exception ? getExceptionStringRep(this.exception) : "";
+                    },
+                    getCombinedMessages: function() {
+                        return this.messages.length === 1 ? this.messages[0] : this.messages.join(newLine);
+                    }
+                };
+                // Log Levels
+                // ====================================================================================
+                var PhonoLogLevel = function(level, name) {
+                    this.level = level;
+                    this.name = name;
+                };
+                PhonoLogLevel.prototype = {
+                    toString: function() {
+                        return this.name;
+                    },
+                    equals: function(level) {
+                        return this.level == level.level;
+                    },
+                    isGreaterOrEqual: function(level) {
+                        return this.level >= level.level;
+                    }
+                };
+                PhonoLogLevel.ALL = new PhonoLogLevel(Number.MIN_VALUE, "ALL");
+                PhonoLogLevel.TRACE = new PhonoLogLevel(1e4, "TRACE");
+                PhonoLogLevel.DEBUG = new PhonoLogLevel(2e4, "DEBUG");
+                PhonoLogLevel.INFO = new PhonoLogLevel(3e4, "INFO");
+                PhonoLogLevel.WARN = new PhonoLogLevel(4e4, "WARN");
+                PhonoLogLevel.ERROR = new PhonoLogLevel(5e4, "ERROR");
+                PhonoLogLevel.FATAL = new PhonoLogLevel(6e4, "FATAL");
+                PhonoLogLevel.OFF = new PhonoLogLevel(Number.MAX_VALUE, "OFF");
+                // Logger
+                // ====================================================================================
+                PhonoLogger.prototype.log = function(level, params) {
+                    var exception;
+                    var finalParamIndex = params.length - 1;
+                    var lastParam = params[params.length - 1];
+                    if (params.length > 1 && isError(lastParam)) {
+                        exception = lastParam;
+                        finalParamIndex--;
+                    }
+                    var messages = [];
+                    for (var i = 0; i <= finalParamIndex; i++) {
+                        messages[i] = params[i];
+                    }
+                    var loggingEvent = new PhonoLogEvent(new Date(), level, messages, exception);
+                    this.eventQueue.push(loggingEvent);
+                    this.flushEventQueue();
+                };
+                PhonoLogger.prototype.flushEventQueue = function() {
+                    if (this.initialized) {
+                        var logger = this;
+                        Phono.util.each(this.eventQueue, function(idx, event) {
+                            Phono.events.trigger(logger, "log", event);
+                        });
+                        this.eventQueue = [];
+                    }
+                };
+                PhonoLogger.prototype.debug = function() {
+                    this.log(PhonoLogLevel.DEBUG, arguments);
+                };
+                PhonoLogger.prototype.info = function() {
+                    this.log(PhonoLogLevel.INFO, arguments);
+                };
+                PhonoLogger.prototype.warn = function() {
+                    this.log(PhonoLogLevel.WARN, arguments);
+                };
+                PhonoLogger.prototype.error = function() {
+                    this.log(PhonoLogLevel.ERROR, arguments);
+                };
+                // Util
+                // ====================================================================================
+                function getExceptionMessage(ex) {
+                    if (ex.message) {
+                        return ex.message;
+                    } else if (ex.description) {
+                        return ex.description;
+                    } else {
+                        return toStr(ex);
+                    }
+                }
+                // Gets the portion of the URL after the last slash
+                function getUrlFileName(url) {
+                    var lastSlashIndex = Math.max(url.lastIndexOf("/"), url.lastIndexOf("\\"));
+                    return url.substr(lastSlashIndex + 1);
+                }
+                // Returns a nicely formatted representation of an error
+                function getExceptionStringRep(ex) {
+                    if (ex) {
+                        var exStr = "Exception: " + getExceptionMessage(ex);
+                        try {
+                            if (ex.lineNumber) {
+                                exStr += " on line number " + ex.lineNumber;
+                            }
+                            if (ex.fileName) {
+                                exStr += " in file " + getUrlFileName(ex.fileName);
+                            }
+                        } catch (localEx) {}
+                        if (showStackTraces && ex.stack) {
+                            exStr += newLine + "Stack trace:" + newLine + ex.stack;
+                        }
+                        return exStr;
+                    }
+                    return null;
+                }
+                function isError(err) {
+                    return err instanceof Error;
+                }
+                function bool(obj) {
+                    return Boolean(obj);
+                }
+            })();
+            // ======================================================================
+            // Global
+            Phono.version = "1.0";
+            Phono.log = new PhonoLogger();
+            Phono.registerPlugin = function(name, config) {
+                if (!Phono.plugins) {
+                    Phono.plugins = {};
+                }
+                Phono.plugins[name] = config;
+            };
+            // ======================================================================
+            Phono.prototype.connect = function() {
+                var phono = this;
+                // If this is our own internal connection
+                if (!this.config.connection) {
+                    if (!this.connection.connected) {
+                        Phono.log.debug("Connecting....");
+                        phono.connection.connect(phono.config.gateway, null, phono.handleStropheStatusChange, 50);
+                    }
+                } else {
+                    new PluginManager(this, this.config, function(plugins) {
+                        this.handleConnect();
+                    }).init();
+                }
+            };
+            Phono.prototype.disconnect = function() {
+                this.connection.disconnect();
+            };
+            Phono.prototype.connected = function() {
+                return typeof this.connection != "undefined" && this.connection.connected;
+            };
+            Phono.prototype.handleStropheStatusChange = function(status) {
+                if (status === Strophe.Status.CONNECTED) {
+                    if (this.connTimer != null) {
+                        Phono.log.debug("Clear timeout");
+                        clearTimeout(this.connTimer);
+                    }
+                    new PluginManager(this, this.config, function(plugins) {
+                        this.handleConnect();
+                    }).init();
+                } else if (status === Strophe.Status.DISCONNECTED) {
+                    this.handleDisconnect();
+                } else if (status === Strophe.Status.ERROR || status === Strophe.Status.CONNFAIL || status === Strophe.Status.CONNFAIL || status === Strophe.Status.AUTHFAIL) {
+                    this.handleError();
+                }
+            };
+            // Fires when the underlying Strophe Connection is estabilshed
+            Phono.prototype.handleConnect = function() {
+                var phono = this;
+                phono.sessionId = Strophe.getBareJidFromJid(this.connection.jid);
+                if (!this.config.connection) {
+                    var apiKeyIQ = Strophe.iq({
+                        type: "set"
+                    }).c("apikey", {
+                        xmlns: "http://phono.com/apikey"
+                    }).t(phono.config.apiKey).up().c("caps", {
+                        xmlns: "http://phono.com/caps",
+                        ver: Phono.version
+                    });
+                    // Loop over all plugins adding any caps that we have
+                    for (pluginName in Phono.plugins) {
+                        if (phono[pluginName] && phono[pluginName].getCaps) {
+                            apiKeyIQ = phono[pluginName].getCaps(apiKeyIQ.c(pluginName));
+                            apiKeyIQ.up();
+                        }
+                    }
+                    apiKeyIQ = apiKeyIQ.c("browser", {
+                        version: navigator.appVersion,
+                        agent: navigator.userAgent
+                    }).up();
+                    phono.connection.sendIQ(apiKeyIQ, phono.handleKeySuccess, function() {
+                        Phono.events.trigger(phono, "error", {
+                            reason: "API key rejected"
+                        });
+                    });
+                    if (phono.config.provisioningUrl) {
+                        phono.connection.send(Strophe.iq({
+                            type: "set"
+                        }).c("provisioning", {
+                            xmlns: "http://phono.com/provisioning"
+                        }).t(phono.config.provisioningUrl));
+                    }
+                } else {
+                    Phono.events.trigger(this, "ready");
+                }
+            };
+            Phono.prototype.handleKeySuccess = function() {
+                Phono.events.trigger(this, "ready");
+            };
+            // Fires when the underlying Strophe Connection errors out
+            Phono.prototype.handleError = function() {
+                // add load balance retry code here ?
+                Phono.log.debug("connection failed - logging in handleError");
+                Phono.events.trigger(this, "error", {
+                    reason: "Error connecting to XMPP server"
+                });
+            };
+            // Fires when the underlying Strophe Connection disconnects
+            Phono.prototype.handleDisconnect = function() {
+                Phono.events.trigger(this, "unready");
+            };
+            // ======================================================================
+            /*	flXHR 1.0.5 <http://flxhr.flensed.com/> | Copyright (c) 2008-2010 Kyle Simpson, Getify Solutions, Inc. | This software is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> */
+            (function(c) {
+                var E = c, h = c.document, z = "undefined", a = true, L = false, g = "", o = "object", k = "function", N = "string", l = "div", e = "onunload", H = null, y = null, K = null, q = null, x = 0, i = [], m = null, r = null, G = "flXHR.js", n = "flensed.js", P = "flXHR.vbs", j = "checkplayer.js", A = "flXHR.swf", u = c.parseInt, w = c.setTimeout, f = c.clearTimeout, s = c.setInterval, v = c.clearInterval, O = "instanceId", J = "readyState", D = "onreadystatechange", M = "ontimeout", C = "onerror", d = "binaryResponseBody", F = "xmlResponseText", I = "loadPolicyURL", b = "noCacheHeader", p = "sendTimeout", B = "appendToId", t = "swfIdPrefix";
+                if (typeof c.flensed === z) {
+                    c.flensed = {};
+                }
+                if (typeof c.flensed.flXHR !== z) {
+                    return;
+                }
+                y = c.flensed;
+                w(function() {
+                    var Q = L, ab = h.getElementsByTagName("script"), V = ab.length;
+                    try {
+                        y.base_path.toLowerCase();
+                        Q = a;
+                    } catch (T) {
+                        y.base_path = g;
+                    }
+                    function Z(ai, ah, aj) {
+                        for (var ag = 0; ag < V; ag++) {
+                            if (typeof ab[ag].src !== z) {
+                                if (ab[ag].src.indexOf(ai) >= 0) {
+                                    break;
+                                }
+                            }
+                        }
+                        var af = h.createElement("script");
+                        af.setAttribute("src", y.base_path + ai);
+                        if (typeof ah !== z) {
+                            af.setAttribute("type", ah);
+                        }
+                        if (typeof aj !== z) {
+                            af.setAttribute("language", aj);
+                        }
+                        h.getElementsByTagName("head")[0].appendChild(af);
+                    }
+                    if (typeof ab !== z && ab !== null) {
+                        if (!Q) {
+                            var ac = 0;
+                            for (var U = 0; U < V; U++) {
+                                if (typeof ab[U].src !== z) {
+                                    if ((ac = ab[U].src.indexOf(n)) >= 0 || (ac = ab[U].src.indexOf(G)) >= 0) {
+                                        y.base_path = ab[U].src.substr(0, ac);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    try {
+                        y.checkplayer.module_ready();
+                    } catch (aa) {
+                        Z(j, "text/javascript");
+                    }
+                    var ad = null;
+                    (function ae() {
+                        try {
+                            y.ua.pv.join(".");
+                        } catch (af) {
+                            ad = w(arguments.callee, 25);
+                            return;
+                        }
+                        if (y.ua.win && y.ua.ie) {
+                            Z(P, "text/vbscript", "vbscript");
+                        }
+                        y.binaryToString = function(aj, ai) {
+                            ai = y.ua.win && y.ua.ie && typeof ai !== z ? !!ai : !(y.ua.win && y.ua.ie);
+                            if (!ai) {
+                                try {
+                                    return flXHR_vb_BinaryToString(aj);
+                                } catch (al) {}
+                            }
+                            var am = g, ah = [];
+                            try {
+                                for (var ak = 0; ak < aj.length; ak++) {
+                                    ah[ah.length] = String.fromCharCode(aj[ak]);
+                                }
+                                am = ah.join(g);
+                            } catch (ag) {}
+                            return am;
+                        };
+                        y.bindEvent(E, e, function() {
+                            try {
+                                c.flensed.unbindEvent(E, e, arguments.callee);
+                                for (var ai in r) {
+                                    if (r[ai] !== Object.prototype[ai]) {
+                                        try {
+                                            r[ai] = null;
+                                        } catch (ah) {}
+                                    }
+                                }
+                                y.flXHR = null;
+                                r = null;
+                                y = null;
+                                q = null;
+                                K = null;
+                            } catch (ag) {}
+                        });
+                    })();
+                    function Y() {
+                        f(ad);
+                        try {
+                            E.detachEvent(e, Y);
+                        } catch (af) {}
+                    }
+                    if (ad !== null) {
+                        try {
+                            E.attachEvent(e, Y);
+                        } catch (X) {}
+                    }
+                    var S = null;
+                    function R() {
+                        f(S);
+                        try {
+                            E.detachEvent(e, R);
+                        } catch (af) {}
+                    }
+                    try {
+                        E.attachEvent(e, R);
+                    } catch (W) {}
+                    S = w(function() {
+                        R();
+                        try {
+                            y.checkplayer.module_ready();
+                        } catch (af) {
+                            throw new c.Error("flXHR dependencies failed to load.");
+                        }
+                    }, 2e4);
+                }, 0);
+                y.flXHR = function(aR) {
+                    var ab = L;
+                    if (aR !== null && typeof aR === o) {
+                        if (typeof aR.instancePooling !== z) {
+                            ab = !!aR.instancePooling;
+                            if (ab) {
+                                var aG = function() {
+                                    for (var a0 = 0; a0 < i.length; a0++) {
+                                        var a1 = i[a0];
+                                        if (a1[J] === 4) {
+                                            a1.Reset();
+                                            a1.Configure(aR);
+                                            return a1;
+                                        }
+                                    }
+                                    return null;
+                                }();
+                                if (aG !== null) {
+                                    return aG;
+                                }
+                            }
+                        }
+                    }
+                    var aW = ++x, ai = [], af = null, ah = null, X = null, Y = null, aM = -1, aF = 0, aa = null, ac = null, ao = null, aE = null, aw = null, aV = null, ak = null, Q = null, aL = null, Z = a, aB = L, aY = "flXHR_" + aW, au = a, aC = L, aA = a, aJ = L, S = "flXHR_swf", ae = "flXHRhideSwf", V = null, aH = -1, T = g, aK = null, aD = null, aO = null;
+                    var U = function() {
+                        if (typeof aR === o && aR !== null) {
+                            if (typeof aR[O] !== z && aR[O] !== null && aR[O] !== g) {
+                                aY = aR[O];
+                            }
+                            if (typeof aR[t] !== z && aR[t] !== null && aR[t] !== g) {
+                                S = aR[t];
+                            }
+                            if (typeof aR[B] !== z && aR[B] !== null && aR[B] !== g) {
+                                V = aR[B];
+                            }
+                            if (typeof aR[I] !== z && aR[I] !== null && aR[I] !== g) {
+                                T = aR[I];
+                            }
+                            if (typeof aR[b] !== z) {
+                                au = !!aR[b];
+                            }
+                            if (typeof aR[d] !== z) {
+                                aC = !!aR[d];
+                            }
+                            if (typeof aR[F] !== z) {
+                                aA = !!aR[F];
+                            }
+                            if (typeof aR.autoUpdatePlayer !== z) {
+                                aJ = !!aR.autoUpdatePlayer;
+                            }
+                            if (typeof aR[p] !== z && (H = u(aR[p], 10)) > 0) {
+                                aH = H;
+                            }
+                            if (typeof aR[D] !== z && aR[D] !== null) {
+                                aK = aR[D];
+                            }
+                            if (typeof aR[C] !== z && aR[C] !== null) {
+                                aD = aR[C];
+                            }
+                            if (typeof aR[M] !== z && aR[M] !== null) {
+                                aO = aR[M];
+                            }
+                        }
+                        Y = S + "_" + aW;
+                        function a0() {
+                            f(af);
+                            try {
+                                E.detachEvent(e, a0);
+                            } catch (a3) {}
+                        }
+                        try {
+                            E.attachEvent(e, a0);
+                        } catch (a1) {}
+                        (function a2() {
+                            try {
+                                y.bindEvent(E, e, aI);
+                            } catch (a3) {
+                                af = w(arguments.callee, 25);
+                                return;
+                            }
+                            a0();
+                            af = w(aT, 1);
+                        })();
+                    }();
+                    function aT() {
+                        if (V === null) {
+                            Q = h.getElementsByTagName("body")[0];
+                        } else {
+                            Q = y.getObjectById(V);
+                        }
+                        try {
+                            Q.nodeName.toLowerCase();
+                            y.checkplayer.module_ready();
+                            K = y.checkplayer;
+                        } catch (a1) {
+                            af = w(aT, 25);
+                            return;
+                        }
+                        if (q === null && typeof K._ins === z) {
+                            try {
+                                q = new K(r.MIN_PLAYER_VERSION, aU, L, aq);
+                            } catch (a0) {
+                                aP(r.DEPENDENCY_ERROR, "flXHR: checkplayer Init Failed", "The initialization of the 'checkplayer' library failed to complete.");
+                                return;
+                            }
+                        } else {
+                            q = K._ins;
+                            ag();
+                        }
+                    }
+                    function ag() {
+                        if (q === null || !q.checkPassed) {
+                            af = w(ag, 25);
+                            return;
+                        }
+                        if (m === null && V === null) {
+                            y.createCSS("." + ae, "left:-1px;top:0px;width:1px;height:1px;position:absolute;");
+                            m = a;
+                        }
+                        var a4 = h.createElement(l);
+                        a4.id = Y;
+                        a4.className = ae;
+                        Q.appendChild(a4);
+                        Q = null;
+                        var a1 = {}, a5 = {
+                            allowScriptAccess: "always"
+                        }, a2 = {
+                            id: Y,
+                            name: Y,
+                            styleclass: ae
+                        }, a3 = {
+                            swfCB: aS,
+                            swfEICheck: "reset"
+                        };
+                        try {
+                            q.DoSWF(y.base_path + A, Y, "1", "1", a1, a5, a2, a3);
+                        } catch (a0) {
+                            aP(r.DEPENDENCY_ERROR, "flXHR: checkplayer Call Failed", "A call to the 'checkplayer' library failed to complete.");
+                            return;
+                        }
+                    }
+                    function aS(a0) {
+                        if (a0.status !== K.SWF_EI_READY) {
+                            return;
+                        }
+                        R();
+                        aV = y.getObjectById(Y);
+                        aV.setId(Y);
+                        if (T !== g) {
+                            aV.loadPolicy(T);
+                        }
+                        aV.autoNoCacheHeader(au);
+                        aV.returnBinaryResponseBody(aC);
+                        aV.doOnReadyStateChange = al;
+                        aV.doOnError = aP;
+                        aV.sendProcessed = ap;
+                        aV.chunkResponse = ay;
+                        aM = 0;
+                        ax();
+                        aX();
+                        if (typeof aK === k) {
+                            try {
+                                aK(ak);
+                            } catch (a1) {
+                                aP(r.HANDLER_ERROR, "flXHR::onreadystatechange(): Error", "An error occurred in the handler function. (" + a1.message + ")");
+                                return;
+                            }
+                        }
+                        at();
+                    }
+                    function aI() {
+                        try {
+                            c.flensed.unbindEvent(E, e, aI);
+                        } catch (a3) {}
+                        try {
+                            for (var a4 = 0; a4 < i.length; a4++) {
+                                if (i[a4] === ak) {
+                                    i[a4] = L;
+                                }
+                            }
+                        } catch (bb) {}
+                        try {
+                            for (var a6 in ak) {
+                                if (ak[a6] !== Object.prototype[a6]) {
+                                    try {
+                                        ak[a6] = null;
+                                    } catch (ba) {}
+                                }
+                            }
+                        } catch (a9) {}
+                        ak = null;
+                        R();
+                        if (typeof aV !== z && aV !== null) {
+                            try {
+                                aV.abort();
+                            } catch (a8) {}
+                            try {
+                                aV.doOnReadyStateChange = null;
+                                al = null;
+                            } catch (a7) {}
+                            try {
+                                aV.doOnError = null;
+                                doOnError = null;
+                            } catch (a5) {}
+                            try {
+                                aV.sendProcessed = null;
+                                ap = null;
+                            } catch (a2) {}
+                            try {
+                                aV.chunkResponse = null;
+                                ay = null;
+                            } catch (a1) {}
+                            aV = null;
+                            try {
+                                c.swfobject.removeSWF(Y);
+                            } catch (a0) {}
+                        }
+                        aQ();
+                        aK = null;
+                        aD = null;
+                        aO = null;
+                        ao = null;
+                        aa = null;
+                        aL = null;
+                        Q = null;
+                    }
+                    function ay() {
+                        if (aC && typeof arguments[0] !== z) {
+                            aL = aL !== null ? aL : [];
+                            aL = aL.concat(arguments[0]);
+                        } else {
+                            if (typeof arguments[0] === N) {
+                                aL = aL !== null ? aL : g;
+                                aL += arguments[0];
+                            }
+                        }
+                    }
+                    function al() {
+                        if (typeof arguments[0] !== z) {
+                            aM = arguments[0];
+                        }
+                        if (aM === 4) {
+                            R();
+                            if (aC && aL !== null) {
+                                try {
+                                    ac = y.binaryToString(aL, a);
+                                    try {
+                                        aa = flXHR_vb_StringToBinary(ac);
+                                    } catch (a2) {
+                                        aa = aL;
+                                    }
+                                } catch (a1) {}
+                            } else {
+                                ac = aL;
+                            }
+                            aL = null;
+                            if (ac !== g) {
+                                if (aA) {
+                                    try {
+                                        ao = y.parseXMLString(ac);
+                                    } catch (a0) {
+                                        ao = {};
+                                    }
+                                }
+                            }
+                        }
+                        if (typeof arguments[1] !== z) {
+                            aE = arguments[1];
+                        }
+                        if (typeof arguments[2] !== z) {
+                            aw = arguments[2];
+                        }
+                        ad(aM);
+                    }
+                    function ad(a0) {
+                        aF = a0;
+                        ax();
+                        aX();
+                        ak[J] = Math.max(0, a0);
+                        if (typeof aK === k) {
+                            try {
+                                aK(ak);
+                            } catch (a1) {
+                                aP(r.HANDLER_ERROR, "flXHR::onreadystatechange(): Error", "An error occurred in the handler function. (" + a1.message + ")");
+                                return;
+                            }
+                        }
+                    }
+                    function aP() {
+                        R();
+                        aQ();
+                        aB = a;
+                        var a3;
+                        try {
+                            a3 = new y.error(arguments[0], arguments[1], arguments[2], ak);
+                        } catch (a4) {
+                            function a1() {
+                                this.number = 0;
+                                this.name = "flXHR Error: Unknown";
+                                this.description = "Unknown error from 'flXHR' library.";
+                                this.message = this.description;
+                                this.srcElement = ak;
+                                var a8 = this.number, a7 = this.name, ba = this.description;
+                                function a9() {
+                                    return a8 + ", " + a7 + ", " + ba;
+                                }
+                                this.toString = a9;
+                            }
+                            a3 = new a1();
+                        }
+                        var a5 = L;
+                        try {
+                            if (typeof aD === k) {
+                                aD(a3);
+                                a5 = a;
+                            }
+                        } catch (a0) {
+                            var a2 = a3.toString();
+                            function a6() {
+                                this.number = r.HANDLER_ERROR;
+                                this.name = "flXHR::onerror(): Error";
+                                this.description = "An error occured in the handler function. (" + a0.message + ")\nPrevious:[" + a2 + "]";
+                                this.message = this.description;
+                                this.srcElement = ak;
+                                var a8 = this.number, a7 = this.name, ba = this.description;
+                                function a9() {
+                                    return a8 + ", " + a7 + ", " + ba;
+                                }
+                                this.toString = a9;
+                            }
+                            a3 = new a6();
+                        }
+                        if (!a5) {
+                            w(function() {
+                                y.throwUnhandledError(a3.toString());
+                            }, 1);
+                        }
+                    }
+                    function W() {
+                        am();
+                        aB = a;
+                        if (typeof aO === k) {
+                            try {
+                                aO(ak);
+                            } catch (a0) {
+                                aP(r.HANDLER_ERROR, "flXHR::ontimeout(): Error", "An error occurred in the handler function. (" + a0.message + ")");
+                                return;
+                            }
+                        } else {
+                            aP(r.TIMEOUT_ERROR, "flXHR: Operation Timed out", "The requested operation timed out.");
+                        }
+                    }
+                    function R() {
+                        f(af);
+                        af = null;
+                        f(X);
+                        X = null;
+                        f(ah);
+                        ah = null;
+                    }
+                    function aZ(a1, a2, a0) {
+                        ai[ai.length] = {
+                            func: a1,
+                            funcName: a2,
+                            args: a0
+                        };
+                        Z = L;
+                    }
+                    function aQ() {
+                        if (!Z) {
+                            Z = a;
+                            var a1 = ai.length;
+                            for (var a0 = 0; a0 < a1; a0++) {
+                                try {
+                                    ai[a0] = L;
+                                } catch (a2) {}
+                            }
+                            ai = [];
+                        }
+                    }
+                    function at() {
+                        if (aM < 0) {
+                            ah = w(at, 25);
+                            return;
+                        }
+                        if (!Z) {
+                            for (var a0 = 0; a0 < ai.length; a0++) {
+                                try {
+                                    if (ai[a0] !== L) {
+                                        ai[a0].func.apply(ak, ai[a0].args);
+                                        ai[a0] = L;
+                                    }
+                                } catch (a1) {
+                                    aP(r.HANDLER_ERROR, "flXHR::" + ai[a0].funcName + "(): Error", "An error occurred in the " + ai[a0].funcName + "() function.");
+                                    return;
+                                }
+                            }
+                            Z = a;
+                        }
+                    }
+                    function aX() {
+                        try {
+                            ak[O] = aY;
+                            ak[J] = aF;
+                            ak.status = aE;
+                            ak.statusText = aw;
+                            ak.responseText = ac;
+                            ak.responseXML = ao;
+                            ak.responseBody = aa;
+                            ak[D] = aK;
+                            ak[C] = aD;
+                            ak[M] = aO;
+                            ak[I] = T;
+                            ak[b] = au;
+                            ak[d] = aC;
+                            ak[F] = aA;
+                        } catch (a0) {}
+                    }
+                    function ax() {
+                        try {
+                            aY = ak[O];
+                            if (ak.timeout !== null && (H = u(ak.timeout, 10)) > 0) {
+                                aH = H;
+                            }
+                            aK = ak[D];
+                            aD = ak[C];
+                            aO = ak[M];
+                            if (ak[I] !== null) {
+                                if (ak[I] !== T && aM >= 0) {
+                                    aV.loadPolicy(ak[I]);
+                                }
+                                T = ak[I];
+                            }
+                            if (ak[b] !== null) {
+                                if (ak[b] !== au && aM >= 0) {
+                                    aV.autoNoCacheHeader(ak[b]);
+                                }
+                                au = ak[b];
+                            }
+                            if (ak[d] !== null) {
+                                if (ak[d] !== aC && aM >= 0) {
+                                    aV.returnBinaryResponseBody(ak[d]);
+                                }
+                                aC = ak[d];
+                            }
+                            if (aA !== null) {
+                                aA = !!ak[F];
+                            }
+                        } catch (a0) {}
+                    }
+                    function aN() {
+                        am();
+                        try {
+                            aV.reset();
+                        } catch (a0) {}
+                        aE = null;
+                        aw = null;
+                        ac = null;
+                        ao = null;
+                        aa = null;
+                        aL = null;
+                        aB = L;
+                        aX();
+                        T = g;
+                        ax();
+                    }
+                    function aU(a0) {
+                        if (a0.checkPassed) {
+                            ag();
+                        } else {
+                            if (!aJ) {
+                                aP(r.PLAYER_VERSION_ERROR, "flXHR: Insufficient Flash Player Version", "The Flash Player was either not detected, or the detected version (" + a0.playerVersionDetected + ") was not at least the minimum version (" + r.MIN_PLAYER_VERSION + ") needed by the 'flXHR' library.");
+                            } else {
+                                q.UpdatePlayer();
+                            }
+                        }
+                    }
+                    function aq(a0) {
+                        if (a0.updateStatus === K.UPDATE_CANCELED) {
+                            aP(r.PLAYER_VERSION_ERROR, "flXHR: Flash Player Update Canceled", "The Flash Player was not updated.");
+                        } else {
+                            if (a0.updateStatus === K.UPDATE_FAILED) {
+                                aP(r.PLAYER_VERSION_ERROR, "flXHR: Flash Player Update Failed", "The Flash Player was either not detected or could not be updated.");
+                            }
+                        }
+                    }
+                    function ap() {
+                        if (aH !== null && aH > 0) {
+                            X = w(W, aH);
+                        }
+                    }
+                    function am() {
+                        R();
+                        aQ();
+                        ax();
+                        aM = 0;
+                        aF = 0;
+                        try {
+                            aV.abort();
+                        } catch (a0) {
+                            aP(r.CALL_ERROR, "flXHR::abort(): Failed", "The abort() call failed to complete.");
+                        }
+                        aX();
+                    }
+                    function av() {
+                        ax();
+                        if (typeof arguments[0] === z || typeof arguments[1] === z) {
+                            aP(r.CALL_ERROR, "flXHR::open(): Failed", "The open() call requires 'method' and 'url' parameters.");
+                        } else {
+                            if (aM > 0 || aB) {
+                                aN();
+                            }
+                            if (aF === 0) {
+                                al(1);
+                            } else {
+                                aM = 1;
+                            }
+                            var a7 = arguments[0], a6 = arguments[1], a5 = typeof arguments[2] !== z ? arguments[2] : a, ba = typeof arguments[3] !== z ? arguments[3] : g, a9 = typeof arguments[4] !== z ? arguments[4] : g;
+                            try {
+                                aV.autoNoCacheHeader(au);
+                                aV.open(a7, a6, a5, ba, a9);
+                            } catch (a8) {
+                                aP(r.CALL_ERROR, "flXHR::open(): Failed", "The open() call failed to complete.");
+                            }
+                        }
+                    }
+                    function az() {
+                        ax();
+                        if (aM <= 1 && !aB) {
+                            var a1 = typeof arguments[0] !== z ? arguments[0] : g;
+                            if (aF === 1) {
+                                al(2);
+                            } else {
+                                aM = 2;
+                            }
+                            try {
+                                aV.autoNoCacheHeader(au);
+                                aV.send(a1);
+                            } catch (a2) {
+                                aP(r.CALL_ERROR, "flXHR::send(): Failed", "The send() call failed to complete.");
+                            }
+                        } else {
+                            aP(r.CALL_ERROR, "flXHR::send(): Failed", "The send() call cannot be made at this time.");
+                        }
+                    }
+                    function aj() {
+                        ax();
+                        if (typeof arguments[0] === z || typeof arguments[1] === z) {
+                            aP(r.CALL_ERROR, "flXHR::setRequestHeader(): Failed", "The setRequestHeader() call requires 'name' and 'value' parameters.");
+                        } else {
+                            if (!aB) {
+                                var a3 = typeof arguments[0] !== z ? arguments[0] : g, a2 = typeof arguments[1] !== z ? arguments[1] : g;
+                                try {
+                                    aV.setRequestHeader(a3, a2);
+                                } catch (a4) {
+                                    aP(r.CALL_ERROR, "flXHR::setRequestHeader(): Failed", "The setRequestHeader() call failed to complete.");
+                                }
+                            }
+                        }
+                    }
+                    function an() {
+                        ax();
+                        return g;
+                    }
+                    function ar() {
+                        ax();
+                        return [];
+                    }
+                    ak = {
+                        readyState: aF,
+                        responseBody: aa,
+                        responseText: ac,
+                        responseXML: ao,
+                        status: aE,
+                        statusText: aw,
+                        timeout: aH,
+                        open: function() {
+                            ax();
+                            if (ak[J] === 0) {
+                                ad(1);
+                            }
+                            if (!Z || aM < 0) {
+                                aZ(av, "open", arguments);
+                                return;
+                            }
+                            av.apply({}, arguments);
+                        },
+                        send: function() {
+                            ax();
+                            if (ak[J] === 1) {
+                                ad(2);
+                            }
+                            if (!Z || aM < 0) {
+                                aZ(az, "send", arguments);
+                                return;
+                            }
+                            az.apply({}, arguments);
+                        },
+                        abort: am,
+                        setRequestHeader: function() {
+                            ax();
+                            if (!Z || aM < 0) {
+                                aZ(aj, "setRequestHeader", arguments);
+                                return;
+                            }
+                            aj.apply({}, arguments);
+                        },
+                        getResponseHeader: an,
+                        getAllResponseHeaders: ar,
+                        onreadystatechange: aK,
+                        ontimeout: aO,
+                        instanceId: aY,
+                        loadPolicyURL: T,
+                        noCacheHeader: au,
+                        binaryResponseBody: aC,
+                        xmlResponseText: aA,
+                        onerror: aD,
+                        Configure: function(a0) {
+                            if (typeof a0 === o && a0 !== null) {
+                                if (typeof a0[O] !== z && a0[O] !== null && a0[O] !== g) {
+                                    aY = a0[O];
+                                }
+                                if (typeof a0[b] !== z) {
+                                    au = !!a0[b];
+                                    if (aM >= 0) {
+                                        aV.autoNoCacheHeader(au);
+                                    }
+                                }
+                                if (typeof a0[d] !== z) {
+                                    aC = !!a0[d];
+                                    if (aM >= 0) {
+                                        aV.returnBinaryResponseBody(aC);
+                                    }
+                                }
+                                if (typeof a0[F] !== z) {
+                                    aA = !!a0[F];
+                                }
+                                if (typeof a0[D] !== z && a0[D] !== null) {
+                                    aK = a0[D];
+                                }
+                                if (typeof a0[C] !== z && a0[C] !== null) {
+                                    aD = a0[C];
+                                }
+                                if (typeof a0[M] !== z && a0[M] !== null) {
+                                    aO = a0[M];
+                                }
+                                if (typeof a0[p] !== z && (H = u(a0[p], 10)) > 0) {
+                                    aH = H;
+                                }
+                                if (typeof a0[I] !== z && a0[I] !== null && a0[I] !== g && a0[I] !== T) {
+                                    T = a0[I];
+                                    if (aM >= 0) {
+                                        aV.loadPolicy(T);
+                                    }
+                                }
+                                aX();
+                            }
+                        },
+                        Reset: aN,
+                        Destroy: aI
+                    };
+                    if (ab) {
+                        i[i.length] = ak;
+                    }
+                    return ak;
+                };
+                r = y.flXHR;
+                r.HANDLER_ERROR = 10;
+                r.CALL_ERROR = 11;
+                r.TIMEOUT_ERROR = 12;
+                r.DEPENDENCY_ERROR = 13;
+                r.PLAYER_VERSION_ERROR = 14;
+                r.SECURITY_ERROR = 15;
+                r.COMMUNICATION_ERROR = 16;
+                r.MIN_PLAYER_VERSION = "9.0.124";
+                r.module_ready = function() {};
+            })(window);
+            // This code was written by Tyler Akins and has been placed in the
+            // public domain.  It would be nice if you left this header intact.
+            // Base64 code from Tyler Akins -- http://rumkin.com
+            var Base64 = function() {
+                var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+                var obj = {
+                    /**
+                     * Encodes a string in base64
+                     * @param {String} input The string to encode in base64.
+                     */
+                    encode: function(input) {
+                        var output = "";
+                        var chr1, chr2, chr3;
+                        var enc1, enc2, enc3, enc4;
+                        var i = 0;
+                        do {
+                            chr1 = input.charCodeAt(i++);
+                            chr2 = input.charCodeAt(i++);
+                            chr3 = input.charCodeAt(i++);
+                            enc1 = chr1 >> 2;
+                            enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+                            enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+                            enc4 = chr3 & 63;
+                            if (isNaN(chr2)) {
+                                enc3 = enc4 = 64;
+                            } else if (isNaN(chr3)) {
+                                enc4 = 64;
+                            }
+                            output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+                        } while (i < input.length);
+                        return output;
+                    },
+                    /**
+                     * Decodes a base64 string.
+                     * @param {String} input The string to decode.
+                     */
+                    decode: function(input) {
+                        var output = "";
+                        var chr1, chr2, chr3;
+                        var enc1, enc2, enc3, enc4;
+                        var i = 0;
+                        // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+                        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+                        do {
+                            enc1 = keyStr.indexOf(input.charAt(i++));
+                            enc2 = keyStr.indexOf(input.charAt(i++));
+                            enc3 = keyStr.indexOf(input.charAt(i++));
+                            enc4 = keyStr.indexOf(input.charAt(i++));
+                            chr1 = enc1 << 2 | enc2 >> 4;
+                            chr2 = (enc2 & 15) << 4 | enc3 >> 2;
+                            chr3 = (enc3 & 3) << 6 | enc4;
+                            output = output + String.fromCharCode(chr1);
+                            if (enc3 != 64) {
+                                output = output + String.fromCharCode(chr2);
+                            }
+                            if (enc4 != 64) {
+                                output = output + String.fromCharCode(chr3);
+                            }
+                        } while (i < input.length);
+                        return output;
+                    }
+                };
+                return obj;
+            }();
+            /*
+             * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
+             * Digest Algorithm, as defined in RFC 1321.
+             * Version 2.1 Copyright (C) Paul Johnston 1999 - 2002.
+             * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+             * Distributed under the BSD License
+             * See http://pajhome.org.uk/crypt/md5 for more info.
+             */
+            var MD5 = function() {
+                /*
+                 * Configurable variables. You may need to tweak these to be compatible with
+                 * the server-side, but the defaults work in most cases.
+                 */
+                var hexcase = 0;
+                /* hex output format. 0 - lowercase; 1 - uppercase */
+                var b64pad = "";
+                /* base-64 pad character. "=" for strict RFC compliance */
+                var chrsz = 8;
+                /* bits per input character. 8 - ASCII; 16 - Unicode */
+                /*
+                 * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+                 * to work around bugs in some JS interpreters.
+                 */
+                var safe_add = function(x, y) {
+                    var lsw = (x & 65535) + (y & 65535);
+                    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+                    return msw << 16 | lsw & 65535;
+                };
+                /*
+                 * Bitwise rotate a 32-bit number to the left.
+                 */
+                var bit_rol = function(num, cnt) {
+                    return num << cnt | num >>> 32 - cnt;
+                };
+                /*
+                 * Convert a string to an array of little-endian words
+                 * If chrsz is ASCII, characters >255 have their hi-byte silently ignored.
+                 */
+                var str2binl = function(str) {
+                    var bin = [];
+                    var mask = (1 << chrsz) - 1;
+                    for (var i = 0; i < str.length * chrsz; i += chrsz) {
+                        bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << i % 32;
+                    }
+                    return bin;
+                };
+                /*
+                 * Convert an array of little-endian words to a string
+                 */
+                var binl2str = function(bin) {
+                    var str = "";
+                    var mask = (1 << chrsz) - 1;
+                    for (var i = 0; i < bin.length * 32; i += chrsz) {
+                        str += String.fromCharCode(bin[i >> 5] >>> i % 32 & mask);
+                    }
+                    return str;
+                };
+                /*
+                 * Convert an array of little-endian words to a hex string.
+                 */
+                var binl2hex = function(binarray) {
+                    var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
+                    var str = "";
+                    for (var i = 0; i < binarray.length * 4; i++) {
+                        str += hex_tab.charAt(binarray[i >> 2] >> i % 4 * 8 + 4 & 15) + hex_tab.charAt(binarray[i >> 2] >> i % 4 * 8 & 15);
+                    }
+                    return str;
+                };
+                /*
+                 * Convert an array of little-endian words to a base-64 string
+                 */
+                var binl2b64 = function(binarray) {
+                    var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+                    var str = "";
+                    var triplet, j;
+                    for (var i = 0; i < binarray.length * 4; i += 3) {
+                        triplet = (binarray[i >> 2] >> 8 * (i % 4) & 255) << 16 | (binarray[i + 1 >> 2] >> 8 * ((i + 1) % 4) & 255) << 8 | binarray[i + 2 >> 2] >> 8 * ((i + 2) % 4) & 255;
+                        for (j = 0; j < 4; j++) {
+                            if (i * 8 + j * 6 > binarray.length * 32) {
+                                str += b64pad;
+                            } else {
+                                str += tab.charAt(triplet >> 6 * (3 - j) & 63);
+                            }
+                        }
+                    }
+                    return str;
+                };
+                /*
+                 * These functions implement the four basic operations the algorithm uses.
+                 */
+                var md5_cmn = function(q, a, b, x, s, t) {
+                    return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s), b);
+                };
+                var md5_ff = function(a, b, c, d, x, s, t) {
+                    return md5_cmn(b & c | ~b & d, a, b, x, s, t);
+                };
+                var md5_gg = function(a, b, c, d, x, s, t) {
+                    return md5_cmn(b & d | c & ~d, a, b, x, s, t);
+                };
+                var md5_hh = function(a, b, c, d, x, s, t) {
+                    return md5_cmn(b ^ c ^ d, a, b, x, s, t);
+                };
+                var md5_ii = function(a, b, c, d, x, s, t) {
+                    return md5_cmn(c ^ (b | ~d), a, b, x, s, t);
+                };
+                /*
+                 * Calculate the MD5 of an array of little-endian words, and a bit length
+                 */
+                var core_md5 = function(x, len) {
+                    /* append padding */
+                    x[len >> 5] |= 128 << len % 32;
+                    x[(len + 64 >>> 9 << 4) + 14] = len;
+                    var a = 1732584193;
+                    var b = -271733879;
+                    var c = -1732584194;
+                    var d = 271733878;
+                    var olda, oldb, oldc, oldd;
+                    for (var i = 0; i < x.length; i += 16) {
+                        olda = a;
+                        oldb = b;
+                        oldc = c;
+                        oldd = d;
+                        a = md5_ff(a, b, c, d, x[i + 0], 7, -680876936);
+                        d = md5_ff(d, a, b, c, x[i + 1], 12, -389564586);
+                        c = md5_ff(c, d, a, b, x[i + 2], 17, 606105819);
+                        b = md5_ff(b, c, d, a, x[i + 3], 22, -1044525330);
+                        a = md5_ff(a, b, c, d, x[i + 4], 7, -176418897);
+                        d = md5_ff(d, a, b, c, x[i + 5], 12, 1200080426);
+                        c = md5_ff(c, d, a, b, x[i + 6], 17, -1473231341);
+                        b = md5_ff(b, c, d, a, x[i + 7], 22, -45705983);
+                        a = md5_ff(a, b, c, d, x[i + 8], 7, 1770035416);
+                        d = md5_ff(d, a, b, c, x[i + 9], 12, -1958414417);
+                        c = md5_ff(c, d, a, b, x[i + 10], 17, -42063);
+                        b = md5_ff(b, c, d, a, x[i + 11], 22, -1990404162);
+                        a = md5_ff(a, b, c, d, x[i + 12], 7, 1804603682);
+                        d = md5_ff(d, a, b, c, x[i + 13], 12, -40341101);
+                        c = md5_ff(c, d, a, b, x[i + 14], 17, -1502002290);
+                        b = md5_ff(b, c, d, a, x[i + 15], 22, 1236535329);
+                        a = md5_gg(a, b, c, d, x[i + 1], 5, -165796510);
+                        d = md5_gg(d, a, b, c, x[i + 6], 9, -1069501632);
+                        c = md5_gg(c, d, a, b, x[i + 11], 14, 643717713);
+                        b = md5_gg(b, c, d, a, x[i + 0], 20, -373897302);
+                        a = md5_gg(a, b, c, d, x[i + 5], 5, -701558691);
+                        d = md5_gg(d, a, b, c, x[i + 10], 9, 38016083);
+                        c = md5_gg(c, d, a, b, x[i + 15], 14, -660478335);
+                        b = md5_gg(b, c, d, a, x[i + 4], 20, -405537848);
+                        a = md5_gg(a, b, c, d, x[i + 9], 5, 568446438);
+                        d = md5_gg(d, a, b, c, x[i + 14], 9, -1019803690);
+                        c = md5_gg(c, d, a, b, x[i + 3], 14, -187363961);
+                        b = md5_gg(b, c, d, a, x[i + 8], 20, 1163531501);
+                        a = md5_gg(a, b, c, d, x[i + 13], 5, -1444681467);
+                        d = md5_gg(d, a, b, c, x[i + 2], 9, -51403784);
+                        c = md5_gg(c, d, a, b, x[i + 7], 14, 1735328473);
+                        b = md5_gg(b, c, d, a, x[i + 12], 20, -1926607734);
+                        a = md5_hh(a, b, c, d, x[i + 5], 4, -378558);
+                        d = md5_hh(d, a, b, c, x[i + 8], 11, -2022574463);
+                        c = md5_hh(c, d, a, b, x[i + 11], 16, 1839030562);
+                        b = md5_hh(b, c, d, a, x[i + 14], 23, -35309556);
+                        a = md5_hh(a, b, c, d, x[i + 1], 4, -1530992060);
+                        d = md5_hh(d, a, b, c, x[i + 4], 11, 1272893353);
+                        c = md5_hh(c, d, a, b, x[i + 7], 16, -155497632);
+                        b = md5_hh(b, c, d, a, x[i + 10], 23, -1094730640);
+                        a = md5_hh(a, b, c, d, x[i + 13], 4, 681279174);
+                        d = md5_hh(d, a, b, c, x[i + 0], 11, -358537222);
+                        c = md5_hh(c, d, a, b, x[i + 3], 16, -722521979);
+                        b = md5_hh(b, c, d, a, x[i + 6], 23, 76029189);
+                        a = md5_hh(a, b, c, d, x[i + 9], 4, -640364487);
+                        d = md5_hh(d, a, b, c, x[i + 12], 11, -421815835);
+                        c = md5_hh(c, d, a, b, x[i + 15], 16, 530742520);
+                        b = md5_hh(b, c, d, a, x[i + 2], 23, -995338651);
+                        a = md5_ii(a, b, c, d, x[i + 0], 6, -198630844);
+                        d = md5_ii(d, a, b, c, x[i + 7], 10, 1126891415);
+                        c = md5_ii(c, d, a, b, x[i + 14], 15, -1416354905);
+                        b = md5_ii(b, c, d, a, x[i + 5], 21, -57434055);
+                        a = md5_ii(a, b, c, d, x[i + 12], 6, 1700485571);
+                        d = md5_ii(d, a, b, c, x[i + 3], 10, -1894986606);
+                        c = md5_ii(c, d, a, b, x[i + 10], 15, -1051523);
+                        b = md5_ii(b, c, d, a, x[i + 1], 21, -2054922799);
+                        a = md5_ii(a, b, c, d, x[i + 8], 6, 1873313359);
+                        d = md5_ii(d, a, b, c, x[i + 15], 10, -30611744);
+                        c = md5_ii(c, d, a, b, x[i + 6], 15, -1560198380);
+                        b = md5_ii(b, c, d, a, x[i + 13], 21, 1309151649);
+                        a = md5_ii(a, b, c, d, x[i + 4], 6, -145523070);
+                        d = md5_ii(d, a, b, c, x[i + 11], 10, -1120210379);
+                        c = md5_ii(c, d, a, b, x[i + 2], 15, 718787259);
+                        b = md5_ii(b, c, d, a, x[i + 9], 21, -343485551);
+                        a = safe_add(a, olda);
+                        b = safe_add(b, oldb);
+                        c = safe_add(c, oldc);
+                        d = safe_add(d, oldd);
+                    }
+                    return [ a, b, c, d ];
+                };
+                /*
+                 * Calculate the HMAC-MD5, of a key and some data
+                 */
+                var core_hmac_md5 = function(key, data) {
+                    var bkey = str2binl(key);
+                    if (bkey.length > 16) {
+                        bkey = core_md5(bkey, key.length * chrsz);
+                    }
+                    var ipad = new Array(16), opad = new Array(16);
+                    for (var i = 0; i < 16; i++) {
+                        ipad[i] = bkey[i] ^ 909522486;
+                        opad[i] = bkey[i] ^ 1549556828;
+                    }
+                    var hash = core_md5(ipad.concat(str2binl(data)), 512 + data.length * chrsz);
+                    return core_md5(opad.concat(hash), 512 + 128);
+                };
+                var obj = {
+                    /*
+                     * These are the functions you'll usually want to call.
+                     * They take string arguments and return either hex or base-64 encoded
+                     * strings.
+                     */
+                    hexdigest: function(s) {
+                        return binl2hex(core_md5(str2binl(s), s.length * chrsz));
+                    },
+                    b64digest: function(s) {
+                        return binl2b64(core_md5(str2binl(s), s.length * chrsz));
+                    },
+                    hash: function(s) {
+                        return binl2str(core_md5(str2binl(s), s.length * chrsz));
+                    },
+                    hmac_hexdigest: function(key, data) {
+                        return binl2hex(core_hmac_md5(key, data));
+                    },
+                    hmac_b64digest: function(key, data) {
+                        return binl2b64(core_hmac_md5(key, data));
+                    },
+                    hmac_hash: function(key, data) {
+                        return binl2str(core_hmac_md5(key, data));
+                    },
+                    /*
+                     * Perform a simple self-test to see if the VM is working
+                     */
+                    test: function() {
+                        return MD5.hexdigest("abc") === "900150983cd24fb0d6963f7d28e17f72";
+                    }
+                };
+                return obj;
+            }();
+            /*
+             This program is distributed under the terms of the MIT license.
+             Please see the LICENSE file for details.
+    
+             Copyright 2006-2008, OGG, LLC
+             */
+            /* jslint configuration: */
+            /*global document, window, setTimeout, clearTimeout, console,
+             XMLHttpRequest, ActiveXObject,
+             Base64, MD5,
+             Strophe, $build, $msg, $iq, $pres */
+            /** File: strophe.js
+             *  A JavaScript library for XMPP BOSH.
+             *
+             *  This is the JavaScript version of the Strophe library.  Since JavaScript
+             *  has no facilities for persistent TCP connections, this library uses
+             *  Bidirectional-streams Over Synchronous HTTP (BOSH) to emulate
+             *  a persistent, stateful, two-way connection to an XMPP server.  More
+             *  information on BOSH can be found in XEP 124.
+             */
+            /** PrivateFunction: Function.prototype.bind
+             *  Bind a function to an instance.
+             *
+             *  This Function object extension method creates a bound method similar
+             *  to those in Python.  This means that the 'this' object will point
+             *  to the instance you want.  See
+             *  <a href='http://benjamin.smedbergs.us/blog/2007-01-03/bound-functions-and-function-imports-in-javascript/'>Bound Functions and Function Imports in JavaScript</a>
+             *  for a complete explanation.
+             *
+             *  This extension already exists in some browsers (namely, Firefox 3), but
+             *  we provide it to support those that don't.
+             *
+             *  Parameters:
+             *    (Object) obj - The object that will become 'this' in the bound function.
+             *
+             *  Returns:
+             *    The bound function.
+             */
+            if (!Function.prototype.bind) {
+                Function.prototype.bind = function(obj) {
+                    var func = this;
+                    return function() {
+                        return func.apply(obj, arguments);
+                    };
+                };
+            }
+            /** PrivateFunction: Function.prototype.prependArg
+             *  Prepend an argument to a function.
+             *
+             *  This Function object extension method returns a Function that will
+             *  invoke the original function with an argument prepended.  This is useful
+             *  when some object has a callback that needs to get that same object as
+             *  an argument.  The following fragment illustrates a simple case of this
+             *  > var obj = new Foo(this.someMethod);</code></blockquote>
+             *
+             *  Foo's constructor can now use func.prependArg(this) to ensure the
+             *  passed in callback function gets the instance of Foo as an argument.
+             *  Doing this without prependArg would mean not setting the callback
+             *  from the constructor.
+             *
+             *  This is used inside Strophe for passing the Strophe.Request object to
+             *  the onreadystatechange handler of XMLHttpRequests.
+             *
+             *  Parameters:
+             *    arg - The argument to pass as the first parameter to the function.
+             *
+             *  Returns:
+             *    A new Function which calls the original with the prepended argument.
+             */
+            if (!Function.prototype.prependArg) {
+                Function.prototype.prependArg = function(arg) {
+                    var func = this;
+                    return function() {
+                        var newargs = [ arg ];
+                        for (var i = 0; i < arguments.length; i++) {
+                            newargs.push(arguments[i]);
+                        }
+                        return func.apply(this, newargs);
+                    };
+                };
+            }
+            /** PrivateFunction: Array.prototype.indexOf
+             *  Return the index of an object in an array.
+             *
+             *  This function is not supplied by some JavaScript implementations, so
+             *  we provide it if it is missing.  This code is from:
+             *  http://developer.mozilla.org/En/Core_JavaScript_1.5_Reference:Objects:Array:indexOf
+             *
+             *  Parameters:
+             *    (Object) elt - The object to look for.
+             *    (Integer) from - The index from which to start looking. (optional).
+             *
+             *  Returns:
+             *    The index of elt in the array or -1 if not found.
+             */
+            if (!Array.prototype.indexOf) {
+                Array.prototype.indexOf = function(elt) {
+                    var len = this.length;
+                    var from = Number(arguments[1]) || 0;
+                    from = from < 0 ? Math.ceil(from) : Math.floor(from);
+                    if (from < 0) {
+                        from += len;
+                    }
+                    for (;from < len; from++) {
+                        if (from in this && this[from] === elt) {
+                            return from;
+                        }
+                    }
+                    return -1;
+                };
+            }
+            /* All of the Strophe globals are defined in this special function below so
+             * that references to the globals become closures.  This will ensure that
+             * on page reload, these references will still be available to callbacks
+             * that are still executing.
+             */
+            (function(callback) {
+                var Strophe;
+                /** Function: $build
+                 *  Create a Strophe.Builder.
+                 *  This is an alias for 'new Strophe.Builder(name, attrs)'.
+                 *
+                 *  Parameters:
+                 *    (String) name - The root element name.
+                 *    (Object) attrs - The attributes for the root element in object notation.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Builder object.
+                 */
+                function $build(name, attrs) {
+                    return new Strophe.Builder(name, attrs);
+                }
+                /** Function: $msg
+                 *  Create a Strophe.Builder with a <message/> element as the root.
+                 *
+                 *  Parmaeters:
+                 *    (Object) attrs - The <message/> element attributes in object notation.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Builder object.
+                 */
+                function $msg(attrs) {
+                    return new Strophe.Builder("message", attrs);
+                }
+                /** Function: $iq
+                 *  Create a Strophe.Builder with an <iq/> element as the root.
+                 *
+                 *  Parameters:
+                 *    (Object) attrs - The <iq/> element attributes in object notation.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Builder object.
+                 */
+                function $iq(attrs) {
+                    return new Strophe.Builder("iq", attrs);
+                }
+                /** Function: $pres
+                 *  Create a Strophe.Builder with a <presence/> element as the root.
+                 *
+                 *  Parameters:
+                 *    (Object) attrs - The <presence/> element attributes in object notation.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Builder object.
+                 */
+                function $pres(attrs) {
+                    return new Strophe.Builder("presence", attrs);
+                }
+                /** Class: Strophe
+                 *  An object container for all Strophe library functions.
+                 *
+                 *  This class is just a container for all the objects and constants
+                 *  used in the library.  It is not meant to be instantiated, but to
+                 *  provide a namespace for library objects, constants, and functions.
+                 */
+                Strophe = {
+                    /** Constant: VERSION
+                     *  The version of the Strophe library. Unreleased builds will have
+                     *  a version of head-HASH where HASH is a partial revision.
+                     */
+                    VERSION: "1.0.1",
+                    /** Constants: XMPP Namespace Constants
+                     *  Common namespace constants from the XMPP RFCs and XEPs.
+                     *
+                     *  NS.HTTPBIND - HTTP BIND namespace from XEP 124.
+                     *  NS.BOSH - BOSH namespace from XEP 206.
+                     *  NS.CLIENT - Main XMPP client namespace.
+                     *  NS.AUTH - Legacy authentication namespace.
+                     *  NS.ROSTER - Roster operations namespace.
+                     *  NS.PROFILE - Profile namespace.
+                     *  NS.DISCO_INFO - Service discovery info namespace from XEP 30.
+                     *  NS.DISCO_ITEMS - Service discovery items namespace from XEP 30.
+                     *  NS.MUC - Multi-User Chat namespace from XEP 45.
+                     *  NS.SASL - XMPP SASL namespace from RFC 3920.
+                     *  NS.STREAM - XMPP Streams namespace from RFC 3920.
+                     *  NS.BIND - XMPP Binding namespace from RFC 3920.
+                     *  NS.SESSION - XMPP Session namespace from RFC 3920.
+                     */
+                    NS: {
+                        HTTPBIND: "http://jabber.org/protocol/httpbind",
+                        BOSH: "urn:xmpp:xbosh",
+                        CLIENT: "jabber:client",
+                        AUTH: "jabber:iq:auth",
+                        ROSTER: "jabber:iq:roster",
+                        PROFILE: "jabber:iq:profile",
+                        DISCO_INFO: "http://jabber.org/protocol/disco#info",
+                        DISCO_ITEMS: "http://jabber.org/protocol/disco#items",
+                        MUC: "http://jabber.org/protocol/muc",
+                        SASL: "urn:ietf:params:xml:ns:xmpp-sasl",
+                        STREAM: "http://etherx.jabber.org/streams",
+                        BIND: "urn:ietf:params:xml:ns:xmpp-bind",
+                        SESSION: "urn:ietf:params:xml:ns:xmpp-session",
+                        VERSION: "jabber:iq:version",
+                        STANZAS: "urn:ietf:params:xml:ns:xmpp-stanzas"
+                    },
+                    /** Function: addNamespace
+                     *  This function is used to extend the current namespaces in
+                     *	Strophe.NS.  It takes a key and a value with the key being the
+                     *	name of the new namespace, with its actual value.
+                     *	For example:
+                     *	Strophe.addNamespace('PUBSUB', "http://jabber.org/protocol/pubsub");
+                     *
+                     *  Parameters:
+                     *    (String) name - The name under which the namespace will be
+                     *      referenced under Strophe.NS
+                     *    (String) value - The actual namespace.
+                     */
+                    addNamespace: function(name, value) {
+                        Strophe.NS[name] = value;
+                    },
+                    /** Constants: Connection Status Constants
+                     *  Connection status constants for use by the connection handler
+                     *  callback.
+                     *
+                     *  Status.ERROR - An error has occurred
+                     *  Status.CONNECTING - The connection is currently being made
+                     *  Status.CONNFAIL - The connection attempt failed
+                     *  Status.AUTHENTICATING - The connection is authenticating
+                     *  Status.AUTHFAIL - The authentication attempt failed
+                     *  Status.CONNECTED - The connection has succeeded
+                     *  Status.DISCONNECTED - The connection has been terminated
+                     *  Status.DISCONNECTING - The connection is currently being terminated
+                     *  Status.ATTACHED - The connection has been attached
+                     */
+                    Status: {
+                        ERROR: 0,
+                        CONNECTING: 1,
+                        CONNFAIL: 2,
+                        AUTHENTICATING: 3,
+                        AUTHFAIL: 4,
+                        CONNECTED: 5,
+                        DISCONNECTED: 6,
+                        DISCONNECTING: 7,
+                        ATTACHED: 8
+                    },
+                    /** Constants: Log Level Constants
+                     *  Logging level indicators.
+                     *
+                     *  LogLevel.DEBUG - Debug output
+                     *  LogLevel.INFO - Informational output
+                     *  LogLevel.WARN - Warnings
+                     *  LogLevel.ERROR - Errors
+                     *  LogLevel.FATAL - Fatal errors
+                     */
+                    LogLevel: {
+                        DEBUG: 0,
+                        INFO: 1,
+                        WARN: 2,
+                        ERROR: 3,
+                        FATAL: 4
+                    },
+                    /** PrivateConstants: DOM Element Type Constants
+                     *  DOM element types.
+                     *
+                     *  ElementType.NORMAL - Normal element.
+                     *  ElementType.TEXT - Text data element.
+                     */
+                    ElementType: {
+                        NORMAL: 1,
+                        TEXT: 3
+                    },
+                    /** PrivateConstants: Timeout Values
+                     *  Timeout values for error states.  These values are in seconds.
+                     *  These should not be changed unless you know exactly what you are
+                     *  doing.
+                     *
+                     *  TIMEOUT - Timeout multiplier. A waiting request will be considered
+                     *      failed after Math.floor(TIMEOUT * wait) seconds have elapsed.
+                     *      This defaults to 1.1, and with default wait, 66 seconds.
+                     *  SECONDARY_TIMEOUT - Secondary timeout multiplier. In cases where
+                     *      Strophe can detect early failure, it will consider the request
+                     *      failed if it doesn't return after
+                     *      Math.floor(SECONDARY_TIMEOUT * wait) seconds have elapsed.
+                     *      This defaults to 0.1, and with default wait, 6 seconds.
+                     */
+                    TIMEOUT: 1.1,
+                    SECONDARY_TIMEOUT: .1,
+                    /** Function: forEachChild
+                     *  Map a function over some or all child elements of a given element.
+                     *
+                     *  This is a small convenience function for mapping a function over
+                     *  some or all of the children of an element.  If elemName is null, all
+                     *  children will be passed to the function, otherwise only children
+                     *  whose tag names match elemName will be passed.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The element to operate on.
+                     *    (String) elemName - The child element tag name filter.
+                     *    (Function) func - The function to apply to each child.  This
+                     *      function should take a single argument, a DOM element.
+                     */
+                    forEachChild: function(elem, elemName, func) {
+                        var i, childNode;
+                        for (i = 0; i < elem.childNodes.length; i++) {
+                            childNode = elem.childNodes[i];
+                            if (childNode.nodeType == Strophe.ElementType.NORMAL && (!elemName || this.isTagEqual(childNode, elemName))) {
+                                func(childNode);
+                            }
+                        }
+                    },
+                    /** Function: isTagEqual
+                     *  Compare an element's tag name with a string.
+                     *
+                     *  This function is case insensitive.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) el - A DOM element.
+                     *    (String) name - The element name.
+                     *
+                     *  Returns:
+                     *    true if the element's tag name matches _el_, and false
+                     *    otherwise.
+                     */
+                    isTagEqual: function(el, name) {
+                        return el.tagName.toLowerCase() == name.toLowerCase();
+                    },
+                    /** PrivateVariable: _xmlGenerator
+                     *  _Private_ variable that caches a DOM document to
+                     *  generate elements.
+                     */
+                    _xmlGenerator: null,
+                    /** PrivateFunction: _makeGenerator
+                     *  _Private_ function that creates a dummy XML DOM document to serve as
+                     *  an element and text node generator.
+                     */
+                    _makeGenerator: function() {
+                        var doc;
+                        if (window.ActiveXObject) {
+                            doc = new ActiveXObject("Microsoft.XMLDOM");
+                            doc.appendChild(doc.createElement("strophe"));
+                        } else {
+                            doc = document.implementation.createDocument("jabber:client", "strophe", null);
+                        }
+                        return doc;
+                    },
+                    /** Function: xmlElement
+                     *  Create an XML DOM element.
+                     *
+                     *  This function creates an XML DOM element correctly across all
+                     *  implementations. Note that these are not HTML DOM elements, which
+                     *  aren't appropriate for XMPP stanzas.
+                     *
+                     *  Parameters:
+                     *    (String) name - The name for the element.
+                     *    (Array|Object) attrs - An optional array or object containing
+                     *      key/value pairs to use as element attributes. The object should
+                     *      be in the format {'key': 'value'} or {key: 'value'}. The array
+                     *      should have the format [['key1', 'value1'], ['key2', 'value2']].
+                     *    (String) text - The text child data for the element.
+                     *
+                     *  Returns:
+                     *    A new XML DOM element.
+                     */
+                    xmlElement: function(name) {
+                        if (!name) {
+                            return null;
+                        }
+                        var node = null;
+                        if (!Strophe._xmlGenerator) {
+                            Strophe._xmlGenerator = Strophe._makeGenerator();
+                        }
+                        node = Strophe._xmlGenerator.createElement(name);
+                        // FIXME: this should throw errors if args are the wrong type or
+                        // there are more than two optional args
+                        var a, i, k;
+                        for (a = 1; a < arguments.length; a++) {
+                            if (!arguments[a]) {
+                                continue;
+                            }
+                            if (typeof arguments[a] == "string" || typeof arguments[a] == "number") {
+                                node.appendChild(Strophe.xmlTextNode(arguments[a]));
+                            } else if (typeof arguments[a] == "object" && typeof arguments[a].sort == "function") {
+                                for (i = 0; i < arguments[a].length; i++) {
+                                    if (typeof arguments[a][i] == "object" && typeof arguments[a][i].sort == "function") {
+                                        node.setAttribute(arguments[a][i][0], arguments[a][i][1]);
+                                    }
+                                }
+                            } else if (typeof arguments[a] == "object") {
+                                for (k in arguments[a]) {
+                                    if (arguments[a].hasOwnProperty(k)) {
+                                        node.setAttribute(k, arguments[a][k]);
+                                    }
+                                }
+                            }
+                        }
+                        return node;
+                    },
+                    /*  Function: xmlescape
+                     *  Excapes invalid xml characters.
+                     *
+                     *  Parameters:
+                     *     (String) text - text to escape.
+                     *
+                     *	Returns:
+                     *      Escaped text.
+                     */
+                    xmlescape: function(text) {
+                        text = text.replace(/\&/g, "&amp;");
+                        text = text.replace(/</g, "&lt;");
+                        text = text.replace(/>/g, "&gt;");
+                        return text;
+                    },
+                    /** Function: xmlTextNode
+                     *  Creates an XML DOM text node.
+                     *
+                     *  Provides a cross implementation version of document.createTextNode.
+                     *
+                     *  Parameters:
+                     *    (String) text - The content of the text node.
+                     *
+                     *  Returns:
+                     *    A new XML DOM text node.
+                     */
+                    xmlTextNode: function(text) {
+                        //ensure text is escaped
+                        text = Strophe.xmlescape(text);
+                        if (!Strophe._xmlGenerator) {
+                            Strophe._xmlGenerator = Strophe._makeGenerator();
+                        }
+                        return Strophe._xmlGenerator.createTextNode(text);
+                    },
+                    /** Function: getText
+                     *  Get the concatenation of all text children of an element.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - A DOM element.
+                     *
+                     *  Returns:
+                     *    A String with the concatenated text of all text element children.
+                     */
+                    getText: function(elem) {
+                        if (!elem) {
+                            return null;
+                        }
+                        var str = "";
+                        if (elem.childNodes.length === 0 && elem.nodeType == Strophe.ElementType.TEXT) {
+                            str += elem.nodeValue;
+                        }
+                        for (var i = 0; i < elem.childNodes.length; i++) {
+                            if (elem.childNodes[i].nodeType == Strophe.ElementType.TEXT) {
+                                str += elem.childNodes[i].nodeValue;
+                            }
+                        }
+                        return str;
+                    },
+                    /** Function: copyElement
+                     *  Copy an XML DOM element.
+                     *
+                     *  This function copies a DOM element and all its descendants and returns
+                     *  the new copy.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - A DOM element.
+                     *
+                     *  Returns:
+                     *    A new, copied DOM element tree.
+                     */
+                    copyElement: function(elem) {
+                        var i, el;
+                        if (elem.nodeType == Strophe.ElementType.NORMAL) {
+                            el = Strophe.xmlElement(elem.tagName);
+                            for (i = 0; i < elem.attributes.length; i++) {
+                                el.setAttribute(elem.attributes[i].nodeName.toLowerCase(), elem.attributes[i].value);
+                            }
+                            for (i = 0; i < elem.childNodes.length; i++) {
+                                el.appendChild(Strophe.copyElement(elem.childNodes[i]));
+                            }
+                        } else if (elem.nodeType == Strophe.ElementType.TEXT) {
+                            el = Strophe.xmlTextNode(elem.nodeValue);
+                        }
+                        return el;
+                    },
+                    /** Function: escapeNode
+                     *  Escape the node part (also called local part) of a JID.
+                     *
+                     *  Parameters:
+                     *    (String) node - A node (or local part).
+                     *
+                     *  Returns:
+                     *    An escaped node (or local part).
+                     */
+                    escapeNode: function(node) {
+                        return node.replace(/^\s+|\s+$/g, "").replace(/\\/g, "\\5c").replace(/ /g, "\\20").replace(/\"/g, "\\22").replace(/\&/g, "\\26").replace(/\'/g, "\\27").replace(/\//g, "\\2f").replace(/:/g, "\\3a").replace(/</g, "\\3c").replace(/>/g, "\\3e").replace(/@/g, "\\40");
+                    },
+                    /** Function: unescapeNode
+                     *  Unescape a node part (also called local part) of a JID.
+                     *
+                     *  Parameters:
+                     *    (String) node - A node (or local part).
+                     *
+                     *  Returns:
+                     *    An unescaped node (or local part).
+                     */
+                    unescapeNode: function(node) {
+                        return node.replace(/\\20/g, " ").replace(/\\22/g, '"').replace(/\\26/g, "&").replace(/\\27/g, "'").replace(/\\2f/g, "/").replace(/\\3a/g, ":").replace(/\\3c/g, "<").replace(/\\3e/g, ">").replace(/\\40/g, "@").replace(/\\5c/g, "\\");
+                    },
+                    /** Function: getNodeFromJid
+                     *  Get the node portion of a JID String.
+                     *
+                     *  Parameters:
+                     *    (String) jid - A JID.
+                     *
+                     *  Returns:
+                     *    A String containing the node.
+                     */
+                    getNodeFromJid: function(jid) {
+                        if (jid.indexOf("@") < 0) {
+                            return null;
+                        }
+                        return jid.split("@")[0];
+                    },
+                    /** Function: getDomainFromJid
+                     *  Get the domain portion of a JID String.
+                     *
+                     *  Parameters:
+                     *    (String) jid - A JID.
+                     *
+                     *  Returns:
+                     *    A String containing the domain.
+                     */
+                    getDomainFromJid: function(jid) {
+                        var bare = Strophe.getBareJidFromJid(jid);
+                        if (bare.indexOf("@") < 0) {
+                            return bare;
+                        } else {
+                            var parts = bare.split("@");
+                            parts.splice(0, 1);
+                            return parts.join("@");
+                        }
+                    },
+                    /** Function: getResourceFromJid
+                     *  Get the resource portion of a JID String.
+                     *
+                     *  Parameters:
+                     *    (String) jid - A JID.
+                     *
+                     *  Returns:
+                     *    A String containing the resource.
+                     */
+                    getResourceFromJid: function(jid) {
+                        var s = jid.split("/");
+                        if (s.length < 2) {
+                            return null;
+                        }
+                        s.splice(0, 1);
+                        return s.join("/");
+                    },
+                    /** Function: getBareJidFromJid
+                     *  Get the bare JID from a JID String.
+                     *
+                     *  Parameters:
+                     *    (String) jid - A JID.
+                     *
+                     *  Returns:
+                     *    A String containing the bare JID.
+                     */
+                    getBareJidFromJid: function(jid) {
+                        return jid.split("/")[0];
+                    },
+                    /** Function: log
+                     *  User overrideable logging function.
+                     *
+                     *  This function is called whenever the Strophe library calls any
+                     *  of the logging functions.  The default implementation of this
+                     *  function does nothing.  If client code wishes to handle the logging
+                     *  messages, it should override this with
+                     *  > Strophe.log = function (level, msg) {
+         *  >   (user code here)
+         *  > };
+                     *
+                     *  Please note that data sent and received over the wire is logged
+                     *  via Strophe.Connection.rawInput() and Strophe.Connection.rawOutput().
+                     *
+                     *  The different levels and their meanings are
+                     *
+                     *    DEBUG - Messages useful for debugging purposes.
+                     *    INFO - Informational messages.  This is mostly information like
+                     *      'disconnect was called' or 'SASL auth succeeded'.
+                     *    WARN - Warnings about potential problems.  This is mostly used
+                     *      to report transient connection errors like request timeouts.
+                     *    ERROR - Some error occurred.
+                     *    FATAL - A non-recoverable fatal error occurred.
+                     *
+                     *  Parameters:
+                     *    (Integer) level - The log level of the log message.  This will
+                     *      be one of the values in Strophe.LogLevel.
+                     *    (String) msg - The log message.
+                     */
+                    log: function(level, msg) {
+                        return;
+                    },
+                    /** Function: debug
+                     *  Log a message at the Strophe.LogLevel.DEBUG level.
+                     *
+                     *  Parameters:
+                     *    (String) msg - The log message.
+                     */
+                    debug: function(msg) {
+                        this.log(this.LogLevel.DEBUG, msg);
+                    },
+                    /** Function: info
+                     *  Log a message at the Strophe.LogLevel.INFO level.
+                     *
+                     *  Parameters:
+                     *    (String) msg - The log message.
+                     */
+                    info: function(msg) {
+                        this.log(this.LogLevel.INFO, msg);
+                    },
+                    /** Function: warn
+                     *  Log a message at the Strophe.LogLevel.WARN level.
+                     *
+                     *  Parameters:
+                     *    (String) msg - The log message.
+                     */
+                    warn: function(msg) {
+                        this.log(this.LogLevel.WARN, msg);
+                    },
+                    /** Function: error
+                     *  Log a message at the Strophe.LogLevel.ERROR level.
+                     *
+                     *  Parameters:
+                     *    (String) msg - The log message.
+                     */
+                    error: function(msg) {
+                        this.log(this.LogLevel.ERROR, msg);
+                    },
+                    /** Function: fatal
+                     *  Log a message at the Strophe.LogLevel.FATAL level.
+                     *
+                     *  Parameters:
+                     *    (String) msg - The log message.
+                     */
+                    fatal: function(msg) {
+                        this.log(this.LogLevel.FATAL, msg);
+                    },
+                    /** Function: serialize
+                     *  Render a DOM element and all descendants to a String.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - A DOM element.
+                     *
+                     *  Returns:
+                     *    The serialized element tree as a String.
+                     */
+                    serialize: function(elem) {
+                        var result;
+                        if (!elem) {
+                            return null;
+                        }
+                        if (typeof elem.tree === "function") {
+                            elem = elem.tree();
+                        }
+                        var nodeName = elem.nodeName;
+                        var i, child;
+                        if (elem.getAttribute("_realname")) {
+                            nodeName = elem.getAttribute("_realname");
+                        }
+                        result = "<" + nodeName;
+                        for (i = 0; i < elem.attributes.length; i++) {
+                            if (elem.attributes[i].nodeName != "_realname") {
+                                result += " " + elem.attributes[i].nodeName.toLowerCase() + "='" + elem.attributes[i].value.replace("&", "&amp;").replace("'", "&apos;").replace("<", "&lt;") + "'";
+                            }
+                        }
+                        if (elem.childNodes.length > 0) {
+                            result += ">";
+                            for (i = 0; i < elem.childNodes.length; i++) {
+                                child = elem.childNodes[i];
+                                if (child.nodeType == Strophe.ElementType.NORMAL) {
+                                    // normal element, so recurse
+                                    result += Strophe.serialize(child);
+                                } else if (child.nodeType == Strophe.ElementType.TEXT) {
+                                    // text element
+                                    result += child.nodeValue;
+                                }
+                            }
+                            result += "</" + nodeName + ">";
+                        } else {
+                            result += "/>";
+                        }
+                        return result;
+                    },
+                    /** PrivateVariable: _requestId
+                     *  _Private_ variable that keeps track of the request ids for
+                     *  connections.
+                     */
+                    _requestId: 0,
+                    /** PrivateVariable: Strophe.connectionPlugins
+                     *  _Private_ variable Used to store plugin names that need
+                     *  initialization on Strophe.Connection construction.
+                     */
+                    _connectionPlugins: {},
+                    /** Function: addConnectionPlugin
+                     *  Extends the Strophe.Connection object with the given plugin.
+                     *
+                     *  Paramaters:
+                     *    (String) name - The name of the extension.
+                     *    (Object) ptype - The plugin's prototype.
+                     */
+                    addConnectionPlugin: function(name, ptype) {
+                        Strophe._connectionPlugins[name] = ptype;
+                    }
+                };
+                /** Class: Strophe.Builder
+                 *  XML DOM builder.
+                 *
+                 *  This object provides an interface similar to JQuery but for building
+                 *  DOM element easily and rapidly.  All the functions except for toString()
+                 *  and tree() return the object, so calls can be chained.  Here's an
+                 *  example using the $iq() builder helper.
+                 *  > $iq({to: 'you': from: 'me': type: 'get', id: '1'})
+                 *  >     .c('query', {xmlns: 'strophe:example'})
+                 *  >     .c('example')
+                 *  >     .toString()
+                 *  The above generates this XML fragment
+                 *  > <iq to='you' from='me' type='get' id='1'>
+                 *  >   <query xmlns='strophe:example'>
+                 *  >     <example/>
+                 *  >   </query>
+                 *  > </iq>
+                 *  The corresponding DOM manipulations to get a similar fragment would be
+                 *  a lot more tedious and probably involve several helper variables.
+                 *
+                 *  Since adding children makes new operations operate on the child, up()
+                 *  is provided to traverse up the tree.  To add two children, do
+                 *  > builder.c('child1', ...).up().c('child2', ...)
+                 *  The next operation on the Builder will be relative to the second child.
+                 */
+                /** Constructor: Strophe.Builder
+                 *  Create a Strophe.Builder object.
+                 *
+                 *  The attributes should be passed in object notation.  For example
+                 *  > var b = new Builder('message', {to: 'you', from: 'me'});
+                 *  or
+                 *  > var b = new Builder('messsage', {'xml:lang': 'en'});
+                 *
+                 *  Parameters:
+                 *    (String) name - The name of the root element.
+                 *    (Object) attrs - The attributes for the root element in object notation.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Builder.
+                 */
+                Strophe.Builder = function(name, attrs) {
+                    // Set correct namespace for jabber:client elements
+                    if (name == "presence" || name == "message" || name == "iq") {
+                        if (attrs && !attrs.xmlns) {
+                            attrs.xmlns = Strophe.NS.CLIENT;
+                        } else if (!attrs) {
+                            attrs = {
+                                xmlns: Strophe.NS.CLIENT
+                            };
+                        }
+                    }
+                    // Holds the tree being built.
+                    this.nodeTree = Strophe.xmlElement(name, attrs);
+                    // Points to the current operation node.
+                    this.node = this.nodeTree;
+                };
+                Strophe.Builder.prototype = {
+                    /** Function: tree
+                     *  Return the DOM tree.
+                     *
+                     *  This function returns the current DOM tree as an element object.  This
+                     *  is suitable for passing to functions like Strophe.Connection.send().
+                     *
+                     *  Returns:
+                     *    The DOM tree as a element object.
+                     */
+                    tree: function() {
+                        return this.nodeTree;
+                    },
+                    /** Function: toString
+                     *  Serialize the DOM tree to a String.
+                     *
+                     *  This function returns a string serialization of the current DOM
+                     *  tree.  It is often used internally to pass data to a
+                     *  Strophe.Request object.
+                     *
+                     *  Returns:
+                     *    The serialized DOM tree in a String.
+                     */
+                    toString: function() {
+                        return Strophe.serialize(this.nodeTree);
+                    },
+                    /** Function: up
+                     *  Make the current parent element the new current element.
+                     *
+                     *  This function is often used after c() to traverse back up the tree.
+                     *  For example, to add two children to the same element
+                     *  > builder.c('child1', {}).up().c('child2', {});
+                     *
+                     *  Returns:
+                     *    The Stophe.Builder object.
+                     */
+                    up: function() {
+                        this.node = this.node.parentNode;
+                        return this;
+                    },
+                    /** Function: attrs
+                     *  Add or modify attributes of the current element.
+                     *
+                     *  The attributes should be passed in object notation.  This function
+                     *  does not move the current element pointer.
+                     *
+                     *  Parameters:
+                     *    (Object) moreattrs - The attributes to add/modify in object notation.
+                     *
+                     *  Returns:
+                     *    The Strophe.Builder object.
+                     */
+                    attrs: function(moreattrs) {
+                        for (var k in moreattrs) {
+                            if (moreattrs.hasOwnProperty(k)) {
+                                this.node.setAttribute(k, moreattrs[k]);
+                            }
+                        }
+                        return this;
+                    },
+                    /** Function: c
+                     *  Add a child to the current element and make it the new current
+                     *  element.
+                     *
+                     *  This function moves the current element pointer to the child.  If you
+                     *  need to add another child, it is necessary to use up() to go back
+                     *  to the parent in the tree.
+                     *
+                     *  Parameters:
+                     *    (String) name - The name of the child.
+                     *    (Object) attrs - The attributes of the child in object notation.
+                     *
+                     *  Returns:
+                     *    The Strophe.Builder object.
+                     */
+                    c: function(name, attrs) {
+                        var child = Strophe.xmlElement(name, attrs);
+                        this.node.appendChild(child);
+                        this.node = child;
+                        return this;
+                    },
+                    /** Function: cnode
+                     *  Add a child to the current element and make it the new current
+                     *  element.
+                     *
+                     *  This function is the same as c() except that instead of using a
+                     *  name and an attributes object to create the child it uses an
+                     *  existing DOM element object.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - A DOM element.
+                     *
+                     *  Returns:
+                     *    The Strophe.Builder object.
+                     */
+                    cnode: function(elem) {
+                        this.node.appendChild(elem);
+                        this.node = elem;
+                        return this;
+                    },
+                    /** Function: t
+                     *  Add a child text element.
+                     *
+                     *  This *does not* make the child the new current element since there
+                     *  are no children of text elements.
+                     *
+                     *  Parameters:
+                     *    (String) text - The text data to append to the current element.
+                     *
+                     *  Returns:
+                     *    The Strophe.Builder object.
+                     */
+                    t: function(text) {
+                        var child = Strophe.xmlTextNode(text);
+                        this.node.appendChild(child);
+                        return this;
+                    }
+                };
+                /** PrivateClass: Strophe.Handler
+                 *  _Private_ helper class for managing stanza handlers.
+                 *
+                 *  A Strophe.Handler encapsulates a user provided callback function to be
+                 *  executed when matching stanzas are received by the connection.
+                 *  Handlers can be either one-off or persistant depending on their
+                 *  return value. Returning true will cause a Handler to remain active, and
+                 *  returning false will remove the Handler.
+                 *
+                 *  Users will not use Strophe.Handler objects directly, but instead they
+                 *  will use Strophe.Connection.addHandler() and
+                 *  Strophe.Connection.deleteHandler().
+                 */
+                /** PrivateConstructor: Strophe.Handler
+                 *  Create and initialize a new Strophe.Handler.
+                 *
+                 *  Parameters:
+                 *    (Function) handler - A function to be executed when the handler is run.
+                 *    (String) ns - The namespace to match.
+                 *    (String) name - The element name to match.
+                 *    (String) type - The element type to match.
+                 *    (String) id - The element id attribute to match.
+                 *    (String) from - The element from attribute to match.
+                 *    (Object) options - Handler options
+                 *
+                 *  Returns:
+                 *    A new Strophe.Handler object.
+                 */
+                Strophe.Handler = function(handler, ns, name, type, id, from, options) {
+                    this.handler = handler;
+                    this.ns = ns;
+                    this.name = name;
+                    this.type = type;
+                    this.id = id;
+                    this.options = options || {
+                        matchbare: false
+                    };
+                    // default matchBare to false if undefined
+                    if (!this.options.matchBare) {
+                        this.options.matchBare = false;
+                    }
+                    if (this.options.matchBare) {
+                        this.from = Strophe.getBareJidFromJid(from);
+                    } else {
+                        this.from = from;
+                    }
+                    // whether the handler is a user handler or a system handler
+                    this.user = true;
+                };
+                Strophe.Handler.prototype = {
+                    /** PrivateFunction: isMatch
+                     *  Tests if a stanza matches the Strophe.Handler.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The XML element to test.
+                     *
+                     *  Returns:
+                     *    true if the stanza matches and false otherwise.
+                     */
+                    isMatch: function(elem) {
+                        var nsMatch;
+                        var from = null;
+                        if (this.options.matchBare) {
+                            from = Strophe.getBareJidFromJid(elem.getAttribute("from"));
+                        } else {
+                            from = elem.getAttribute("from");
+                        }
+                        nsMatch = false;
+                        if (!this.ns) {
+                            nsMatch = true;
+                        } else {
+                            var that = this;
+                            Strophe.forEachChild(elem, null, function(elem) {
+                                if (elem.getAttribute("xmlns") == that.ns) {
+                                    nsMatch = true;
+                                }
+                            });
+                            nsMatch = nsMatch || elem.getAttribute("xmlns") == this.ns;
+                        }
+                        if (nsMatch && (!this.name || Strophe.isTagEqual(elem, this.name)) && (!this.type || elem.getAttribute("type") === this.type) && (!this.id || elem.getAttribute("id") === this.id) && (!this.from || from === this.from)) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    /** PrivateFunction: run
+                     *  Run the callback on a matching stanza.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The DOM element that triggered the
+                     *      Strophe.Handler.
+                     *
+                     *  Returns:
+                     *    A boolean indicating if the handler should remain active.
+                     */
+                    run: function(elem) {
+                        var result = null;
+                        try {
+                            result = this.handler(elem);
+                        } catch (e) {
+                            if (e.sourceURL) {
+                                Strophe.fatal("error: " + this.handler + " " + e.sourceURL + ":" + e.line + " - " + e.name + ": " + e.message);
+                            } else if (e.fileName) {
+                                if (typeof console != "undefined") {
+                                    console.trace();
+                                    console.error(this.handler, " - error - ", e, e.message);
+                                }
+                                Strophe.fatal("error: " + this.handler + " " + e.fileName + ":" + e.lineNumber + " - " + e.name + ": " + e.message);
+                            } else {
+                                Strophe.fatal("error: " + this.handler);
+                            }
+                            throw e;
+                        }
+                        return result;
+                    },
+                    /** PrivateFunction: toString
+                     *  Get a String representation of the Strophe.Handler object.
+                     *
+                     *  Returns:
+                     *    A String.
+                     */
+                    toString: function() {
+                        return "{Handler: " + this.handler + "(" + this.name + "," + this.id + "," + this.ns + ")}";
+                    }
+                };
+                /** PrivateClass: Strophe.TimedHandler
+                 *  _Private_ helper class for managing timed handlers.
+                 *
+                 *  A Strophe.TimedHandler encapsulates a user provided callback that
+                 *  should be called after a certain period of time or at regular
+                 *  intervals.  The return value of the callback determines whether the
+                 *  Strophe.TimedHandler will continue to fire.
+                 *
+                 *  Users will not use Strophe.TimedHandler objects directly, but instead
+                 *  they will use Strophe.Connection.addTimedHandler() and
+                 *  Strophe.Connection.deleteTimedHandler().
+                 */
+                /** PrivateConstructor: Strophe.TimedHandler
+                 *  Create and initialize a new Strophe.TimedHandler object.
+                 *
+                 *  Parameters:
+                 *    (Integer) period - The number of milliseconds to wait before the
+                 *      handler is called.
+                 *    (Function) handler - The callback to run when the handler fires.  This
+                 *      function should take no arguments.
+                 *
+                 *  Returns:
+                 *    A new Strophe.TimedHandler object.
+                 */
+                Strophe.TimedHandler = function(period, handler) {
+                    this.period = period;
+                    this.handler = handler;
+                    this.lastCalled = new Date().getTime();
+                    this.user = true;
+                };
+                Strophe.TimedHandler.prototype = {
+                    /** PrivateFunction: run
+                     *  Run the callback for the Strophe.TimedHandler.
+                     *
+                     *  Returns:
+                     *    true if the Strophe.TimedHandler should be called again, and false
+                     *      otherwise.
+                     */
+                    run: function() {
+                        this.lastCalled = new Date().getTime();
+                        return this.handler();
+                    },
+                    /** PrivateFunction: reset
+                     *  Reset the last called time for the Strophe.TimedHandler.
+                     */
+                    reset: function() {
+                        this.lastCalled = new Date().getTime();
+                    },
+                    /** PrivateFunction: toString
+                     *  Get a string representation of the Strophe.TimedHandler object.
+                     *
+                     *  Returns:
+                     *    The string representation.
+                     */
+                    toString: function() {
+                        return "{TimedHandler: " + this.handler + "(" + this.period + ")}";
+                    }
+                };
+                /** PrivateClass: Strophe.Request
+                 *  _Private_ helper class that provides a cross implementation abstraction
+                 *  for a BOSH related XMLHttpRequest.
+                 *
+                 *  The Strophe.Request class is used internally to encapsulate BOSH request
+                 *  information.  It is not meant to be used from user's code.
+                 */
+                /** PrivateConstructor: Strophe.Request
+                 *  Create and initialize a new Strophe.Request object.
+                 *
+                 *  Parameters:
+                 *    (XMLElement) elem - The XML data to be sent in the request.
+                 *    (Function) func - The function that will be called when the
+                 *      XMLHttpRequest readyState changes.
+                 *    (Integer) rid - The BOSH rid attribute associated with this request.
+                 *    (Integer) sends - The number of times this same request has been
+                 *      sent.
+                 */
+                Strophe.Request = function(elem, func, rid, sends) {
+                    this.id = ++Strophe._requestId;
+                    this.xmlData = elem;
+                    this.data = Strophe.serialize(elem);
+                    // save original function in case we need to make a new request
+                    // from this one.
+                    this.origFunc = func;
+                    this.func = func;
+                    this.rid = rid;
+                    this.date = NaN;
+                    this.sends = sends || 0;
+                    this.abort = false;
+                    this.dead = null;
+                    this.age = function() {
+                        if (!this.date) {
+                            return 0;
+                        }
+                        var now = new Date();
+                        return (now - this.date) / 1e3;
+                    };
+                    this.timeDead = function() {
+                        if (!this.dead) {
+                            return 0;
+                        }
+                        var now = new Date();
+                        return (now - this.dead) / 1e3;
+                    };
+                    this.xhr = this._newXHR();
+                };
+                Strophe.Request.prototype = {
+                    /** PrivateFunction: getResponse
+                     *  Get a response from the underlying XMLHttpRequest.
+                     *
+                     *  This function attempts to get a response from the request and checks
+                     *  for errors.
+                     *
+                     *  Throws:
+                     *    "parsererror" - A parser error occured.
+                     *
+                     *  Returns:
+                     *    The DOM element tree of the response.
+                     */
+                    getResponse: function() {
+                        var node = null;
+                        if (this.xhr.responseXML && this.xhr.responseXML.documentElement) {
+                            node = this.xhr.responseXML.documentElement;
+                            if (node.tagName == "parsererror") {
+                                Strophe.error("invalid response received");
+                                Strophe.error("responseText: " + this.xhr.responseText);
+                                Strophe.error("responseXML: " + Strophe.serialize(this.xhr.responseXML));
+                                throw "parsererror";
+                            }
+                        } else if (this.xhr.responseText) {
+                            Strophe.error("invalid response received");
+                            Strophe.error("responseText: " + this.xhr.responseText);
+                            Strophe.error("responseXML: " + Strophe.serialize(this.xhr.responseXML));
+                        }
+                        return node;
+                    },
+                    /** PrivateFunction: _newXHR
+                     *  _Private_ helper function to create XMLHttpRequests.
+                     *
+                     *  This function creates XMLHttpRequests across all implementations.
+                     *
+                     *  Returns:
+                     *    A new XMLHttpRequest.
+                     */
+                    _newXHR: function() {
+                        var xhr = null;
+                        if (window.XMLHttpRequest) {
+                            xhr = new XMLHttpRequest();
+                            if (xhr.overrideMimeType) {
+                                xhr.overrideMimeType("text/xml");
+                            }
+                        } else if (window.ActiveXObject) {
+                            xhr = new ActiveXObject("Microsoft.XMLHTTP");
+                        }
+                        xhr.onreadystatechange = this.func.prependArg(this);
+                        return xhr;
+                    }
+                };
+                /** Class: Strophe.Connection
+                 *  XMPP Connection manager.
+                 *
+                 *  Thie class is the main part of Strophe.  It manages a BOSH connection
+                 *  to an XMPP server and dispatches events to the user callbacks as
+                 *  data arrives.  It supports SASL PLAIN, SASL DIGEST-MD5, and legacy
+                 *  authentication.
+                 *
+                 *  After creating a Strophe.Connection object, the user will typically
+                 *  call connect() with a user supplied callback to handle connection level
+                 *  events like authentication failure, disconnection, or connection
+                 *  complete.
+                 *
+                 *  The user will also have several event handlers defined by using
+                 *  addHandler() and addTimedHandler().  These will allow the user code to
+                 *  respond to interesting stanzas or do something periodically with the
+                 *  connection.  These handlers will be active once authentication is
+                 *  finished.
+                 *
+                 *  To send data to the connection, use send().
+                 */
+                /** Constructor: Strophe.Connection
+                 *  Create and initialize a Strophe.Connection object.
+                 *
+                 *  Parameters:
+                 *    (String) service - The BOSH service URL.
+                 *
+                 *  Returns:
+                 *    A new Strophe.Connection object.
+                 */
+                Strophe.Connection = function(service) {
+                    /* The path to the httpbind service. */
+                    this.service = service;
+                    /* The connected JID. */
+                    this.jid = "";
+                    /* request id for body tags */
+                    this.rid = Math.floor(Math.random() * 4294967295);
+                    /* The current session ID. */
+                    this.sid = null;
+                    this.streamId = null;
+                    // SASL
+                    this.do_session = false;
+                    this.do_bind = false;
+                    // handler lists
+                    this.timedHandlers = [];
+                    this.handlers = [];
+                    this.removeTimeds = [];
+                    this.removeHandlers = [];
+                    this.addTimeds = [];
+                    this.addHandlers = [];
+                    this._idleTimeout = null;
+                    this._disconnectTimeout = null;
+                    this.authenticated = false;
+                    this.disconnecting = false;
+                    this.connected = false;
+                    this.errors = 0;
+                    this.paused = false;
+                    // default BOSH values
+                    this.hold = 1;
+                    this.wait = 60;
+                    this.window = 5;
+                    this._data = [];
+                    this._requests = [];
+                    this._uniqueId = Math.round(Math.random() * 1e4);
+                    this._sasl_success_handler = null;
+                    this._sasl_failure_handler = null;
+                    this._sasl_challenge_handler = null;
+                    // setup onIdle callback every 1/10th of a second
+                    this._idleTimeout = setTimeout(this._onIdle.bind(this), 100);
+                    // initialize plugins
+                    for (var k in Strophe._connectionPlugins) {
+                        if (Strophe._connectionPlugins.hasOwnProperty(k)) {
+                            var ptype = Strophe._connectionPlugins[k];
+                            // jslint complaints about the below line, but this is fine
+                            var F = function() {};
+                            F.prototype = ptype;
+                            this[k] = new F();
+                            this[k].init(this);
+                        }
+                    }
+                };
+                Strophe.Connection.prototype = {
+                    /** Function: reset
+                     *  Reset the connection.
+                     *
+                     *  This function should be called after a connection is disconnected
+                     *  before that connection is reused.
+                     */
+                    reset: function() {
+                        this.rid = Math.floor(Math.random() * 4294967295);
+                        this.sid = null;
+                        this.streamId = null;
+                        // SASL
+                        this.do_session = false;
+                        this.do_bind = false;
+                        // handler lists
+                        this.timedHandlers = [];
+                        this.handlers = [];
+                        this.removeTimeds = [];
+                        this.removeHandlers = [];
+                        this.addTimeds = [];
+                        this.addHandlers = [];
+                        this.authenticated = false;
+                        this.disconnecting = false;
+                        this.connected = false;
+                        this.errors = 0;
+                        this._requests = [];
+                        this._uniqueId = Math.round(Math.random() * 1e4);
+                    },
+                    /** Function: pause
+                     *  Pause the request manager.
+                     *
+                     *  This will prevent Strophe from sending any more requests to the
+                     *  server.  This is very useful for temporarily pausing while a lot
+                     *  of send() calls are happening quickly.  This causes Strophe to
+                     *  send the data in a single request, saving many request trips.
+                     */
+                    pause: function() {
+                        this.paused = true;
+                    },
+                    /** Function: resume
+                     *  Resume the request manager.
+                     *
+                     *  This resumes after pause() has been called.
+                     */
+                    resume: function() {
+                        this.paused = false;
+                    },
+                    /** Function: getUniqueId
+                     *  Generate a unique ID for use in <iq/> elements.
+                     *
+                     *  All <iq/> stanzas are required to have unique id attributes.  This
+                     *  function makes creating these easy.  Each connection instance has
+                     *  a counter which starts from zero, and the value of this counter
+                     *  plus a colon followed by the suffix becomes the unique id. If no
+                     *  suffix is supplied, the counter is used as the unique id.
+                     *
+                     *  Suffixes are used to make debugging easier when reading the stream
+                     *  data, and their use is recommended.  The counter resets to 0 for
+                     *  every new connection for the same reason.  For connections to the
+                     *  same server that authenticate the same way, all the ids should be
+                     *  the same, which makes it easy to see changes.  This is useful for
+                     *  automated testing as well.
+                     *
+                     *  Parameters:
+                     *    (String) suffix - A optional suffix to append to the id.
+                     *
+                     *  Returns:
+                     *    A unique string to be used for the id attribute.
+                     */
+                    getUniqueId: function(suffix) {
+                        if (typeof suffix == "string" || typeof suffix == "number") {
+                            return ++this._uniqueId + ":" + suffix;
+                        } else {
+                            return ++this._uniqueId + "";
+                        }
+                    },
+                    /** Function: connect
+                     *  Starts the connection process.
+                     *
+                     *  As the connection process proceeds, the user supplied callback will
+                     *  be triggered multiple times with status updates.  The callback
+                     *  should take two arguments - the status code and the error condition.
+                     *
+                     *  The status code will be one of the values in the Strophe.Status
+                     *  constants.  The error condition will be one of the conditions
+                     *  defined in RFC 3920 or the condition 'strophe-parsererror'.
+                     *
+                     *  Please see XEP 124 for a more detailed explanation of the optional
+                     *  parameters below.
+                     *
+                     *  Parameters:
+                     *    (String) jid - The user's JID.  This may be a bare JID,
+                     *      or a full JID.  If a node is not supplied, SASL ANONYMOUS
+                     *      authentication will be attempted.
+                     *    (String) pass - The user's password.
+                     *    (Function) callback The connect callback function.
+                     *    (Integer) wait - The optional HTTPBIND wait value.  This is the
+                     *      time the server will wait before returning an empty result for
+                     *      a request.  The default setting of 60 seconds is recommended.
+                     *      Other settings will require tweaks to the Strophe.TIMEOUT value.
+                     *    (Integer) hold - The optional HTTPBIND hold value.  This is the
+                     *      number of connections the server will hold at one time.  This
+                     *      should almost always be set to 1 (the default).
+                     */
+                    connect: function(jid, pass, callback, wait, hold) {
+                        this.jid = jid;
+                        this.pass = pass;
+                        this.connect_callback = callback;
+                        this.disconnecting = false;
+                        this.connected = false;
+                        this.authenticated = false;
+                        this.errors = 0;
+                        this.wait = wait || this.wait;
+                        this.hold = hold || this.hold;
+                        // parse jid for domain and resource
+                        this.domain = Strophe.getDomainFromJid(this.jid);
+                        // build the body tag
+                        var body = this._buildBody().attrs({
+                            to: this.domain,
+                            "xml:lang": "en",
+                            wait: this.wait,
+                            hold: this.hold,
+                            content: "text/xml; charset=utf-8",
+                            ver: "1.6",
+                            "xmpp:version": "1.0",
+                            "xmlns:xmpp": Strophe.NS.BOSH
+                        });
+                        this._changeConnectStatus(Strophe.Status.CONNECTING, null);
+                        this._requests.push(new Strophe.Request(body.tree(), this._onRequestStateChange.bind(this).prependArg(this._connect_cb.bind(this)), body.tree().getAttribute("rid")));
+                        this._throttledRequestHandler();
+                    },
+                    /** Function: attach
+                     *  Attach to an already created and authenticated BOSH session.
+                     *
+                     *  This function is provided to allow Strophe to attach to BOSH
+                     *  sessions which have been created externally, perhaps by a Web
+                     *  application.  This is often used to support auto-login type features
+                     *  without putting user credentials into the page.
+                     *
+                     *  Parameters:
+                     *    (String) jid - The full JID that is bound by the session.
+                     *    (String) sid - The SID of the BOSH session.
+                     *    (String) rid - The current RID of the BOSH session.  This RID
+                     *      will be used by the next request.
+                     *    (Function) callback The connect callback function.
+                     *    (Integer) wait - The optional HTTPBIND wait value.  This is the
+                     *      time the server will wait before returning an empty result for
+                     *      a request.  The default setting of 60 seconds is recommended.
+                     *      Other settings will require tweaks to the Strophe.TIMEOUT value.
+                     *    (Integer) hold - The optional HTTPBIND hold value.  This is the
+                     *      number of connections the server will hold at one time.  This
+                     *      should almost always be set to 1 (the default).
+                     *    (Integer) wind - The optional HTTBIND window value.  This is the
+                     *      allowed range of request ids that are valid.  The default is 5.
+                     */
+                    attach: function(jid, sid, rid, callback, wait, hold, wind) {
+                        this.jid = jid;
+                        this.sid = sid;
+                        this.rid = rid;
+                        this.connect_callback = callback;
+                        this.domain = Strophe.getDomainFromJid(this.jid);
+                        this.authenticated = true;
+                        this.connected = true;
+                        this.wait = wait || this.wait;
+                        this.hold = hold || this.hold;
+                        this.window = wind || this.window;
+                        this._changeConnectStatus(Strophe.Status.ATTACHED, null);
+                    },
+                    /** Function: xmlInput
+                     *  User overrideable function that receives XML data coming into the
+                     *  connection.
+                     *
+                     *  The default function does nothing.  User code can override this with
+                     *  > Strophe.Connection.xmlInput = function (elem) {
+         *  >   (user code)
+         *  > };
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The XML data received by the connection.
+                     */
+                    xmlInput: function(elem) {
+                        return;
+                    },
+                    /** Function: xmlOutput
+                     *  User overrideable function that receives XML data sent to the
+                     *  connection.
+                     *
+                     *  The default function does nothing.  User code can override this with
+                     *  > Strophe.Connection.xmlOutput = function (elem) {
+         *  >   (user code)
+         *  > };
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The XMLdata sent by the connection.
+                     */
+                    xmlOutput: function(elem) {
+                        return;
+                    },
+                    /** Function: rawInput
+                     *  User overrideable function that receives raw data coming into the
+                     *  connection.
+                     *
+                     *  The default function does nothing.  User code can override this with
+                     *  > Strophe.Connection.rawInput = function (data) {
+         *  >   (user code)
+         *  > };
+                     *
+                     *  Parameters:
+                     *    (String) data - The data received by the connection.
+                     */
+                    rawInput: function(data) {
+                        return;
+                    },
+                    /** Function: rawOutput
+                     *  User overrideable function that receives raw data sent to the
+                     *  connection.
+                     *
+                     *  The default function does nothing.  User code can override this with
+                     *  > Strophe.Connection.rawOutput = function (data) {
+         *  >   (user code)
+         *  > };
+                     *
+                     *  Parameters:
+                     *    (String) data - The data sent by the connection.
+                     */
+                    rawOutput: function(data) {
+                        return;
+                    },
+                    /** Function: send
+                     *  Send a stanza.
+                     *
+                     *  This function is called to push data onto the send queue to
+                     *  go out over the wire.  Whenever a request is sent to the BOSH
+                     *  server, all pending data is sent and the queue is flushed.
+                     *
+                     *  Parameters:
+                     *    (XMLElement |
+                     *     [XMLElement] |
+                     *     Strophe.Builder) elem - The stanza to send.
+                     */
+                    send: function(elem) {
+                        if (elem === null) {
+                            return;
+                        }
+                        if (typeof elem.sort === "function") {
+                            for (var i = 0; i < elem.length; i++) {
+                                this._queueData(elem[i]);
+                            }
+                        } else if (typeof elem.tree === "function") {
+                            this._queueData(elem.tree());
+                        } else {
+                            this._queueData(elem);
+                        }
+                        this._throttledRequestHandler();
+                        clearTimeout(this._idleTimeout);
+                        this._idleTimeout = setTimeout(this._onIdle.bind(this), 100);
+                    },
+                    /** Function: flush
+                     *  Immediately send any pending outgoing data.
+                     *
+                     *  Normally send() queues outgoing data until the next idle period
+                     *  (100ms), which optimizes network use in the common cases when
+                     *  several send()s are called in succession. flush() can be used to
+                     *  immediately send all pending data.
+                     */
+                    flush: function() {
+                        // cancel the pending idle period and run the idle function
+                        // immediately
+                        clearTimeout(this._idleTimeout);
+                        this._onIdle();
+                    },
+                    /** Function: sendIQ
+                     *  Helper function to send IQ stanzas.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The stanza to send.
+                     *    (Function) callback - The callback function for a successful request.
+                     *    (Function) errback - The callback function for a failed or timed
+                     *      out request.  On timeout, the stanza will be null.
+                     *    (Integer) timeout - The time specified in milliseconds for a
+                     *      timeout to occur.
+                     *
+                     *  Returns:
+                     *    The id used to send the IQ.
+                     */
+                    sendIQ: function(elem, callback, errback, timeout) {
+                        var timeoutHandler = null;
+                        var that = this;
+                        if (typeof elem.tree === "function") {
+                            elem = elem.tree();
+                        }
+                        var id = elem.getAttribute("id");
+                        // inject id if not found
+                        if (!id) {
+                            id = this.getUniqueId("sendIQ");
+                            elem.setAttribute("id", id);
+                        }
+                        var handler = this.addHandler(function(stanza) {
+                            // remove timeout handler if there is one
+                            if (timeoutHandler) {
+                                that.deleteTimedHandler(timeoutHandler);
+                            }
+                            var iqtype = stanza.getAttribute("type");
+                            if (iqtype === "result") {
+                                if (callback) {
+                                    callback(stanza);
+                                }
+                            } else if (iqtype === "error") {
+                                if (errback) {
+                                    errback(stanza);
+                                }
+                            } else {
+                                throw {
+                                    name: "StropheError",
+                                    message: "Got bad IQ type of " + iqtype
+                                };
+                            }
+                        }, null, "iq", null, id);
+                        // if timeout specified, setup timeout handler.
+                        if (timeout) {
+                            timeoutHandler = this.addTimedHandler(timeout, function() {
+                                // get rid of normal handler
+                                that.deleteHandler(handler);
+                                // call errback on timeout with null stanza
+                                if (errback) {
+                                    errback(null);
+                                }
+                                return false;
+                            });
+                        }
+                        this.send(elem);
+                        return id;
+                    },
+                    /** PrivateFunction: _queueData
+                     *  Queue outgoing data for later sending.  Also ensures that the data
+                     *  is a DOMElement.
+                     */
+                    _queueData: function(element) {
+                        if (element === null || !element.tagName || !element.childNodes) {
+                            throw {
+                                name: "StropheError",
+                                message: "Cannot queue non-DOMElement."
+                            };
+                        }
+                        this._data.push(element);
+                    },
+                    /** PrivateFunction: _sendRestart
+                     *  Send an xmpp:restart stanza.
+                     */
+                    _sendRestart: function() {
+                        this._data.push("restart");
+                        this._throttledRequestHandler();
+                        clearTimeout(this._idleTimeout);
+                        this._idleTimeout = setTimeout(this._onIdle.bind(this), 100);
+                    },
+                    /** Function: addTimedHandler
+                     *  Add a timed handler to the connection.
+                     *
+                     *  This function adds a timed handler.  The provided handler will
+                     *  be called every period milliseconds until it returns false,
+                     *  the connection is terminated, or the handler is removed.  Handlers
+                     *  that wish to continue being invoked should return true.
+                     *
+                     *  Because of method binding it is necessary to save the result of
+                     *  this function if you wish to remove a handler with
+                     *  deleteTimedHandler().
+                     *
+                     *  Note that user handlers are not active until authentication is
+                     *  successful.
+                     *
+                     *  Parameters:
+                     *    (Integer) period - The period of the handler.
+                     *    (Function) handler - The callback function.
+                     *
+                     *  Returns:
+                     *    A reference to the handler that can be used to remove it.
+                     */
+                    addTimedHandler: function(period, handler) {
+                        var thand = new Strophe.TimedHandler(period, handler);
+                        this.addTimeds.push(thand);
+                        return thand;
+                    },
+                    /** Function: deleteTimedHandler
+                     *  Delete a timed handler for a connection.
+                     *
+                     *  This function removes a timed handler from the connection.  The
+                     *  handRef parameter is *not* the function passed to addTimedHandler(),
+                     *  but is the reference returned from addTimedHandler().
+                     *
+                     *  Parameters:
+                     *    (Strophe.TimedHandler) handRef - The handler reference.
+                     */
+                    deleteTimedHandler: function(handRef) {
+                        // this must be done in the Idle loop so that we don't change
+                        // the handlers during iteration
+                        this.removeTimeds.push(handRef);
+                    },
+                    /** Function: addHandler
+                     *  Add a stanza handler for the connection.
+                     *
+                     *  This function adds a stanza handler to the connection.  The
+                     *  handler callback will be called for any stanza that matches
+                     *  the parameters.  Note that if multiple parameters are supplied,
+                     *  they must all match for the handler to be invoked.
+                     *
+                     *  The handler will receive the stanza that triggered it as its argument.
+                     *  The handler should return true if it is to be invoked again;
+                     *  returning false will remove the handler after it returns.
+                     *
+                     *  As a convenience, the ns parameters applies to the top level element
+                     *  and also any of its immediate children.  This is primarily to make
+                     *  matching /iq/query elements easy.
+                     *
+                     *  The options argument contains handler matching flags that affect how
+                     *  matches are determined. Currently the only flag is matchBare (a
+                     *  boolean). When matchBare is true, the from parameter and the from
+                     *  attribute on the stanza will be matched as bare JIDs instead of
+                     *  full JIDs. To use this, pass {matchBare: true} as the value of
+                     *  options. The default value for matchBare is false.
+                     *
+                     *  The return value should be saved if you wish to remove the handler
+                     *  with deleteHandler().
+                     *
+                     *  Parameters:
+                     *    (Function) handler - The user callback.
+                     *    (String) ns - The namespace to match.
+                     *    (String) name - The stanza name to match.
+                     *    (String) type - The stanza type attribute to match.
+                     *    (String) id - The stanza id attribute to match.
+                     *    (String) from - The stanza from attribute to match.
+                     *    (String) options - The handler options
+                     *
+                     *  Returns:
+                     *    A reference to the handler that can be used to remove it.
+                     */
+                    addHandler: function(handler, ns, name, type, id, from, options) {
+                        var hand = new Strophe.Handler(handler, ns, name, type, id, from, options);
+                        this.addHandlers.push(hand);
+                        return hand;
+                    },
+                    /** Function: deleteHandler
+                     *  Delete a stanza handler for a connection.
+                     *
+                     *  This function removes a stanza handler from the connection.  The
+                     *  handRef parameter is *not* the function passed to addHandler(),
+                     *  but is the reference returned from addHandler().
+                     *
+                     *  Parameters:
+                     *    (Strophe.Handler) handRef - The handler reference.
+                     */
+                    deleteHandler: function(handRef) {
+                        // this must be done in the Idle loop so that we don't change
+                        // the handlers during iteration
+                        this.removeHandlers.push(handRef);
+                    },
+                    /** Function: disconnect
+                     *  Start the graceful disconnection process.
+                     *
+                     *  This function starts the disconnection process.  This process starts
+                     *  by sending unavailable presence and sending BOSH body of type
+                     *  terminate.  A timeout handler makes sure that disconnection happens
+                     *  even if the BOSH server does not respond.
+                     *
+                     *  The user supplied connection callback will be notified of the
+                     *  progress as this process happens.
+                     *
+                     *  Parameters:
+                     *    (String) reason - The reason the disconnect is occuring.
+                     */
+                    disconnect: function(reason) {
+                        this._changeConnectStatus(Strophe.Status.DISCONNECTING, reason);
+                        Strophe.info("Disconnect was called because: " + reason);
+                        if (this.connected) {
+                            // setup timeout handler
+                            this._disconnectTimeout = this._addSysTimedHandler(3e4, this._onDisconnectTimeout.bind(this));
+                            // remove all of the requests
+                            if (this._requests.length > 0) {
+                                for (var i = 0; i < this._requests.length; i++) {
+                                    this._removeRequest(this._requests[i]);
+                                }
+                            }
+                            this._sendTerminate();
+                        }
+                    },
+                    /** PrivateFunction: _changeConnectStatus
+                     *  _Private_ helper function that makes sure plugins and the user's
+                     *  callback are notified of connection status changes.
+                     *
+                     *  Parameters:
+                     *    (Integer) status - the new connection status, one of the values
+                     *      in Strophe.Status
+                     *    (String) condition - the error condition or null
+                     */
+                    _changeConnectStatus: function(status, condition) {
+                        // notify all plugins listening for status changes
+                        for (var k in Strophe._connectionPlugins) {
+                            if (Strophe._connectionPlugins.hasOwnProperty(k)) {
+                                var plugin = this[k];
+                                if (plugin.statusChanged) {
+                                    try {
+                                        plugin.statusChanged(status, condition);
+                                    } catch (err) {
+                                        Strophe.error("" + k + " plugin caused an exception " + "changing status: " + err);
+                                    }
+                                }
+                            }
+                        }
+                        // notify the user's callback
+                        if (this.connect_callback) {
+                            try {
+                                this.connect_callback(status, condition);
+                            } catch (e) {
+                                Strophe.error("User connection callback caused an " + "exception: " + e);
+                            }
+                        }
+                    },
+                    /** PrivateFunction: _buildBody
+                     *  _Private_ helper function to generate the <body/> wrapper for BOSH.
+                     *
+                     *  Returns:
+                     *    A Strophe.Builder with a <body/> element.
+                     */
+                    _buildBody: function() {
+                        var bodyWrap = $build("body", {
+                            rid: this.rid++,
+                            xmlns: Strophe.NS.HTTPBIND
+                        });
+                        if (this.sid !== null) {
+                            bodyWrap.attrs({
+                                sid: this.sid
+                            });
+                        }
+                        return bodyWrap;
+                    },
+                    /** PrivateFunction: _removeRequest
+                     *  _Private_ function to remove a request from the queue.
+                     *
+                     *  Parameters:
+                     *    (Strophe.Request) req - The request to remove.
+                     */
+                    _removeRequest: function(req) {
+                        Strophe.debug("removing request");
+                        var i;
+                        for (i = this._requests.length - 1; i >= 0; i--) {
+                            if (req == this._requests[i]) {
+                                this._requests.splice(i, 1);
+                            }
+                        }
+                        // IE6 fails on setting to null, so set to empty function
+                        req.xhr.onreadystatechange = function() {};
+                        this._throttledRequestHandler();
+                    },
+                    /** PrivateFunction: _restartRequest
+                     *  _Private_ function to restart a request that is presumed dead.
+                     *
+                     *  Parameters:
+                     *    (Integer) i - The index of the request in the queue.
+                     */
+                    _restartRequest: function(i) {
+                        var req = this._requests[i];
+                        if (req.dead === null) {
+                            req.dead = new Date();
+                        }
+                        this._processRequest(i);
+                    },
+                    /** PrivateFunction: _processRequest
+                     *  _Private_ function to process a request in the queue.
+                     *
+                     *  This function takes requests off the queue and sends them and
+                     *  restarts dead requests.
+                     *
+                     *  Parameters:
+                     *    (Integer) i - The index of the request in the queue.
+                     */
+                    _processRequest: function(i) {
+                        var req = this._requests[i];
+                        var reqStatus = -1;
+                        try {
+                            if (req.xhr.readyState == 4) {
+                                reqStatus = req.xhr.status;
+                            }
+                        } catch (e) {
+                            Strophe.error("caught an error in _requests[" + i + "], reqStatus: " + reqStatus);
+                        }
+                        if (typeof reqStatus == "undefined") {
+                            reqStatus = -1;
+                        }
+                        var time_elapsed = req.age();
+                        var primaryTimeout = !isNaN(time_elapsed) && time_elapsed > Math.floor(Strophe.TIMEOUT * this.wait);
+                        var secondaryTimeout = req.dead !== null && req.timeDead() > Math.floor(Strophe.SECONDARY_TIMEOUT * this.wait);
+                        var requestCompletedWithServerError = req.xhr.readyState == 4 && (reqStatus < 1 || reqStatus >= 500);
+                        if (primaryTimeout || secondaryTimeout || requestCompletedWithServerError) {
+                            if (secondaryTimeout) {
+                                Strophe.error("Request " + this._requests[i].id + " timed out (secondary), restarting");
+                            }
+                            req.abort = true;
+                            req.xhr.abort();
+                            // setting to null fails on IE6, so set to empty function
+                            req.xhr.onreadystatechange = function() {};
+                            this._requests[i] = new Strophe.Request(req.xmlData, req.origFunc, req.rid, req.sends);
+                            req = this._requests[i];
+                        }
+                        if (req.xhr.readyState === 0) {
+                            Strophe.debug("request id " + req.id + "." + req.sends + " posting");
+                            req.date = new Date();
+                            try {
+                                req.xhr.open("POST", this.service, true);
+                            } catch (e2) {
+                                Strophe.error("XHR open failed.");
+                                if (!this.connected) {
+                                    this._changeConnectStatus(Strophe.Status.CONNFAIL, "bad-service");
+                                }
+                                this.disconnect();
+                                return;
+                            }
+                            // Fires the XHR request -- may be invoked immediately
+                            // or on a gradually expanding retry window for reconnects
+                            var sendFunc = function() {
+                                try {
+                                    req.xhr.send(req.data);
+                                } catch (e) {
+                                    Strophe.error("send func caught an error in _requests[" + i + "], reqStatus: " + req.xhr.status);
+                                    Strophe.error("exception was " + e);
+                                }
+                            };
+                            // Implement progressive backoff for reconnects --
+                            // First retry (send == 1) should also be instantaneous
+                            if (req.sends > 1) {
+                                // Using a cube of the retry number creats a nicely
+                                // expanding retry window
+                                var backoff = Math.pow(req.sends, 3) * 1e3;
+                                setTimeout(sendFunc, backoff);
+                            } else {
+                                sendFunc();
+                            }
+                            req.sends++;
+                            this.xmlOutput(req.xmlData);
+                            this.rawOutput(req.data);
+                        } else {
+                            Strophe.debug("_processRequest: " + (i === 0 ? "first" : "second") + " request has readyState of " + req.xhr.readyState);
+                        }
+                    },
+                    /** PrivateFunction: _throttledRequestHandler
+                     *  _Private_ function to throttle requests to the connection window.
+                     *
+                     *  This function makes sure we don't send requests so fast that the
+                     *  request ids overflow the connection window in the case that one
+                     *  request died.
+                     */
+                    _throttledRequestHandler: function() {
+                        if (!this._requests) {
+                            Strophe.debug("_throttledRequestHandler called with " + "undefined requests");
+                        } else {
+                            Strophe.debug("_throttledRequestHandler called with " + this._requests.length + " requests");
+                        }
+                        if (!this._requests || this._requests.length === 0) {
+                            return;
+                        }
+                        if (this._requests.length > 0) {
+                            this._processRequest(0);
+                        }
+                        if (this._requests.length > 1 && Math.abs(this._requests[0].rid - this._requests[1].rid) < this.window - 1) {
+                            this._processRequest(1);
+                        }
+                    },
+                    /** PrivateFunction: _onRequestStateChange
+                     *  _Private_ handler for Strophe.Request state changes.
+                     *
+                     *  This function is called when the XMLHttpRequest readyState changes.
+                     *  It contains a lot of error handling logic for the many ways that
+                     *  requests can fail, and calls the request callback when requests
+                     *  succeed.
+                     *
+                     *  Parameters:
+                     *    (Function) func - The handler for the request.
+                     *    (Strophe.Request) req - The request that is changing readyState.
+                     */
+                    _onRequestStateChange: function(func, req) {
+                        Strophe.debug("request id " + req.id + "." + req.sends + " state changed to " + req.xhr.readyState);
+                        if (req.abort) {
+                            req.abort = false;
+                            return;
+                        }
+                        // request complete
+                        var reqStatus;
+                        if (req.xhr.readyState == 4) {
+                            reqStatus = 0;
+                            try {
+                                reqStatus = req.xhr.status;
+                            } catch (e) {}
+                            if (typeof reqStatus == "undefined") {
+                                reqStatus = 0;
+                            }
+                            if (this.disconnecting) {
+                                if (reqStatus >= 400) {
+                                    this._hitError(reqStatus);
+                                    return;
+                                }
+                            }
+                            var reqIs0 = this._requests[0] == req;
+                            var reqIs1 = this._requests[1] == req;
+                            if (reqStatus > 0 && reqStatus < 500 || req.sends > 5) {
+                                // remove from internal queue
+                                this._removeRequest(req);
+                                Strophe.debug("request id " + req.id + " should now be removed");
+                            }
+                            // request succeeded
+                            if (reqStatus == 200) {
+                                // if request 1 finished, or request 0 finished and request
+                                // 1 is over Strophe.SECONDARY_TIMEOUT seconds old, we need to
+                                // restart the other - both will be in the first spot, as the
+                                // completed request has been removed from the queue already
+                                if (reqIs1 || reqIs0 && this._requests.length > 0 && this._requests[0].age() > Math.floor(Strophe.SECONDARY_TIMEOUT * this.wait)) {
+                                    this._restartRequest(0);
+                                }
+                                // call handler
+                                Strophe.debug("request id " + req.id + "." + req.sends + " got 200");
+                                func(req);
+                                this.errors = 0;
+                            } else {
+                                Strophe.error("request id " + req.id + "." + req.sends + " error " + reqStatus + " happened");
+                                if (reqStatus === 0 || reqStatus >= 400 && reqStatus < 600 || reqStatus >= 12e3) {
+                                    this._hitError(reqStatus);
+                                    if (reqStatus >= 400 && reqStatus < 500) {
+                                        this._changeConnectStatus(Strophe.Status.DISCONNECTING, null);
+                                        this._doDisconnect();
+                                    }
+                                }
+                            }
+                            if (!(reqStatus > 0 && reqStatus < 1e4 || req.sends > 5)) {
+                                this._throttledRequestHandler();
+                            }
+                        }
+                    },
+                    /** PrivateFunction: _hitError
+                     *  _Private_ function to handle the error count.
+                     *
+                     *  Requests are resent automatically until their error count reaches
+                     *  5.  Each time an error is encountered, this function is called to
+                     *  increment the count and disconnect if the count is too high.
+                     *
+                     *  Parameters:
+                     *    (Integer) reqStatus - The request status.
+                     */
+                    _hitError: function(reqStatus) {
+                        this.errors++;
+                        Strophe.warn("request errored, status: " + reqStatus + ", number of errors: " + this.errors);
+                        if (this.errors > 4) {
+                            this._onDisconnectTimeout();
+                        }
+                    },
+                    /** PrivateFunction: _doDisconnect
+                     *  _Private_ function to disconnect.
+                     *
+                     *  This is the last piece of the disconnection logic.  This resets the
+                     *  connection and alerts the user's connection callback.
+                     */
+                    _doDisconnect: function() {
+                        Strophe.info("_doDisconnect was called");
+                        this.authenticated = false;
+                        this.disconnecting = false;
+                        this.sid = null;
+                        this.streamId = null;
+                        this.rid = Math.floor(Math.random() * 4294967295);
+                        // tell the parent we disconnected
+                        if (this.connected) {
+                            this._changeConnectStatus(Strophe.Status.DISCONNECTED, null);
+                            this.connected = false;
+                        }
+                        // delete handlers
+                        this.handlers = [];
+                        this.timedHandlers = [];
+                        this.removeTimeds = [];
+                        this.removeHandlers = [];
+                        this.addTimeds = [];
+                        this.addHandlers = [];
+                    },
+                    /** PrivateFunction: _dataRecv
+                     *  _Private_ handler to processes incoming data from the the connection.
+                     *
+                     *  Except for _connect_cb handling the initial connection request,
+                     *  this function handles the incoming data for all requests.  This
+                     *  function also fires stanza handlers that match each incoming
+                     *  stanza.
+                     *
+                     *  Parameters:
+                     *    (Strophe.Request) req - The request that has data ready.
+                     */
+                    _dataRecv: function(req) {
+                        try {
+                            var elem = req.getResponse();
+                        } catch (e) {
+                            if (e != "parsererror") {
+                                throw e;
+                            }
+                            this.disconnect("strophe-parsererror");
+                        }
+                        if (elem === null) {
+                            return;
+                        }
+                        this.xmlInput(elem);
+                        this.rawInput(Strophe.serialize(elem));
+                        // remove handlers scheduled for deletion
+                        var i, hand;
+                        while (this.removeHandlers.length > 0) {
+                            hand = this.removeHandlers.pop();
+                            i = this.handlers.indexOf(hand);
+                            if (i >= 0) {
+                                this.handlers.splice(i, 1);
+                            }
+                        }
+                        // add handlers scheduled for addition
+                        while (this.addHandlers.length > 0) {
+                            this.handlers.push(this.addHandlers.pop());
+                        }
+                        // handle graceful disconnect
+                        if (this.disconnecting && this._requests.length === 0) {
+                            this.deleteTimedHandler(this._disconnectTimeout);
+                            this._disconnectTimeout = null;
+                            this._doDisconnect();
+                            return;
+                        }
+                        var typ = elem.getAttribute("type");
+                        var cond, conflict;
+                        if (typ !== null && typ == "terminate") {
+                            // an error occurred
+                            cond = elem.getAttribute("condition");
+                            conflict = elem.getElementsByTagName("conflict");
+                            if (cond !== null) {
+                                if (cond == "remote-stream-error" && conflict.length > 0) {
+                                    cond = "conflict";
+                                }
+                                this._changeConnectStatus(Strophe.Status.CONNFAIL, cond);
+                            } else {
+                                this._changeConnectStatus(Strophe.Status.CONNFAIL, "unknown");
+                            }
+                            this.disconnect();
+                            return;
+                        }
+                        // send each incoming stanza through the handler chain
+                        var that = this;
+                        Strophe.forEachChild(elem, null, function(child) {
+                            var i, newList;
+                            // process handlers
+                            newList = that.handlers;
+                            that.handlers = [];
+                            for (i = 0; i < newList.length; i++) {
+                                var hand = newList[i];
+                                if (hand.isMatch(child) && (that.authenticated || !hand.user)) {
+                                    if (hand.run(child)) {
+                                        that.handlers.push(hand);
+                                    }
+                                } else {
+                                    that.handlers.push(hand);
+                                }
+                            }
+                        });
+                    },
+                    /** PrivateFunction: _sendTerminate
+                     *  _Private_ function to send initial disconnect sequence.
+                     *
+                     *  This is the first step in a graceful disconnect.  It sends
+                     *  the BOSH server a terminate body and includes an unavailable
+                     *  presence if authentication has completed.
+                     */
+                    _sendTerminate: function() {
+                        Strophe.info("_sendTerminate was called");
+                        var body = this._buildBody().attrs({
+                            type: "terminate"
+                        });
+                        if (this.authenticated) {
+                            body.c("presence", {
+                                xmlns: Strophe.NS.CLIENT,
+                                type: "unavailable"
+                            });
+                        }
+                        this.disconnecting = true;
+                        var req = new Strophe.Request(body.tree(), this._onRequestStateChange.bind(this).prependArg(this._dataRecv.bind(this)), body.tree().getAttribute("rid"));
+                        this._requests.push(req);
+                        this._throttledRequestHandler();
+                    },
+                    /** PrivateFunction: _connect_cb
+                     *  _Private_ handler for initial connection request.
+                     *
+                     *  This handler is used to process the initial connection request
+                     *  response from the BOSH server. It is used to set up authentication
+                     *  handlers and start the authentication process.
+                     *
+                     *  SASL authentication will be attempted if available, otherwise
+                     *  the code will fall back to legacy authentication.
+                     *
+                     *  Parameters:
+                     *    (Strophe.Request) req - The current request.
+                     */
+                    _connect_cb: function(req) {
+                        Strophe.info("_connect_cb was called");
+                        this.connected = true;
+                        var bodyWrap = req.getResponse();
+                        if (!bodyWrap) {
+                            return;
+                        }
+                        this.xmlInput(bodyWrap);
+                        this.rawInput(Strophe.serialize(bodyWrap));
+                        var typ = bodyWrap.getAttribute("type");
+                        var cond, conflict;
+                        if (typ !== null && typ == "terminate") {
+                            // an error occurred
+                            cond = bodyWrap.getAttribute("condition");
+                            conflict = bodyWrap.getElementsByTagName("conflict");
+                            if (cond !== null) {
+                                if (cond == "remote-stream-error" && conflict.length > 0) {
+                                    cond = "conflict";
+                                }
+                                this._changeConnectStatus(Strophe.Status.CONNFAIL, cond);
+                            } else {
+                                this._changeConnectStatus(Strophe.Status.CONNFAIL, "unknown");
+                            }
+                            return;
+                        }
+                        // check to make sure we don't overwrite these if _connect_cb is
+                        // called multiple times in the case of missing stream:features
+                        if (!this.sid) {
+                            this.sid = bodyWrap.getAttribute("sid");
+                        }
+                        if (!this.stream_id) {
+                            this.stream_id = bodyWrap.getAttribute("authid");
+                        }
+                        var wind = bodyWrap.getAttribute("requests");
+                        if (wind) {
+                            this.window = parseInt(wind, 10);
+                        }
+                        var hold = bodyWrap.getAttribute("hold");
+                        if (hold) {
+                            this.hold = parseInt(hold, 10);
+                        }
+                        var wait = bodyWrap.getAttribute("wait");
+                        if (wait) {
+                            this.wait = parseInt(wait, 10);
+                        }
+                        var do_sasl_plain = false;
+                        var do_sasl_digest_md5 = false;
+                        var do_sasl_anonymous = false;
+                        var mechanisms = bodyWrap.getElementsByTagName("mechanism");
+                        var i, mech, auth_str, hashed_auth_str;
+                        if (mechanisms.length > 0) {
+                            for (i = 0; i < mechanisms.length; i++) {
+                                mech = Strophe.getText(mechanisms[i]);
+                                if (mech == "DIGEST-MD5") {
+                                    do_sasl_digest_md5 = true;
+                                } else if (mech == "PLAIN") {
+                                    do_sasl_plain = true;
+                                } else if (mech == "ANONYMOUS") {
+                                    do_sasl_anonymous = true;
+                                }
+                            }
+                        } else {
+                            // we didn't get stream:features yet, so we need wait for it
+                            // by sending a blank poll request
+                            var body = this._buildBody();
+                            this._requests.push(new Strophe.Request(body.tree(), this._onRequestStateChange.bind(this).prependArg(this._connect_cb.bind(this)), body.tree().getAttribute("rid")));
+                            this._throttledRequestHandler();
+                            return;
+                        }
+                        if (Strophe.getNodeFromJid(this.jid) === null && do_sasl_anonymous) {
+                            this._changeConnectStatus(Strophe.Status.AUTHENTICATING, null);
+                            this._sasl_success_handler = this._addSysHandler(this._sasl_success_cb.bind(this), null, "success", null, null);
+                            this._sasl_failure_handler = this._addSysHandler(this._sasl_failure_cb.bind(this), null, "failure", null, null);
+                            this.send($build("auth", {
+                                xmlns: Strophe.NS.SASL,
+                                mechanism: "ANONYMOUS"
+                            }).tree());
+                        } else if (Strophe.getNodeFromJid(this.jid) === null) {
+                            // we don't have a node, which is required for non-anonymous
+                            // client connections
+                            this._changeConnectStatus(Strophe.Status.CONNFAIL, "x-strophe-bad-non-anon-jid");
+                            this.disconnect();
+                        } else if (do_sasl_digest_md5) {
+                            this._changeConnectStatus(Strophe.Status.AUTHENTICATING, null);
+                            this._sasl_challenge_handler = this._addSysHandler(this._sasl_challenge1_cb.bind(this), null, "challenge", null, null);
+                            this._sasl_failure_handler = this._addSysHandler(this._sasl_failure_cb.bind(this), null, "failure", null, null);
+                            this.send($build("auth", {
+                                xmlns: Strophe.NS.SASL,
+                                mechanism: "DIGEST-MD5"
+                            }).tree());
+                        } else if (do_sasl_plain) {
+                            // Build the plain auth string (barejid null
+                            // username null password) and base 64 encoded.
+                            auth_str = Strophe.getBareJidFromJid(this.jid);
+                            auth_str = auth_str + "\x00";
+                            auth_str = auth_str + Strophe.getNodeFromJid(this.jid);
+                            auth_str = auth_str + "\x00";
+                            auth_str = auth_str + this.pass;
+                            this._changeConnectStatus(Strophe.Status.AUTHENTICATING, null);
+                            this._sasl_success_handler = this._addSysHandler(this._sasl_success_cb.bind(this), null, "success", null, null);
+                            this._sasl_failure_handler = this._addSysHandler(this._sasl_failure_cb.bind(this), null, "failure", null, null);
+                            hashed_auth_str = Base64.encode(auth_str);
+                            this.send($build("auth", {
+                                xmlns: Strophe.NS.SASL,
+                                mechanism: "PLAIN"
+                            }).t(hashed_auth_str).tree());
+                        } else {
+                            this._changeConnectStatus(Strophe.Status.AUTHENTICATING, null);
+                            this._addSysHandler(this._auth1_cb.bind(this), null, null, null, "_auth_1");
+                            this.send($iq({
+                                type: "get",
+                                to: this.domain,
+                                id: "_auth_1"
+                            }).c("query", {
+                                xmlns: Strophe.NS.AUTH
+                            }).c("username", {}).t(Strophe.getNodeFromJid(this.jid)).tree());
+                        }
+                    },
+                    /** PrivateFunction: _sasl_challenge1_cb
+                     *  _Private_ handler for DIGEST-MD5 SASL authentication.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The challenge stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_challenge1_cb: function(elem) {
+                        var attribMatch = /([a-z]+)=("[^"]+"|[^,"]+)(?:,|$)/;
+                        var challenge = Base64.decode(Strophe.getText(elem));
+                        var cnonce = MD5.hexdigest(Math.random() * 1234567890);
+                        var realm = "";
+                        var host = null;
+                        var nonce = "";
+                        var qop = "";
+                        var matches;
+                        // remove unneeded handlers
+                        this.deleteHandler(this._sasl_failure_handler);
+                        while (challenge.match(attribMatch)) {
+                            matches = challenge.match(attribMatch);
+                            challenge = challenge.replace(matches[0], "");
+                            matches[2] = matches[2].replace(/^"(.+)"$/, "$1");
+                            switch (matches[1]) {
+                              case "realm":
+                                realm = matches[2];
+                                break;
+
+                              case "nonce":
+                                nonce = matches[2];
+                                break;
+
+                              case "qop":
+                                qop = matches[2];
+                                break;
+
+                              case "host":
+                                host = matches[2];
+                                break;
+                            }
+                        }
+                        var digest_uri = "xmpp/" + this.domain;
+                        if (host !== null) {
+                            digest_uri = digest_uri + "/" + host;
+                        }
+                        var A1 = MD5.hash(Strophe.getNodeFromJid(this.jid) + ":" + realm + ":" + this.pass) + ":" + nonce + ":" + cnonce;
+                        var A2 = "AUTHENTICATE:" + digest_uri;
+                        var responseText = "";
+                        responseText += "username=" + this._quote(Strophe.getNodeFromJid(this.jid)) + ",";
+                        responseText += "realm=" + this._quote(realm) + ",";
+                        responseText += "nonce=" + this._quote(nonce) + ",";
+                        responseText += "cnonce=" + this._quote(cnonce) + ",";
+                        responseText += 'nc="00000001",';
+                        responseText += 'qop="auth",';
+                        responseText += "digest-uri=" + this._quote(digest_uri) + ",";
+                        responseText += "response=" + this._quote(MD5.hexdigest(MD5.hexdigest(A1) + ":" + nonce + ":00000001:" + cnonce + ":auth:" + MD5.hexdigest(A2))) + ",";
+                        responseText += 'charset="utf-8"';
+                        this._sasl_challenge_handler = this._addSysHandler(this._sasl_challenge2_cb.bind(this), null, "challenge", null, null);
+                        this._sasl_success_handler = this._addSysHandler(this._sasl_success_cb.bind(this), null, "success", null, null);
+                        this._sasl_failure_handler = this._addSysHandler(this._sasl_failure_cb.bind(this), null, "failure", null, null);
+                        this.send($build("response", {
+                            xmlns: Strophe.NS.SASL
+                        }).t(Base64.encode(responseText)).tree());
+                        return false;
+                    },
+                    /** PrivateFunction: _quote
+                     *  _Private_ utility function to backslash escape and quote strings.
+                     *
+                     *  Parameters:
+                     *    (String) str - The string to be quoted.
+                     *
+                     *  Returns:
+                     *    quoted string
+                     */
+                    _quote: function(str) {
+                        return '"' + str.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+                    },
+                    /** PrivateFunction: _sasl_challenge2_cb
+                     *  _Private_ handler for second step of DIGEST-MD5 SASL authentication.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The challenge stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_challenge2_cb: function(elem) {
+                        // remove unneeded handlers
+                        this.deleteHandler(this._sasl_success_handler);
+                        this.deleteHandler(this._sasl_failure_handler);
+                        this._sasl_success_handler = this._addSysHandler(this._sasl_success_cb.bind(this), null, "success", null, null);
+                        this._sasl_failure_handler = this._addSysHandler(this._sasl_failure_cb.bind(this), null, "failure", null, null);
+                        this.send($build("response", {
+                            xmlns: Strophe.NS.SASL
+                        }).tree());
+                        return false;
+                    },
+                    /** PrivateFunction: _auth1_cb
+                     *  _Private_ handler for legacy authentication.
+                     *
+                     *  This handler is called in response to the initial <iq type='get'/>
+                     *  for legacy authentication.  It builds an authentication <iq/> and
+                     *  sends it, creating a handler (calling back to _auth2_cb()) to
+                     *  handle the result
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The stanza that triggered the callback.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _auth1_cb: function(elem) {
+                        // build plaintext auth iq
+                        var iq = $iq({
+                            type: "set",
+                            id: "_auth_2"
+                        }).c("query", {
+                            xmlns: Strophe.NS.AUTH
+                        }).c("username", {}).t(Strophe.getNodeFromJid(this.jid)).up().c("password").t(this.pass);
+                        if (!Strophe.getResourceFromJid(this.jid)) {
+                            // since the user has not supplied a resource, we pick
+                            // a default one here.  unlike other auth methods, the server
+                            // cannot do this for us.
+                            this.jid = Strophe.getBareJidFromJid(this.jid) + "/strophe";
+                        }
+                        iq.up().c("resource", {}).t(Strophe.getResourceFromJid(this.jid));
+                        this._addSysHandler(this._auth2_cb.bind(this), null, null, null, "_auth_2");
+                        this.send(iq.tree());
+                        return false;
+                    },
+                    /** PrivateFunction: _sasl_success_cb
+                     *  _Private_ handler for succesful SASL authentication.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The matching stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_success_cb: function(elem) {
+                        Strophe.info("SASL authentication succeeded.");
+                        // remove old handlers
+                        this.deleteHandler(this._sasl_failure_handler);
+                        this._sasl_failure_handler = null;
+                        if (this._sasl_challenge_handler) {
+                            this.deleteHandler(this._sasl_challenge_handler);
+                            this._sasl_challenge_handler = null;
+                        }
+                        this._addSysHandler(this._sasl_auth1_cb.bind(this), null, "stream:features", null, null);
+                        // we must send an xmpp:restart now
+                        this._sendRestart();
+                        return false;
+                    },
+                    /** PrivateFunction: _sasl_auth1_cb
+                     *  _Private_ handler to start stream binding.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The matching stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_auth1_cb: function(elem) {
+                        var i, child;
+                        for (i = 0; i < elem.childNodes.length; i++) {
+                            child = elem.childNodes[i];
+                            if (child.nodeName == "bind") {
+                                this.do_bind = true;
+                            }
+                            if (child.nodeName == "session") {
+                                this.do_session = true;
+                            }
+                        }
+                        if (!this.do_bind) {
+                            this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                            return false;
+                        } else {
+                            this._addSysHandler(this._sasl_bind_cb.bind(this), null, null, null, "_bind_auth_2");
+                            var resource = Strophe.getResourceFromJid(this.jid);
+                            if (resource) {
+                                this.send($iq({
+                                    type: "set",
+                                    id: "_bind_auth_2"
+                                }).c("bind", {
+                                    xmlns: Strophe.NS.BIND
+                                }).c("resource", {}).t(resource).tree());
+                            } else {
+                                this.send($iq({
+                                    type: "set",
+                                    id: "_bind_auth_2"
+                                }).c("bind", {
+                                    xmlns: Strophe.NS.BIND
+                                }).tree());
+                            }
+                        }
+                        return false;
+                    },
+                    /** PrivateFunction: _sasl_bind_cb
+                     *  _Private_ handler for binding result and session start.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The matching stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_bind_cb: function(elem) {
+                        if (elem.getAttribute("type") == "error") {
+                            Strophe.info("SASL binding failed.");
+                            this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                            return false;
+                        }
+                        // TODO - need to grab errors
+                        var bind = elem.getElementsByTagName("bind");
+                        var jidNode;
+                        if (bind.length > 0) {
+                            // Grab jid
+                            jidNode = bind[0].getElementsByTagName("jid");
+                            if (jidNode.length > 0) {
+                                this.jid = Strophe.getText(jidNode[0]);
+                                if (this.do_session) {
+                                    this._addSysHandler(this._sasl_session_cb.bind(this), null, null, null, "_session_auth_2");
+                                    this.send($iq({
+                                        type: "set",
+                                        id: "_session_auth_2"
+                                    }).c("session", {
+                                        xmlns: Strophe.NS.SESSION
+                                    }).tree());
+                                } else {
+                                    this.authenticated = true;
+                                    this._changeConnectStatus(Strophe.Status.CONNECTED, null);
+                                }
+                            }
+                        } else {
+                            Strophe.info("SASL binding failed.");
+                            this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                            return false;
+                        }
+                    },
+                    /** PrivateFunction: _sasl_session_cb
+                     *  _Private_ handler to finish successful SASL connection.
+                     *
+                     *  This sets Connection.authenticated to true on success, which
+                     *  starts the processing of user handlers.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The matching stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_session_cb: function(elem) {
+                        if (elem.getAttribute("type") == "result") {
+                            this.authenticated = true;
+                            this._changeConnectStatus(Strophe.Status.CONNECTED, null);
+                        } else if (elem.getAttribute("type") == "error") {
+                            Strophe.info("Session creation failed.");
+                            this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                            return false;
+                        }
+                        return false;
+                    },
+                    /** PrivateFunction: _sasl_failure_cb
+                     *  _Private_ handler for SASL authentication failure.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The matching stanza.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _sasl_failure_cb: function(elem) {
+                        // delete unneeded handlers
+                        if (this._sasl_success_handler) {
+                            this.deleteHandler(this._sasl_success_handler);
+                            this._sasl_success_handler = null;
+                        }
+                        if (this._sasl_challenge_handler) {
+                            this.deleteHandler(this._sasl_challenge_handler);
+                            this._sasl_challenge_handler = null;
+                        }
+                        this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                        return false;
+                    },
+                    /** PrivateFunction: _auth2_cb
+                     *  _Private_ handler to finish legacy authentication.
+                     *
+                     *  This handler is called when the result from the jabber:iq:auth
+                     *  <iq/> stanza is returned.
+                     *
+                     *  Parameters:
+                     *    (XMLElement) elem - The stanza that triggered the callback.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _auth2_cb: function(elem) {
+                        if (elem.getAttribute("type") == "result") {
+                            this.authenticated = true;
+                            this._changeConnectStatus(Strophe.Status.CONNECTED, null);
+                        } else if (elem.getAttribute("type") == "error") {
+                            this._changeConnectStatus(Strophe.Status.AUTHFAIL, null);
+                            this.disconnect();
+                        }
+                        return false;
+                    },
+                    /** PrivateFunction: _addSysTimedHandler
+                     *  _Private_ function to add a system level timed handler.
+                     *
+                     *  This function is used to add a Strophe.TimedHandler for the
+                     *  library code.  System timed handlers are allowed to run before
+                     *  authentication is complete.
+                     *
+                     *  Parameters:
+                     *    (Integer) period - The period of the handler.
+                     *    (Function) handler - The callback function.
+                     */
+                    _addSysTimedHandler: function(period, handler) {
+                        var thand = new Strophe.TimedHandler(period, handler);
+                        thand.user = false;
+                        this.addTimeds.push(thand);
+                        return thand;
+                    },
+                    /** PrivateFunction: _addSysHandler
+                     *  _Private_ function to add a system level stanza handler.
+                     *
+                     *  This function is used to add a Strophe.Handler for the
+                     *  library code.  System stanza handlers are allowed to run before
+                     *  authentication is complete.
+                     *
+                     *  Parameters:
+                     *    (Function) handler - The callback function.
+                     *    (String) ns - The namespace to match.
+                     *    (String) name - The stanza name to match.
+                     *    (String) type - The stanza type attribute to match.
+                     *    (String) id - The stanza id attribute to match.
+                     */
+                    _addSysHandler: function(handler, ns, name, type, id) {
+                        var hand = new Strophe.Handler(handler, ns, name, type, id);
+                        hand.user = false;
+                        this.addHandlers.push(hand);
+                        return hand;
+                    },
+                    /** PrivateFunction: _onDisconnectTimeout
+                     *  _Private_ timeout handler for handling non-graceful disconnection.
+                     *
+                     *  If the graceful disconnect process does not complete within the
+                     *  time allotted, this handler finishes the disconnect anyway.
+                     *
+                     *  Returns:
+                     *    false to remove the handler.
+                     */
+                    _onDisconnectTimeout: function() {
+                        Strophe.info("_onDisconnectTimeout was called");
+                        // cancel all remaining requests and clear the queue
+                        var req;
+                        while (this._requests.length > 0) {
+                            req = this._requests.pop();
+                            req.abort = true;
+                            req.xhr.abort();
+                            // jslint complains, but this is fine. setting to empty func
+                            // is necessary for IE6
+                            req.xhr.onreadystatechange = function() {};
+                        }
+                        // actually disconnect
+                        this._doDisconnect();
+                        return false;
+                    },
+                    /** PrivateFunction: _onIdle
+                     *  _Private_ handler to process events during idle cycle.
+                     *
+                     *  This handler is called every 100ms to fire timed handlers that
+                     *  are ready and keep poll requests going.
+                     */
+                    _onIdle: function() {
+                        var i, thand, since, newList;
+                        // remove timed handlers that have been scheduled for deletion
+                        while (this.removeTimeds.length > 0) {
+                            thand = this.removeTimeds.pop();
+                            i = this.timedHandlers.indexOf(thand);
+                            if (i >= 0) {
+                                this.timedHandlers.splice(i, 1);
+                            }
+                        }
+                        // add timed handlers scheduled for addition
+                        while (this.addTimeds.length > 0) {
+                            this.timedHandlers.push(this.addTimeds.pop());
+                        }
+                        // call ready timed handlers
+                        var now = new Date().getTime();
+                        newList = [];
+                        for (i = 0; i < this.timedHandlers.length; i++) {
+                            thand = this.timedHandlers[i];
+                            if (this.authenticated || !thand.user) {
+                                since = thand.lastCalled + thand.period;
+                                if (since - now <= 0) {
+                                    if (thand.run()) {
+                                        newList.push(thand);
+                                    }
+                                } else {
+                                    newList.push(thand);
+                                }
+                            }
+                        }
+                        this.timedHandlers = newList;
+                        var body, time_elapsed;
+                        // if no requests are in progress, poll
+                        if (this.authenticated && this._requests.length === 0 && this._data.length === 0 && !this.disconnecting) {
+                            Strophe.info("no requests during idle cycle, sending " + "blank request");
+                            this._data.push(null);
+                        }
+                        if (this._requests.length < 2 && this._data.length > 0 && !this.paused) {
+                            body = this._buildBody();
+                            for (i = 0; i < this._data.length; i++) {
+                                if (this._data[i] !== null) {
+                                    if (this._data[i] === "restart") {
+                                        body.attrs({
+                                            to: this.domain,
+                                            "xml:lang": "en",
+                                            "xmpp:restart": "true",
+                                            "xmlns:xmpp": Strophe.NS.BOSH
+                                        });
+                                    } else {
+                                        body.cnode(this._data[i]).up();
+                                    }
+                                }
+                            }
+                            delete this._data;
+                            this._data = [];
+                            this._requests.push(new Strophe.Request(body.tree(), this._onRequestStateChange.bind(this).prependArg(this._dataRecv.bind(this)), body.tree().getAttribute("rid")));
+                            this._processRequest(this._requests.length - 1);
+                        }
+                        if (this._requests.length > 0) {
+                            time_elapsed = this._requests[0].age();
+                            if (this._requests[0].dead !== null) {
+                                if (this._requests[0].timeDead() > Math.floor(Strophe.SECONDARY_TIMEOUT * this.wait)) {
+                                    this._throttledRequestHandler();
+                                }
+                            }
+                            if (time_elapsed > Math.floor(Strophe.TIMEOUT * this.wait)) {
+                                Strophe.warn("Request " + this._requests[0].id + " timed out, over " + Math.floor(Strophe.TIMEOUT * this.wait) + " seconds since last activity");
+                                this._throttledRequestHandler();
+                            }
+                        }
+                        // reactivate the timer
+                        clearTimeout(this._idleTimeout);
+                        this._idleTimeout = setTimeout(this._onIdle.bind(this), 100);
+                    }
+                };
+                if (callback) {
+                    callback(Strophe, $build, $msg, $iq, $pres);
+                }
+            })(function() {
+                window.PhonoStrophe = arguments[0];
+                window.PhonoStrophe.build = arguments[1];
+                window.PhonoStrophe.msg = arguments[2];
+                window.PhonoStrophe.iq = arguments[3];
+                window.PhonoStrophe.pres = arguments[4];
+            });
+            /* CORS plugin
+             **
+             ** flXHR.js should be loaded before this plugin if flXHR support is required.
+             */
+            PhonoStrophe.addConnectionPlugin("cors", {
+                init: function() {
+                    // replace Strophe.Request._newXHR with new CORS version
+                    if (window.XDomainRequest) {
+                        // We are in IE with CORS support
+                        PhonoStrophe.debug("CORS with IE");
+                        PhonoStrophe.Request.prototype._newXHR = function() {
+                            var stateChange = function(xhr, state) {
+                                // Fudge the calling of onreadystatechange()
+                                xhr.status = state;
+                                xhr.readyState = 4;
+                                try {
+                                    xhr.onreadystatechange();
+                                } catch (err) {}
+                                xhr.readyState = 0;
+                                try {
+                                    xhr.onreadystatechange();
+                                } catch (err) {}
+                            };
+                            var xhr = new XDomainRequest();
+                            xhr.readyState = 0;
+                            xhr.onreadystatechange = this.func.prependArg(this);
+                            xhr.onload = function() {
+                                // Parse the responseText to XML
+                                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                                xmlDoc.async = "false";
+                                xmlDoc.loadXML(xhr.responseText);
+                                xhr.responseXML = xmlDoc;
+                                stateChange(xhr, 200);
+                            };
+                            xhr.onerror = function() {
+                                stateChange(xhr, 500);
+                            };
+                            xhr.ontimeout = function() {
+                                stateChange(xhr, 500);
+                            };
+                            xhr.sendFnc = xhr.send;
+                            xhr.send = function(value) {
+                                xhr.readyState = 2;
+                                return xhr.sendFnc(value);
+                            };
+                            return xhr;
+                        };
+                    } else if (new XMLHttpRequest().withCredentials !== undefined) {
+                        // We are in a sane browser with CROS support - no need to do anything
+                        PhonoStrophe.debug("CORS with Firefox/Safari/Chome");
+                    } else if (flensed && flensed.flXHR) {
+                        // We don't have CORS support, so include flXHR
+                        PhonoStrophe.debug("CORS not supported, using flXHR");
+                        var poolingSetting = true;
+                        if (navigator.userAgent.indexOf("MSIE") != -1) {
+                            // IE 7 has an issue with instance pooling and flash 10.1
+                            poolingSetting = false;
+                        }
+                        PhonoStrophe.Request.prototype._newXHR = function() {
+                            var xhr = new flensed.flXHR({
+                                autoUpdatePlayer: true,
+                                instancePooling: poolingSetting,
+                                noCacheHeader: false
+                            });
+                            xhr.onreadystatechange = this.func.prependArg(this);
+                            return xhr;
+                        };
+                    } else {
+                        PhonoStrophe.error("No CORS and no flXHR. You may experience cross domain turbulence.");
+                    }
+                }
+            });
+            Phono.events = {
+                handlerCount: 1,
+                add: function(target, type, handler) {
+                    // ignore case
+                    type = type.toLowerCase();
+                    // assign each event handler a unique ID
+                    if (!handler.$$guid) handler.$$guid = this.handlerCount++;
+                    // create a hash table of event types for the target
+                    if (!target.events) target.events = {};
+                    // create a hash table of event handlers for each target/event pair
+                    var handlers = target.events[type];
+                    if (!handlers) {
+                        handlers = target.events[type] = {};
+                        // store the existing event handler (if there is one)
+                        if (target["on" + type]) {
+                            handlers[0] = target["on" + type];
+                        }
+                    }
+                    // store the event handler in the hash table
+                    handlers[handler.$$guid] = handler;
+                    // assign a global event handler to do all the work
+                    target["on" + type] = this.handle;
+                },
+                bind: function(target, config) {
+                    var name;
+                    for (k in config) {
+                        if (k.match("^on")) {
+                            this.add(target, k.substr(2).toLowerCase(), config[k]);
+                        }
+                    }
+                },
+                remove: function(target, type, handler) {
+                    // ignore case
+                    type = type.toLowerCase();
+                    // delete the event handler from the hash table
+                    if (target.events && target.events[type]) {
+                        delete target.events[type][handler.$$guid];
+                    }
+                },
+                trigger: function(target, type, event, data) {
+                    event = event || {};
+                    event.type = type;
+                    var handler = target["on" + type.toLowerCase()];
+                    if (handler) {
+                        // Don't log log events ;-)
+                        if ("log" != type.toLowerCase()) {
+                            Phono.log.info("[EVENT] " + type + "[" + data + "]");
+                        }
+                        handler.call(target, event, data);
+                    }
+                },
+                handle: function(event, data) {
+                    // get a reference to the hash table of event handlers
+                    var handlers = this.events[event.type.toLowerCase()];
+                    // set event source
+                    event.source = this;
+                    // build arguments
+                    var args = new Array();
+                    args.push(event);
+                    if (data) {
+                        var i;
+                        for (i = 0; i < data.length; i++) {
+                            args.push(data[i]);
+                        }
+                    }
+                    var target = this;
+                    // execute each event handler
+                    Phono.util.each(handlers, function() {
+                        this.apply(target, args);
+                    });
+                }
+            };
+            /*
+             * jQuery Tools 1.2.2 - The missing UI library for the Web
+             * 
+             * [toolbox.flashembed]
+             * 
+             * NO COPYRIGHTS OR LICENSES. DO WHAT YOU LIKE.
+             * 
+             * http://flowplayer.org/tools/
+             * 
+             * File generated: Tue May 25 08:09:15 GMT 2010
+             */
+            (function() {
+                function f(a, b) {
+                    if (b) for (key in b) if (b.hasOwnProperty(key)) a[key] = b[key];
+                    return a;
+                }
+                function l(a, b) {
+                    var c = [];
+                    for (var d in a) if (a.hasOwnProperty(d)) c[d] = b(a[d]);
+                    return c;
+                }
+                function m(a, b, c) {
+                    if (e.isSupported(b.version)) a.innerHTML = e.getHTML(b, c); else if (b.expressInstall && e.isSupported([ 6, 65 ])) a.innerHTML = e.getHTML(f(b, {
+                        src: b.expressInstall
+                    }), {
+                        MMredirectURL: location.href,
+                        MMplayerType: "PlugIn",
+                        MMdoctitle: document.title
+                    }); else {
+                        if (!a.innerHTML.replace(/\s/g, "")) {
+                            a.innerHTML = "<h2>Flash version " + b.version + " or greater is required</h2><h3>" + (g[0] > 0 ? "Your version is " + g : "You have no flash plugin installed") + "</h3>" + (a.tagName == "A" ? "<p>Click here to download latest version</p>" : "<p>Download latest version from <a href='" + k + "'>here</a></p>");
+                            if (a.tagName == "A") a.onclick = function() {
+                                location.href = k;
+                            };
+                        }
+                        if (b.onFail) {
+                            var d = b.onFail.call(this);
+                            if (typeof d == "string") a.innerHTML = d;
+                        }
+                    }
+                    if (h) window[b.id] = document.getElementById(b.id);
+                    f(this, {
+                        getRoot: function() {
+                            return a;
+                        },
+                        getOptions: function() {
+                            return b;
+                        },
+                        getConf: function() {
+                            return c;
+                        },
+                        getApi: function() {
+                            return a.firstChild;
+                        }
+                    });
+                }
+                var h = document.all, k = "http://www.adobe.com/go/getflashplayer", n = typeof $ == "function", o = /(\d+)[^\d]+(\d+)[^\d]*(\d*)/, i = {
+                    width: "100%",
+                    height: "100%",
+                    id: "_" + ("" + Math.random()).slice(9),
+                    allowfullscreen: true,
+                    allowscriptaccess: "always",
+                    quality: "high",
+                    version: [ 3, 0 ],
+                    onFail: null,
+                    expressInstall: null,
+                    w3c: false,
+                    cachebusting: false
+                };
+                window.attachEvent && window.attachEvent("onbeforeunload", function() {
+                    __flash_unloadHandler = function() {};
+                    __flash_savedUnloadHandler = function() {};
+                });
+                window.flashembed = function(a, b, c) {
+                    if (typeof a == "string") a = document.getElementById(a.replace("#", ""));
+                    if (a) {
+                        if (typeof b == "string") b = {
+                            src: b
+                        };
+                        return new m(a, f(f({}, i), b), c);
+                    }
+                };
+                var e = f(window.flashembed, {
+                    conf: i,
+                    getVersion: function() {
+                        var a;
+                        try {
+                            a = navigator.plugins["Shockwave Flash"].description.slice(16);
+                        } catch (b) {
+                            try {
+                                var c = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.7");
+                                a = c && c.GetVariable("$version");
+                            } catch (d) {}
+                        }
+                        return (a = o.exec(a)) ? [ a[1], a[3] ] : [ 0, 0 ];
+                    },
+                    asString: function(a) {
+                        if (a === null || a === undefined) return null;
+                        var b = typeof a;
+                        if (b == "object" && a.push) b = "array";
+                        switch (b) {
+                          case "string":
+                            a = a.replace(new RegExp('(["\\\\])', "g"), "\\$1");
+                            a = a.replace(/^\s?(\d+\.?\d+)%/, "$1pct");
+                            return '"' + a + '"';
+
+                          case "array":
+                            return "[" + l(a, function(d) {
+                                return e.asString(d);
+                            }).join(",") + "]";
+
+                          case "function":
+                            return '"function()"';
+
+                          case "object":
+                            b = [];
+                            for (var c in a) a.hasOwnProperty(c) && b.push('"' + c + '":' + e.asString(a[c]));
+                            return "{" + b.join(",") + "}";
+                        }
+                        return String(a).replace(/\s/g, " ").replace(/\'/g, '"');
+                    },
+                    getHTML: function(a, b) {
+                        a = f({}, a);
+                        var c = '<object width="' + a.width + '" height="' + a.height + '" id="' + a.id + '" name="' + a.id + '"';
+                        if (a.cachebusting) a.src += (a.src.indexOf("?") != -1 ? "&" : "?") + Math.random();
+                        c += a.w3c || !h ? ' data="' + a.src + '" type="application/x-shockwave-flash"' : ' classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"';
+                        c += ">";
+                        if (a.w3c || h) c += '<param name="movie" value="' + a.src + '" />';
+                        a.width = a.height = a.id = a.w3c = a.src = null;
+                        a.onFail = a.version = a.expressInstall = null;
+                        for (var d in a) if (a[d]) c += '<param name="' + d + '" value="' + a[d] + '" />';
+                        a = "";
+                        if (b) {
+                            for (var j in b) if (b[j]) {
+                                d = b[j];
+                                a += j + "=" + (/function|object/.test(typeof d) ? e.asString(d) : d) + "&";
+                            }
+                            a = a.slice(0, -1);
+                            c += '<param name="flashvars" value=\'' + a + "' />";
+                        }
+                        c += "</object>";
+                        return c;
+                    },
+                    isSupported: function(a) {
+                        return g[0] > a[0] || g[0] == a[0] && g[1] >= a[1];
+                    }
+                }), g = e.getVersion();
+                if (n) {
+                    $.tools = $.tools || {
+                        version: "1.2.2"
+                    };
+                    $.tools.flashembed = {
+                        conf: i
+                    };
+                    $.fn.flashembed = function(a, b) {
+                        return this.each(function() {
+                            $(this).data("flashembed", flashembed(this, a, b));
+                        });
+                    };
+                }
+            })();
+            (function() {
+                function FlashAudio(phono, config, callback) {
+                    this.type = "flash";
+                    // Define defualt config and merge from constructor
+                    this.config = Phono.util.extend({
+                        protocol: "rtmfp",
+                        swf: "//" + MD5.hexdigest(window.location.host + phono.config.apiKey) + ".u.phono.com/releases/" + Phono.version + "/plugins/audio/phono.audio.swf",
+                        cirrus: "rtmfp://phono-fms1-ext.voxeolabs.net/phono",
+                        bridged: false,
+                        reliable: false,
+                        media: {
+                            audio: true,
+                            video: true
+                        },
+                        watchdog: 25e3
+                    }, config);
+                    // Bind Event Listeners
+                    Phono.events.bind(this, config);
+                    var containerId = this.config.containerId;
+                    // Create flash continer is user did not specify one
+                    if (!containerId) {
+                        this.config.containerId = containerId = this.createContainer();
+                    }
+                    // OMG! Fix position of flash movie to be integer pixel
+                    Phono.events.bind(this, {
+                        onPermissionBoxShow: function() {
+                            var p = $("#" + containerId).position();
+                            $("#" + containerId).css("left", parseInt(p.left));
+                            $("#" + containerId).css("top", parseInt(p.top));
+                        }
+                    });
+                    var plugin = this;
+                    // Flash movie is embedded asynchronously so we need a listener 
+                    // to fire when the SWF is loaded and ready for action
+                    FABridge.addInitializationCallback(containerId, function() {
+                        Phono.log.info("FlashAudio Ready");
+                        plugin.$flash = this.create("Wrapper").getAudio();
+                        plugin.$flash.addEventListener(null, function(event) {
+                            var eventName = event.getType() + "";
+                            Phono.events.trigger(plugin, eventName, {
+                                reason: event.getReason()
+                            });
+                            if (eventName == "mediaError") {
+                                Phono.events.trigger(phono, "error", {
+                                    reason: event.getReason()
+                                });
+                            }
+                        });
+                        plugin.$flash.setVersion(Phono.version);
+                        callback(plugin);
+                    });
+                    wmodeSetting = "opaque";
+                    if (navigator.appVersion.indexOf("X11") != -1 || navigator.appVersion.indexOf("Linux") != -1 || $.browser.opera) {
+                        wmodeSetting = "window";
+                    }
+                    window.setInterval(function() {
+                        if (!plugin.$flash) {
+                            Phono.events.trigger(phono, "error", {
+                                reason: "Timeout waiting for flash to load."
+                            });
+                            Phono.log.error("Timeout waiting for flash to load.");
+                        }
+                    }, plugin.config.watchdog);
+                    // Embed flash plugin
+                    flashembed(containerId, {
+                        id: containerId + "id",
+                        src: this.config.swf + "?rnd=" + new Date().getTime(),
+                        wmode: wmodeSetting
+                    }, {
+                        bridgeName: containerId
+                    });
+                }
+                FlashAudio.count = 0;
+                // FlashAudio Functions
+                //
+                // Most of these will simply pass through to the underlying Flash layer.
+                // In the old API this was done by 'wrapping' the Flash object. I've chosen a more verbos 
+                // approach to aid in debugging now that the Flash side has been reduced to a few simple calls.
+                // =============================================================================================
+                FlashAudio.prototype.getCaps = function(c) {
+                    return c.c(this.type, {
+                        protocol: this.config.protocol,
+                        bridged: this.config.bridged
+                    }).up();
+                };
+                // Show the Flash Audio permission box
+                FlashAudio.prototype.showPermissionBox = function() {
+                    this.$flash.showPermissionBox();
+                };
+                // Returns true if the FLash movie has microphone access
+                FlashAudio.prototype.permission = function() {
+                    return this.$flash.getHasPermission();
+                };
+                // Creates a new Player and will optionally begin playing
+                FlashAudio.prototype.play = function(transport, autoPlay) {
+                    url = transport.uri.replace("protocol", this.config.protocol);
+                    var luri = url;
+                    var uri = Phono.util.parseUri(url);
+                    var location = Phono.util.parseUri(document.location);
+                    if (uri.protocol == "rtp") return null;
+                    if (url.indexOf("//") == 0) {
+                        luri = location.protocol + ":" + url;
+                    } else if (uri.protocol.length < 2) {
+                        // We are relative, so use the document.location
+                        luri = location.protocol + "://" + location.authority + location.directoryPath + url;
+                    }
+                    var player;
+                    if (this.config.bridged == false && transport.peerID != undefined && this.config.cirrus != undefined) {
+                        Phono.log.info("Direct media play with peer " + transport.peerID);
+                        player = this.$flash.play(luri, autoPlay, transport.peerID, this.config.video);
+                    } else player = this.$flash.play(luri, autoPlay);
+                    return {
+                        url: function() {
+                            return player.getUrl();
+                        },
+                        start: function() {
+                            player.start();
+                        },
+                        stop: function() {
+                            player.stop();
+                            // This is final, you can't restart if it was rtmp or rtmfp
+                            player.release();
+                        },
+                        volume: function(value) {
+                            if (arguments.length === 0) {
+                                return player.getVolume();
+                            } else {
+                                player.setVolume(value);
+                            }
+                        }
+                    };
+                };
+                // Creates a new audio Share and will optionally begin playing
+                FlashAudio.prototype.share = function(transport, autoPlay, codec) {
+                    var url = transport.uri.replace("protocol", this.config.protocol);
+                    var peerID = "";
+                    if (this.config.bridged == false && transport.peerID != undefined && this.config.cirrus != undefined) {
+                        peerID = transport.peerID;
+                        Phono.log.info("Direct media share with peer " + transport.peerID);
+                    }
+                    var isSecure = false;
+                    var share = this.$flash.share(url, autoPlay, codec.id, codec.name, codec.rate, true, peerID, this.config.video, this.config.reliable);
+                    if (url.indexOf("rtmfp://") == 0) isSecure = true;
+                    var s = {
+                        // Readonly
+                        url: function() {
+                            return share.getUrl();
+                        },
+                        codec: function() {
+                            var codec = share.getCodec();
+                            return {
+                                id: codec.getId(),
+                                name: codec.getName(),
+                                rate: codec.getRate()
+                            };
+                        },
+                        // Control
+                        start: function() {
+                            share.start();
+                        },
+                        stop: function() {
+                            share.stop();
+                            // This is final, you can't restart
+                            share.release();
+                        },
+                        digit: function(value, duration, audible) {
+                            share.digit(value, duration, audible);
+                        },
+                        // Properties
+                        gain: function(value) {
+                            if (arguments.length === 0) {
+                                return share.getGain();
+                            } else {
+                                share.setGain(value);
+                            }
+                        },
+                        mute: function(value) {
+                            if (arguments.length === 0) {
+                                return share.getMute();
+                            } else {
+                                share.setMute(value);
+                            }
+                        },
+                        suppress: function(value) {
+                            if (arguments.length === 0) {
+                                return share.getSuppress();
+                            } else {
+                                share.setSuppress(value);
+                            }
+                        },
+                        energy: function() {
+                            return {
+                                mic: 0,
+                                spk: 0
+                            };
+                        },
+                        secure: function() {
+                            return isSecure;
+                        }
+                    };
+                    share.addEventListener(null, function(event) {
+                        var eventName = event.getType() + "";
+                        Phono.events.trigger(s, eventName, {
+                            reason: event.getReason()
+                        });
+                    });
+                    return s;
+                };
+                // Returns an object containg JINGLE transport information
+                FlashAudio.prototype.transport = function() {
+                    var $flash = this.$flash;
+                    var config = this.config;
+                    var cirrus = this.config.cirrus;
+                    var plugin = this;
+                    var name = this.$flash.getTransport();
+                    var description = this.$flash.getDescription();
+                    return {
+                        name: name,
+                        description: description,
+                        buildTransport: function(direction, j, callback) {
+                            var nearID = "";
+                            if (!config.bridged) {
+                                // XXX HOW LONG WILL WAIT BEFORE ABORTING?
+                                var onConnected = function() {
+                                    if (nearID == "") {
+                                        // First call
+                                        nearID = $flash.nearID(cirrus);
+                                        Phono.log.info("Got nearID = " + nearID);
+                                        if (nearID != "") {
+                                            j.c("transport", {
+                                                xmlns: name,
+                                                peerID: nearID
+                                            });
+                                        } else {
+                                            j.c("transport", {
+                                                xmlns: name
+                                            });
+                                        }
+                                        callback();
+                                    }
+                                };
+                                // Connect to cirrus, and once we get the good event, grab the nearID and continue
+                                var connected = $flash.doCirrusConnect(cirrus);
+                                Phono.log.info("doCirrusConnect");
+                                if (connected) {
+                                    // Will not get an additional callabck
+                                    Phono.log.info("doCirrusConnect - already connected");
+                                    onConnected();
+                                } else {
+                                    Phono.events.add(plugin, "flashConnected", onConnected);
+                                }
+                            } else {
+                                j.c("transport", {
+                                    xmlns: this.name
+                                });
+                                callback();
+                            }
+                        },
+                        processTransport: function(t) {
+                            var pID = t.attr("peerid");
+                            var transport;
+                            // If we have a Peer ID, and no other transport, fake one
+                            if (pID != undefined) transport = {
+                                input: {
+                                    uri: "rtmfp://invalid/invalid",
+                                    peerID: pID
+                                },
+                                output: {
+                                    uri: "rtmfp://invalid/invalid",
+                                    peerID: pID
+                                }
+                            };
+                            t.find("candidate").each(function() {
+                                transport = {
+                                    input: {
+                                        uri: $(this).attr("rtmpUri") + "/" + $(this).attr("playName"),
+                                        peerID: pID
+                                    },
+                                    output: {
+                                        uri: $(this).attr("rtmpUri") + "/" + $(this).attr("publishName"),
+                                        peerID: pID
+                                    }
+                                };
+                            });
+                            return transport;
+                        },
+                        destroyTransport: function() {
+                            // Disconnect from cirrus server, reference counting is done in phono-as-audio
+                            if (!config.bridged) {
+                                Phono.log.info("Disconnecting from cirrus server");
+                                $flash.doCirrusDisconnect(cirrus);
+                            }
+                        }
+                    };
+                };
+                // Returns an array of codecs supported by this plugin
+                FlashAudio.prototype.codecs = function() {
+                    var result = new Array();
+                    var codecs = this.$flash.getCodecs();
+                    Phono.util.each(codecs, function() {
+                        result.push({
+                            id: this.getId(),
+                            name: this.getName(),
+                            rate: this.getRate()
+                        });
+                    });
+                    return result;
+                };
+                // Creates a DIV to hold the Flash movie if one was not specified by the user
+                FlashAudio.prototype.createContainer = function(phono) {
+                    var flashDiv = $("<div>").attr("id", "_phono-audio-flash" + FlashAudio.count++).addClass("phono_FlashHolder").appendTo("body");
+                    flashDiv.css({
+                        width: "1px",
+                        height: "1px",
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        "margin-top": "-69px",
+                        "margin-left": "-107px",
+                        "z-index": "10001",
+                        visibility: "visible"
+                    });
+                    var containerId = $(flashDiv).attr("id");
+                    Phono.events.bind(this, {
+                        onPermissionBoxShow: function() {
+                            $("#" + containerId).css({
+                                width: "240px",
+                                height: "160px"
+                            });
+                        },
+                        onPermissionBoxHide: function() {
+                            $("#" + containerId).css({
+                                width: "1px",
+                                height: "1px"
+                            });
+                        }
+                    });
+                    return containerId;
+                };
+                function JavaAudio(phono, config, callback) {
+                    this.type = "java";
+                    if (JavaAudio.exists()) {
+                        // Define defualt config and merge from constructor
+                        this.config = Phono.util.extend({
+                            jar: "//s.phono.com/releases/" + Phono.version + "/plugins/audio/phono.audio.jar"
+                        }, config);
+                        // Bind Event Listeners
+                        Phono.events.bind(this, config);
+                        var containerId = this.config.containerId;
+                        // Create applet continer is user did not specify one
+                        if (!containerId) {
+                            this.config.containerId = containerId = _createContainer();
+                        }
+                        var plugin = this;
+                        // Install the applet
+                        plugin.$applet = _loadApplet(containerId, this.config.jar, callback, plugin);
+                        window.setInterval(function() {
+                            var str = "Loading...";
+                            try {
+                                var json = plugin.$applet[0].getJSONStatus();
+                                if (json) {
+                                    var statusO = eval("(" + json + ")");
+                                    if (!statusO.userTrust) {
+                                        Phono.events.trigger(phono, "error", {
+                                            reason: "Java Applet not trusted by user - cannot continue"
+                                        });
+                                    } else {
+                                        eps = statusO.endpoints;
+                                        if (eps.length > 0) {
+                                            if (eps[0].sent > 50 && eps[0].rcvd == 0) {
+                                                Phono.events.trigger(phono, "error", {
+                                                    reason: "Java Applet detected firewall."
+                                                });
+                                            }
+                                            str = "share: " + eps[0].uri;
+                                            str += " sent " + eps[0].sent;
+                                            str += " rcvd " + eps[0].rcvd;
+                                            str += " error " + eps[0].error;
+                                            Phono.log.debug("[JAVA RTP] " + str);
+                                        }
+                                    }
+                                } else {
+                                    Phono.events.trigger(phono, "error", {
+                                        reason: "Java applet did not load."
+                                    });
+                                    Phono.log.debug("[JAVA Load errror] no status returned.");
+                                }
+                            } catch (e) {
+                                Phono.events.trigger(phono, "error", {
+                                    reason: "Can not communicate with Java Applet - perhaps it did not load."
+                                });
+                                Phono.log.debug("[JAVA Load error] " + e);
+                            }
+                        }, 25e3);
+                    } else {
+                        Phono.events.trigger(phono, "error", {
+                            reason: "Java not available in this browser."
+                        });
+                    }
+                }
+                JavaAudio.exists = function() {
+                    return navigator.javaEnabled();
+                };
+                JavaAudio.count = 0;
+                // JavahAudio Functions
+                //
+                // Most of these will simply pass through to the underlying Java layer.
+                // =============================================================================================
+                // Creates a new Player and will optionally begin playing
+                JavaAudio.prototype.play = function(transport, autoPlay) {
+                    var url = transport.uri;
+                    var applet = this.$applet[0];
+                    var player;
+                    var luri = url;
+                    var uri = Phono.util.parseUri(url);
+                    var location = Phono.util.parseUri(document.location);
+                    if (uri.protocol == "rtp") return null;
+                    if (url.indexOf("//") == 0) {
+                        luri = location.protocol + ":" + url;
+                    } else if (uri.protocol.length < 2) {
+                        // We are relative, so use the document.location
+                        luri = location.protocol + "://" + location.authority + location.directoryPath + url;
+                    }
+                    if (autoPlay === undefined) autoPlay = false;
+                    player = applet.play(luri, autoPlay);
+                    return {
+                        url: function() {
+                            return player.getUrl();
+                        },
+                        start: function() {
+                            player.start();
+                        },
+                        stop: function() {
+                            player.stop();
+                        },
+                        volume: function() {
+                            if (arguments.length === 0) {
+                                return player.volume();
+                            } else {
+                                player.volume(value);
+                            }
+                        }
+                    };
+                };
+                // Creates a new audio Share and will optionally begin playing
+                JavaAudio.prototype.share = function(transport, autoPlay, codec, srtpPropsl, srtpPropsr) {
+                    var url = transport.uri;
+                    var applet = this.$applet[0];
+                    Phono.log.debug("[JAVA share codec ] " + codec.p.pt + " id = " + codec.id);
+                    var acodec = applet.mkCodec(codec.p, codec.id);
+                    var share;
+                    var isSecure = false;
+                    if (srtpPropsl != undefined && srtpPropsr != undefined) {
+                        share = applet.share(url, acodec, autoPlay, srtpPropsl, srtpPropsr);
+                        isSecure = true;
+                    } else {
+                        share = applet.share(url, acodec, autoPlay);
+                    }
+                    return {
+                        // Readonly
+                        url: function() {
+                            return share.getUrl();
+                        },
+                        codec: function() {
+                            var codec = share.getCodec();
+                            return {
+                                id: codec.getId(),
+                                name: codec.getName(),
+                                rate: codec.getRate()
+                            };
+                        },
+                        // Control
+                        start: function() {
+                            share.start();
+                        },
+                        stop: function() {
+                            share.stop();
+                        },
+                        digit: function(value, duration, audible) {
+                            share.digit(value, duration, audible);
+                        },
+                        // Properties
+                        gain: function(value) {
+                            if (arguments.length === 0) {
+                                return share.gain();
+                            } else {
+                                share.gain(value);
+                            }
+                        },
+                        mute: function(value) {
+                            if (arguments.length === 0) {
+                                return share.mute();
+                            } else {
+                                share.mute(value);
+                            }
+                        },
+                        suppress: function(value) {
+                            if (arguments.length === 0) {
+                                return share.doES();
+                            } else {
+                                share.doES(value);
+                            }
+                        },
+                        energy: function() {
+                            var en = share.energy();
+                            return {
+                                mic: Math.floor(Math.max(Math.LOG2E * Math.log(en[0]) - 4, 0)),
+                                spk: Math.floor(Math.max(Math.LOG2E * Math.log(en[1]) - 4, 0))
+                            };
+                        },
+                        secure: function() {
+                            return isSecure;
+                        }
+                    };
+                };
+                // We always have java audio permission
+                JavaAudio.prototype.permission = function() {
+                    return true;
+                };
+                // Returns an object containg JINGLE transport information
+                JavaAudio.prototype.transport = function() {
+                    var applet = this.$applet[0];
+                    var endpoint = applet.allocateEndpoint();
+                    return {
+                        name: "urn:xmpp:jingle:transports:raw-udp:1",
+                        description: "urn:xmpp:jingle:apps:rtp:1",
+                        supportsSRTP: true,
+                        buildTransport: function(direction, j, callback) {
+                            var uri = Phono.util.parseUri(endpoint);
+                            j.c("transport", {
+                                xmlns: "urn:xmpp:jingle:transports:raw-udp:1"
+                            }).c("candidate", {
+                                ip: uri.domain,
+                                port: uri.port,
+                                generation: "1"
+                            });
+                            callback();
+                        },
+                        processTransport: function(t) {
+                            var fullUri;
+                            t.find("candidate").each(function() {
+                                fullUri = endpoint + ":" + $(this).attr("ip") + ":" + $(this).attr("port");
+                            });
+                            return {
+                                input: {
+                                    uri: fullUri
+                                },
+                                output: {
+                                    uri: fullUri
+                                }
+                            };
+                        }
+                    };
+                };
+                String.prototype.startsWith = function(str) {
+                    return this.match("^" + str) == str;
+                };
+                // Returns an array of codecs supported by this plugin
+                JavaAudio.prototype.codecs = function() {
+                    var result = new Array();
+                    var applet = this.$applet[0];
+                    var codecs = applet.codecs();
+                    for (l = 0; l < codecs.length; l++) {
+                        var name;
+                        if (codecs[l].name.startsWith("SPEEX")) {
+                            name = "SPEEX";
+                        } else name = codecs[l].name;
+                        result.push({
+                            id: codecs[l].pt,
+                            name: name,
+                            rate: codecs[l].rate,
+                            p: codecs[l]
+                        });
+                    }
+                    return result;
+                };
+                JavaAudio.prototype.audioIn = function(str) {
+                    var applet = this.$applet[0];
+                    applet.setAudioIn(str);
+                };
+                JavaAudio.prototype.audioInDevices = function() {
+                    var result = new Array();
+                    //var applet = this.$applet;
+                    //var jsonstr = applet.getAudioDeviceList();
+                    //console.log("seeing this.audioDeviceList as "+this.audioDeviceList);
+                    var devs = eval("(" + this.audioDeviceList + ")");
+                    var mixers = devs.mixers;
+                    result.push("Let my system choose");
+                    for (l = 0; l < mixers.length; l++) {
+                        if (mixers[l].targets.length > 0) {
+                            result.push(mixers[l].name);
+                        }
+                    }
+                    return result;
+                };
+                // Creates a DIV to hold the capture applet if one was not specified by the user
+                _createContainer = function() {
+                    var appletDiv = $("<div>").attr("id", "_phono-appletHolder" + JavaAudio.count++).addClass("phono_AppletHolder").appendTo("body");
+                    appletDiv.css({
+                        width: "1px",
+                        height: "1px",
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        "margin-top": "-69px",
+                        "margin-left": "-107px",
+                        "z-index": "10001",
+                        visibility: "visible"
+                    });
+                    var containerId = $(appletDiv).attr("id");
+                    return containerId;
+                };
+                _loadApplet = function(containerId, jar, callback, plugin) {
+                    var id = "_phonoAudio" + JavaAudio.count++;
+                    var callbackName = id + "Callback";
+                    window[callbackName] = function(devJson) {
+                        //console.log("Java audio device list json is "+devJson);
+                        plugin.audioDeviceList = devJson;
+                        t = window.setTimeout(function() {
+                            callback(plugin);
+                        }, 10);
+                    };
+                    var applet = $("<applet>").attr("id", id).attr("name", id).attr("code", "com.phono.applet.rtp.RTPApplet").attr("archive", jar).attr("width", "1px").attr("height", "1px").attr("mayscript", "true").append($("<param>").attr("name", "doEC").attr("value", "true")).append($("<param>").attr("name", "callback").attr("value", callbackName)).appendTo("#" + containerId);
+                    // Firefox 7.0.1 seems to treat the applet object as a function
+                    // which causes mayhem later on - so we return an array containing it
+                    // which seems to sheild us from issue.
+                    return applet;
+                };
+                function PhonegapIOSAudio(phono, config, callback) {
+                    this.type = "phonegap-ios";
+                    // Bind Event Listeners
+                    Phono.events.bind(this, config);
+                    var plugin = this;
+                    this.initState(callback, plugin);
+                }
+                PhonegapIOSAudio.exists = function() {
+                    return typeof PhoneGap != "undefined" && Phono.util.isIOS();
+                };
+                PhonegapIOSAudio.codecs = new Array();
+                PhonegapIOSAudio.endpoint = "rtp://0.0.0.0";
+                PhonegapIOSAudio.prototype.allocateEndpoint = function() {
+                    PhonegapIOSAudio.endpoint = "rtp://0.0.0.0";
+                    PhoneGap.exec(function(result) {
+                        console.log("endpoint success: " + result);
+                        PhonegapIOSAudio.endpoint = result;
+                    }, function(result) {
+                        console.log("endpoint fail:" + result);
+                    }, "Phono", "allocateEndpoint", []);
+                };
+                PhonegapIOSAudio.prototype.initState = function(callback, plugin) {
+                    this.allocateEndpoint();
+                    PhoneGap.exec(function(result) {
+                        console.log("codec success: " + result);
+                        var codecs = $.parseJSON(result);
+                        for (l = 0; l < codecs.length; l++) {
+                            var name;
+                            if (codecs[l].name.startsWith("SPEEX")) {
+                                name = "SPEEX";
+                            } else name = codecs[l].name;
+                            PhonegapIOSAudio.codecs.push({
+                                id: codecs[l].ptype,
+                                name: name,
+                                rate: codecs[l].rate,
+                                p: codecs[l]
+                            });
+                        }
+                        // We are done with initialisation
+                        callback(plugin);
+                    }, function(result) {
+                        console.log("codec fail:" + result);
+                    }, "Phono", "codecs", []);
+                };
+                // PhonegapIOSAudio Functions
+                //
+                // Most of these will simply pass through to the underlying Phonegap layer.
+                // =============================================================================================
+                // Creates a new Player and will optionally begin playing
+                PhonegapIOSAudio.prototype.play = function(transport, autoPlay) {
+                    var url = transport.uri;
+                    var luri = url;
+                    var uri = Phono.util.parseUri(url);
+                    var location = Phono.util.parseUri(document.location);
+                    if (uri.protocol == "rtp") return null;
+                    if (url.indexOf("//") == 0) {
+                        luri = location.protocol + ":" + url;
+                    } else if (uri.protocol.length < 2) {
+                        // We are relative, so use the document.location
+                        luri = location.protocol + "://" + location.directoryPath.substring(0, location.directoryPath.length) + url;
+                        luri = encodeURI(luri);
+                    }
+                    // Get PhoneGap to create the play
+                    console.log("play(" + luri + "," + autoPlay + ")");
+                    PhoneGap.exec(function(result) {
+                        console.log("play success: " + result);
+                    }, function(result) {
+                        console.log("play fail:" + result);
+                    }, "Phono", "play", [ {
+                        uri: luri,
+                        autoplay: autoPlay == true ? "YES" : "NO"
+                    } ]);
+                    return {
+                        url: function() {
+                            return luri;
+                        },
+                        start: function() {
+                            console.log("play.start " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("start success: " + result);
+                            }, function(result) {
+                                console.log("start fail:" + result);
+                            }, "Phono", "start", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        stop: function() {
+                            PhoneGap.exec(function(result) {
+                                console.log("stop success: " + result);
+                            }, function(result) {
+                                console.log("stop fail:" + result);
+                            }, "Phono", "stop", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        volume: function() {
+                            if (arguments.length === 0) {} else {}
+                        }
+                    };
+                };
+                // Creates a new audio Share and will optionally begin playing
+                PhonegapIOSAudio.prototype.share = function(transport, autoPlay, codec, srtpPropsl, srtpPropsr) {
+                    var url = transport.uri;
+                    var codecD = "" + codec.name + ":" + codec.rate + ":" + codec.id;
+                    // Get PhoneGap to create the share
+                    var pgprops;
+                    var isSecure = false;
+                    if (srtpPropsl != undefined && srtpPropsr != undefined) {
+                        pgprops = [ {
+                            uri: url,
+                            autoplay: autoPlay == true ? "YES" : "NO",
+                            codec: codecD,
+                            srtpPropsl: srtpPropsl,
+                            srtpPropsr: srtpPropsr
+                        } ];
+                        isSecure = true;
+                    } else {
+                        pgprops = [ {
+                            uri: url,
+                            autoplay: autoPlay == true ? "YES" : "NO",
+                            codec: codecD
+                        } ];
+                    }
+                    PhoneGap.exec(function(result) {
+                        console.log("share success: " + result);
+                    }, function(result) {
+                        console.log("share fail:" + result);
+                    }, "Phono", "share", pgprops);
+                    var luri = Phono.util.localUri(url);
+                    var muteStatus = false;
+                    var gainValue = 50;
+                    var micEnergy = 0;
+                    var spkEnergy = 0;
+                    // Return a shell of an object
+                    return {
+                        // Readonly
+                        url: function() {
+                            return url;
+                        },
+                        codec: function() {
+                            var codec;
+                            return {
+                                id: codec.getId(),
+                                name: codec.getName(),
+                                rate: codec.getRate()
+                            };
+                        },
+                        // Control
+                        start: function() {
+                            console.log("share.start " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("start success: " + result);
+                            }, function(result) {
+                                console.log("start fail:" + result);
+                            }, "Phono", "start", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        stop: function() {
+                            PhoneGap.exec(function(result) {
+                                console.log("stop success: " + result);
+                            }, function(result) {
+                                console.log("stop fail:" + result);
+                            }, "Phono", "stop", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        digit: function(value, duration, audible) {
+                            PhoneGap.exec(function(result) {
+                                console.log("digit success: " + result);
+                            }, function(result) {
+                                console.log("digit fail:" + result);
+                            }, "Phono", "digit", [ {
+                                uri: luri,
+                                digit: value,
+                                duration: duration,
+                                audible: audible == true ? "YES" : "NO"
+                            } ]);
+                        },
+                        // Properties
+                        gain: function(value) {
+                            if (arguments.length === 0) {
+                                return gainValue;
+                            } else {
+                                PhoneGap.exec(function(result) {
+                                    console.log("gain success: " + result + " " + value);
+                                    gainValue = value;
+                                }, function(result) {
+                                    console.log("gain fail:" + result);
+                                }, "Phono", "gain", [ {
+                                    uri: luri,
+                                    value: value
+                                } ]);
+                            }
+                        },
+                        mute: function(value) {
+                            if (arguments.length === 0) {
+                                return muteStatus;
+                            } else {
+                                PhoneGap.exec(function(result) {
+                                    console.log("mute success: " + result + " " + value);
+                                    muteStatus = value;
+                                }, function(result) {
+                                    console.log("mute fail:" + result);
+                                }, "Phono", "mute", [ {
+                                    uri: luri,
+                                    value: value == true ? "YES" : "NO"
+                                } ]);
+                            }
+                        },
+                        suppress: function(value) {
+                            if (arguments.length === 0) {} else {}
+                        },
+                        energy: function() {
+                            PhoneGap.exec(function(result) {
+                                console.log("energy success: " + result);
+                                var en = $.parseJSON(result);
+                                micEnergy = Math.floor(Math.max(Math.LOG2E * Math.log(en[0]) - 4, 0));
+                                spkEnergy = Math.floor(Math.max(Math.LOG2E * Math.log(en[1]) - 4, 0));
+                            }, function(result) {
+                                console.log("energy fail:" + result);
+                            }, "Phono", "energy", [ {
+                                uri: luri
+                            } ]);
+                            return {
+                                mic: micEnergy,
+                                spk: spkEnergy
+                            };
+                        },
+                        secure: function() {
+                            return isSecure;
+                        }
+                    };
+                };
+                // We always have phonegap audio permission
+                PhonegapIOSAudio.prototype.permission = function() {
+                    return true;
+                };
+                // Returns an object containg JINGLE transport information
+                PhonegapIOSAudio.prototype.transport = function() {
+                    var endpoint = PhonegapIOSAudio.endpoint;
+                    // We've used this one, get another ready
+                    this.allocateEndpoint();
+                    return {
+                        name: "urn:xmpp:jingle:transports:raw-udp:1",
+                        description: "urn:xmpp:jingle:apps:rtp:1",
+                        supportsSRTP: true,
+                        buildTransport: function(direction, j, callback) {
+                            console.log("buildTransport: " + endpoint);
+                            var uri = Phono.util.parseUri(endpoint);
+                            j.c("transport", {
+                                xmlns: "urn:xmpp:jingle:transports:raw-udp:1"
+                            }).c("candidate", {
+                                ip: uri.domain,
+                                port: uri.port,
+                                generation: "1"
+                            });
+                            callback();
+                        },
+                        processTransport: function(t) {
+                            var fullUri;
+                            t.find("candidate").each(function() {
+                                fullUri = endpoint + ":" + $(this).attr("ip") + ":" + $(this).attr("port");
+                            });
+                            return {
+                                input: {
+                                    uri: fullUri
+                                },
+                                output: {
+                                    uri: fullUri
+                                }
+                            };
+                        }
+                    };
+                };
+                String.prototype.startsWith = function(str) {
+                    return this.match("^" + str) == str;
+                };
+                // Returns an array of codecs supported by this plugin
+                PhonegapIOSAudio.prototype.codecs = function() {
+                    return PhonegapIOSAudio.codecs;
+                };
+                function PhonegapAndroidAudio(phono, config, callback) {
+                    this.type = "phonegap-android";
+                    // Bind Event Listeners
+                    Phono.events.bind(this, config);
+                    var plugin = this;
+                    // Register our Java plugin with Phonegap so that we can call it later
+                    PhoneGap.exec(null, null, "App", "addService", [ "PhonogapAudio", "com.phono.android.phonegap.Phono" ]);
+                    // FIXME: Should not have to do this twice!
+                    this.allocateEndpoint();
+                    this.initState(callback, plugin);
+                }
+                PhonegapAndroidAudio.exists = function() {
+                    return typeof PhoneGap != "undefined" && Phono.util.isAndroid();
+                };
+                PhonegapAndroidAudio.codecs = new Array();
+                PhonegapAndroidAudio.endpoint = "rtp://0.0.0.0";
+                PhonegapAndroidAudio.prototype.allocateEndpoint = function() {
+                    PhonegapAndroidAudio.endpoint = "rtp://0.0.0.0";
+                    PhoneGap.exec(function(result) {
+                        console.log("endpoint: success");
+                        PhonegapAndroidAudio.endpoint = result.uri;
+                    }, function(result) {
+                        console.log("endpoint: fail");
+                    }, "PhonogapAudio", "allocateEndpoint", [ {} ]);
+                };
+                PhonegapAndroidAudio.prototype.initState = function(callback, plugin) {
+                    this.allocateEndpoint();
+                    var codecSuccess = function(result) {
+                        console.log("codec: success");
+                        var codecs = result.codecs;
+                        for (l = 0; l < codecs.length; l++) {
+                            var name;
+                            if (codecs[l].name.startsWith("SPEEX")) {
+                                name = "SPEEX";
+                            } else name = codecs[l].name;
+                            PhonegapAndroidAudio.codecs.push({
+                                id: codecs[l].ptype,
+                                name: name,
+                                rate: codecs[l].rate,
+                                p: codecs[l]
+                            });
+                        }
+                        // We are done with initialisation
+                        callback(plugin);
+                    };
+                    var codecFail = function(result) {
+                        console.log("codec:fail");
+                    };
+                    // Get the codec list
+                    PhoneGap.exec(codecSuccess, codecFail, "PhonogapAudio", "codecs", [ {} ]);
+                };
+                // PhonegapAndroidAudio Functions
+                //
+                // Most of these will simply pass through to the underlying Phonegap layer.
+                // =============================================================================================
+                // Creates a new Player and will optionally begin playing
+                PhonegapAndroidAudio.prototype.play = function(transport, autoPlay) {
+                    var url = transport.uri;
+                    var luri = url;
+                    var uri = Phono.util.parseUri(url);
+                    var location = Phono.util.parseUri(document.location);
+                    if (uri.protocol == "rtp") return null;
+                    if (url.indexOf("//") == 0) {
+                        luri = location.protocol + ":" + url;
+                    } else if (uri.protocol.length < 2) {
+                        // We are relative, so use the document.location
+                        luri = location.protocol + "://" + location.directoryPath.substring(0, location.directoryPath.length) + url;
+                        luri = encodeURI(luri);
+                    }
+                    // Get PhoneGap to create the play
+                    PhoneGap.exec(function(result) {
+                        console.log("play: success");
+                    }, function(result) {
+                        console.log("play: fail");
+                    }, "PhonogapAudio", "play", [ {
+                        uri: luri,
+                        autoplay: autoPlay == true ? "YES" : "NO"
+                    } ]);
+                    return {
+                        url: function() {
+                            return luri;
+                        },
+                        start: function() {
+                            console.log("play.start " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("start: success");
+                            }, function(result) {
+                                console.log("start: fail");
+                            }, "PhonogapAudio", "start", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        stop: function() {
+                            console.log("play.stop " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("stop: success");
+                            }, function(result) {
+                                console.log("stop: fail");
+                            }, "PhonogapAudio", "stop", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        volume: function() {
+                            if (arguments.length === 0) {} else {}
+                        }
+                    };
+                };
+                // Creates a new audio Share and will optionally begin playing
+                PhonegapAndroidAudio.prototype.share = function(transport, autoPlay, codec, srtpPropsl, srtpPropsr) {
+                    var url = transport.uri;
+                    var codecD = "" + codec.name + ":" + codec.rate + ":" + codec.id;
+                    var pgprops;
+                    var isSecure = false;
+                    if (srtpPropsl != undefined && srtpPropsr != undefined) {
+                        pgprops = [ {
+                            uri: url,
+                            autoplay: autoPlay == true ? "YES" : "NO",
+                            codec: codecD,
+                            lsrtp: srtpPropsl,
+                            rsrtp: srtpPropsr
+                        } ];
+                        isSecure = true;
+                    } else {
+                        pgprops = [ {
+                            uri: url,
+                            autoplay: autoPlay == true ? "YES" : "NO",
+                            codec: codecD
+                        } ];
+                    }
+                    // Get PhoneGap to create the share
+                    PhoneGap.exec(function(result) {
+                        console.log("share: success");
+                    }, function(result) {
+                        console.log("share: fail");
+                    }, "PhonogapAudio", "share", pgprops);
+                    var luri = Phono.util.localUri(url);
+                    var muteStatus = false;
+                    var gainValue = 50;
+                    var micEnergy = 0;
+                    var spkEnergy = 0;
+                    // Return a shell of an object
+                    return {
+                        // Readonly
+                        url: function() {
+                            return url;
+                        },
+                        codec: function() {
+                            var codec;
+                            return {
+                                id: codec.getId(),
+                                name: codec.getName(),
+                                rate: codec.getRate()
+                            };
+                        },
+                        // Control
+                        start: function() {
+                            console.log("share.start " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("start: success");
+                            }, function(result) {
+                                console.log("start: fail");
+                            }, "PhonogapAudio", "start", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        stop: function() {
+                            console.log("share.stop " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("stop: success");
+                            }, function(result) {
+                                console.log("stop: fail");
+                            }, "PhonogapAudio", "stop", [ {
+                                uri: luri
+                            } ]);
+                        },
+                        digit: function(value, duration, audible) {
+                            console.log("share.digit " + luri);
+                            PhoneGap.exec(function(result) {
+                                console.log("digit: success");
+                            }, function(result) {
+                                console.log("digit: fail");
+                            }, "PhonogapAudio", "digit", [ {
+                                uri: luri,
+                                digit: value,
+                                duration: duration,
+                                audible: audible == true ? "YES" : "NO"
+                            } ]);
+                        },
+                        // Properties
+                        gain: function(value) {
+                            if (arguments.length === 0) {
+                                return gainValue;
+                            } else {
+                                console.log("share.gain " + luri);
+                                PhoneGap.exec(function(result) {
+                                    console.log("gain: success");
+                                }, function(result) {
+                                    console.log("gain: fail");
+                                }, "PhonogapAudio", "gain", [ {
+                                    uri: luri,
+                                    value: value
+                                } ]);
+                            }
+                        },
+                        mute: function(value) {
+                            if (arguments.length === 0) {
+                                return muteStatus;
+                            } else {
+                                console.log("share.mute " + luri);
+                                PhoneGap.exec(function(result) {
+                                    console.log("mute: success");
+                                }, function(result) {
+                                    console.log("mute: fail");
+                                }, "PhonogapAudio", "mute", [ {
+                                    uri: luri,
+                                    value: value == true ? "YES" : "NO"
+                                } ]);
+                            }
+                        },
+                        suppress: function(value) {
+                            if (arguments.length === 0) {} else {}
+                        },
+                        energy: function() {
+                            PhoneGap.exec(function(result) {
+                                console.log("energy success: " + result);
+                                var en = $.parseJSON(result);
+                                if (en != null) {
+                                    micEnergy = Math.floor(Math.max(Math.LOG2E * Math.log(en.mic) - 4, 0));
+                                    spkEnergy = Math.floor(Math.max(Math.LOG2E * Math.log(en.spk) - 4, 0));
+                                }
+                            }, function(result) {
+                                console.log("energy fail:" + result);
+                            }, "PhonogapAudio", "energy", [ {
+                                uri: luri
+                            } ]);
+                            return {
+                                mic: micEnergy,
+                                spk: spkEnergy
+                            };
+                        },
+                        secure: function() {
+                            return isSecure;
+                        }
+                    };
+                };
+                // We always have phonegap audio permission
+                PhonegapAndroidAudio.prototype.permission = function() {
+                    return true;
+                };
+                // Returns an object containg JINGLE transport information
+                PhonegapAndroidAudio.prototype.transport = function() {
+                    var endpoint = PhonegapAndroidAudio.endpoint;
+                    // We've used this one, get another ready
+                    this.allocateEndpoint();
+                    return {
+                        name: "urn:xmpp:jingle:transports:raw-udp:1",
+                        description: "urn:xmpp:jingle:apps:rtp:1",
+                        supportsSRTP: device.version.charAt(0) >= "4",
+                        buildTransport: function(direction, j, callback) {
+                            console.log("buildTransport: " + endpoint);
+                            var uri = Phono.util.parseUri(endpoint);
+                            j.c("transport", {
+                                xmlns: "urn:xmpp:jingle:transports:raw-udp:1"
+                            }).c("candidate", {
+                                ip: uri.domain,
+                                port: uri.port,
+                                generation: "1"
+                            });
+                            callback();
+                        },
+                        processTransport: function(t) {
+                            var fullUri;
+                            t.find("candidate").each(function() {
+                                fullUri = endpoint + ":" + $(this).attr("ip") + ":" + $(this).attr("port");
+                            });
+                            return {
+                                input: {
+                                    uri: fullUri
+                                },
+                                output: {
+                                    uri: fullUri
+                                }
+                            };
+                        }
+                    };
+                };
+                String.prototype.startsWith = function(str) {
+                    return this.match("^" + str) == str;
+                };
+                // Returns an array of codecs supported by this plugin
+                PhonegapAndroidAudio.prototype.codecs = function() {
+                    return PhonegapAndroidAudio.codecs;
+                };
+                function JSEPAudio(phono, config, callback) {
+                    this.type = "jsep";
+                    Phono.log.info("Initialize JSEP");
+                    if (typeof webkitAudioContext !== "undefined") {
+                        Phono.log.info("Have webkitAudio def");
+                        JSEPAudio.webAudioContext = new webkitAudioContext();
+                    } else if (typeof AudioContext !== "undefined") {
+                        Phono.log.info("Have AudioContext def");
+                        JSEPAudio.webAudioContext = new AudioContext();
+                    } else if (typeof mozAudioContext !== "undefined") {
+                        Phono.log.info("Have mozAudio def");
+                        JSEPAudio.webAudioContext = new mozAudioContext();
+                    } else {
+                        Phono.log.info("No webAudio available - so no freep");
+                    }
+                    if (typeof webkitRTCPeerConnection == "function") {
+                        JSEPAudio.GUM = function(p, s, f) {
+                            navigator.webkitGetUserMedia(p, s, f);
+                        };
+                        JSEPAudio.mkPeerConnection = function(a, b) {
+                            return new webkitRTCPeerConnection(a, b);
+                        };
+                        JSEPAudio.mkSessionDescription = function(a) {
+                            return new RTCSessionDescription(a);
+                        };
+                        JSEPAudio.createObjectURL = function(s) {
+                            return webkitURL.createObjectURL(s);
+                        };
+                        JSEPAudio.stun = "stun:stun.l.google.com:19302";
+                        JSEPAudio.attachMediaStream = function(element, stream) {
+                            element.src = webkitURL.createObjectURL(stream);
+                        };
+                        JSEPAudio.stripCrypto = function(sdpObj) {
+                            return sdpObj;
+                        };
+                        JSEPAudio.AudioUrl = function(url) {
+                            return url;
+                        };
+                        JSEPAudio.addCreateConstraint = function(constraint) {
+                            return constraint;
+                        };
+                    } else if (typeof mozRTCPeerConnection == "function") {
+                        JSEPAudio.GUM = function(p, s, f) {
+                            navigator.mozGetUserMedia(p, s, f);
+                        };
+                        JSEPAudio.mkPeerConnection = function(a, b) {
+                            return new mozRTCPeerConnection(a, b);
+                        };
+                        JSEPAudio.mkSessionDescription = function(a) {
+                            return new mozRTCSessionDescription(a);
+                        };
+                        JSEPAudio.createObjectURL = function(s) {
+                            return URL.createObjectURL(s);
+                        };
+                        JSEPAudio.stun = "stun:23.21.150.121";
+                        JSEPAudio.attachMediaStream = function(element, stream) {
+                            element.mozSrcObject = stream;
+                            element.play();
+                        };
+                        JSEPAudio.stripCrypto = function(sdpObj) {
+                            Phono.util.each(sdpObj.contents, function() {
+                                //if(this.rtcp) {delete this.rtcp;};
+                                //if(this['rtcp-mux']) {delete this['rtcp-mux'];};
+                                if (this.crypto) {
+                                    delete this.crypto;
+                                }
+                            });
+                            //if (sdpObj.group) {delete sdpObj.group;};
+                            return sdpObj;
+                        };
+                        JSEPAudio.AudioUrl = function(url) {
+                            return url.replace(".mp3", ".ogg");
+                        };
+                        JSEPAudio.addCreateConstraint = function(constraint) {
+                            constraint.mandatory.MozDontOfferDataChannel = true;
+                            return constraint;
+                        };
+                    }
+                    JSEPAudio.spk = 0;
+                    JSEPAudio.mic = 0;
+                    this.config = Phono.util.extend({
+                        media: {
+                            audio: true,
+                            video: false
+                        }
+                    }, config);
+                    var plugin = this;
+                    var localContainerId = this.config.localContainerId;
+                    // Create audio continer if user did not specify one
+                    if (!localContainerId) {
+                        this.config.localContainerId = this.createContainer();
+                    }
+                    JSEPAudio.localVideo = document.getElementById(this.config.localContainerId);
+                    callback(plugin);
+                }
+                JSEPAudio.exists = function() {
+                    if (typeof webkitRTCPeerConnection == "function") return true;
+                    if (typeof mozRTCPeerConnection == "function") {
+                        try {
+                            mozRTCPeerConnection();
+                        } catch (err) {
+                            return false;
+                        }
+                        return true;
+                    }
+                };
+                JSEPAudio.prototype.getCaps = function(c) {
+                    return c.c(this.type).up();
+                };
+                JSEPAudio.count = 0;
+                JSEPAudio.toneMap = {
+                    "0": [ 1336, 941 ],
+                    "1": [ 1209, 697 ],
+                    "2": [ 1336, 697 ],
+                    "3": [ 1477, 696 ],
+                    "4": [ 1209, 770 ],
+                    "5": [ 1336, 770 ],
+                    "6": [ 1477, 770 ],
+                    "7": [ 1209, 852 ],
+                    "8": [ 1336, 852 ],
+                    "9": [ 1447, 852 ],
+                    "*": [ 1209, 941 ],
+                    "#": [ 1477, 941 ]
+                };
+                // JSEPAudio Functions
+                //
+                // =============================================================================================
+                // Creates a new Player and will optionally begin playing
+                JSEPAudio.prototype.play = function(transport, autoPlay) {
+                    var url = null;
+                    var audioPlayer = null;
+                    if (transport.uri) {
+                        url = JSEPAudio.AudioUrl(transport.uri);
+                    }
+                    return {
+                        url: function() {
+                            return url;
+                        },
+                        start: function() {
+                            if (url) {
+                                audioPlayer = new Audio(url);
+                                var loop = function() {
+                                    audioPlayer = new Audio(url);
+                                    audioPlayer.play();
+                                    audioPlayer.addEventListener("ended", loop);
+                                };
+                                loop();
+                            }
+                        },
+                        stop: function() {
+                            if (audioPlayer) audioPlayer.pause();
+                            audioPlayer = null;
+                        },
+                        volume: function(value) {
+                            if (arguments.length === 0) {
+                                return transport.volume * 100;
+                            } else {
+                                transport.volume = value / 100;
+                            }
+                        }
+                    };
+                };
+                // Creates a new audio Share and will optionally begin playing
+                JSEPAudio.prototype.share = function(transport, autoPlay, codec) {
+                    var share;
+                    return {
+                        // Readonly
+                        url: function() {
+                            // No Share URL
+                            return null;
+                        },
+                        codec: function() {
+                            return codec;
+                        },
+                        // Control
+                        start: function() {
+                            // Audio started automatically
+                            return null;
+                        },
+                        stop: function() {
+                            if (JSEPAudio.localStream) {
+                                JSEPAudio.localStream.stop();
+                            }
+                        },
+                        // Properties
+                        gain: function(value) {
+                            // We have no control over this
+                            return null;
+                        },
+                        mute: function(value) {
+                            var tracks = [];
+                            if (JSEPAudio.localStream.getAudioTracks) {
+                                tracks = JSEPAudio.localStream.getAudioTracks();
+                            }
+                            if (arguments.length === 0) {
+                                var muted = true;
+                                Phono.util.each(tracks, function() {
+                                    if (this.enabled == true) muted = false;
+                                });
+                                return muted;
+                            }
+                            if (value == true) {
+                                Phono.util.each(tracks, function() {
+                                    this.enabled = false;
+                                });
+                            } else {
+                                Phono.util.each(tracks, function() {
+                                    this.enabled = true;
+                                });
+                            }
+                        },
+                        suppress: function(value) {
+                            // Echo canceller is on always
+                            return null;
+                        },
+                        energy: function() {
+                            if (JSEPAudio.pc && JSEPAudio.pc.getStats) {
+                                JSEPAudio.pc.getStats(function(stats) {
+                                    var sr = stats.result();
+                                    for (var i = 0; i < sr.length; i++) {
+                                        var obj = sr[i].remote;
+                                        if (obj) {
+                                            var nspk = 0;
+                                            var nmic = 0;
+                                            if (obj.stat("audioInputLevel")) {
+                                                nmic = obj.stat("audioInputLevel");
+                                            }
+                                            if (nmic > 0) {
+                                                JSEPAudio.mic = Math.floor(Math.max(Math.LOG2E * Math.log(nmic) - 4, 0));
+                                            }
+                                            if (obj.stat("audioOutputLevel")) {
+                                                nspk = obj.stat("audioOutputLevel");
+                                            }
+                                            if (nspk > 0) {
+                                                JSEPAudio.spk = Math.floor(Math.max(Math.LOG2E * Math.log(nspk) - 4, 0));
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            return {
+                                mic: JSEPAudio.mic,
+                                spk: JSEPAudio.spk
+                            };
+                        },
+                        secure: function() {
+                            return true;
+                        },
+                        freep: function(value, duration, audible) {
+                            if (audible) {
+                                var context = JSEPAudio.webAudioContext;
+                                if (context) {
+                                    var note1;
+                                    var note2;
+                                    if (duration < 100) duration = 100;
+                                    // sensible sound
+                                    note1 = context.createOscillator();
+                                    note2 = context.createOscillator();
+                                    note1.connect(context.destination);
+                                    note2.connect(context.destination);
+                                    var twoTone = JSEPAudio.toneMap[value];
+                                    note1.frequency.value = twoTone[0];
+                                    note2.frequency.value = twoTone[1];
+                                    note1.noteOn(0);
+                                    note2.noteOn(0);
+                                    window.setTimeout(function() {
+                                        note1.noteOff(0);
+                                        note2.noteOff(0);
+                                    }, duration);
+                                }
+                            }
+                        }
+                    };
+                };
+                JSEPAudio.prototype.showPermissionBox = function(callback) {
+                    Phono.log.info("Requesting access to local media");
+                    JSEPAudio.GUM({
+                        audio: this.config.media["audio"],
+                        video: this.config.media["video"]
+                    }, function(stream) {
+                        JSEPAudio.localStream = stream;
+                        JSEPAudio.localVideo.style.opacity = 1;
+                        JSEPAudio.attachMediaStream(JSEPAudio.localVideo, stream);
+                        JSEPAudio.localVideo.muted = "muted";
+                        if (typeof callback == "function") callback(true);
+                    }, function(error) {
+                        Phono.log.info("Failed to get access to local media. Error code was " + error.code);
+                        alert("Failed to get access to local media. Error code was " + error.code + ".");
+                        if (typeof callback == "function") callback(false);
+                    });
+                };
+                JSEPAudio.prototype.permission = function() {
+                    return JSEPAudio.localStream != undefined;
+                };
+                // Returns an object containg JINGLE transport information
+                JSEPAudio.prototype.transport = function(config) {
+                    var pc;
+                    var inboundOffer;
+                    var configuration = {
+                        iceServers: [ {
+                            url: JSEPAudio.stun
+                        } ]
+                    };
+                    var offerconstraints;
+                    var peerconstraints;
+                    var remoteContainerId;
+                    var complete = false;
+                    var audio = this;
+                    var candidateCount = 0;
+                    offerconstraints = {
+                        mandatory: {
+                            OfferToReceiveAudio: this.config.media["audio"],
+                            OfferToReceiveVideo: this.config.media["video"]
+                        }
+                    };
+                    offerconstraints = JSEPAudio.addCreateConstraint(offerconstraints);
+                    peerconstraints = {
+                        optional: [ {
+                            DtlsSrtpKeyAgreement: "true"
+                        } ]
+                    };
+                    if (!config || !config.remoteContainerId) {
+                        if (this.config.remoteContainerId) {
+                            remoteContainerId = this.config.remoteContainerId;
+                        } else {
+                            remoteContainerId = this.createContainer();
+                        }
+                    } else {
+                        remoteContainerId = config.remoteContainerId;
+                    }
+                    var remoteVideo = document.getElementById(remoteContainerId);
+                    return {
+                        name: "urn:xmpp:jingle:transports:ice-udp:1",
+                        buildTransport: function(direction, j, callback, u, updateCallback) {
+                            pc = JSEPAudio.mkPeerConnection(configuration, peerconstraints);
+                            JSEPAudio.pc = pc;
+                            var oic = function(evt) {
+                                if (!complete) {
+                                    if (evt.candidate == null || candidateCount >= 1 && !audio.config.media["video"] && direction == "answer") {
+                                        Phono.log.info("All Ice candidates in ");
+                                        complete = true;
+                                        var sdp = pc.localDescription.sdp;
+                                        Phono.log.info("SDP " + JSON.stringify(sdp));
+                                        var sdpObj = Phono.sdp.parseSDP(sdp);
+                                        Phono.log.info("SdpObj " + JSON.stringify(sdpObj));
+                                        Phono.sdp.buildJingle(j, sdpObj);
+                                        var codecId = 0;
+                                        if (sdpObj.contents[0].codecs[0].name == "telephone-event") codecId = 1;
+                                        var codec = {
+                                            id: sdpObj.contents[0].codecs[codecId].id,
+                                            name: sdpObj.contents[0].codecs[codecId].name,
+                                            rate: sdpObj.contents[0].codecs[codecId].clockrate
+                                        };
+                                        callback(codec);
+                                    } else {
+                                        Phono.log.info("An Ice candidate ");
+                                        candidateCount += 1;
+                                    }
+                                }
+                            };
+                            pc.onicecandidate = oic;
+                            //pc.onconnecting = function(message) {Phono.log.info("onSessionConnecting.");};
+                            //pc.onopen = function(message) {Phono.log.info("onSessionOpened.");};
+                            pc.onaddstream = function(event) {
+                                Phono.log.info("onAddStream. Attaching");
+                                JSEPAudio.attachMediaStream(remoteVideo, event.stream);
+                                remoteVideo.style.opacity = 1;
+                            };
+                            //pc.onremovestream = function (event) {Phono.log.info("onRemoveStream."); };
+                            //pc.onicechange= function (event) {Phono.log.info("onIceChange: "+pc.iceState); };
+                            //pc.onnegotiationneeded = function (event) {Phono.log.info("onNegotiationNeeded."); };
+                            //pc.onstatechange = function (event) {Phono.log.info("onStateChange: "+pc.readyState); };
+                            Phono.log.debug("Adding localStream");
+                            var cb2 = function() {
+                                pc.addStream(JSEPAudio.localStream);
+                                var setlfail = function(er) {
+                                    Phono.log.error("failed to setlocal " + er);
+                                };
+                                var setlok = function() {
+                                    Phono.log.info("setlocal ok");
+                                };
+                                var cb = function(localDesc) {
+                                    var sd = JSEPAudio.mkSessionDescription(localDesc);
+                                    pc.setLocalDescription(sd, setlok, setlfail);
+                                    window.setTimeout(function() {
+                                        oic({});
+                                    }, 1e3);
+                                    Phono.log.info("Set local description " + JSON.stringify(localDesc));
+                                };
+                                var offerfail = function() {
+                                    Phono.log.error("failed to create offer");
+                                };
+                                var ansfail = function() {
+                                    Phono.log.error("failed to create answer");
+                                };
+                                if (direction == "answer") {
+                                    Phono.log.info("Set remote description " + JSON.stringify(inboundOffer));
+                                    pc.setRemoteDescription(inboundOffer, function() {
+                                        Phono.log.debug("remoteDescription happy");
+                                        pc.createAnswer(cb, ansfail);
+                                    }, function() {
+                                        Phono.log.error("remoteDescription error");
+                                    });
+                                } else {
+                                    Phono.log.info("create offer with  " + JSON.stringify(offerconstraints));
+                                    pc.createOffer(cb, offerfail, offerconstraints);
+                                }
+                            };
+                            if (audio.permission()) {
+                                cb2();
+                            } else {
+                                audio.showPermissionBox(cb2);
+                            }
+                        },
+                        processTransport: function(t, update, iq) {
+                            var sdpObj = Phono.sdp.parseJingle(iq);
+                            Phono.log.info("Made remote sdp Obj" + JSON.stringify(sdpObj));
+                            sdpObj = JSEPAudio.stripCrypto(sdpObj);
+                            var sdp = Phono.sdp.buildSDP(sdpObj);
+                            Phono.log.info("constructed remote sdp " + JSON.stringify(sdp));
+                            var codecId = 0;
+                            if (sdpObj.contents[0].codecs[0].name == "telephone-event") codecId = 1;
+                            var codec = {
+                                id: sdpObj.contents[0].codecs[codecId].id,
+                                name: sdpObj.contents[0].codecs[codecId].name,
+                                rate: sdpObj.contents[0].codecs[codecId].clockrate
+                            };
+                            if (pc) {
+                                // We are an answer to an outbound call
+                                Phono.log.info("Got remote sdp " + JSON.stringify(sdp));
+                                var sd = JSEPAudio.mkSessionDescription({
+                                    sdp: sdp,
+                                    type: "answer"
+                                });
+                                Phono.log.info("Set remote description " + JSON.stringify(sd));
+                                pc.setRemoteDescription(sd, function() {
+                                    Phono.log.debug("remoteDescription happy");
+                                }, function() {
+                                    Phono.log.error("remoteDescription sad");
+                                });
+                            } else {
+                                // We are an offer for an inbound call
+                                Phono.log.info("Got remote description " + JSON.stringify(sdp));
+                                var sd = JSEPAudio.mkSessionDescription({
+                                    sdp: sdp,
+                                    type: "offer"
+                                });
+                                inboundOffer = sd;
+                            }
+                            return {
+                                codec: codec,
+                                input: remoteVideo
+                            };
+                        },
+                        destroyTransport: function() {
+                            // Destroy any transport state we have created
+                            if (pc) {
+                                pc.close();
+                                if ($(remoteVideo).attr("id").indexOf("_phono-audio-webrtc") == 0) {
+                                    remoteVideo.parentNode.removeChild(remoteVideo);
+                                }
+                            }
+                            if (JSEPAudio.localStream) {
+                                JSEPAudio.localStream.stop();
+                                JSEPAudio.localStream = null;
+                            }
+                        }
+                    };
+                };
+                // Returns an array of codecs supported by this plugin
+                // Hack until we get capabilities support
+                JSEPAudio.prototype.codecs = function() {
+                    return {};
+                };
+                JSEPAudio.prototype.audioInDevices = function() {
+                    var result = new Array();
+                    return result;
+                };
+                // Creates a DIV to hold the video element if not specified by the user
+                JSEPAudio.prototype.createContainer = function() {
+                    var webRTC = $("<video>").attr("id", "_phono-audio-webrtc" + JSEPAudio.count++).attr("autoplay", "autoplay").appendTo("body");
+                    var containerId = $(webRTC).attr("id");
+                    return containerId;
+                };
+                Phono.registerPlugin("audio", {
+                    create: function(phono, config, callback) {
+                        config = Phono.util.extend({
+                            type: "auto"
+                        }, config);
+                        // What are we going to create? Look at the config...
+                        if (config.type === "java") {
+                            return Phono.util.loggify("JavaAudio", new JavaAudio(phono, config, callback));
+                        } else if (config.type === "phonegap-ios") {
+                            return Phono.util.loggify("PhonegapIOSAudio", new PhonegapIOSAudio(phono, config, callback));
+                        } else if (config.type === "phonegap-android") {
+                            return Phono.util.loggify("PhonegapAndroidAudio", new PhonegapAndroidAudio(phono, config, callback));
+                        } else if (config.type === "flash") {
+                            return Phono.util.loggify("FlashAudio", new FlashAudio(phono, config, callback));
+                        } else if (config.type === "jsep") {
+                            return Phono.util.loggify("JSEPAudio", new JSEPAudio(phono, config, callback));
+                        } else if (config.type === "none") {
+                            window.setTimeout(callback, 10);
+                            return null;
+                        } else if (config.type === "auto") {
+                            Phono.log.info("Detecting Audio Plugin");
+                            if (JSEPAudio.exists()) {
+                                Phono.log.info("Detected JSEP browser");
+                                return Phono.util.loggify("JSEPAudio", new JSEPAudio(phono, config, callback));
+                            } else if (PhonegapIOSAudio.exists()) {
+                                Phono.log.info("Detected iOS");
+                                return Phono.util.loggify("PhonegapIOSAudio", new PhonegapIOSAudio(phono, config, callback));
+                            } else if (PhonegapAndroidAudio.exists()) {
+                                Phono.log.info("Detected Android");
+                                return Phono.util.loggify("PhonegapAndroidAudio", new PhonegapAndroidAudio(phono, config, callback));
+                            } else {
+                                Phono.log.info("Using Flash default");
+                                return Phono.util.loggify("FlashAudio", new FlashAudio(phono, config, callback));
+                            }
+                        }
+                    }
+                });
+            })();
+            (function() {
+                function Message(connection) {
+                    this.from = null;
+                    this.body = null;
+                    this.connection = connection;
+                }
+                Message.prototype.reply = function(body) {
+                    this.connection.send(Strophe.msg({
+                        to: this.from,
+                        type: "chat"
+                    }).c("body").t(body));
+                };
+                function StropheMessaging(phono, config, callback) {
+                    this.connection = phono.connection;
+                    this.connection.addHandler(this.handleMessage.bind(this), null, "message", "chat");
+                    Phono.events.bind(this, config);
+                    callback(this);
+                }
+                StropheMessaging.prototype.send = function(to, body) {
+                    this.connection.send(Strophe.msg({
+                        to: to,
+                        type: "chat"
+                    }).c("body").t(body));
+                };
+                StropheMessaging.prototype.handleMessage = function(msg) {
+                    var message = new Message(this.connection);
+                    message.from = Strophe.getBareJidFromJid($(msg).attr("from"));
+                    message.body = $(msg).find("body").text();
+                    Phono.events.trigger(this, "message", {
+                        message: message
+                    }, [ message ]);
+                    return true;
+                };
+                Phono.registerPlugin("messaging", {
+                    create: function(phono, config, callback) {
+                        return new StropheMessaging(phono, config, callback);
+                    }
+                });
+            })();
+            (function() {
+                // Helper library to translate to and from SDP and an intermediate javascript object
+                // representation of candidates, offers and answers
+                _parseLine = function(line) {
+                    var s1 = line.split("=");
+                    return {
+                        type: s1[0],
+                        contents: s1[1]
+                    };
+                };
+                _parseA = function(attribute) {
+                    var s1 = attribute.split(":");
+                    return {
+                        key: s1[0],
+                        params: attribute.substring(attribute.indexOf(":") + 1).split(" ")
+                    };
+                };
+                _parseM = function(media) {
+                    var s1 = media.split(" ");
+                    return {
+                        type: s1[0],
+                        port: s1[1],
+                        proto: s1[2],
+                        pts: media.substring((s1[0] + s1[1] + s1[2]).length + 3).split(" ")
+                    };
+                };
+                _parseO = function(media) {
+                    var s1 = media.split(" ");
+                    return {
+                        username: s1[0],
+                        id: s1[1],
+                        ver: s1[2],
+                        nettype: s1[3],
+                        addrtype: s1[4],
+                        address: s1[5]
+                    };
+                };
+                _parseC = function(media) {
+                    var s1 = media.split(" ");
+                    return {
+                        nettype: s1[0],
+                        addrtype: s1[1],
+                        address: s1[2]
+                    };
+                };
+                //a=candidate:257138899 1 udp 2113937151 192.168.0.151 53973 typ host generation 0
+                //a=candidate:1 1 udp 1.0 192.168.157.40 40877 typ host name rtp network_name en0 username root password mysecret generation 0
+                /*
+                 candidate-attribute   = "candidate" ":" foundation SP component-id SP
+                 transport SP
+                 priority SP
+                 connection-address SP     ;from RFC 4566
+                 port         ;port from RFC 4566
+                 SP cand-type
+                 [SP rel-addr]
+                 [SP rel-port]
+                 *(SP extension-att-name SP
+                 extension-att-value)
+    
+                 foundation            = 1*32ice-char
+                 component-id          = 1*5DIGIT
+                 transport             = "UDP" / transport-extension
+                 transport-extension   = token              ; from RFC 3261
+                 priority              = 1*10DIGIT
+                 cand-type             = "typ" SP candidate-types
+                 candidate-types       = "host" / "srflx" / "prflx" / "relay" / token
+                 rel-addr              = "raddr" SP connection-address
+                 rel-port              = "rport" SP port
+                 extension-att-name    = byte-string    ;from RFC 4566
+                 extension-att-value   = byte-string
+                 ice-char              = ALPHA / DIGIT / "+" / "/"
+                 */
+                _parseCandidate = function(params) {
+                    var candidate = {
+                        foundation: params[0],
+                        component: params[1],
+                        protocol: params[2],
+                        priority: params[3],
+                        ip: params[4],
+                        port: params[5]
+                    };
+                    var index = 6;
+                    while (index + 1 <= params.length) {
+                        if (params[index] == "typ") candidate["type"] = params[index + 1];
+                        if (params[index] == "generation") candidate["generation"] = params[index + 1];
+                        if (params[index] == "username") candidate["username"] = params[index + 1];
+                        if (params[index] == "password") candidate["password"] = params[index + 1];
+                        index += 2;
+                    }
+                    return candidate;
+                };
+                //a=rtcp:1 IN IP4 0.0.0.0
+                _parseRtcp = function(params) {
+                    var rtcp = {
+                        port: params[0]
+                    };
+                    if (params.length > 1) {
+                        rtcp["nettype"] = params[1];
+                        rtcp["addrtype"] = params[2];
+                        rtcp["address"] = params[3];
+                    }
+                    return rtcp;
+                };
+                //a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:zvrxmXFpomTqz7CJYhN5G7JM3dVVxG/fZ0Il6DDo
+                _parseCrypto = function(params) {
+                    var crypto = {
+                        tag: params[0],
+                        "crypto-suite": params[1],
+                        "key-params": params[2]
+                    };
+                    return crypto;
+                };
+                _parseFingerprint = function(params) {
+                    var finger = {
+                        hash: params[0],
+                        print: params[1],
+                        required: "1"
+                    };
+                    return finger;
+                };
+                //a=rtpmap:101 telephone-event/8000"
+                _parseRtpmap = function(params) {
+                    var bits = params[1].split("/");
+                    var codec = {
+                        id: params[0],
+                        name: bits[0],
+                        clockrate: bits[1]
+                    };
+                    if (bits.length > 2) {
+                        codec.channels = bits[2];
+                    }
+                    return codec;
+                };
+                _parseSsrc = function(params, ssrc) {
+                    var ssrcObj = {};
+                    if (ssrc != undefined) ssrcObj = ssrc;
+                    ssrcObj.ssrc = params[0];
+                    var value = params[1];
+                    ssrcObj[value.split(":")[0]] = value.split(":")[1];
+                    return ssrcObj;
+                };
+                _parseGroup = function(params) {
+                    var group = {
+                        type: params[0]
+                    };
+                    group.contents = [];
+                    var index = 1;
+                    while (index + 1 <= params.length) {
+                        group.contents.push(params[index]);
+                        index = index + 1;
+                    }
+                    return group;
+                };
+                _parseMid = function(params) {
+                    var mid = params[0];
+                    return mid;
+                };
+                // Object -> SDP
+                _buildCandidate = function(candidateObj, iceObj) {
+                    var c = candidateObj;
+                    var sdp = "a=candidate:" + c.foundation + " " + c.component + " " + c.protocol.toUpperCase() + " " + c.priority + " " + c.ip + " " + c.port;
+                    if (c.type) sdp = sdp + " typ host";
+                    //+ c.type;
+                    if (c.component == 1) sdp = sdp + " name rtp";
+                    if (c.component == 2) sdp = sdp + " name rtcp";
+                    sdp = sdp + " network_name en0";
+                    if (c.username && c.password) {
+                        sdp = sdp + " username " + c.username;
+                        sdp = sdp + " password " + c.password;
+                        if (!iceObj.ufrag) iceObj.ufrag = c.username;
+                        if (!iceObj.pwd) iceObj.pwd = c.username;
+                    } else if (iceObj) {
+                        if (iceObj.ufrag) sdp = sdp + " username " + iceObj.ufrag;
+                        if (iceObj.pwd) sdp = sdp + " password " + iceObj.pwd;
+                    } else {
+                        sdp = sdp + " username root password mysecret";
+                    }
+                    if (c.generation) sdp = sdp + " generation " + c.generation;
+                    sdp = sdp + "\r\n";
+                    return sdp;
+                };
+                _buildCodec = function(codecObj) {
+                    var sdp = "a=rtpmap:" + codecObj.id + " " + codecObj.name + "/" + codecObj.clockrate;
+                    if (codecObj.channels) {
+                        sdp += "/" + codecObj.channels;
+                    }
+                    sdp += "\r\n";
+                    if (codecObj.ptime) {
+                        sdp += "a=ptime:" + codecObj.ptime;
+                        sdp += "\r\n";
+                    } else if (codecObj.name.toLowerCase().indexOf("opus") == 0) {
+                        sdp += "a=ptime:20\r\n";
+                    }
+                    if (codecObj.name.toLowerCase().indexOf("telephone-event") == 0) {
+                        sdp += "a=fmtp:" + codecObj.id + " 0-15\r\n";
+                    }
+                    return sdp;
+                };
+                _buildCrypto = function(cryptoObj) {
+                    var sdp = "a=crypto:" + cryptoObj.tag + " " + cryptoObj["crypto-suite"] + " " + cryptoObj["key-params"] + "\r\n";
+                    return sdp;
+                };
+                _buildFingerprint = function(fingerObj) {
+                    var sdp = "a=fingerprint:" + fingerObj.hash + " " + fingerObj.print + "\r\n";
+                    return sdp;
+                };
+                _buildIce = function(ice) {
+                    var sdp = "";
+                    if (ice.ufrag) {
+                        if (!ice.filterLines) {
+                            sdp = sdp + "a=ice-ufrag:" + ice.ufrag + "\r\n";
+                            sdp = sdp + "a=ice-pwd:" + ice.pwd + "\r\n";
+                        }
+                        if (ice.options) {
+                            sdp = sdp + "a=ice-options:" + ice.options + "\r\n";
+                        }
+                    }
+                    return sdp;
+                };
+                _buildSessProps = function(sdpObj) {
+                    var sdp = "";
+                    if (sdpObj.fingerprint) {
+                        sdp = sdp + _buildFingerprint(sdpObj.fingerprint);
+                    }
+                    if (sdpObj.ice) {
+                        sdp = sdp + _buildIce(sdpObj.ice);
+                    }
+                    return sdp;
+                };
+                _buildMedia = function(sdpObj) {
+                    var sdp = "";
+                    sdp += "m=" + sdpObj.media.type + " " + sdpObj.media.port + " " + sdpObj.media.proto;
+                    var mi = 0;
+                    while (mi + 1 <= sdpObj.media.pts.length) {
+                        sdp = sdp + " " + sdpObj.media.pts[mi];
+                        mi = mi + 1;
+                    }
+                    sdp = sdp + "\r\n";
+                    if (sdpObj.connection) {
+                        sdp = sdp + "c=" + sdpObj.connection.nettype + " " + sdpObj.connection.addrtype + " " + sdpObj.connection.address + "\r\n";
+                    }
+                    if (sdpObj.mid) {
+                        sdp = sdp + "a=mid:" + sdpObj.mid + "\r\n";
+                    }
+                    if (sdpObj.rtcp) {
+                        sdp = sdp + "a=rtcp:" + sdpObj.rtcp.port + " " + sdpObj.rtcp.nettype + " " + sdpObj.rtcp.addrtype + " " + sdpObj.rtcp.address + "\r\n";
+                    }
+                    if (sdpObj.ice) {
+                        sdp = sdp + _buildIce(sdpObj.ice);
+                    }
+                    var ci = 0;
+                    while (ci + 1 <= sdpObj.candidates.length) {
+                        sdp = sdp + _buildCandidate(sdpObj.candidates[ci], sdpObj.ice);
+                        ci = ci + 1;
+                    }
+                    if (sdpObj.direction) {
+                        if (sdpObj.direction == "recvonly") {
+                            sdp = sdp + "a=recvonly\r\n";
+                        } else if (sdpObj.direction == "sendonly") {
+                            sdp = sdp + "a=sendonly\r\n";
+                        } else if (sdpObj.direction == "none") {
+                            sdp = sdp;
+                        } else {
+                            sdp = sdp + "a=sendrecv\r\n";
+                        }
+                    } else {
+                        sdp = sdp + "a=sendrecv\r\n";
+                    }
+                    if (sdpObj["rtcp-mux"]) {
+                        sdp = sdp + "a=rtcp-mux" + "\r\n";
+                    }
+                    if (sdpObj.crypto) {
+                        sdp = sdp + _buildCrypto(sdpObj.crypto);
+                    }
+                    if (sdpObj.fingerprint) {
+                        sdp = sdp + _buildFingerprint(sdpObj.fingerprint);
+                    }
+                    var cdi = 0;
+                    while (cdi + 1 <= sdpObj.codecs.length) {
+                        sdp = sdp + _buildCodec(sdpObj.codecs[cdi]);
+                        cdi = cdi + 1;
+                    }
+                    if (sdpObj.ssrc) {
+                        var ssrc = sdpObj.ssrc;
+                        if (ssrc.cname) sdp = sdp + "a=ssrc:" + ssrc.ssrc + " " + "cname:" + ssrc.cname + "\r\n";
+                        if (ssrc.mslabel) sdp = sdp + "a=ssrc:" + ssrc.ssrc + " " + "mslabel:" + ssrc.mslabel + "\r\n";
+                        if (ssrc.label) sdp = sdp + "a=ssrc:" + ssrc.ssrc + " " + "label:" + ssrc.label + "\r\n";
+                    }
+                    return sdp;
+                };
+                // Entry points
+                // Fake Phono for node.js
+                if (typeof Phono == "undefined") {
+                    Phono = {
+                        log: {
+                            debug: function(mess) {
+                                print(mess);
+                            }
+                        }
+                    };
+                    load("phono.util.js");
+                }
+                Phono.sdp = {
+                    // jingle: A container to place the output jingle in
+                    // blob: A js object representing the input SDP
+                    buildJingle: function(jingle, blob) {
+                        var description = "urn:xmpp:jingle:apps:rtp:1";
+                        var c = jingle;
+                        if (blob.group) {
+                            var bundle = "";
+                            c.c("group", {
+                                type: blob.group.type,
+                                contents: blob.group.contents.join(",")
+                            }).up();
+                        }
+                        Phono.util.each(blob.contents, function() {
+                            var sdpObj = this;
+                            var desc = {
+                                xmlns: description,
+                                media: sdpObj.media.type
+                            };
+                            if (sdpObj.ssrc) {
+                                desc.ssrc = sdpObj.ssrc.ssrc, desc.cname = sdpObj.ssrc.cname, desc.mslabel = sdpObj.ssrc.mslabel, 
+                                desc.label = sdpObj.ssrc.label;
+                            }
+                            if (sdpObj.mid) {
+                                desc.mid = sdpObj.mid;
+                            }
+                            if (sdpObj["rtcp-mux"]) {
+                                desc["rtcp-mux"] = sdpObj["rtcp-mux"];
+                            }
+                            c = c.c("content", {
+                                creator: "initiator"
+                            }).c("description", desc);
+                            Phono.util.each(sdpObj.codecs, function() {
+                                c = c.c("payload-type", this).up();
+                            });
+                            if (sdpObj.crypto) {
+                                c = c.c("encryption", {
+                                    required: "1"
+                                }).c("crypto", sdpObj.crypto).up();
+                                c = c.up();
+                            }
+                            // Raw candidates
+                            c = c.up().c("transport", {
+                                xmlns: "urn:xmpp:jingle:transports:raw-udp:1"
+                            });
+                            c = c.c("candidate", {
+                                component: "1",
+                                ip: sdpObj.connection.address,
+                                port: sdpObj.media.port
+                            }).up();
+                            if (sdpObj.rtcp) {
+                                c = c.c("candidate", {
+                                    component: "2",
+                                    ip: sdpObj.rtcp.address,
+                                    port: sdpObj.rtcp.port
+                                }).up();
+                            }
+                            c = c.up();
+                            // 3 places we might find ice creds - in order of priority:
+                            // candidate username
+                            // media level icefrag
+                            // session level icefrag
+                            var iceObj = {};
+                            if (sdpObj.candidates[0].username) {
+                                iceObj = {
+                                    ufrag: sdpObj.candidates[0].username,
+                                    pwd: sdpObj.candidates[0].password
+                                };
+                            } else if (sdpObj.ice && sdpObj.ice.ufrag) {
+                                iceObj = sdpObj.ice;
+                            } else if (blob.session.ice && blob.session.ice.ufrag) {
+                                iceObj = blob.session.ice;
+                            }
+                            // Ice candidates
+                            var transp = {
+                                xmlns: "urn:xmpp:jingle:transports:ice-udp:1",
+                                pwd: iceObj.pwd,
+                                ufrag: iceObj.ufrag
+                            };
+                            if (iceObj.options) {
+                                transp.options = iceObj.options;
+                            }
+                            c = c.c("transport", transp);
+                            Phono.util.each(sdpObj.candidates, function() {
+                                c = c.c("candidate", this).up();
+                            });
+                            // two places to find the fingerprint
+                            // media 
+                            // session
+                            var fp = null;
+                            if (sdpObj.fingerprint) {
+                                fp = sdpObj.fingerprint;
+                            } else if (blob.session.fingerprint) {
+                                fp = blob.session.fingerprint;
+                            }
+                            if (fp) {
+                                c = c.c("fingerprint", {
+                                    xmlns: "urn:xmpp:tmp:jingle:apps:dtls:0",
+                                    hash: fp.hash,
+                                    required: fp.required
+                                });
+                                c.t(fp.print);
+                                c.up();
+                            }
+                            c = c.up().up();
+                        });
+                        return c;
+                    },
+                    // jingle: Some Jingle to parse
+                    // Returns a js object representing the SDP
+                    parseJingle: function(jingle) {
+                        var blobObj = {};
+                        jingle.find("group").each(function() {
+                            blobObj.group = {};
+                            blobObj.group.type = $(this).attr("type");
+                            blobObj.group.contents = $(this).attr("contents").split(",");
+                        });
+                        blobObj.contents = [];
+                        jingle.find("content").each(function() {
+                            var sdpObj = {};
+                            var mediaObj = {};
+                            mediaObj.pts = [];
+                            blobObj.contents.push(sdpObj);
+                            sdpObj.candidates = [];
+                            sdpObj.codecs = [];
+                            $(this).find("description").each(function() {
+                                if ($(this).attr("xmlns") == "urn:xmpp:jingle:apps:rtp:1") {
+                                    var mediaType = $(this).attr("media");
+                                    mediaObj.type = mediaType;
+                                    mediaObj.proto = "RTP/SAVPF";
+                                    // HACK
+                                    mediaObj.port = 1e3;
+                                    var ssrcObj = {};
+                                    if ($(this).attr("ssrc")) {
+                                        ssrcObj.ssrc = $(this).attr("ssrc");
+                                        if ($(this).attr("cname")) ssrcObj.cname = $(this).attr("cname");
+                                        if ($(this).attr("mslabel")) ssrcObj.mslabel = $(this).attr("mslabel");
+                                        if ($(this).attr("label")) ssrcObj.label = $(this).attr("label");
+                                        sdpObj.ssrc = ssrcObj;
+                                    }
+                                    if ($(this).attr("rtcp-mux")) {
+                                        sdpObj["rtcp-mux"] = $(this).attr("rtcp-mux");
+                                    }
+                                    if ($(this).attr("mid")) {
+                                        sdpObj["mid"] = $(this).attr("mid");
+                                    }
+                                    sdpObj.media = mediaObj;
+                                    $(this).find("payload-type").each(function() {
+                                        var codec = Phono.util.getAttributes(this);
+                                        Phono.log.debug("codec: " + JSON.stringify(codec, null, " "));
+                                        sdpObj.codecs.push(codec);
+                                        mediaObj.pts.push(codec.id);
+                                    });
+                                } else {
+                                    Phono.log.debug("skip description with wrong xmlns: " + $(this).attr("xmlns"));
+                                }
+                            });
+                            $(this).find("crypto").each(function() {
+                                var crypto = Phono.util.getAttributes(this);
+                                //Phono.log.debug("crypto: "+JSON.stringify(crypto,null," "));
+                                sdpObj.crypto = crypto;
+                            });
+                            $(this).find("fingerprint").each(function() {
+                                var fingerprint = Phono.util.getAttributes(this);
+                                fingerprint.print = Strophe.getText(this);
+                                Phono.log.debug("fingerprint: " + JSON.stringify(fingerprint, null, " "));
+                                sdpObj.fingerprint = fingerprint;
+                            });
+                            sdpObj.ice = {};
+                            $(this).find("transport").each(function() {
+                                if ($(this).attr("xmlns") == "urn:xmpp:jingle:transports:raw-udp:1") {
+                                    $(this).find("candidate").each(function() {
+                                        var candidate = Phono.util.getAttributes(this);
+                                        //Phono.log.debug("candidate: "+JSON.stringify(candidate,null," "));
+                                        if (candidate.component == "1") {
+                                            sdpObj.media.port = candidate.port;
+                                            sdpObj.connection = {};
+                                            sdpObj.connection.address = candidate.ip;
+                                            sdpObj.connection.addrtype = "IP4";
+                                            sdpObj.connection.nettype = "IN";
+                                        }
+                                        if (candidate.component == "2") {
+                                            sdpObj.rtcp = {};
+                                            sdpObj.rtcp.port = candidate.port;
+                                            sdpObj.rtcp.address = candidate.ip;
+                                            sdpObj.rtcp.addrtype = "IP4";
+                                            sdpObj.rtcp.nettype = "IN";
+                                        }
+                                    });
+                                }
+                                if ($(this).attr("xmlns") == "urn:xmpp:jingle:transports:ice-udp:1") {
+                                    sdpObj.ice.pwd = $(this).attr("pwd");
+                                    sdpObj.ice.ufrag = $(this).attr("ufrag");
+                                    if ($(this).attr("options")) {
+                                        sdpObj.ice.options = $(this).attr("options");
+                                    }
+                                    $(this).find("candidate").each(function() {
+                                        var candidate = Phono.util.getAttributes(this);
+                                        //Phono.log.debug("candidate: "+JSON.stringify(candidate,null," "));
+                                        sdpObj.candidates.push(candidate);
+                                    });
+                                }
+                            });
+                        });
+                        return blobObj;
+                    },
+                    dumpSDP: function(sdpString) {
+                        var sdpLines = sdpString.split("\r\n");
+                        for (var sdpLine in sdpLines) {}
+                    },
+                    // sdp: an SDP text string representing an offer or answer, missing candidates
+                    // Return an object representing the SDP in Jingle like constructs
+                    parseSDP: function(sdpString) {
+                        var contentsObj = {};
+                        contentsObj.contents = [];
+                        var sdpObj = null;
+                        // Iterate the lines
+                        var sdpLines = sdpString.split("\r\n");
+                        for (var sdpLine in sdpLines) {
+                            Phono.log.debug(sdpLines[sdpLine]);
+                            var line = _parseLine(sdpLines[sdpLine]);
+                            if (line.type == "o") {
+                                contentsObj.session = _parseO(line.contents);
+                                contentsObj.session.ice = {};
+                                sdpObj = contentsObj.session;
+                            }
+                            if (line.type == "m") {
+                                // New m-line, 
+                                // create a new content
+                                var media = _parseM(line.contents);
+                                sdpObj = {};
+                                sdpObj.candidates = [];
+                                sdpObj.codecs = [];
+                                sdpObj.ice = {};
+                                if (contentsObj.session.fingerprint != null) {
+                                    sdpObj.fingerprint = contentsObj.session.fingerprint;
+                                }
+                                sdpObj.media = media;
+                                contentsObj.contents.push(sdpObj);
+                            }
+                            if (line.type == "c") {
+                                if (sdpObj != null) {
+                                    sdpObj.connection = _parseC(line.contents);
+                                } else {
+                                    contentsObj.connection = _parseC(line.contents);
+                                }
+                            }
+                            if (line.type == "a") {
+                                var a = _parseA(line.contents);
+                                switch (a.key) {
+                                  case "candidate":
+                                    var candidate = _parseCandidate(a.params);
+                                    sdpObj.candidates.push(candidate);
+                                    break;
+
+                                  case "group":
+                                    var group = _parseGroup(a.params);
+                                    contentsObj.group = group;
+                                    break;
+
+                                  case "mid":
+                                    var mid = _parseMid(a.params);
+                                    sdpObj.mid = mid;
+                                    break;
+
+                                  case "rtcp":
+                                    var rtcp = _parseRtcp(a.params);
+                                    sdpObj.rtcp = rtcp;
+                                    break;
+
+                                  case "rtcp-mux":
+                                    sdpObj["rtcp-mux"] = true;
+                                    break;
+
+                                  case "rtpmap":
+                                    var codec = _parseRtpmap(a.params);
+                                    if (codec) sdpObj.codecs.push(codec);
+                                    break;
+
+                                  case "sendrecv":
+                                    sdpObj.direction = "sendrecv";
+                                    break;
+
+                                  case "sendonly":
+                                    sdpObj.direction = "sendonly";
+                                    break;
+
+                                  case "recvonly":
+                                    sdpObj.recvonly = "recvonly";
+                                    break;
+
+                                  case "ssrc":
+                                    sdpObj.ssrc = _parseSsrc(a.params, sdpObj.ssrc);
+                                    break;
+
+                                  case "fingerprint":
+                                    var print = _parseFingerprint(a.params);
+                                    sdpObj.fingerprint = print;
+                                    break;
+
+                                  case "crypto":
+                                    var crypto = _parseCrypto(a.params);
+                                    sdpObj.crypto = crypto;
+                                    break;
+
+                                  case "ice-ufrag":
+                                    sdpObj.ice.ufrag = a.params[0];
+                                    break;
+
+                                  case "ice-pwd":
+                                    sdpObj.ice.pwd = a.params[0];
+                                    break;
+
+                                  case "ice-options":
+                                    sdpObj.ice.options = a.params[0];
+                                    break;
+                                }
+                            }
+                        }
+                        return contentsObj;
+                    },
+                    // sdp: an object representing the body
+                    // Return a text string in SDP format  
+                    buildSDP: function(contentsObj) {
+                        // Write some constant stuff
+                        var session = contentsObj.session;
+                        var sdp = "v=0\r\n";
+                        if (contentsObj.session) {
+                            var session = contentsObj.session;
+                            sdp = sdp + "o=" + session.username + " " + session.id + " " + session.ver + " " + session.nettype + " " + session.addrtype + " " + session.address + "\r\n";
+                        } else {
+                            var id = new Date().getTime();
+                            var ver = 2;
+                            sdp = sdp + "o=-" + " 3" + id + " " + ver + " IN IP4 192.67.4.14" + "\r\n";
+                        }
+                        sdp = sdp + "s=-\r\n" + "t=0 0\r\n";
+                        if (contentsObj.connection) {
+                            var connection = contentsObj.connection;
+                            sdp = sdp + "c=" + connection.nettype + " " + connection.addrtype + " " + connection.address + "\r\n";
+                        }
+                        if (contentsObj.group) {
+                            var group = contentsObj.group;
+                            sdp = sdp + "a=group:" + group.type;
+                            var ig = 0;
+                            while (ig + 1 <= group.contents.length) {
+                                sdp = sdp + " " + group.contents[ig];
+                                ig = ig + 1;
+                            }
+                            sdp = sdp + "\r\n";
+                        }
+                        if (contentsObj.session) {
+                            sdp = sdp + _buildSessProps(contentsObj.session);
+                        }
+                        var contents = contentsObj.contents;
+                        var ic = 0;
+                        while (ic + 1 <= contents.length) {
+                            var sdpObj = contents[ic];
+                            sdp = sdp + _buildMedia(sdpObj);
+                            ic = ic + 1;
+                        }
+                        return sdp;
+                    },
+                    // candidate: an SDP text string representing a cadidate
+                    // Return: an object representing the candidate in Jingle like constructs
+                    parseCandidate: function(candidateSDP) {
+                        var line = _parseLine(candidateSDP);
+                        return _parseCandidate(line.contents);
+                    },
+                    // candidate: an object representing the body
+                    // Return a text string in SDP format
+                    buildCandidate: function(candidateObj) {
+                        return _buildCandidate(candidateObj);
+                    }
+                };
+                if (typeof window === "undefined") {
+                    // Unit tests under node.js
+                    var SDP = {
+                        chromeVideo: "v=0\r\no=- 466604799 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=msid-semantic: WMS 0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7k\r\nm=audio 51233 RTP/SAVPF 109 0 8 101\r\nc=IN IP4 192.67.4.10\r\na=rtcp:62387 IN IP4 192.67.4.10\r\na=candidate:2812693356 1 udp 2113937151 192.67.4.10 51233 typ host generation 0\r\na=candidate:2812693356 2 udp 2113937150 192.67.4.10 62387 typ host generation 0\r\na=ice-ufrag:A7xRf5m5sDv8Qnda\r\na=ice-pwd:sIxXUQ1R5euE6QY/ntMS9xpu\r\na=fingerprint:sha-256 A4:06:4B:AC:92:8B:FA:A0:CE:56:78:A4:B9:A4:2A:41:16:DD:D7:6C:E9:D2:71:81:20:99:F1:3A:4E:C7:71:8D\r\na=sendrecv\r\na=mid:audio\r\na=rtpmap:109 opus/48000/2\r\na=fmtp:109 minptime=10\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:101 telephone-event/8000\r\na=maxptime:60\r\na=ssrc:3307173785 cname:3iNNp5tCCbH8QdE8\r\na=ssrc:3307173785 msid:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7k 0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7ka0\r\na=ssrc:3307173785 mslabel:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7k\r\na=ssrc:3307173785 label:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7ka0\r\nm=video 51841 RTP/SAVPF 120\r\nc=IN IP4 192.67.4.10\r\na=rtcp:58612 IN IP4 192.67.4.10\r\na=candidate:2812693356 1 udp 2113937151 192.67.4.10 51841 typ host generation 0\r\na=candidate:2812693356 2 udp 2113937150 192.67.4.10 58612 typ host generation 0\r\na=ice-ufrag:vYDcPP0KgdP9VHjY\r\na=ice-pwd:JEkYOiuKuiny1sJNZlBHZyZ5\r\na=fingerprint:sha-256 A4:06:4B:AC:92:8B:FA:A0:CE:56:78:A4:B9:A4:2A:41:16:DD:D7:6C:E9:D2:71:81:20:99:F1:3A:4E:C7:71:8D\r\na=sendrecv\r\na=mid:video\r\na=rtpmap:120 VP8/90000\r\na=ssrc:1230164494 cname:3iNNp5tCCbH8QdE8\r\na=ssrc:1230164494 msid:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7k 0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7kv0\r\na=ssrc:1230164494 mslabel:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7k\r\na=ssrc:1230164494 label:0c2n3jRwGhjfwzKzLxMER8lpRIHMQaZiIw7kv0\r\n",
+                        chromeAudio: "v=0\r\no=- 2751679977 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE audio\r\na=msid-semantic: WMS YyMaveYaWtkfdWeZtSHs3AHFuH4TEYh4MZDh\r\nm=audio 63231 RTP/SAVPF 111 103 104 0 8 107 106 105 13 126\r\nc=IN IP4 192.67.4.11\r\na=rtcp:63231 IN IP4 192.67.4.11\r\na=candidate:521808905 1 udp 2113937151 192.67.4.11 63231 typ host generation 0\r\na=candidate:521808905 2 udp 2113937151 192.67.4.11 63231 typ host generation 0\r\na=ice-ufrag:1VZUXywcfSTmvPBK\r\na=ice-pwd:NHrjWPuvIlyBQD7UVw4zi/4F\r\na=ice-options:google-ice\r\na=fingerprint:sha-256 49:1E:A3:EB:78:C2:89:55:5D:0D:6E:F2:B7:41:50:DB:10:C4:B2:54:8F:D8:24:A5:E8:56:0A:56:F4:BA:3A:ED\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=sendrecv\r\na=mid:audio\r\na=rtcp-mux\r\na=crypto:0 AES_CM_128_HMAC_SHA1_32 inline:MpqMpDpEDjNDfpquFL8jIkO9oLp2Dp4NOYiSmrea\r\na=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:/yAvMdC0p1e/4c/Jc6ljepmHpIuHV9jO3FyrrTX4\r\na=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10\r\na=rtpmap:103 ISAC/16000\r\na=rtpmap:104 ISAC/32000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:107 CN/48000\r\na=rtpmap:106 CN/32000\r\na=rtpmap:105 CN/16000\r\na=rtpmap:13 CN/8000\r\na=rtpmap:126 telephone-event/8000\r\na=maxptime:60\r\na=ssrc:3334051080 cname:ECpt57S24HzaX1WY\r\na=ssrc:3334051080 msid:YyMaveYaWtkfdWeZtSHs3AHFuH4TEYh4MZDh YyMaveYaWtkfdWeZtSHs3AHFuH4TEYh4MZDha0\r\na=ssrc:3334051080 mslabel:YyMaveYaWtkfdWeZtSHs3AHFuH4TEYh4MZDh\r\na=ssrc:3334051080 label:YyMaveYaWtkfdWeZtSHs3AHFuH4TEYh4MZDha0\r\n",
+                        firefoxVideo: "v=0\r\no=Mozilla-SIPUA-24.0a1 12643 0 IN IP4 0.0.0.0\r\ns=SIP Call\r\nt=0 0\r\na=ice-ufrag:1a870bf3\r\na=ice-pwd:948d30c7fe15b95a7bd63743ae84ac2e\r\na=fingerprint:sha-256 1C:D2:EC:A0:51:89:35:BE:84:4B:BC:11:F3:D4:D6:C7:F7:39:52:C5:2D:55:88:1D:61:24:7A:54:20:8A:AE:C2\r\nm=audio 50859 RTP/SAVPF 109 0 8 101\r\nc=IN IP4 192.67.4.11\r\na=rtpmap:109 opus/48000/2\r\na=ptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=candidate:0 1 UDP 2113601791 192.67.4.11 50859 typ host\r\na=candidate:0 2 UDP 2113601790 192.67.4.11 53847 typ host\r\nm=video 62311 RTP/SAVPF 120\r\nc=IN IP4 192.67.4.11\r\na=rtpmap:120 VP8/90000\r\na=sendrecv\r\na=candidate:0 1 UDP 2113601791 192.67.4.11 62311 typ host\r\na=candidate:0 2 UDP 2113601790 192.67.4.11 54437 typ host\r\n",
+                        firefoxAudio: "v=0\r\no=Mozilla-SIPUA-24.0a1 20557 0 IN IP4 0.0.0.0\r\ns=SIP Call\r\nt=0 0\r\na=ice-ufrag:66600851\r\na=ice-pwd:aab7c3c8d881f6406eff1f1ff2e3bc5e\r\na=fingerprint:sha-256 C3:C4:98:95:D0:58:B1:D2:F9:72:A0:44:EB:C7:C4:49:95:8F:EE:00:05:10:82:A8:6E:F6:4A:DF:43:A3:2A:16\r\nm=audio 56026 RTP/SAVPF 109 0 8 101\r\nc=IN IP4 192.67.4.11\r\na=rtpmap:109 opus/48000/2\r\na=ptime:20\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=sendrecv\r\na=candidate:0 1 UDP 2113601791 192.67.4.11 56026 typ host\r\na=candidate:0 2 UDP 2113601790 192.67.4.11 56833 typ host\r\n"
+                    };
+                    for (s in SDP) {
+                        var bro = s;
+                        var bs = SDP[s];
+                        Phono.log.debug("testing " + s);
+                        var sdpObj = Phono.sdp.parseSDP(bs);
+                        Phono.log.debug(JSON.stringify(sdpObj, null, " "));
+                        var resultSDP = Phono.sdp.buildSDP(sdpObj);
+                        Phono.log.debug(s + " Resulting SDP:");
+                        Phono.log.debug(resultSDP);
+                    }
+                }
+            })();
+            (function() {
+                var NS = {};
+                NS.JINGLE = "urn:xmpp:jingle:1";
+                NS.JINGLE_SESSION_INFO = "urn:xmpp:jingle:apps:rtp:1:info";
+                NS.JINGLE_DTMF = "urn:xmpp:jingle:dtmf:0";
+                var CallState = {
+                    CONNECTED: 0,
+                    RINGING: 1,
+                    DISCONNECTED: 2,
+                    PROGRESS: 3,
+                    INITIAL: 4
+                };
+                var Direction = {
+                    OUTBOUND: 0,
+                    INBOUND: 1
+                };
+                // Call
+                //
+                // A Call is the central object in the Phone API. Calls are started
+                // using the Phone's dial function or by answering an incoming call.
+                // =================================================================
+                function Call(phone, id, direction, config) {
+                    var call = this;
+                    // TODO: move out to factory method
+                    this.phone = phone;
+                    this.phono = phone.phono;
+                    this.audioLayer = this.phono.audio;
+                    this.transport = this.audioLayer.transport(config);
+                    this.connection = this.phono.connection;
+                    this.config = Phono.util.extend({
+                        pushToTalk: false,
+                        mute: false,
+                        talking: false,
+                        hold: false,
+                        volume: 50,
+                        gain: 50,
+                        tones: false,
+                        codecs: phone.config.codecs,
+                        security: phone._security
+                    }, config);
+                    // Apply config
+                    Phono.util.each(this.config, function(k, v) {
+                        if (typeof call[k] == "function") {
+                            call[k](v);
+                        }
+                    });
+                    this.id = id;
+                    this.direction = direction;
+                    this.state = CallState.INITIAL;
+                    this.remoteJid = null;
+                    this.initiator = null;
+                    this.codec = null;
+                    this.srtpPropsr = undefined;
+                    this.srtpPropsl = undefined;
+                    if (this._security != "disabled" && this.transport.supportsSRTP == true) {
+                        // Set up some local SRTP crypto parameters
+                        this.tag = "1";
+                        this.crypto = "AES_CM_128_HMAC_SHA1_80";
+                        this.keyparams = "inline:" + Phono.util.genKey(30);
+                        this.srtpPropsl = Phono.util.srtpProps(this.tag, this.crypto, this.keyparams);
+                    }
+                    this.headers = [];
+                    if (this.config.headers) {
+                        this.headers = this.config.headers;
+                    }
+                    // Bind Event Listeners
+                    Phono.events.bind(this, config);
+                    this.ringer = this.audioLayer.play({
+                        uri: phone.ringTone()
+                    });
+                    this.ringback = this.audioLayer.play({
+                        uri: phone.ringbackTone()
+                    });
+                    if (this.audioLayer.audioIn) {
+                        this.audioLayer.audioIn(phone.audioInput());
+                    }
+                }
+                Call.prototype.bind = function(config) {
+                    Phono.events.bind(this, config);
+                };
+                Call.prototype.startAudio = function(iq) {
+                    if (this.input) {
+                        this.input.start();
+                    }
+                    if (this.output) {
+                        this.output.start();
+                    }
+                };
+                Call.prototype.stopAudio = function(iq) {
+                    if (this.input) {
+                        this.input.stop();
+                    }
+                    if (this.output) {
+                        this.output.stop();
+                    }
+                };
+                Call.prototype.start = function() {
+                    var call = this;
+                    if (call.state != CallState.INITIAL) return;
+                    var initiateIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    });
+                    var initiate = initiateIq.c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "session-initiate",
+                        initiator: call.initiator,
+                        sid: call.id
+                    });
+                    $(call.headers).each(function() {
+                        initiate.c("custom-header", {
+                            name: this.name,
+                            data: this.value
+                        }).up();
+                    });
+                    var updateIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    });
+                    var update = updateIq.c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "transport-accept",
+                        initiator: call.initiator,
+                        sid: call.id
+                    });
+                    var partialUpdate = update.c("content", {
+                        creator: "initiator"
+                    }).c("description", {
+                        xmlns: this.transport.description
+                    });
+                    if (call.transport.description) {
+                        // We need to build the stanza here
+                        initiate = initiate.c("content", {
+                            creator: "initiator"
+                        }).c("description", {
+                            xmlns: call.transport.description
+                        });
+                        Phono.util.each(call.config.codecs(Phono.util.filterWideband(call.audioLayer.codecs(), call.phone.wideband())), function() {
+                            initiate = initiate.c("payload-type", {
+                                id: this.id,
+                                name: this.name,
+                                clockrate: this.rate
+                            }).up();
+                        });
+                        // Add any crypto that wasn't in the transport layer
+                        var required = "0";
+                        if (call._security == "mandatory") required = "1";
+                        if (call._security != "disabled" && call.transport.supportsSRTP == true) {
+                            initiate = initiate.c("encryption", {
+                                required: required
+                            }).c("crypto", {
+                                tag: call.tag,
+                                "crypto-suite": call.crypto,
+                                "key-params": call.keyparams
+                            }).up();
+                        }
+                        initiate = initiate.up();
+                    }
+                    this.transport.buildTransport("offer", initiate, function() {
+                        // Check that we still mean to
+                        if (call.state != CallState.DISCONNECTED) {
+                            call.connection.sendIQ(initiateIq, function(iq) {
+                                call.state = CallState.PROGRESS;
+                            });
+                        }
+                    }, partialUpdate.up(), function() {
+                        // Check that we still mean to
+                        if (call.state != CallState.DISCONNECTED) {
+                            call.connection.sendIQ(updateIq, function(iq) {});
+                        }
+                    });
+                };
+                Call.prototype.accept = function() {
+                    var call = this;
+                    if (call.state != CallState.PROGRESS) return;
+                    var jingleIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    }).c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "session-info",
+                        initiator: call.initiator,
+                        sid: call.id
+                    }).c("ringing", {
+                        xmlns: NS.JINGLE_SESSION_INFO
+                    });
+                    this.connection.sendIQ(jingleIq, function(iq) {
+                        call.state = CallState.RINGING;
+                        Phono.events.trigger(call, "ring");
+                    });
+                };
+                Call.prototype.answer = function() {
+                    var call = this;
+                    if (call.state != CallState.RINGING && call.state != CallState.PROGRESS) return;
+                    var acceptIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    });
+                    var accept = acceptIq.c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "session-accept",
+                        initiator: call.initiator,
+                        sid: call.id
+                    });
+                    var updateIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    });
+                    var update = updateIq.c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "transport-replace",
+                        initiator: call.initiator,
+                        sid: call.id
+                    });
+                    var partialUpdate = update.c("content", {
+                        creator: "initiator"
+                    }).c("description", {
+                        xmlns: this.transport.description
+                    });
+                    if (call.transport.description) {
+                        var accept = accept.c("content", {
+                            creator: "initiator"
+                        }).c("description", {
+                            xmlns: call.transport.description
+                        });
+                        accept = accept.c("payload-type", {
+                            id: call.codec.id,
+                            name: call.codec.name,
+                            clockrate: call.codec.rate
+                        }).up();
+                        $.each(call.audioLayer.codecs(), function() {
+                            if (this.name == "telephone-event") {
+                                accept = accept.c("payload-type", {
+                                    id: this.id,
+                                    name: this.name,
+                                    clockrate: this.rate
+                                }).up();
+                            }
+                        });
+                        // Add our crypto
+                        if (call.srtpPropsl != undefined && call.srtpPropsr != undefined) {
+                            accept = accept.c("encryption").c("crypto", {
+                                tag: call.tag,
+                                "crypto-suite": call.crypto,
+                                "key-params": call.keyparams
+                            }).up();
+                        }
+                        accept = accept.up();
+                    }
+                    this.transport.buildTransport("answer", accept, function(codec) {
+                        // If the codec changed, set it for correctness
+                        if (codec) call.codec = codec;
+                        call.connection.sendIQ(acceptIq, function(iq) {
+                            call.state = CallState.CONNECTED;
+                            if (call.ringer != null) call.ringer.stop();
+                            call.setupBinding();
+                            // Check security
+                            if (call._security == "mandatory" && call.output.secure() == false) {
+                                // We must fail the call, remote end did not agree on crypto
+                                Phono.log.error("Security error, call not secure when mandatory specified");
+                                call.hangup();
+                            } else {
+                                Phono.events.trigger(call, "answer");
+                                call.startAudio();
+                            }
+                        });
+                    }, partialUpdate.up(), function() {
+                        call.connection.sendIQ(updateIq, function(iq) {});
+                    });
+                };
+                Call.prototype.bindAudio = function(binding) {
+                    this.input = binding.input;
+                    this.output = binding.output;
+                    this.volume(this.volume());
+                    this.gain(this.gain());
+                    this.mute(this.mute());
+                    this.hold(this.hold());
+                    this.headset(this.headset());
+                    this.pushToTalkStateChanged();
+                    Phono.events.bind(this.output, {
+                        onMediaReady: function() {
+                            Phono.events.trigger(call, "mediaReady");
+                        }
+                    });
+                };
+                Call.prototype.hangup = function() {
+                    var call = this;
+                    if (call.state == CallState.INITIAL) {
+                        call.state = CallState.DISCONNECTED;
+                        return;
+                    }
+                    if (call.state != CallState.CONNECTED && call.state != CallState.RINGING && call.state != CallState.PROGRESS) return;
+                    var jingleIq = Strophe.iq({
+                        type: "set",
+                        to: call.remoteJid
+                    }).c("jingle", {
+                        xmlns: NS.JINGLE,
+                        action: "session-terminate",
+                        initiator: call.initiator,
+                        sid: call.id
+                    });
+                    call.stopAudio();
+                    if (call.transport.destroyTransport) call.transport.destroyTransport();
+                    this.connection.sendIQ(jingleIq, function(iq) {
+                        call.state = CallState.DISCONNECTED;
+                        Phono.events.trigger(call, "hangup");
+                        if (call.ringer != null) call.ringer.stop();
+                        if (call.ringback != null) call.ringback.stop();
+                    });
+                };
+                Call.prototype.digit = function(value, duration) {
+                    if (!duration) {
+                        duration = 50;
+                    }
+                    if (this.output.digit) {
+                        this.output.digit(value, duration, this._tones);
+                    } else {
+                        // Send as Jingle
+                        var jingleIq = Strophe.iq({
+                            type: "set",
+                            to: this.remoteJid
+                        }).c("jingle", {
+                            xmlns: NS.JINGLE,
+                            action: "session-info",
+                            initiator: this.initiator,
+                            sid: this.id
+                        }).c("dtmf", {
+                            xmlns: NS.JINGLE_DTMF,
+                            code: value,
+                            duration: duration,
+                            volume: "42"
+                        });
+                        this.connection.sendIQ(jingleIq);
+                        if (this.output.freep) {
+                            Phono.log.debug("freep " + value);
+                            this.output.freep(value, duration, this._tones);
+                        } else {
+                            Phono.log.debug("no freep " + value);
+                        }
+                    }
+                };
+                Call.prototype.pushToTalk = function(value) {
+                    if (arguments.length === 0) {
+                        return this._pushToTalk;
+                    }
+                    this._pushToTalk = value;
+                    this.pushToTalkStateChanged();
+                };
+                Call.prototype.talking = function(value) {
+                    if (arguments.length === 0) {
+                        return this._talking;
+                    }
+                    this._talking = value;
+                    this.pushToTalkStateChanged();
+                };
+                Call.prototype.mute = function(value) {
+                    if (arguments.length === 0) {
+                        return this._mute;
+                    }
+                    this._mute = value;
+                    if (this.output) {
+                        this.output.mute(value);
+                    }
+                };
+                // TODO: hold should be implemented in JINGLE
+                Call.prototype.hold = function(hold) {};
+                Call.prototype.volume = function(value) {
+                    if (arguments.length === 0) {
+                        return this._volume;
+                    }
+                    this._volume = value;
+                    if (this.input) {
+                        this.input.volume(value);
+                    }
+                };
+                Call.prototype.tones = function(value) {
+                    if (arguments.length === 0) {
+                        return this._tones;
+                    }
+                    this._tones = value;
+                };
+                Call.prototype.gain = function(value) {
+                    if (arguments.length === 0) {
+                        return this._gain;
+                    }
+                    this._gain = value;
+                    if (this.output) {
+                        this.output.gain(value);
+                    }
+                };
+                Call.prototype.energy = function() {
+                    if (this.output) {
+                        ret = this.output.energy();
+                    }
+                    return ret;
+                };
+                Call.prototype.secure = function() {
+                    var ret = false;
+                    if (this.output) {
+                        ret = this.output.secure();
+                    }
+                    return ret;
+                };
+                Call.prototype.security = function(value) {
+                    if (arguments.length === 0) {
+                        return this._security;
+                    }
+                    this._security = value;
+                };
+                Call.prototype.headset = function(value) {
+                    if (arguments.length === 0) {
+                        return this._headset;
+                    }
+                    this._headset = value;
+                    if (this.output) {
+                        this.output.suppress(!value);
+                    }
+                };
+                Call.prototype.pushToTalkStateChanged = function() {
+                    if (this.input && this.output) {
+                        if (this._pushToTalk) {
+                            if (this._talking) {
+                                this.input.volume(20);
+                                this.output.mute(false);
+                            } else {
+                                this.input.volume(this._volume);
+                                this.output.mute(true);
+                            }
+                        } else {
+                            this.input.volume(this._volume);
+                            this.output.mute(false);
+                        }
+                    }
+                };
+                Call.prototype.negotiate = function(iq) {
+                    var call = this;
+                    // Find a matching audio codec
+                    var description = $(iq).find("description");
+                    var codec = null;
+                    description.find("payload-type").each(function() {
+                        var codecName = $(this).attr("name");
+                        var codecRate = $(this).attr("clockrate");
+                        var codecId = $(this).attr("id");
+                        $.each(call.config.codecs(Phono.util.filterWideband(call.audioLayer.codecs(), call.phone.wideband())), function() {
+                            if (this.name == codecName && this.rate == codecRate && this.name != "telephone-event" || parseInt(this.id) < 90 && this.id == codecId) {
+                                if (codec == null) codec = {
+                                    id: codecId,
+                                    name: this.name,
+                                    rate: this.rate,
+                                    p: this.p
+                                };
+                                return false;
+                            }
+                        });
+                    });
+                    // Check to see if we have crypto, we only support AES_CM_128_HMAC_SHA1_80
+                    if (call._security != "disabled" && this.transport.supportsSRTP == true) {
+                        description.find("crypto").each(function() {
+                            if ($(this).attr("crypto-suite") == call.crypto) {
+                                call.srtpPropsr = Phono.util.srtpProps($(this).attr("tag"), $(this).attr("crypto-suite"), $(this).attr("key-params"), $(this).attr("session-params"));
+                                call.tag = $(this).attr("tag");
+                            }
+                        });
+                        if (call._security == "mandatory" && call.srtpPropsr == undefined) {
+                            // We must fail the call, remote end did not agree on crypto
+                            Phono.log.error("No security when mandatory specified");
+                            return null;
+                        }
+                    }
+                    // Find a matching media transport
+                    var foundTransport = false;
+                    $(iq).find("transport").each(function() {
+                        if (call.transport.name == $(this).attr("xmlns") && foundTransport == false) {
+                            var transport = call.transport.processTransport($(this), false, $(iq));
+                            if (transport != undefined) {
+                                call.setupBinding = function() {
+                                    return call.bindAudio({
+                                        input: call.audioLayer.play(transport.input, false),
+                                        output: call.audioLayer.share(transport.output, false, codec, call.srtpPropsl, call.srtpPropsr)
+                                    });
+                                };
+                                foundTransport = true;
+                                if (transport.codec) {
+                                    // If the codec changed, set it for correctness
+                                    codec = transport.codec;
+                                }
+                            } else {
+                                Phono.log.error("No valid candidate in transport");
+                            }
+                        }
+                    });
+                    if (foundTransport == false) {
+                        Phono.log.error("No matching valid transport");
+                        return null;
+                    }
+                    // No matching codec
+                    if (!codec) {
+                        Phono.log.error("No matching jingle codec (not a problem if using ROAP WebRTC)");
+                        // Voodoo up a temporary codec as a placeholder
+                        codec = {
+                            id: 1,
+                            name: "webrtc-ulaw",
+                            rate: 8e3,
+                            p: 20
+                        };
+                    }
+                    return codec;
+                };
+                // Phone
+                //
+                // A Phone is created automatically with each Phono instance. 
+                // Basic Phone allows setting  ring tones,  ringback tones, etc.
+                // =================================================================
+                function Phone(phono, config, callback) {
+                    var phone = this;
+                    this.phono = phono;
+                    this.connection = phono.connection;
+                    // Initialize call hash
+                    this.calls = {};
+                    // Initial state
+                    this._wideband = true;
+                    // Define defualt config and merge from constructor
+                    this.config = Phono.util.extend({
+                        audioInput: "System Default",
+                        ringTone: "//s.phono.com/ringtones/Diggztone_Marimba.mp3",
+                        ringbackTone: "//s.phono.com/ringtones/ringback-us.mp3",
+                        wideband: true,
+                        headset: false,
+                        codecs: function(offer) {
+                            return offer;
+                        },
+                        security: "disabled"
+                    }, config);
+                    // Apply config
+                    Phono.util.each(this.config, function(k, v) {
+                        if (typeof phone[k] == "function") {
+                            phone[k](v);
+                        }
+                    });
+                    // Bind Event Listeners
+                    Phono.events.bind(this, config);
+                    // Register Strophe handler for JINGLE messages
+                    this.connection.addHandler(this.doJingle.bind(this), NS.JINGLE, "iq", "set");
+                    callback(this);
+                }
+                Phone.prototype.doJingle = function(iq) {
+                    var phone = this;
+                    var audioLayer = this.phono.audio;
+                    var jingle = $(iq).find("jingle");
+                    var action = jingle.attr("action") || "";
+                    var id = jingle.attr("sid") || "";
+                    var call = this.calls[id] || null;
+                    switch (action) {
+                      // Inbound Call
+                        case "session-initiate":
+                        call = Phono.util.loggify("Call", new Call(phone, id, Direction.INBOUND));
+                        call.phone = phone;
+                        call.remoteJid = $(iq).attr("from");
+                        call.initiator = jingle.attr("initiator");
+                        // Register Call
+                        phone.calls[call.id] = call;
+                        call.state = CallState.PROGRESS;
+                        // Negotiate SDP
+                        call.codec = call.negotiate(iq);
+                        if (call.codec == null) {
+                            Phono.log.warn("Failed to negotiate incoming call", iq);
+                            call.hangup();
+                            break;
+                        }
+                        // Get incoming headers
+                        call.headers = new Array();
+                        jingle.find("custom-header").each(function() {
+                            call.headers.push({
+                                name: $(this).attr("name"),
+                                value: $(this).attr("data")
+                            });
+                        });
+                        // Start ringing
+                        if (call.ringer != null) call.ringer.start();
+                        // Auto accept the call (i.e. send ringing)
+                        call.accept();
+                        // Fire imcoming call event
+                        Phono.events.trigger(this, "incomingCall", {
+                            call: call
+                        });
+                        // Get microphone permission if we are going to need it
+                        if (!audioLayer.permission()) {
+                            Phono.events.trigger(audioLayer, "permissionBoxShow");
+                        }
+                        break;
+
+                      // Accepted Outbound Call
+                        case "session-accept":
+                        // Negotiate SDP
+                        call.codec = call.negotiate(iq);
+                        if (call.codec == null) {
+                            Phono.log.warn("Failed to negotiate outbound call", iq);
+                            call.hangup();
+                            break;
+                        }
+                        // Stop ringback
+                        if (call.ringback != null) call.ringback.stop();
+                        // Connect audio streams
+                        call.setupBinding();
+                        // Belt and braces
+                        if (call._security == "mandatory" && call.output.secure() == false) {
+                            // We must fail the call, remote end did not agree on crypto
+                            Phono.log.error("Security error, call not secure when mandatory specified");
+                            call.hangup();
+                            break;
+                        }
+                        call.startAudio();
+                        call.state = CallState.CONNECTED;
+                        // Fire answer event
+                        Phono.events.trigger(call, "answer");
+                        break;
+
+                      // Transport information update
+                        case "transport-replace":
+                      case "transport-accept":
+                        call.transport.processTransport($(iq), true);
+                        break;
+
+                      // Hangup
+                        case "session-terminate":
+                        call.state = CallState.DISCONNECTED;
+                        call.stopAudio();
+                        if (call.ringer != null) call.ringer.stop();
+                        if (call.ringback != null) call.ringback.stop();
+                        if (call.transport.destroyTransport) call.transport.destroyTransport();
+                        // Fire hangup event
+                        Phono.events.trigger(call, "hangup");
+                        break;
+
+                      // Ringing
+                        case "session-info":
+                        if ($(iq).find("ringing")) {
+                            call.state = CallState.RINGING;
+                            if (call.ringback != null) call.ringback.start();
+                            Phono.events.trigger(call, "ring");
+                        }
+                        break;
+                    }
+                    // Send Reply
+                    this.connection.send(Strophe.iq({
+                        type: "result",
+                        id: $(iq).attr("id"),
+                        to: call.remoteJid
+                    }));
+                    return true;
+                };
+                Phone.prototype.dial = function(to, config) {
+                    //Generate unique ID
+                    var id = Phono.util.guid();
+                    // Configure Call properties inherited from Phone
+                    config = Phono.util.extend({
+                        headset: this.headset(),
+                        callerId: this.connection.jid
+                    }, config || {});
+                    // Create and configure Call
+                    var call = new Phono.util.loggify("Call", new Call(this, id, Direction.OUTBOUND, config));
+                    call.phone = this;
+                    call.remoteJid = to;
+                    call.initiator = config.callerId;
+                    if (call.initiator == undefined || call.initiator == null || call.initiator == "") {
+                        call.initiator = this.connection.jid;
+                    }
+                    // Give platform a chance to fix up 
+                    // the destination and add headers
+                    this.beforeDial(call);
+                    // Register call
+                    this.calls[call.id] = call;
+                    // Kick off JINGLE invite
+                    call.start();
+                    return call;
+                };
+                Phone.prototype.beforeDial = function(call) {
+                    var to = call.remoteJid;
+                    if (to.match("^sip:") || to.match("^sips:")) {
+                        call.remoteJid = Phono.util.escapeXmppNode(to.substr(4)) + "@sip";
+                    } else if (to.match("^xmpp:")) {
+                        call.remoteJid = to.substr(5);
+                    } else if (to.match("^app:")) {
+                        call.remoteJid = Phono.util.escapeXmppNode(to.substr(4)) + "@app";
+                    } else if (to.match("^tel:")) {
+                        call.remoteJid = "9996182316@app";
+                        call.headers.push({
+                            name: "x-numbertodial",
+                            value: to.substr(4)
+                        });
+                    } else {
+                        var number = to.replace(/[\(\)\-\.\ ]/g, "");
+                        if (number.match(/^\+?\d+$/)) {
+                            call.remoteJid = "9996182316@app";
+                            call.headers.push({
+                                name: "x-numbertodial",
+                                value: number
+                            });
+                        } else if (to.indexOf("@") > 0) {
+                            call.remoteJid = Phono.util.escapeXmppNode(to) + "@sip";
+                        }
+                    }
+                };
+                Phone.prototype.audioInput = function(value) {
+                    if (arguments.length == 0) {
+                        return this._audioInput;
+                    }
+                    this._audioInput = value;
+                };
+                Phone.prototype.audioInDevices = function() {
+                    var audiolayer = this.phono.audio;
+                    var ret = new Object();
+                    if (audiolayer.audioInDevices) {
+                        ret = audiolayer.audioInDevices();
+                    }
+                    return ret;
+                };
+                Phone.prototype.ringTone = function(value) {
+                    if (arguments.length == 0) {
+                        return this._ringTone;
+                    }
+                    this._ringTone = value;
+                };
+                Phone.prototype.ringbackTone = function(value) {
+                    if (arguments.length == 0) {
+                        return this._ringbackTone;
+                    }
+                    this._ringbackTone = value;
+                };
+                Phone.prototype.headset = function(value) {
+                    if (arguments.length == 0) {
+                        return this._headset;
+                    }
+                    this._headset = value;
+                    Phono.util.each(this.calls, function() {
+                        this.headset(value);
+                    });
+                };
+                Phone.prototype.wideband = function(value) {
+                    if (arguments.length == 0) {
+                        return this._wideband;
+                    }
+                    this._wideband = value;
+                };
+                Phone.prototype.security = function(value) {
+                    if (arguments.length == 0) {
+                        return this._security;
+                    }
+                    this._security = value;
+                };
+                Phono.registerPlugin("phone", {
+                    create: function(phono, config, callback) {
+                        return Phono.util.loggify("Phone", new Phone(phono, config, callback));
+                    }
+                });
+            })();
+            // ======================================================================
+            PhonoStrophe.log = function(level, msg) {
+                Phono.log.debug("[PSTROPHE] " + msg);
+            };
+            // Register Loggign Callback
+            Phono.events.add(Phono.log, "log", function(event) {
+                var date = event.timeStamp;
+                var formattedDate = Phono.util.padWithZeroes(date.getHours(), 2) + ":" + Phono.util.padWithZeroes(date.getMinutes(), 2) + ":" + Phono.util.padWithZeroes(date.getSeconds(), 2) + "." + Phono.util.padWithZeroes(date.getMilliseconds(), 3);
+                var formattedMessage = formattedDate + " " + Phono.util.padWithSpaces(event.level.name, 5) + " - " + event.getCombinedMessages();
+                var throwableStringRep = event.getThrowableStrRep();
+                if (throwableStringRep) {
+                    formattedMessage += newLine + throwableStringRep;
+                }
+                console.log(formattedMessage);
+            });
+            // PluginManager is responsible for initializing plugins an 
+            // notifying when all plugins are initialized
+            function PluginManager(phono, config, readyHandler) {
+                this.index = 0;
+                this.readyHandler = readyHandler;
+                this.config = config;
+                this.phono = phono;
+                this.pluginNames = new Array();
+                for (pluginName in Phono.plugins) {
+                    this.pluginNames.push(pluginName);
+                }
+            }
+            PluginManager.prototype.init = function(phono, config, readyHandler) {
+                this.chain();
+            };
+            PluginManager.prototype.chain = function() {
+                var manager = this;
+                var pluginName = manager.pluginNames[this.index];
+                Phono.plugins[pluginName].create(manager.phono, manager.config[pluginName], function(plugin) {
+                    manager.phono[pluginName] = plugin;
+                    manager.index++;
+                    if (manager.index === manager.pluginNames.length) {
+                        manager.readyHandler.apply(manager.phono);
+                    } else {
+                        manager.chain();
+                    }
+                });
+            };
+        })();
+        $.phono = function(config) {
+            return new Phono(config);
+        };
+    })(Zepto);
+}.bind(this));
+
 require.register("app/vendor/underscore.js", function(exports, require, module) {
     //     Underscore.js 1.6.0
     //     http://underscorejs.org
@@ -15963,6 +24782,25 @@ require.register("app/vendor/zepto.js", function(exports, require, module) {
 
 require.register("app/custom/helpers/helpers.js", function(exports, require, module) {
     module.exports = {
+        timeAgo: function(time) {
+            var now = Date.now();
+            var difference = now - time;
+            var minute = 6e4;
+            var hour = 60 * minute;
+            var day = 24 * hour;
+            if (difference < minute) {
+                return "Just Now";
+            } else if (difference < hour) {
+                var minutes = ~~(difference / minute);
+                return minutes + "m ago";
+            } else if (difference < day) {
+                var hours = ~~(difference / hour);
+                return hours + "h ago";
+            } else {
+                var days = ~~(difference / day);
+                return days + "d ago";
+            }
+        },
         timeSince: function(time) {
             var now = Date.now();
             var difference = now - time;
@@ -15982,18 +24820,16 @@ require.register("app/custom/helpers/helpers.js", function(exports, require, mod
                 return days + "d ago";
             }
         },
-        isDev: function() {
-            return window.location.host.indexOf("localhost") == 0;
-        },
-        isMobile: function() {
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
-                return true;
-            }
-            return false;
-        },
         capitalize: function(string) {
             return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
-        }
+        },
+        // functions that generate constant results
+        isDev: _.memoize(function() {
+            return window.location.host.indexOf("localhost:3") == 0;
+        }),
+        isMobile: _.memoize(function() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+        })
     };
 }.bind(this));
 
@@ -16046,6 +24882,9 @@ require.register("app/custom/templates/templates.js", function(exports, require,
         },
         removeButton: function(id) {
             return '<i class="fa fa-times remove-button" id="' + id + '"></i>';
+        },
+        editButton: function(id) {
+            return [ '<span class="fa-stack edit-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-info fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
         },
         crossButton: function(id) {
             return [ '<span class="fa-stack delete-button2" id="', id, '"><i class="fa fa-circle fa-stack-2x fa-background"></i>', '<i class="fa fa-times fa-stack-1x fa-frontground"></i>', "</span>" ].join("");
@@ -16141,17 +24980,42 @@ require.register("app/custom/templates/templates.js", function(exports, require,
             var realWidth = window.innerWidth - marginLeft - marginRight;
             return [ '<div class="header-view" style="width: ', realWidth, "px; margin-left: ", marginLeft, "px; margin-right: ", marginRight, 'px"></div>' ].join("");
         },
+        socialItemView: function(model) {
+            var name;
+            if (model.get("firstname") || model.get("lastname")) {
+                name = [ model.get("firstname"), " <b>", model.get("lastname"), "</b>" ].join("");
+            } else {
+                name = model.get("email");
+            }
+            var contact = [ '<div style = " width: ', window.innerWidth, 'px"><div class="source">', name ].join("");
+            contact = [ contact, "</div></div>" ].join("");
+            return contact;
+        },
         editContactHeader: function(title) {
             return [ '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>', title, '</div><button class="right close-button done-contact">Done</button>' ].join("");
         },
         recentsHeader: function() {
-            return [ '<button class="left clear-button" id="clear-button"></button>', '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>', '<label for="all" class="first" id="recent-toggle">all</label>', '<input type="radio" id="missed" name="recents-toggle" value="missed">', '<label for="missed" class="last" id="recent-toggle">missed</label></div>', '<button class="right edit-button" id="recent-edit-contact"></button>' ].join("");
+            return [ '<button class="left edit-button" id="recent-edit-contact"></button>', '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>', '<label for="all" class="first" id="recent-toggle">all</label>', '<input type="radio" id="missed" name="recents-toggle" value="missed">', '<label for="missed" class="last" id="recent-toggle">missed</label></div>', '<button class="right clear-button" id="clear-button"></button>' ].join("");
         },
         chatsHeader: function() {
             return [ '<button class="left edit-button" id="chats-edit-contact"></button><div>Messages</div>' ].join("");
         },
         favoriteHeader: function() {
             return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
+        },
+        conversationViewHeader: function(callee) {
+            var name;
+            if (callee) {
+                if (callee.get("firstname") || callee.get("lastname")) {
+                    name = [ callee.get("firstname"), " <b>", callee.get("lastname"), "</b>" ].join("");
+                } else {
+                    name = callee.get("email");
+                }
+            } else {
+                name = "Shana <b> Ho </b>";
+            }
+            var content = [ '<div><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">', name, "</span></div>" ].join("");
+            return content;
         },
         conversationInputBar: function() {
             return [ '<div><button class="fa fa-comments-o menu-toggle-button fade"></button>', '<button class="fa fa-phone menu-end-button"></button>', '<textarea class="input-msg" name="message"></textarea>', '<button class="send-text-button">Send</button></div>' ].join("");
@@ -18170,6 +27034,7 @@ require.register("famous_modules/famous/engine/_git_master/index.js", function(e
      * @param {Object=} event
      */
     function handleResize(event) {
+        if (window._disableResize) return;
         if (document.activeElement && document.activeElement.nodeName == "INPUT") {
             document.activeElement.addEventListener("blur", function deferredResize() {
                 this.removeEventListener("blur", deferredResize);
@@ -19887,7 +28752,181 @@ require.register("famous_modules/famous/input/touch-tracker/_git_master/index.js
     module.exports = TouchTracker;
 }.bind(this));
 
-require.register("app/custom/custom-touch-sync/touch-sync.js", function(exports, require, module) {
+require.register("app/custom/custom-input-sync/index.js", function(exports, require, module) {
+    module.exports = {
+        TouchSync: require("touch-sync"),
+        MouseSync: require("mouse-sync")
+    };
+}.bind(this));
+
+require.register("app/custom/custom-input-sync/mouse-sync.js", function(exports, require, module) {
+    var EventHandler = require("famous/event-handler");
+    /**
+     * @class Handles piped in mouse drag events. Outputs an object with two
+     *        properties, position and velocity.
+     * @description
+     * @name MouseSync
+     * @constructor
+     * @example
+     * 
+     *     var Engine = require('famous/Engine');
+     *     var Surface = require('famous/Surface');
+     *     var Modifier = require('famous/Modifier');
+     *     var FM = require('famous/Matrix');
+     *     var MouseSync = require('famous-sync/MouseSync');
+     *     var Context = Engine.createContext();
+     *
+     *     var surface = new Surface({
+     *         size: [200,200],
+     *         properties: {
+     *             backgroundColor: 'red'
+     *         }
+     *     });
+     *
+     *     var modifier = new Modifier({
+     *         transform: undefined
+     *     });
+     *
+     *     var position = 0;
+     *     var sync = new MouseSync(function(){
+     *         return position;
+     *     }, {direction: MouseSync.DIRECTION_Y});  
+     *
+     *     surface.pipe(sync);
+     *     sync.on('update', function(data) {
+     *         var edge = window.innerHeight - (surface.getSize()[1])
+     *         if (data.p > edge) {
+     *             position = edge;
+     *         } else if (data.p < 0) {
+     *             position = 0;
+     *         } else {
+     *             position = data.p;
+     *         }
+     *         modifier.setTransform(FM.translate(0, position, 0));
+     *         surface.setContent('position' + position + '<br>' + 'velocity' + data.v.toFixed(2));
+     *     });
+     *     Context.link(modifier).link(surface);
+     * 
+     */
+    function MouseSync(targetGet, options) {
+        this.targetGet = targetGet;
+        this.options = {
+            direction: undefined,
+            rails: false,
+            scale: 1,
+            stallTime: 50,
+            propogate: true
+        };
+        if (options) {
+            this.setOptions(options);
+        } else {
+            this.setOptions(this.options);
+        }
+        this.input = new EventHandler();
+        this.output = new EventHandler();
+        EventHandler.setInputHandler(this, this.input);
+        EventHandler.setOutputHandler(this, this.output);
+        this._prevCoord = undefined;
+        this._prevTime = undefined;
+        this._prevVel = undefined;
+        this.input.on("mousedown", _handleStart.bind(this));
+        this.input.on("mousemove", _handleMove.bind(this));
+        this.input.on("mouseup", _handleEnd.bind(this));
+        this.options.propogate ? this.input.on("mouseleave", _handleLeave.bind(this)) : this.input.on("mouseleave", _handleEnd.bind(this));
+    }
+    /** @const */
+    MouseSync.DIRECTION_X = 0;
+    /** @const */
+    MouseSync.DIRECTION_Y = 1;
+    function _handleStart(e) {
+        e.preventDefault();
+        // prevent drag
+        this._prevCoord = [ e.clientX, e.clientY ];
+        this._prevTime = Date.now();
+        this._prevVel = this.options.direction !== undefined ? 0 : [ 0, 0 ];
+        this.output.emit("start", {
+            ap: this._prevCoord
+        });
+    }
+    function _handleMove(e) {
+        if (!this._prevCoord) return;
+        var prevCoord = this._prevCoord;
+        var prevTime = this._prevTime;
+        var currCoord = [ e.clientX, e.clientY ];
+        var currTime = Date.now();
+        var diffX = currCoord[0] - prevCoord[0];
+        var diffY = currCoord[1] - prevCoord[1];
+        if (this.options.rails) {
+            if (Math.abs(diffX) > Math.abs(diffY)) diffY = 0; else diffX = 0;
+        }
+        var diffTime = Math.max(currTime - prevTime, 8);
+        // minimum tick time
+        var velX = diffX / diffTime;
+        var velY = diffY / diffTime;
+        var prevPos = this.targetGet();
+        var scale = this.options.scale;
+        var nextPos;
+        var nextVel;
+        if (this.options.direction == MouseSync.DIRECTION_X) {
+            nextPos = prevPos + scale * diffX;
+            nextVel = scale * velX;
+        } else if (this.options.direction == MouseSync.DIRECTION_Y) {
+            nextPos = prevPos + scale * diffY;
+            nextVel = scale * velY;
+        } else {
+            nextPos = [ prevPos[0] + scale * diffX, prevPos[1] + scale * diffY ];
+            nextVel = [ scale * velX, scale * velY ];
+        }
+        this.output.emit("update", {
+            ap: currCoord,
+            p: nextPos,
+            v: nextVel
+        });
+        this._prevCoord = currCoord;
+        this._prevTime = currTime;
+        this._prevVel = nextVel;
+    }
+    function _handleEnd(e) {
+        if (!this._prevCoord) return;
+        var prevTime = this._prevTime;
+        var currTime = Date.now();
+        if (currTime - prevTime > this.options.stallTime) this._prevVel = this.options.direction == undefined ? [ 0, 0 ] : 0;
+        var pos = this.targetGet();
+        this.output.emit("end", {
+            p: pos,
+            v: this._prevVel
+        });
+        this._prevCoord = undefined;
+        this._prevTime = undefined;
+        this._prevVel = undefined;
+    }
+    function _handleLeave(e) {
+        if (!this._prevCoord) return;
+        var boundMove = function(e) {
+            _handleMove.call(this, e);
+        }.bind(this);
+        var boundEnd = function(e) {
+            _handleEnd.call(this, e);
+            document.removeEventListener("mousemove", boundMove);
+            document.removeEventListener("mouseup", boundEnd);
+        }.bind(this);
+        document.addEventListener("mousemove", boundMove);
+        document.addEventListener("mouseup", boundEnd);
+    }
+    MouseSync.prototype.getOptions = function() {
+        return this.options;
+    };
+    MouseSync.prototype.setOptions = function(options) {
+        if (options.direction !== undefined) this.options.direction = options.direction;
+        if (options.rails !== undefined) this.options.rails = options.rails;
+        if (options.scale !== undefined) this.options.scale = options.scale;
+        if (options.stallTime !== undefined) this.options.stallTime = options.stallTime;
+        if (options.propogate !== undefined) this.options.propogate = options.propogate;
+    };
+    module.exports = MouseSync;
+}.bind(this));
+
+require.register("app/custom/custom-input-sync/touch-sync.js", function(exports, require, module) {
     var FTT = require("famous/input/touch-tracker");
     var FEH = require("famous/event-handler");
     function TouchSync(targetSync, options) {
@@ -19916,6 +28955,7 @@ require.register("app/custom/custom-touch-sync/touch-sync.js", function(exports,
     TouchSync.DIRECTION_Y = 1;
     function _handleStart(data) {
         this.output.emit("start", {
+            ap: [ data.touch.clientX, data.touch.clientY ],
             count: data.count,
             touch: data.touch.identifier
         });
@@ -22287,324 +31327,6 @@ require.register("famous_modules/famous/views/scrollview/_git_master/index.js", 
     module.exports = Scrollview;
 }.bind(this));
 
-require.register("app/custom/vertical-scroll-view/vertical-scroll-view.js", function(exports, require, module) {
-    var View = require("famous/view");
-    var Utility = require("famous/utilities/utility");
-    var Surface = require("famous/surface");
-    var Scrollview = require("famous/views/scrollview");
-    var Engine = require("famous/engine");
-    function VerticalScrollView(options) {
-        Scrollview.apply(this, arguments);
-        this.prepareEmptySurface();
-        this.prepareResize();
-        this.itemArray = [];
-        window.ss = this;
-    }
-    VerticalScrollView.prototype = Object.create(Scrollview.prototype);
-    VerticalScrollView.prototype.constructor = VerticalScrollView;
-    VerticalScrollView.prototype.setOptions = function(options) {
-        this.options.startAt = "top";
-        // 'bottom'
-        this.options.direction = Utility.Direction.Y;
-        this.options.margin = 1e4;
-        Object.getPrototypeOf(VerticalScrollView.prototype).setOptions.apply(this, arguments);
-        _.extend(this.options, options);
-    };
-    VerticalScrollView.prototype.prepareEmptySurface = function() {
-        this.emptySurface = new Surface({
-            properties: {
-                backgroundColor: "transparent"
-            },
-            size: [ undefined, 0 ]
-        });
-        this.emptySurface.pipe(this);
-    };
-    VerticalScrollView.prototype.prepareResize = function() {
-        var resizeTimeout;
-        var onResize = function() {
-            this.emptySurfaceResize();
-        };
-        Engine.on("resize", function() {
-            if (resizeTimeout) clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(onResize.bind(this), 300);
-        }.bind(this));
-    };
-    VerticalScrollView.prototype.sortBy = function(iterator) {
-        this.sequenceFrom(_.sortBy(this.itemArray, iterator));
-    };
-    VerticalScrollView.prototype.filter = function(predicate) {
-        // Not doing filter yet
-        this.sequenceFrom(_.filter(this.itemArray, predicate));
-    };
-    VerticalScrollView.prototype.sequenceFrom = function(node) {
-        this.itemArray = _.clone(node);
-        //    _.each(this.itemArray, function(item) {
-        //        item.pipe(this);
-        //    }.bind(this));
-        if (this.options.startAt == "top") {
-            node.push(this.emptySurface);
-        } else {
-            node.unshift(this.emptySurface);
-        }
-        // TODO: this.sequence need garbage collection
-        Object.getPrototypeOf(VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
-        this.emptySurfaceResize();
-    };
-    VerticalScrollView.prototype.emptySurfaceResize = function(msg) {
-        //    console.log(msg)
-        if (this.emptySurface) {
-            //        Engine.defer( doResize.bind(this));
-            setTimeout(doResize.bind(this), 300);
-        }
-        function doResize() {
-            var extraHeight = this.getSize()[1];
-            if (this.node) {
-                var itemSequence = _.filter(this.node.array, function(i) {
-                    return i instanceof Surface == false;
-                });
-                for (var i = 0; i < itemSequence.length; i++) {
-                    extraHeight -= itemSequence[i].getSize()[1];
-                    if (extraHeight <= 0) {
-                        extraHeight = 1;
-                        break;
-                    }
-                }
-            }
-            this.emptySurface.setSize([ undefined, extraHeight ]);
-        }
-    };
-    VerticalScrollView.prototype.scrollTo = function(index, position) {
-        if (!index) index = 0;
-        if (!position) position = 0;
-        this.node.index = index;
-        this.setPosition(position);
-    };
-    VerticalScrollView.prototype.removeByIndex = function(index) {
-        if (index < 0) return;
-        if (this.node) {
-            var removedNode = this.itemArray.splice(index, 1)[0];
-            removedNode.collapse(function() {
-                Engine.defer(function() {
-                    var i = this.node.array.indexOf(removedNode);
-                    this.node.splice(i, 1);
-                    // this fixes first item removal return index -1 bug
-                    if (i == 0) this.node.index = 0;
-                    this.emptySurfaceResize();
-                }.bind(this));
-            }.bind(this));
-        }
-    };
-    VerticalScrollView.prototype.addByIndex = function(index, item) {
-        //    item.pipe(this);
-        this.itemArray.splice(index, 0, item);
-        this.node.splice(index, 0, item);
-        // reset position
-        this.node.index = 0;
-        this.emptySurfaceResize();
-    };
-    VerticalScrollView.prototype.push = function(item) {
-        //  this will work for start at bottom only.
-        this.itemArray.push(item);
-        this.node.push(item);
-        // reset position
-        //    this.node.index = 0;
-        this.emptySurfaceResize("push");
-    };
-    VerticalScrollView.prototype.scrollToEnd = function() {
-        var lastNode = this.node.array.length - 1;
-        var currNode = this.node.index;
-        var screenSize = this.getSize()[1];
-        var currPos = this.getPosition();
-        var heightArray = this.node.array.map(function(d) {
-            if (d.getSize()[1] === true) return 100;
-            return d.getSize()[1];
-        });
-        var sum = _.reduce(_(heightArray).last(lastNode - currNode + 1), function(memo, num) {
-            return memo + num;
-        }, 0);
-        var totalPixelsToMove = sum - currPos - screenSize + 100;
-        //    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
-        // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
-        var v = Math.max(2 * totalPixelsToMove / 200, 0);
-        // TODO: hack, so it will never onEdge when scrollToEnd
-        if (this._onEdge == -1 && this.emptySurface.getSize()[1] <= 1 && this._springAttached) {
-            this.scrollTo(1, 0);
-            setTimeout(function() {
-                this.setVelocity(v);
-            }.bind(this), 300);
-        } else {
-            Engine.defer(function() {
-                this.setVelocity(v);
-            }.bind(this));
-        }
-    };
-    module.exports = VerticalScrollView;
-}.bind(this));
-
-require.register("famous_modules/famous/input/mouse-sync/_git_master/index.js", function(exports, require, module) {
-    var EventHandler = require("famous/event-handler");
-    /**
-     * @class Handles piped in mouse drag events. Outputs an object with two
-     *        properties, position and velocity.
-     * @description
-     * @name MouseSync
-     * @constructor
-     * @example
-     * 
-     *     var Engine = require('famous/Engine');
-     *     var Surface = require('famous/Surface');
-     *     var Modifier = require('famous/Modifier');
-     *     var FM = require('famous/Matrix');
-     *     var MouseSync = require('famous-sync/MouseSync');
-     *     var Context = Engine.createContext();
-     *
-     *     var surface = new Surface({
-     *         size: [200,200],
-     *         properties: {
-     *             backgroundColor: 'red'
-     *         }
-     *     });
-     *
-     *     var modifier = new Modifier({
-     *         transform: undefined
-     *     });
-     *
-     *     var position = 0;
-     *     var sync = new MouseSync(function(){
-     *         return position;
-     *     }, {direction: MouseSync.DIRECTION_Y});  
-     *
-     *     surface.pipe(sync);
-     *     sync.on('update', function(data) {
-     *         var edge = window.innerHeight - (surface.getSize()[1])
-     *         if (data.p > edge) {
-     *             position = edge;
-     *         } else if (data.p < 0) {
-     *             position = 0;
-     *         } else {
-     *             position = data.p;
-     *         }
-     *         modifier.setTransform(FM.translate(0, position, 0));
-     *         surface.setContent('position' + position + '<br>' + 'velocity' + data.v.toFixed(2));
-     *     });
-     *     Context.link(modifier).link(surface);
-     * 
-     */
-    function MouseSync(targetGet, options) {
-        this.targetGet = targetGet;
-        this.options = {
-            direction: undefined,
-            rails: false,
-            scale: 1,
-            stallTime: 50,
-            propogate: true
-        };
-        if (options) {
-            this.setOptions(options);
-        } else {
-            this.setOptions(this.options);
-        }
-        this.input = new EventHandler();
-        this.output = new EventHandler();
-        EventHandler.setInputHandler(this, this.input);
-        EventHandler.setOutputHandler(this, this.output);
-        this._prevCoord = undefined;
-        this._prevTime = undefined;
-        this._prevVel = undefined;
-        this.input.on("mousedown", _handleStart.bind(this));
-        this.input.on("mousemove", _handleMove.bind(this));
-        this.input.on("mouseup", _handleEnd.bind(this));
-        this.options.propogate ? this.input.on("mouseleave", _handleLeave.bind(this)) : this.input.on("mouseleave", _handleEnd.bind(this));
-    }
-    /** @const */
-    MouseSync.DIRECTION_X = 0;
-    /** @const */
-    MouseSync.DIRECTION_Y = 1;
-    function _handleStart(e) {
-        e.preventDefault();
-        // prevent drag
-        this._prevCoord = [ e.clientX, e.clientY ];
-        this._prevTime = Date.now();
-        this._prevVel = this.options.direction !== undefined ? 0 : [ 0, 0 ];
-        this.output.emit("start");
-    }
-    function _handleMove(e) {
-        if (!this._prevCoord) return;
-        var prevCoord = this._prevCoord;
-        var prevTime = this._prevTime;
-        var currCoord = [ e.clientX, e.clientY ];
-        var currTime = Date.now();
-        var diffX = currCoord[0] - prevCoord[0];
-        var diffY = currCoord[1] - prevCoord[1];
-        if (this.options.rails) {
-            if (Math.abs(diffX) > Math.abs(diffY)) diffY = 0; else diffX = 0;
-        }
-        var diffTime = Math.max(currTime - prevTime, 8);
-        // minimum tick time
-        var velX = diffX / diffTime;
-        var velY = diffY / diffTime;
-        var prevPos = this.targetGet();
-        var scale = this.options.scale;
-        var nextPos;
-        var nextVel;
-        if (this.options.direction == MouseSync.DIRECTION_X) {
-            nextPos = prevPos + scale * diffX;
-            nextVel = scale * velX;
-        } else if (this.options.direction == MouseSync.DIRECTION_Y) {
-            nextPos = prevPos + scale * diffY;
-            nextVel = scale * velY;
-        } else {
-            nextPos = [ prevPos[0] + scale * diffX, prevPos[1] + scale * diffY ];
-            nextVel = [ scale * velX, scale * velY ];
-        }
-        this.output.emit("update", {
-            p: nextPos,
-            v: nextVel
-        });
-        this._prevCoord = currCoord;
-        this._prevTime = currTime;
-        this._prevVel = nextVel;
-    }
-    function _handleEnd(e) {
-        if (!this._prevCoord) return;
-        var prevTime = this._prevTime;
-        var currTime = Date.now();
-        if (currTime - prevTime > this.options.stallTime) this._prevVel = this.options.direction == undefined ? [ 0, 0 ] : 0;
-        var pos = this.targetGet();
-        this.output.emit("end", {
-            p: pos,
-            v: this._prevVel
-        });
-        this._prevCoord = undefined;
-        this._prevTime = undefined;
-        this._prevVel = undefined;
-    }
-    function _handleLeave(e) {
-        if (!this._prevCoord) return;
-        var boundMove = function(e) {
-            _handleMove.call(this, e);
-        }.bind(this);
-        var boundEnd = function(e) {
-            _handleEnd.call(this, e);
-            document.removeEventListener("mousemove", boundMove);
-            document.removeEventListener("mouseup", boundEnd);
-        }.bind(this);
-        document.addEventListener("mousemove", boundMove);
-        document.addEventListener("mouseup", boundEnd);
-    }
-    MouseSync.prototype.getOptions = function() {
-        return this.options;
-    };
-    MouseSync.prototype.setOptions = function(options) {
-        if (options.direction !== undefined) this.options.direction = options.direction;
-        if (options.rails !== undefined) this.options.rails = options.rails;
-        if (options.scale !== undefined) this.options.scale = options.scale;
-        if (options.stallTime !== undefined) this.options.stallTime = options.stallTime;
-        if (options.propogate !== undefined) this.options.propogate = options.propogate;
-    };
-    module.exports = MouseSync;
-}.bind(this));
-
 require.register("famous_modules/famous/transitions/spring-transition/_git_master/index.js", function(exports, require, module) {
     var PhysicsEngine = require("famous/physics/engine");
     var Spring = require("famous/physics/forces/spring");
@@ -22730,6 +31452,161 @@ require.register("famous_modules/famous/transitions/spring-transition/_git_maste
         _setCallback.call(this, callback);
     };
     module.exports = SpringTransition;
+}.bind(this));
+
+require.register("app/custom/vertical-scroll-view/vertical-scroll-view.js", function(exports, require, module) {
+    var View = require("famous/view");
+    var Utility = require("famous/utilities/utility");
+    var Surface = require("famous/surface");
+    var Scrollview = require("famous/views/scrollview");
+    var Engine = require("famous/engine");
+    function VerticalScrollView(options) {
+        Scrollview.apply(this, arguments);
+        this.prepareEmptySurface();
+        this.prepareResize();
+        this.itemArray = [];
+        window.ss = this;
+    }
+    VerticalScrollView.prototype = Object.create(Scrollview.prototype);
+    VerticalScrollView.prototype.constructor = VerticalScrollView;
+    VerticalScrollView.prototype.setOptions = function(options) {
+        this.options.startAt = "top";
+        // 'bottom'
+        this.options.direction = Utility.Direction.Y;
+        this.options.margin = 1e4;
+        Object.getPrototypeOf(VerticalScrollView.prototype).setOptions.apply(this, arguments);
+        _.extend(this.options, options);
+    };
+    VerticalScrollView.prototype.prepareEmptySurface = function() {
+        this.emptySurface = new Surface({
+            properties: {
+                backgroundColor: "transparent"
+            },
+            size: [ undefined, 0 ]
+        });
+        this.emptySurface.pipe(this);
+    };
+    VerticalScrollView.prototype.prepareResize = function() {
+        var resizeTimeout;
+        var onResize = function() {
+            this.emptySurfaceResize();
+        };
+        Engine.on("resize", function() {
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(onResize.bind(this), 300);
+        }.bind(this));
+    };
+    VerticalScrollView.prototype.sortBy = function(iterator) {
+        this.sequenceFrom(_.sortBy(this.itemArray, iterator));
+    };
+    VerticalScrollView.prototype.filter = function(predicate) {
+        // Not doing filter yet
+        this.sequenceFrom(_.filter(this.itemArray, predicate));
+    };
+    VerticalScrollView.prototype.sequenceFrom = function(node) {
+        this.itemArray = _.clone(node);
+        //    _.each(this.itemArray, function(item) {
+        //        item.pipe(this);
+        //    }.bind(this));
+        if (this.options.startAt == "top") {
+            node.push(this.emptySurface);
+        } else {
+            node.unshift(this.emptySurface);
+        }
+        // TODO: this.sequence need garbage collection
+        Object.getPrototypeOf(VerticalScrollView.prototype).sequenceFrom.apply(this, arguments);
+        this.emptySurfaceResize();
+    };
+    VerticalScrollView.prototype.emptySurfaceResize = function(msg) {
+        //    console.log(msg)
+        if (this.emptySurface) {
+            //        Engine.defer( doResize.bind(this));
+            setTimeout(doResize.bind(this), 300);
+        }
+        function doResize() {
+            var extraHeight = this.getSize()[1];
+            if (this.node) {
+                var itemSequence = _.filter(this.node.array, function(i) {
+                    return i instanceof Surface == false;
+                });
+                for (var i = 0; i < itemSequence.length; i++) {
+                    extraHeight -= itemSequence[i].getSize()[1];
+                    if (extraHeight <= 0) {
+                        extraHeight = 1;
+                        break;
+                    }
+                }
+            }
+            this.emptySurface.setSize([ undefined, extraHeight ]);
+        }
+    };
+    VerticalScrollView.prototype.scrollTo = function(index, position) {
+        if (!index) index = 0;
+        if (!position) position = 0;
+        this.node.index = index;
+        this.setPosition(position);
+    };
+    VerticalScrollView.prototype.removeByIndex = function(index) {
+        if (index < 0) return;
+        if (this.node) {
+            var removedNode = this.itemArray.splice(index, 1)[0];
+            removedNode.collapse(function() {
+                Engine.defer(function() {
+                    var i = this.node.array.indexOf(removedNode);
+                    this.node.splice(i, 1);
+                    // this fixes first item removal return index -1 bug
+                    if (i == 0) this.node.index = 0;
+                    this.emptySurfaceResize();
+                }.bind(this));
+            }.bind(this));
+        }
+    };
+    VerticalScrollView.prototype.addByIndex = function(index, item) {
+        //    item.pipe(this);
+        this.itemArray.splice(index, 0, item);
+        this.node.splice(index, 0, item);
+        // reset position
+        this.node.index = 0;
+        this.emptySurfaceResize();
+    };
+    VerticalScrollView.prototype.push = function(item) {
+        //  this will work for start at bottom only.
+        this.itemArray.push(item);
+        this.node.push(item);
+        // reset position
+        //    this.node.index = 0;
+        this.emptySurfaceResize("push");
+    };
+    VerticalScrollView.prototype.scrollToEnd = function() {
+        //    this.setVelocity(-1);
+        var lastNode = this.node.array.length - 1;
+        var currNode = this.node.index;
+        var screenSize = this.getSize()[1];
+        var currPos = this.getPosition();
+        var heightArray = this.node.array.map(function(d) {
+            if (d.getSize()[1] === true) return 100;
+            return d.getSize()[1];
+        });
+        var sum = _.reduce(_(heightArray).last(lastNode - currNode + 1), function(memo, num) {
+            return memo + num;
+        }, 0);
+        var totalPixelsToMove = sum - currPos - screenSize + 100;
+        //    var totalPixelsToMove = _(heightArray).last(lastNode-currNode + 1).sum() - currPos - screenSize + 100;
+        // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
+        var v = Math.max(2 * totalPixelsToMove / 200, 0);
+        // TODO: hack, so it will never onEdge when scrollToEnd
+        if (this._onEdge == -1 && this.emptySurface.getSize()[1] <= 1 && this._springAttached) {
+            this.scrollTo(1, 0);
+            setTimeout(function() {
+                this.setVelocity(v);
+            }.bind(this), 300);
+        } else {
+            Engine.defer(function() {
+                this.setVelocity(v);
+            }.bind(this));
+        }
+    };
+    module.exports = VerticalScrollView;
 }.bind(this));
 
 require.register("famous_modules/famous/physics/constraints/wall/_git_master/index.js", function(exports, require, module) {
@@ -22998,6 +31875,217 @@ require.register("famous_modules/famous/transitions/wall-transition/_git_master/
     module.exports = WallTransition;
 }.bind(this));
 
+require.register("famous_modules/famous/input/mouse-sync/_git_master/index.js", function(exports, require, module) {
+    var EventHandler = require("famous/event-handler");
+    /**
+     * @class Handles piped in mouse drag events. Outputs an object with two
+     *        properties, position and velocity.
+     * @description
+     * @name MouseSync
+     * @constructor
+     * @example
+     * 
+     *     var Engine = require('famous/Engine');
+     *     var Surface = require('famous/Surface');
+     *     var Modifier = require('famous/Modifier');
+     *     var FM = require('famous/Matrix');
+     *     var MouseSync = require('famous-sync/MouseSync');
+     *     var Context = Engine.createContext();
+     *
+     *     var surface = new Surface({
+     *         size: [200,200],
+     *         properties: {
+     *             backgroundColor: 'red'
+     *         }
+     *     });
+     *
+     *     var modifier = new Modifier({
+     *         transform: undefined
+     *     });
+     *
+     *     var position = 0;
+     *     var sync = new MouseSync(function(){
+     *         return position;
+     *     }, {direction: MouseSync.DIRECTION_Y});  
+     *
+     *     surface.pipe(sync);
+     *     sync.on('update', function(data) {
+     *         var edge = window.innerHeight - (surface.getSize()[1])
+     *         if (data.p > edge) {
+     *             position = edge;
+     *         } else if (data.p < 0) {
+     *             position = 0;
+     *         } else {
+     *             position = data.p;
+     *         }
+     *         modifier.setTransform(FM.translate(0, position, 0));
+     *         surface.setContent('position' + position + '<br>' + 'velocity' + data.v.toFixed(2));
+     *     });
+     *     Context.link(modifier).link(surface);
+     * 
+     */
+    function MouseSync(targetGet, options) {
+        this.targetGet = targetGet;
+        this.options = {
+            direction: undefined,
+            rails: false,
+            scale: 1,
+            stallTime: 50,
+            propogate: true
+        };
+        if (options) {
+            this.setOptions(options);
+        } else {
+            this.setOptions(this.options);
+        }
+        this.input = new EventHandler();
+        this.output = new EventHandler();
+        EventHandler.setInputHandler(this, this.input);
+        EventHandler.setOutputHandler(this, this.output);
+        this._prevCoord = undefined;
+        this._prevTime = undefined;
+        this._prevVel = undefined;
+        this.input.on("mousedown", _handleStart.bind(this));
+        this.input.on("mousemove", _handleMove.bind(this));
+        this.input.on("mouseup", _handleEnd.bind(this));
+        this.options.propogate ? this.input.on("mouseleave", _handleLeave.bind(this)) : this.input.on("mouseleave", _handleEnd.bind(this));
+    }
+    /** @const */
+    MouseSync.DIRECTION_X = 0;
+    /** @const */
+    MouseSync.DIRECTION_Y = 1;
+    function _handleStart(e) {
+        e.preventDefault();
+        // prevent drag
+        this._prevCoord = [ e.clientX, e.clientY ];
+        this._prevTime = Date.now();
+        this._prevVel = this.options.direction !== undefined ? 0 : [ 0, 0 ];
+        this.output.emit("start");
+    }
+    function _handleMove(e) {
+        if (!this._prevCoord) return;
+        var prevCoord = this._prevCoord;
+        var prevTime = this._prevTime;
+        var currCoord = [ e.clientX, e.clientY ];
+        var currTime = Date.now();
+        var diffX = currCoord[0] - prevCoord[0];
+        var diffY = currCoord[1] - prevCoord[1];
+        if (this.options.rails) {
+            if (Math.abs(diffX) > Math.abs(diffY)) diffY = 0; else diffX = 0;
+        }
+        var diffTime = Math.max(currTime - prevTime, 8);
+        // minimum tick time
+        var velX = diffX / diffTime;
+        var velY = diffY / diffTime;
+        var prevPos = this.targetGet();
+        var scale = this.options.scale;
+        var nextPos;
+        var nextVel;
+        if (this.options.direction == MouseSync.DIRECTION_X) {
+            nextPos = prevPos + scale * diffX;
+            nextVel = scale * velX;
+        } else if (this.options.direction == MouseSync.DIRECTION_Y) {
+            nextPos = prevPos + scale * diffY;
+            nextVel = scale * velY;
+        } else {
+            nextPos = [ prevPos[0] + scale * diffX, prevPos[1] + scale * diffY ];
+            nextVel = [ scale * velX, scale * velY ];
+        }
+        this.output.emit("update", {
+            p: nextPos,
+            v: nextVel
+        });
+        this._prevCoord = currCoord;
+        this._prevTime = currTime;
+        this._prevVel = nextVel;
+    }
+    function _handleEnd(e) {
+        if (!this._prevCoord) return;
+        var prevTime = this._prevTime;
+        var currTime = Date.now();
+        if (currTime - prevTime > this.options.stallTime) this._prevVel = this.options.direction == undefined ? [ 0, 0 ] : 0;
+        var pos = this.targetGet();
+        this.output.emit("end", {
+            p: pos,
+            v: this._prevVel
+        });
+        this._prevCoord = undefined;
+        this._prevTime = undefined;
+        this._prevVel = undefined;
+    }
+    function _handleLeave(e) {
+        if (!this._prevCoord) return;
+        var boundMove = function(e) {
+            _handleMove.call(this, e);
+        }.bind(this);
+        var boundEnd = function(e) {
+            _handleEnd.call(this, e);
+            document.removeEventListener("mousemove", boundMove);
+            document.removeEventListener("mouseup", boundEnd);
+        }.bind(this);
+        document.addEventListener("mousemove", boundMove);
+        document.addEventListener("mouseup", boundEnd);
+    }
+    MouseSync.prototype.getOptions = function() {
+        return this.options;
+    };
+    MouseSync.prototype.setOptions = function(options) {
+        if (options.direction !== undefined) this.options.direction = options.direction;
+        if (options.rails !== undefined) this.options.rails = options.rails;
+        if (options.scale !== undefined) this.options.scale = options.scale;
+        if (options.stallTime !== undefined) this.options.stallTime = options.stallTime;
+        if (options.propogate !== undefined) this.options.propogate = options.propogate;
+    };
+    module.exports = MouseSync;
+}.bind(this));
+
+require.register("app/custom/row-view/header-bar.js", function(exports, require, module) {
+    var TitleBar = require("famous/widgets/title-bar");
+    var Modifier = require("famous/modifier");
+    function HeaderBar(options) {
+        TitleBar.apply(this, arguments);
+        //    this.surfaces = new RenderNode ();
+        this.surfacesMod = new Modifier();
+    }
+    HeaderBar.prototype = Object.create(TitleBar.prototype);
+    HeaderBar.prototype.constructor = HeaderBar;
+    HeaderBar.prototype.collapse = function(callback) {
+        this.hide();
+        this.headerResize = true;
+        this.setOptions({
+            size: [ undefined, -1 ]
+        });
+    };
+    HeaderBar.prototype.expand = function(callback) {
+        this.show();
+        this.headerResize = true;
+        this.setOptions({
+            size: [ undefined, 50 ]
+        });
+    };
+    //HeaderBar.prototype.getSize = function() {
+    //    if (this.headerResize) {
+    //        var n = -this.options.size[1];
+    //        if (this.lightbox.transforms[0]) {
+    //            n = this.lightbox.transforms[0].transformTranslateState.get()[1];
+    //        };
+    //        return [this.options.size[0], Math.floor(this.options.size[1] + n) || -1];
+    //    } else {
+    //        return this.options.size;
+    //    }
+    //};
+    HeaderBar.prototype.show = function(title) {
+        if (!title) title = this.curTitle; else this.curTitle = title;
+        TitleBar.prototype.show.apply(this, [ title ]);
+        this.headerResize = false;
+    };
+    HeaderBar.prototype.hide = function() {
+        this.lightbox.hide();
+        this.headerResize = false;
+    };
+    module.exports = HeaderBar;
+}.bind(this));
+
 require.register("app/custom/row-view/header-view.js", function(exports, require, module) {
     var Surface = require("famous/surface");
     var Modifier = require("famous/modifier");
@@ -23007,17 +32095,18 @@ require.register("app/custom/row-view/header-view.js", function(exports, require
     var RowView = require("row-view");
     function HeaderView(options) {
         RowView.call(this);
-        this.model = options.model;
+        //    this.model = options;
         this.options = {
-            collection: undefined,
+            //        collection: undefined,
             header: undefined,
             buttonSizeY: 20,
             classes: [],
-            content: ""
+            content: "",
+            size: [ true, 20 ]
         };
         this.setOptions(options);
-        this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
-        this.setItemSize();
+        //    this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
+        //    this.setItemSize();
         this.setupSurfaces();
         this.events();
         window.hh = this;
@@ -23034,43 +32123,31 @@ require.register("app/custom/row-view/header-view.js", function(exports, require
             size: this.options.size,
             properties: {
                 color: "white"
-            }
+            },
+            content: this.options.content
         });
-        this.setContent();
+        //    this.setContent();
         this.headerSurface.pipe(this._eventOutput);
         this.surfaces.add(this.headerMod).add(this.headerSurface);
     };
-    HeaderView.prototype.setContent = function() {
-        if (this.containElements) {
-            this.headerSurface.setContent(this.options.content);
-        } else {
-            this.headerSurface.setContent(Templates.fateHeaderItemView(0, 0));
-        }
-    };
-    HeaderView.prototype.setItemSize = function() {
-        this.itemHeight = this.containElements ? this.options.buttonSizeY : 1;
-        this.options.size = [ true, this.itemHeight ];
-    };
+    //HeaderView.prototype.setContent = function (){
+    //    if (this.containElements) {
+    //        this.headerSurface.setContent(this.options.content);
+    //    } else {
+    //        this.headerSurface.setContent(Templates.fateHeaderItemView(0,0));
+    //    }
+    //};
+    //
+    //HeaderView.prototype.setItemSize = function (){
+    //    this.itemHeight = this.options.buttonSizeY;
+    //    this.options.size = [true, this.itemHeight];
+    //    if (!this.containElements) this.collapse();
+    //};
     HeaderView.prototype.resizeItem = function() {
         if (this.headerSurface._currTarget) this.headerSurface._currTarget.children[0].style.width = window.innerWidth + "px";
     };
     HeaderView.prototype.events = function() {
         Engine.on("resize", this.resizeItem.bind(this));
-        this.options.collection.on("all", function(e, model, collection, options) {
-            //        this.containElements = this.options.collection.lastnameInitial(this.options.header).length != 0;
-            //        console.log(this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length)
-            if (this.containElements && this.options.collection.lastnameInitial(this.options.header).length == 0) {
-                //            console.log('header collapse',this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length);
-                this.containElements = false;
-                this.collapse();
-            } else if (!this.containElements && this.options.collection.lastnameInitial(this.options.header).length != 0) {
-                //            console.log('header expand',this.options.header, this.containElements, this.options.collection.lastnameInitial(this.options.header).length);
-                this.setContent();
-                this.containElements = true;
-                this.headerSurface.setContent(this.options.content);
-                this.expand(20);
-            }
-        }.bind(this));
     };
     module.exports = HeaderView;
 }.bind(this));
@@ -23079,7 +32156,8 @@ require.register("app/custom/row-view/index.js", function(exports, require, modu
     module.exports = {
         RowView: require("row-view"),
         ItemView: require("item-view"),
-        HeaderView: require("header-view")
+        HeaderView: require("header-view"),
+        HeaderBar: require("header-bar")
     };
 }.bind(this));
 
@@ -23099,6 +32177,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
     var Utility = require("famous/utilities/utility");
     var Templates = require("templates");
     var RowView = require("row-view");
+    var Helpers = require("helpers");
     Transitionable.registerMethod("wall", WallTransition);
     Transitionable.registerMethod("spring", SpringTransition);
     function ItemView(options) {
@@ -23116,6 +32195,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
         this.setOptions(options);
         this.setupSurfaces();
         this.setupEvent();
+        this.buttonsClickEvents();
         this.isEditingMode = false;
         this.areEditingMode = false;
         this.returnZeroOpacityTransition = {
@@ -23132,7 +32212,6 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
     ItemView.prototype = Object.create(RowView.prototype);
     ItemView.prototype.constructor = ItemView;
     ItemView.prototype.setupEvent = function() {
-        this.events();
         var sync = new GenericSync(function() {
             return this.pos;
         }.bind(this), {
@@ -23144,11 +32223,23 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
         sync.on("start", function() {
             this.pos = this.isEditingMode ? [ this.options.nButtons * this.options.buttonSizeX, 0 ] : [ 0, 0 ];
             this._directionChosen = false;
+            this.clickTimeout = setTimeout(function() {
+                this.itemSurface.setProperties({
+                    backgroundColor: "rgba(255,255,255,0.1)"
+                });
+            }.bind(this), 100);
         }.bind(this));
         sync.on("update", function(data) {
+            if (this.clickTimeout) {
+                clearTimeout(this.clickTimeout);
+                delete this.clickTimeout;
+            }
+            this.itemSurface.setProperties({
+                backgroundColor: "transparent"
+            });
             this.pos = data.p;
             // the displacement from the start touch point.
-            if (!this._directionChosen) {
+            if (Helpers.isMobile() && !this._directionChosen) {
                 var diffX = this.isEditingMode ? Math.abs(this.pos[0] - this.options.nButtons * this.options.buttonSizeX) : Math.abs(this.pos[0]), diffY = Math.abs(this.pos[1]);
                 this.direction = diffX > diffY ? Utility.Direction.X : Utility.Direction.Y;
                 this._directionChosen = true;
@@ -23158,7 +32249,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
                     this.itemSurface.pipe(this._eventOutput);
                 }
             } else {
-                if (this.direction == Utility.Direction.X) {
+                if (!Helpers.isMobile() || this.direction == Utility.Direction.X) {
                     this.animateItem();
                     this.animateLeftButtons();
                     this.animateRightButtons();
@@ -23166,8 +32257,13 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
             }
         }.bind(this));
         sync.on("end", function(data) {
+            setTimeout(function() {
+                this.itemSurface.setProperties({
+                    backgroundColor: "transparent"
+                });
+            }.bind(this), 300);
             this.pos = data.p;
-            if (this.direction != Utility.Direction.X) return;
+            if (Helpers.isMobile() && this.direction != Utility.Direction.X) return;
             if (this.pos[0] > this.options.nButtons * this.options.buttonSizeX) {
                 this.toggleEditing();
             } else {
@@ -23181,7 +32277,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
     };
     ItemView.prototype.setOptions = function(options) {
         _.extend(this.options, options);
-        this.options.nButtons = options.leftButtons.length;
+        this.options.nButtons = options.leftButtons ? options.leftButtons.length : 0;
     };
     ItemView.prototype.setupSurfaces = function() {
         //        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
@@ -23206,16 +32302,18 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
             this["leftButton" + i].pipe(this._eventOutput);
             this.surfaces.add(this["leftButton" + i + "Mod"]).add(this["leftButton" + i]);
         }.bind(this));
-        this.rightButton = new Surface({
-            content: this.options.rightButton.content,
-            size: [ this.options.buttonSizeX, this.options.buttonSizeY ]
-        });
-        this.rightButtonMod = new Modifier({
-            origin: this.options._rightEndOrigin,
-            opacity: 0,
-            transform: Transform.translate(-this.options.paddingRight, 0, 0)
-        });
-        this.surfaces.add(this.rightButtonMod).add(this.rightButton);
+        if (this.options.rightButton) {
+            this.rightButton = new Surface({
+                content: this.options.rightButton.content,
+                size: [ this.options.buttonSizeX, this.options.buttonSizeY ]
+            });
+            this.rightButtonMod = new Modifier({
+                origin: this.options._rightEndOrigin,
+                opacity: 0,
+                transform: Transform.translate(-this.options.paddingRight, 0, 0)
+            });
+            this.surfaces.add(this.rightButtonMod).add(this.rightButton);
+        }
         this.itemSurface = new Surface({
             classes: this.options.itemButton.classes,
             content: this.options.itemButton.content,
@@ -23230,7 +32328,9 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
         });
         this.surfaces.add(this.itemMod).add(this.itemSurface);
     };
-    ItemView.prototype.updateItem = function() {};
+    ItemView.prototype.updateItem = function() {
+        this.itemSurface.setContent(Templates.recentItemView(this.model));
+    };
     ItemView.prototype.animateItem = function() {
         this.itemMod.setTransform(Transform.translate(this.pos[0], 0, 0));
     };
@@ -23293,6 +32393,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
         this.animateRightButtonsEnd();
     };
     ItemView.prototype.onToggleAll = function() {
+        console.log("toggleAll");
         if (this.areEditingMode == false) {
             this.setEditingOn();
         } else {
@@ -23300,7 +32401,7 @@ require.register("app/custom/row-view/item-view.js", function(exports, require, 
         }
         this.areEditingMode = !this.areEditingMode;
     };
-    ItemView.prototype.events = function() {
+    ItemView.prototype.buttonsClickEvents = function() {
         _(this.options.leftButtons).each(function(b, i) {
             this["leftButton" + i].on("click", function(b) {
                 //            console.log(b.event);
@@ -23333,18 +32434,17 @@ require.register("app/custom/row-view/row-view.js", function(exports, require, m
     RowView.prototype.constructor = RowView;
     RowView.prototype.collapse = function(callback) {
         this.surfacesMod.setOpacity(0, {
-            duration: 600
+            duration: 300
         }, callback);
     };
-    RowView.prototype.expand = function(size, callback) {
-        if (!size) var size = 1;
-        this.surfacesMod.setOpacity(size, {
-            duration: 0
+    RowView.prototype.expand = function(callback) {
+        this.surfacesMod.setOpacity(1, {
+            duration: 300
         }, callback);
     };
     RowView.prototype.getSize = function() {
         var sh = this.surfacesMod.opacityState.get();
-        return [ this.options.size[0], Math.floor(this.options.size[1] * sh) || 1 ];
+        return [ this.options.size[0], Math.floor(this.options.size[1] * sh) || 0 ];
     };
     module.exports = RowView;
 }.bind(this));
@@ -23370,7 +32470,8 @@ require.register("app/views/add-contact-view.js", function(exports, require, mod
         View.call(this);
         window.addContactView = this;
         this.formObject = {};
-        this.social = {};
+        this.socialCollection = {};
+        this.socialView = {};
         this.headerFooterLayout = new HeaderFooterLayout({
             headerSize: 50,
             footerSize: 0
@@ -23427,26 +32528,31 @@ require.register("app/views/add-contact-view.js", function(exports, require, mod
         this.content.on("click", function(e) {
             var target = $(e.target);
             function onDataHandler() {
-                if (_.isArray(this.social[source].models)) {
-                    //TODO: pull collections from server
-                    var newSocialView = new ImportContactView({
-                        title: Helpers.capitalize(source),
-                        collection: this.social[source]
-                    });
-                    newSocialView.pipe(this._eventOutput);
-                    edgeSwapper.show(newSocialView, true);
+                if (!this.socialView[source]) {
+                    if (_.isArray(this.socialCollection[source].models)) {
+                        //TODO: pull collections from server
+                        this.socialView[source] = new ImportContactView({
+                            title: Helpers.capitalize(source),
+                            collection: this.socialCollection[source]
+                        });
+                        this.socialView[source].pipe(this._eventOutput);
+                    } else {
+                        alert("Your " + source + " contact list is empty.");
+                        return;
+                    }
                 }
+                edgeSwapper.show(this.socialView[source], true);
             }
             function onErrorHandler() {
                 this._eventOutput.emit("onSocialLink", source);
-                delete this.social[source];
+                delete this.socialCollection[source];
             }
             if (target.hasClass("import-contact")) {
                 var source = target[0].id;
-                if (!this.social[source]) {
-                    this.social[source] = new SocialContactCollection();
-                    this.social[source].url = "/contact/" + source;
-                    this.social[source].fetch({
+                if (!this.socialCollection[source]) {
+                    this.socialCollection[source] = new SocialContactCollection();
+                    this.socialCollection[source].url = "/contact/" + source;
+                    this.socialCollection[source].fetch({
                         success: onDataHandler.bind(this),
                         error: onErrorHandler.bind(this)
                     });
@@ -23714,7 +32820,10 @@ require.register("app/views/chat-item-view.js", function(exports, require, modul
     function ChatItemView(options) {
         options.leftButtons = [ {
             content: Templates.crossButton(),
-            event: "deleteChat"
+            event: "deleteItem"
+        }, {
+            content: Templates.editButton(),
+            event: "editContact"
         } ];
         options.rightButton = {
             content: Templates.phoneButton(),
@@ -23763,22 +32872,29 @@ require.register("app/views/chats-section-view.js", function(exports, require, m
         this._add(this.scrollview);
         this.loadItems();
         this.collection.on("all", function(e, model, collection, options) {
-            //        console.log(e, model, collection, options);
+            //        console.log(e);
             switch (e) {
               case "remove":
-                this.scrollview.removeByIndex(options.index);
+                var index = options.index;
+                console.log(index);
+                this.scrollview.removeByIndex(index);
                 break;
 
               case "add":
                 this.addItem(model);
+                this.collection.sort();
+                this.scrollview.sortBy(function(item) {
+                    return -1 * item.model.get("time");
+                });
                 break;
 
               case "change":
+                this.collection.sort();
+                this.scrollview.sortBy(function(item) {
+                    return -1 * item.model.get("time");
+                });
                 break;
             }
-            this.scrollview.sortBy(function(item) {
-                return -1 * item.model.get("time");
-            });
             this.updateItems();
         }.bind(this));
     }
@@ -23821,8 +32937,6 @@ require.register("app/views/connected-call-view.js", function(exports, require, 
     var Transform = require("famous/transform");
     var Surface = require("famous/surface");
     var EventHandler = require("famous/event-handler");
-    var Easing = require("famous/transitions/easing");
-    var LightBox = require("light-box");
     var Templates = require("templates");
     var Call = require("models").Call;
     var ConversationView = require("conversation-view");
@@ -23830,150 +32944,27 @@ require.register("app/views/connected-call-view.js", function(exports, require, 
     function ConnectedCallView(options) {
         View.call(this);
         this.collection = options.collection;
-        this.backSurface = new Surface({
-            size: [ undefined, undefined ],
-            properties: {
-                backgroundColor: "transparent",
-                zIndex: -1
-            }
-        });
-        this.footerLightBox = new LightBox({
-            inTransform: Transform.identity,
-            inTransition: {
-                duration: duration,
-                curve: Easing.inQuad()
-            },
-            inOpacity: 0,
-            inOrigin: [ .5, .9 ],
-            outTransform: Transform.identity,
-            outOpacity: 0,
-            outOrigin: [ .5, .9 ],
-            outTransition: {
-                duration: duration,
-                curve: Easing.outQuad()
-            },
-            showTransform: Transform.identity,
-            showOpacity: 1,
-            showOrigin: [ .5, .9 ]
-        });
-        this.conversationLightBox = new LightBox({
-            inTransform: Transform.identity,
-            inTransition: {
-                duration: duration,
-                curve: Easing.inQuad()
-            },
-            inOpacity: 0,
-            inOrigin: [ .5, .9 ],
-            outTransform: Transform.identity,
-            outOpacity: 0,
-            outOrigin: [ .5, .9 ],
-            outTransition: {
-                duration: duration,
-                curve: Easing.outQuad()
-            },
-            showTransform: Transform.identity,
-            showOpacity: 1,
-            showOrigin: [ .5, .9 ]
-        });
-        // Set up event handlers
-        // this.eventInput = new EventHandler();
-        // EventHandler.setInputHandler(this, this.eventInput);
-        // this.eventOutput = new EventHandler();
-        // EventHandler.setOutputHandler(this, this.eventOutput);
-        this.footer = new Surface({
-            classes: [ "connected-call-view-buttons" ],
-            size: [ undefined, 80 ],
-            properties: {
-                backgroundColor: "transparent",
-                zIndex: 3,
-                opacity: 0
-            }
-        });
-        this._add(this.backSurface);
-        //    this._add(this.footerLightBox);
-        this._add(this.conversationLightBox);
-        this.footer.on("click", function(e) {
-            var target = $(e.target);
-            if (target.hasClass("end-button")) {
-                this.stop(target);
-            } else if (target.hasClass("sync-button")) {
-                this._eventOutput.emit("sync");
-                $(".sync-button").removeClass("synced").addClass("syncing");
-            }
-        }.bind(this));
-        //        this.backSurface.on('click',function(e){
-        //            this.footerLightBox.show(this.conversationView,true);
-        //        }.bind(this))
         this._eventOutput.on("menu-toggle-button", this.onMenuToggleButton);
-        this._eventOutput.on("end-call", this.stop);
+        this.conversationView = new ConversationView();
+        this.conversationView.pipe(this._eventOutput);
+        this._eventInput.pipe(this.conversationView);
+        this._add(this.conversationView);
     }
     ConnectedCallView.prototype = Object.create(View.prototype);
     ConnectedCallView.prototype.constructor = ConnectedCallView;
     ConnectedCallView.prototype.start = function(appSetting, call) {
-        this.conversationView = new ConversationView(appSetting, call);
-        this.conversationView.pipe(this._eventOutput);
-        this._eventInput.pipe(this.conversationView);
-        this.conversationLightBox.show(this.conversationView);
+        this.conversationView.start(appSetting, call);
         this.model = this.collection.models[0] || new Call();
         this.appSettings = appSetting;
-        // myId hisID
-        //        this.conversationView.
         $(".camera").removeClass("blur");
-        var videoButton = Templates.toggleButton({
-            id: "video",
-            classes: [ "video-button", "big-button" ],
-            checked: this.appSettings ? this.appSettings.get("video") : true,
-            onContent: '<i class="fa fa-eye fa-lg on"></i>',
-            offContent: '<i class="fa fa-eye-slash fa-lg off"></i>',
-            onBackgroundColor: "#dadbd9",
-            offBackgroundColor: "#dadbd9",
-            size: [ 70, 70 ]
-        });
-        var syncButton = Templates.button({
-            classes: [ "sync-button", "big-button" ],
-            content: '<i class="sync-button fa fa-refresh fa-2x"></i>',
-            size: [ 40, 40 ]
-        });
-        var endButton = Templates.button({
-            classes: [ "end-button", "big-button" ],
-            content: "End",
-            size: [ 160, 70 ]
-        });
-        var audioButton = Templates.toggleButton({
-            id: "audio",
-            classes: [ "audio-button", "big-button" ],
-            checked: this.appSettings ? this.appSettings.get("audio") : true,
-            onContent: '<i class="fa fa-microphone fa-lg on"></i>',
-            offContent: '<i class="fa fa-microphone-slash fa-lg off"></i>',
-            onBackgroundColor: "#dadbd9",
-            offBackgroundColor: "#dadbd9",
-            size: [ 70, 70 ]
-        });
-        var html = '<div class="box">' + videoButton + endButton + audioButton + "</div>";
-        this.footer.setContent(html);
-        this.footerLightBox.show(this.footer);
     };
-    ConnectedCallView.prototype.stop = function(button) {
-        if (button) button.addClass("exiting");
-        this.conversationLightBox.hide();
-        this.footerLightBox.hide();
-        setTimeout(function() {
-            this._eventOutput.emit("showApp", function() {
-                if (button) button.removeClass("exiting");
-            });
-        }.bind(this), duration);
-        if (button) {
-            this._eventOutput.emit("outgoingCallEnd", this.model);
-            this._eventOutput.emit("incomingCallEnd", this.model);
+    ConnectedCallView.prototype.stop = function(evt) {
+        this._eventOutput.emit("outgoingCallEnd", this.model);
+        this._eventOutput.emit("incomingCallEnd", this.model);
+        if (evt.exit) {
+            this._eventOutput.emit("showApp");
         }
-        this.conversationView.stop();
-    };
-    ConnectedCallView.prototype.onMenuToggleButton = function(toHide) {
-        if (toHide === true) {
-            this.footerLightBox.hide();
-        } else {
-            this.footerLightBox.show(this.footer);
-        }
+        this.conversationView.stop(evt);
     };
     module.exports = ConnectedCallView;
 }.bind(this));
@@ -23987,10 +32978,10 @@ require.register("app/views/contact-item-view.js", function(exports, require, mo
         options.paddingRight = 40;
         options.leftButtons = [ {
             content: Templates.crossButton(),
-            event: "deleteContact"
+            event: "deleteItem"
         }, {
-            content: Templates.favoriteButton(this.model.get("favorite")),
-            event: "toggleFavorite"
+            content: Templates.editButton(),
+            event: "editContact"
         } ];
         options.rightButton = {
             content: Templates.phoneButton(),
@@ -24012,13 +33003,19 @@ require.register("app/views/contact-item-view.js", function(exports, require, mo
         }.bind(this));
         this._eventInput.on("toggleAllContact", this.onToggleAll.bind(this));
         this._eventInput.on("backToNoneEditing", this.setEditingOff.bind(this));
+        this.model.on("change", function() {
+            this.changeItem();
+        }.bind(this));
     }
     ContactItemView.prototype = Object.create(ItemView.prototype);
     ContactItemView.prototype.constructor = ContactItemView;
+    ContactItemView.prototype.changeItem = function() {
+        this.itemSurface.setContent(Templates.contactItemView(this.model));
+    };
     module.exports = ContactItemView;
 }.bind(this));
 
-require.register("app/views/contacts-section-view.js", function(exports, require, module) {
+require.register("app/views/contacts-scroll-view.js", function(exports, require, module) {
     // import famous modules
     var View = require("famous/view");
     var HeaderFooterLayout = require("famous/views/header-footer-layout");
@@ -24028,7 +33025,278 @@ require.register("app/views/contacts-section-view.js", function(exports, require
     var Surface = require("famous/surface");
     var Easing = require("famous/transitions/easing");
     // import custom modules
-    var TouchSync = require("custom-touch-sync");
+    var InputSync = require("custom-input-sync");
+    var TouchSync = InputSync.TouchSync;
+    var MouseSync = InputSync.MouseSync;
+    var Templates = require("templates");
+    var Transform = require("famous/transform");
+    // import views
+    var VerticalScrollView = require("vertical-scroll-view");
+    var ContactItemView = require("contact-item-view");
+    var RowView = require("row-view");
+    var HeaderView = RowView.HeaderView;
+    function ContactsScrollView(options) {
+        View.call(this);
+        this.sortKey = "lastname";
+        this.searchKey = false;
+        this.abcArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
+        this.setupLayout(options);
+        this.renderHeaders();
+        this.prepareSequences();
+        this.collectionEvents();
+        this.abcSurfaceEvents();
+        this.searchSurfaceEvents();
+    }
+    ContactsScrollView.prototype = Object.create(View.prototype);
+    ContactsScrollView.prototype.constructor = ContactsScrollView;
+    ContactsScrollView.prototype.collectionEvents = function() {
+        this.collection.on("all", function(e, model) {
+            switch (e) {
+              case "change":
+                this.changeItem(model);
+                break;
+
+              case "remove":
+                this.removeItem(model);
+                this.renderHeaders();
+                break;
+
+              case "add":
+                this.addItem(model);
+                break;
+
+              case "sync":
+                this.renderHeaders();
+                setTimeout(this.renderScrollView.bind(this), this.scrollview.node ? 0 : 1e3);
+                break;
+            }
+        }.bind(this));
+    };
+    ContactsScrollView.prototype.prepareSequences = function() {
+        this.contactSequence = [];
+        this.headerSequence = _.map("ABCDEFGHIJKLMNOPQRSTUVWXYZ#", function(i) {
+            var headerSurface = new HeaderView({
+                content: Templates.headerItemView(i, 0, 0),
+                header: i
+            });
+            headerSurface.pipe(this.scrollview);
+            return headerSurface;
+        }.bind(this));
+    };
+    ContactsScrollView.prototype.setupLayout = function(options) {
+        this.searchBarSize = 50;
+        this.abcSurfaceWidth = 30;
+        this.abcSurfaceHeight = undefined;
+        this.headerFooterLayout = new HeaderFooterLayout({
+            headerSize: this.searchBarSize,
+            footerSize: 0
+        });
+        this.LayoutMod = new Modifier();
+        this.searchSurface = new Surface({
+            size: [ undefined, this.searchBarSize ],
+            classes: [ "contact-section-search-bar" ],
+            content: '<div><i class="fa fa-search"></i>   ' + '<input type="text" class="search-contact" placeholder = "Search" ><span class="cancel">cancel</span></input></div></div>',
+            properties: {
+                backgroundColor: "rgba(15,15,15,0.9)",
+                color: "white",
+                zIndex: 10
+            }
+        });
+        this.searchSurfaceMod = new Modifier({
+            transform: Transform.translate(0, 0, 3)
+        });
+        this.searhBarTransition = {
+            duration: 0
+        };
+        this.searchMode = false;
+        this.abcSurface = new Surface({
+            size: [ this.abcSurfaceWidth, this.abcSurfaceHeight ],
+            classes: [ "abcButton" ],
+            content: Templates.abcButtons(),
+            properties: {
+                backgroundColor: "rgba(160,160,160,0.0)",
+                zIndex: 2
+            }
+        });
+        this._eventInput.pipe(this.searchSurface);
+        this.abcMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(0, 0, 10)
+        });
+        this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
+        this.navigation = {
+            caption: "Contacts",
+            icon: '<i class="fa fa-users"></i>'
+        };
+        this.collection = options.collection;
+        this.scrollview = new VerticalScrollView();
+        this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);
+        this.headerFooterLayout.id.content.add(this.scrollview);
+        this.headerFooterLayout.id.content.add(this.abcMod).add(this.abcSurface);
+        this.pipe(this.scrollview);
+        this._add(this.LayoutMod).add(this.headerFooterLayout);
+    };
+    ContactsScrollView.prototype.renderScrollView = function() {
+        var sequence = this.headerSequence.concat(this.contactSequence);
+        var newSequence = arrangeSequence(sequence, sortBy(this.sortKey), searchBy(this.searchKey));
+        this.scrollview.sequenceFrom(newSequence);
+    };
+    function sortBy(key) {
+        key = key || "lastname";
+        return function(item) {
+            var l, f, h;
+            l = f = h = "";
+            // " " is the earliest char
+            if (item.model) l = item.model.get("lastname") || "#";
+            if (item.model) f = item.model.get("firstname") || "#";
+            if (item.options && item.options.header) h = item.options.header;
+            var str;
+            if (key.toLowerCase() == "firstname") str = h + f + " " + l; else str = h + l + " " + f;
+            // "{" is the next char after "z"
+            if (!/^[a-zA-Z]+$/.test(str[0])) str = "{" + str;
+            return str.toUpperCase();
+        };
+    }
+    function searchBy(key) {
+        return function(item) {
+            if (!key) return key === false; else {
+                key = key.toLowerCase();
+                if (!item.model) return false;
+                if (item.model.get("firstname").toLowerCase().indexOf(key) != -1 || item.model.get("lastname").toLowerCase().indexOf(key) != -1) return true;
+            }
+            return false;
+        };
+    }
+    function arrangeSequence(sequence, sortFunction, searchFunction) {
+        return _.chain(sequence).filter(searchFunction).sortBy(sortFunction).value();
+    }
+    ContactsScrollView.prototype.createItem = function(item) {
+        var surface = new ContactItemView({
+            model: item
+        });
+        surface.pipe(this._eventOutput);
+        this._eventInput.pipe(surface);
+        return surface;
+    };
+    ContactsScrollView.prototype.addItem = function(item) {
+        var newContact = this.createItem(item);
+        this.contactSequence.push(newContact);
+    };
+    ContactsScrollView.prototype.removeItem = function(item) {
+        var i = this.contactSequence.map(function(i) {
+            return i.model;
+        }).indexOf(item);
+        this.contactSequence.splice(i, 1);
+        var i = this.scrollview.node.array.map(function(i) {
+            return i.model;
+        }).indexOf(item);
+        this.scrollview.removeByIndex(i);
+    };
+    ContactsScrollView.prototype.changeItem = function(item) {};
+    ContactsScrollView.prototype.abcSurfaceEvents = function() {
+        var mousePosition = [ 0, 0 ];
+        var sync = new GenericSync(function() {
+            return mousePosition;
+        }, {
+            syncClasses: [ MouseSync, TouchSync ]
+        });
+        this.abcSurface.pipe(sync);
+        sync.on("start", function(data) {
+            this.scrollToContact(data);
+        }.bind(this));
+        sync.on("update", function(data) {
+            this.scrollToContact(data);
+        }.bind(this));
+    };
+    ContactsScrollView.prototype.scrollToContact = function(data) {
+        var target = document.elementFromPoint(data.ap[0], data.ap[1]);
+        if (!target || !target.id) return;
+        var i = this.abcArray.indexOf(target.id);
+        var index = this.scrollview.node.array.indexOf(this.headerSequence[i]);
+        this.scrollview.scrollTo(index, 0);
+    };
+    ContactsScrollView.prototype.searchSurfaceEvents = function() {
+        this.searchSurface.on("click", function(e) {
+            //        console.log(e);
+            if (e.target.className == "search-contact") {
+                this._eventInput.emit("searchOnFocus", e);
+            } else if (e.target.className == "cancel") {
+                this._eventInput.emit("searchOnCancel");
+            }
+        }.bind(this));
+        this._eventInput.on("searchOnFocus", this.searchOnFocus.bind(this));
+        this._eventInput.on("searchOnCancel", this.searchOnCancel.bind(this));
+        this.searchSurface.on("keyup", function(e) {
+            this.searchKey = this.getSearchKey();
+            this.renderScrollView();
+        }.bind(this));
+    };
+    ContactsScrollView.prototype.searchOnFocus = function(e) {
+        this.searchKey = this.getSearchKey();
+        if (!this.searchKey) {
+            this._eventInput.emit("backToNoneEditing");
+            this.abcSurface.setContent("");
+            this.scrollview.scrollTo(0, 0);
+            this.LayoutMod.setTransform(Transform.translate(0, -50, 0), this.searhBarTransition);
+            this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
+            this.searchSurface._currTarget.style.paddingRight = "100px";
+            this.renderScrollView();
+        }
+    };
+    ContactsScrollView.prototype.searchOnCancel = function() {
+        this.abcSurface.setContent(Templates.abcButtons());
+        this.LayoutMod.setTransform(Transform.translate(0, 0, 0), this.searhBarTransition);
+        this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
+        this.searchSurface._currTarget.style.paddingRight = "10px";
+        document.getElementsByClassName("search-contact")[0].value = "";
+        this.searchKey = this.getSearchKey();
+        this.renderScrollView();
+    };
+    ContactsScrollView.prototype.renderHeaders = function() {
+        var existedAbcArray = _.chain(this.collection.models).map(function(item) {
+            return item.get(this.sortKey)[0] || "#";
+        }.bind(this)).map(function(item) {
+            return /^[a-zA-Z]+$/.test(item) ? item.toUpperCase() : "#";
+        }).uniq().value();
+        _.each(this.headerSequence, function(item) {
+            existedAbcArray.indexOf(item.options.header) == -1 ? item.collapse() : item.expand();
+        }.bind(this));
+    };
+    ContactsScrollView.prototype.getSearchKey = function() {
+        if ($(document.activeElement).hasClass("search-contact")) return document.activeElement.value; else return false;
+    };
+    // TODO: search bar there is something blocking the seach input when focus
+    module.exports = ContactsScrollView;
+}.bind(this));
+
+require.register("app/views/contacts-section-view.js", function(exports, require, module) {
+    var ContactsScrollView = require("contacts-scroll-view");
+    function ContactsSection(options) {
+        ContactsScrollView.apply(this, arguments);
+        this.title = '<button class="left edit-button" id="contact-edit-contact"></button><div>All Contacts</div><button class="right add-contact" id="add-contact"><i class="fa fa-plus" id="add-contact"></i></button>';
+        this.navigation = {
+            caption: "Contacts",
+            icon: '<i class="fa fa-users"></i>'
+        };
+    }
+    ContactsSection.prototype = Object.create(ContactsScrollView.prototype);
+    ContactsSection.prototype.constructor = ContactsSection;
+    module.exports = ContactsSection;
+}.bind(this));
+
+require.register("app/views/contacts-section-view2.js", function(exports, require, module) {
+    // import famous modules
+    var View = require("famous/view");
+    var HeaderFooterLayout = require("famous/views/header-footer-layout");
+    var Utility = require("famous/utilities/utility");
+    var Modifier = require("famous/modifier");
+    var GenericSync = require("famous/input/generic-sync");
+    var Surface = require("famous/surface");
+    var Easing = require("famous/transitions/easing");
+    // import custom modules
+    var InputSync = require("custom-input-sync");
+    var TouchSync = InputSync.TouchSync;
+    var MouseSync = InputSync.MouseSync;
     var Templates = require("templates");
     var Transform = require("famous/transform");
     // import views
@@ -24070,7 +33338,7 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         });
         this.searhBarTransition = {
             //        'curve' : Easing.linearNorm,
-            duration: 300
+            duration: 0
         };
         this.searchMode = false;
         this.abcSurface = new Surface({
@@ -24136,24 +33404,12 @@ require.register("app/views/contacts-section-view.js", function(exports, require
             this.currentSequence = _.clone(this.headerSequence);
             this.abcSurface.setContent(Templates.abcButtons());
         }
+        this.contactSequence = _.sortBy(this.contactSequence, sortByLastname);
         this.currentContactsSequence = _.map(this.currentCollection, function(item) {
             return this.contactSequence[item.collection.indexOf(item)];
         }.bind(this));
-        this.firstChar = undefined;
-        this.a2zIndexArray = [ 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ];
-        for (var ii = 0; ii < this.currentContactsSequence.length; ii++) {
-            var isFirst = false;
-            var initialChar = this.getInitialChar(this.currentContactsSequence[ii].model);
-            if (this.firstChar != initialChar) {
-                this.firstChar = initialChar;
-                isFirst = this.firstChar;
-            }
-            var currIndex = this.getCurrentIndex(this.currentContactsSequence[ii], ii, isFirst);
-            this.currentSequence.splice(currIndex, 0, this.currentContactsSequence[ii]);
-        }
-        while (this.a2zIndexArray.indexOf(-1) != -1) {
-            this.a2zIndexArray[this.a2zIndexArray.indexOf(-1)] = this.a2zIndexArray[this.a2zIndexArray.indexOf(-1) - 1];
-        }
+        this.currentSequence = this.currentSequence.concat(this.currentContactsSequence);
+        this.sortByLastname();
         // added empty item
         // media access bar messed up the height so add 40
         //
@@ -24191,22 +33447,6 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         }.bind(this));
         this.refreshContacts();
     };
-    ContactsSection.prototype.getCurrentIndex = function(item, index, isFirst) {
-        //console.log(item.model.get('lastname'),this.currentContactsSequence.indexOf(item),this.a2zString.indexOf(this.firstChar));
-        var value = this.currentContactsSequence.indexOf(item) + this.a2zString.indexOf(this.firstChar) + 1;
-        if (isFirst) this.a2zIndexArray[this.a2zString.indexOf(this.firstChar)] = value - 1;
-        return value;
-    };
-    ContactsSection.prototype.reIndex = function(item) {
-        var firstChar = this.getInitialChar(item);
-        var index = this.a2zString.indexOf(firstChar);
-        for (var i = index + 1; i < this.a2zIndexArray.length; i++) {
-            this.a2zIndexArray[i] = this.a2zIndexArray[i] - 1;
-        }
-    };
-    ContactsSection.prototype.getIndexInScrollview = function(item, index) {
-        return index + this.a2zString.indexOf(this.getInitialChar(item)) + 1;
-    };
     ContactsSection.prototype.createItem = function(item) {
         var surface = new ContactItemView({
             model: item
@@ -24215,33 +33455,23 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         this._eventInput.pipe(surface);
         return surface;
     };
-    ContactsSection.prototype.onAbcTouch = function(e) {
-        if (!this.abcButtons) this.abcButtons = $(".abcButton button");
-        //            var index = Math.floor(27*(e.y-$('.abcButton').position().top)/(this.abcButtons.length*this.abcButtons.height()));
-        var index = this.abcButtons.indexOf(e.target);
-        index = this.a2zIndexArray[index];
-        if (index == undefined || index == this.curAbcIndex) return;
-        this.curAbcIndex = index;
-        this.scrollTo(index);
-    };
     ContactsSection.prototype.collectionEvents = function() {
         // When Firebase returns the data switch out of the loading screen
         this.collection.on("all", function(e, model, collection, options) {
-            //console.log(e, model, collection, options);
+            console.log(e, model, collection, options);
             switch (e) {
               case "change":
                 this.changeItem(model);
+                this.collection.sort();
                 break;
 
               case "remove":
-                this.removeItemByIndex(model, options.index);
-                this.reIndex(model);
+                this.removeItem(model);
                 break;
 
-              //            case 'change':
-                case "add":
+              case "add":
                 if (this.noInit == true) {
-                    this.addItemByIndex(model);
+                    this.addItem(model);
                 }
                 break;
 
@@ -24255,52 +33485,58 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         }.bind(this));
     };
     ContactsSection.prototype.abcSurfaceEvents = function() {
-        // abc-bar effect for laptop
-        this.abcSurface.on("mousemove", function(e) {
-            this.onAbcTouch(e);
-        }.bind(this));
-        // abc-bar effect for cellphone
         var mousePosition = [ 0, 0 ];
         var sync = new GenericSync(function() {
             return mousePosition;
         }, {
-            syncClasses: [ TouchSync ]
+            syncClasses: [ MouseSync, TouchSync ]
         });
         this.abcSurface.pipe(sync);
+        sync.on("start", function(data) {
+            this.scrollToContact(data);
+        }.bind(this));
         sync.on("update", function(data) {
-            var target = document.elementFromPoint(data.ap[0], data.ap[1]);
-            if (target.id == undefined || target.id == "") return;
-            var index = this.a2zString.indexOf(target.id);
-            index = this.a2zIndexArray[index];
-            if (index == undefined || index == this.curAbcIndex) return;
-            this.curAbcIndex = index;
-            this.scrollTo(index);
+            this.scrollToContact(data);
         }.bind(this));
     };
-    ContactsSection.prototype.removeItemByIndex = function(item, index) {
-        var indexInScrollview = this.getIndexInScrollview(item, index);
+    ContactsSection.prototype.scrollToContact = function(data) {
+        var target = document.elementFromPoint(data.ap[0], data.ap[1]);
+        if (!target || !target.id) return;
+        for (var i in this.headerSequence) {
+            if (this.headerSequence[i].options.header == target.id) {
+                var index = this.currentSequence.indexOf(this.headerSequence[i]);
+                break;
+            }
+        }
+        this.scrollTo(index);
+    };
+    ContactsSection.prototype.removeItem = function(item) {
+        for (var i in this.contactSequence) {
+            if (this.contactSequence[i].model == item) {
+                var indexInContactSequence = i;
+                break;
+            }
+        }
+        this.contactSequence.splice(indexInContactSequence, 1);
+        for (var i in this.currentSequence) {
+            if (this.currentSequence[i].model == item) {
+                var indexInScrollview = i;
+                break;
+            }
+        }
         this.scrollview.removeByIndex(indexInScrollview);
     };
-    ContactsSection.prototype.addItemByIndex = function(item) {
-        var indexInCollection = this.collection.indexOf(item);
-        var indexInScrollview = this.getIndexInScrollview(item, indexInCollection);
+    ContactsSection.prototype.addItem = function(item) {
         var newContact = this.createItem(item);
-        this.collection.models.map(function(i) {
-            console.log(i.attributes.lastname);
-        });
-        this.contactSequence.splice(this.collection.indexOf(item), 0, newContact);
+        this.contactSequence.push(newContact);
         this.refreshContacts();
     };
     ContactsSection.prototype.changeItem = function(item) {
-        var newContact = this.createItem(item);
-        //    var OldIndex =
-        //    this.contactSequence.splice(OldIndex,1);
-        this.contactSequence.splice(this.collection.indexOf(item), 1, newContact);
         this.refreshContacts();
     };
     ContactsSection.prototype.searchSurfaceEvents = function() {
         this.searchSurface.on("click", function(e) {
-            console.log(e);
+            //        console.log(e);
             if (e.target.className == "search-contact") {
                 this._eventInput.emit("searchOnFocus");
             } else if (e.target.className == "cancel") {
@@ -24327,6 +33563,7 @@ require.register("app/views/contacts-section-view.js", function(exports, require
     };
     ContactsSection.prototype.searchOnFocus = function() {
         this.searchMode = true;
+        this._eventInput.emit("backToNoneEditing");
         this.scrollview.scrollTo(0, 0);
         this.refreshContacts();
         this.LayoutMod.setTransform(Transform.translate(0, -50, 0), this.searhBarTransition);
@@ -24339,39 +33576,12 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
         this.searchSurface._currTarget.style.paddingRight = "10px";
     };
-    ContactsSection.prototype.filterContactSequence = function(searchKey) {
-        if (this.searchMode == true) {
-            this.abcSurface.setContent("");
-            this.currentSequence = [];
-            this.currentCollection = this.collection.searchContact(searchKey.toUpperCase());
-        } else {
-            this.abcSurface.setContent(Templates.abcButtons());
-            this.currentSequence = _.clone(this.headerSequence);
-            this.currentCollection = this.collection.models;
-        }
-        this.currentContactsSequence = _.map(this.currentCollection, function(item) {
-            return this.contactSequence[item.collection.indexOf(item)];
-        }.bind(this));
-        this.currentSequence = this.currentSequence.concat(this.currentContactsSequence);
-    };
     ContactsSection.prototype.sortByLastname = function() {
         this.currentSequence = _.sortBy(this.currentSequence, sortByLastname);
-        this.scrollview.sequenceFrom(this.currentSequence);
     };
     ContactsSection.prototype.sortByFirstname = function() {
         this.currentSequence = _.sortBy(this.currentSequence, sortByFirstname);
-        this.scrollview.sequenceFrom(this.currentSequence);
     };
-    function sortByLastname(item) {
-        var l, f, h;
-        l = f = h = "";
-        if (item.model) l = item.model.get("lastname");
-        if (item.model) f = item.model.get("firstname");
-        if (item.options && item.options.header) h = item.options.header;
-        var str = h + l + " " + f;
-        if (!/^[a-zA-Z]+$/.test(str[0])) str = "zzzz" + str;
-        return str.toUpperCase();
-    }
     function sortByLastname(item) {
         var l, f, h;
         l = f = h = "";
@@ -24391,6 +33601,12 @@ require.register("app/views/contacts-section-view.js", function(exports, require
         var str = h + f + " " + l;
         if (!/^[a-zA-Z]+$/.test(str[0])) str = "zzzz" + str;
         return str.toUpperCase();
+    }
+    function dynamicSort(sortFunction) {
+        return function(a, b) {
+            var result = sortFunction(a) < sortFunction(b) ? -1 : sortFunction(a) > sortFunction(b) ? 1 : 0;
+            return result;
+        };
     }
     module.exports = ContactsSection;
 }.bind(this));
@@ -24416,11 +33632,18 @@ require.register("app/views/conversation-item-view.js", function(exports, requir
             }
         });
         this.template();
+        this.event();
         this.surface.pipe(this._eventOutput);
         this._add(this.surface);
     }
     ConversationItemView.prototype = Object.create(View.prototype);
     ConversationItemView.prototype.constructor = ConversationItemView;
+    ConversationItemView.prototype.event = function() {
+        this.surface.on("click", function() {
+            console.log("surface");
+            this._eventOutput.emit("toggleMsg");
+        }.bind(this));
+    };
     ConversationItemView.prototype.template = function() {
         var content = this.model.get("content");
         if (this.model.isLocal()) {
@@ -24434,40 +33657,176 @@ require.register("app/views/conversation-item-view.js", function(exports, requir
 require.register("app/views/conversation-view.js", function(exports, require, module) {
     // Import core Famous dependencies
     var View = require("famous/view");
-    var Utility = require("famous/utilities/utility");
-    var Helpers = require("helpers");
+    var Surface = require("famous/surface");
+    var Modifier = require("famous/modifier");
+    var Transform = require("famous/transform");
+    var Lightbox = require("famous/views/light-box");
     var Scrollview = require("famous/views/scrollview");
+    var Utility = require("famous/utilities/utility");
     var HeaderFooterLayout = require("famous/views/header-footer-layout");
     var Engine = require("famous/engine");
-    var Transform = require("famous/transform");
-    var Surface = require("famous/surface");
     var SoundPlayer = require("famous/audio/sound-player");
-    var LightBox = require("light-box");
+    var Transitionable = require("famous/transitions/transitionable");
+    var WallTransition = require("famous/transitions/wall-transition");
+    Transitionable.registerMethod("wall", WallTransition);
     var Templates = require("templates");
     var VerticalScrollView = require("vertical-scroll-view");
+    var ConversationItemView = require("conversation-item-view");
     var ConversationCollection = require("models").ConversationCollection;
     var ChatCollection = require("models").ChatCollection;
-    var ConversationItemView = require("conversation-item-view");
+    var Helpers = require("helpers");
     function ConversationView(appSettings, call) {
         View.call(this);
-        this.call = call;
-        this.messageTone = new SoundPlayer([ "content/audio/beep.mp3" ]);
+        this.setupBeepeTone();
+        this.initHeader();
+        this.initFooter();
+        this.initConversation();
+        this.setupLayout();
+        this.setupTransition();
+        this.onResize();
+        this.buttonsEvents();
+        this.textingEvents();
+        // TODO: hack, for Dev;
         this.inputSourceLocal = true;
-        this.headerFooterLayout = new HeaderFooterLayout({
-            headerSize: 0,
-            footerSize: 50
-        });
-        this.inputSurface = new Surface({
-            size: [ undefined, this.headerFooterLayout.footerSize ],
-            classes: [ "conversation-input-bar" ],
-            content: Templates.conversationInputBar(),
+        this._eventInput.on("incomingChat", function(evt) {
+            this.addRemote(evt.content);
+        }.bind(this));
+    }
+    ConversationView.prototype = Object.create(View.prototype);
+    ConversationView.prototype.constructor = ConversationView;
+    ConversationView.prototype.setupBeepeTone = function() {
+        this.messageTone = new SoundPlayer([ "content/audio/beep.mp3" ]);
+        this.playBeepe = _.debounce(function() {
+            this.messageTone.playSound(0, .3);
+        }.bind(this), 300);
+    };
+    ConversationView.prototype.setupcall = function(appSettings, call) {
+        this.appSettings = appSettings;
+        this.settingsEvents = {
+            "change:video": this._eventOutput.emit("setVideo"),
+            "change:audio": this._eventOutput.emit("setAudio")
+        };
+        this.appSettings.on(this.settingsEvents);
+        this.call = call;
+        if (!Helpers.isDev()) {
+            var url = appSettings.get("firebaseUrl") + "chats/" + appSettings.get("cid") + "/" + call.get("cid");
+            this.collection = new ChatCollection([], {
+                firebase: url
+            });
+        } else {
+            this.collection = new ConversationCollection();
+            this.call = undefined;
+        }
+        this.synced = false;
+    };
+    ConversationView.prototype.initHeader = function() {
+        this.exitSurface = new Surface({
+            size: [ window.innerWidth - 225, 50 ],
+            classes: [ "conversation-exit" ],
             properties: {
-                backgroundColor: "#000",
-                opacity: .9,
-                zIndex: 4
+                cursor: "pointer"
             }
         });
-        this.contentLightBox = new LightBox({
+        this.exitSurface.pipe(this._eventOutput);
+        this.exitSurfaceMod = new Modifier({
+            transform: Transform.translate(0, 0, 3)
+        });
+        this.callSurface = new Surface({
+            size: [ 225, 50 ],
+            classes: [ "conversation-call" ],
+            content: '<div><i class="fa fa-phone fa-lg"></i> Call</div>',
+            properties: {
+                cursor: "pointer"
+            }
+        });
+        this.callSurfaceMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(0, 0, 4)
+        });
+        this.endCallSurface = new Surface({
+            size: [ 75, 50 ],
+            classes: [ "conversation-endCall" ],
+            content: '<div><i class="fa fa-phone fa-lg"></i></div>',
+            properties: {
+                cursor: "pointer"
+            }
+        });
+        this.endCallSurface.pipe(this._eventOutput);
+        this.endCallSurfaceMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(-150, 0, 3)
+        });
+        this.audioSurface = new Surface({
+            size: [ 75, 50 ],
+            classes: [ "conversation-audio" ],
+            properties: {
+                cursor: "pointer"
+            }
+        });
+        this.audioSurface.pipe(this._eventOutput);
+        this.audioSurfaceMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(0, 0, 3)
+        });
+        this.cameraSurface = new Surface({
+            size: [ 75, 50 ],
+            classes: [ "conversation-camera" ],
+            properties: {
+                cursor: "pointer"
+            }
+        });
+        this.cameraSurfaceMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(-75, 0, 3)
+        });
+    };
+    ConversationView.prototype.cameraSurfaceSetContent = function() {
+        if (this.appSettings.attributes.video == true) {
+            this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg on"></button>');
+        } else {
+            this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg off"></button>');
+        }
+    };
+    ConversationView.prototype.audioSurfaceSetContent = function() {
+        if (this.appSettings.attributes.audio == true) {
+            this.audioSurface.setContent('<button class="fa fa-microphone fa-lg on"></button>');
+        } else {
+            this.audioSurface.setContent('<button class="fa fa-microphone fa-lg off"></button>');
+        }
+    };
+    ConversationView.prototype.initFooter = function() {
+        this.inputSurface = new Surface({
+            size: [ window.innerWidth - 100, 50 ],
+            classes: [ "conversation-input-bar" ],
+            content: '<textarea class="input-msg" name="message"></textarea>',
+            properties: {
+                backgroundColor: "black"
+            }
+        });
+        this.inputSurfaceMod = new Modifier({
+            transform: Transform.translate(0, 0, 9)
+        });
+        this.sendSurface = new Surface({
+            size: [ 100, 50 ],
+            classes: [ "conversation-input-bar" ],
+            content: '<div><button class="send-text-button">Send</button></div>',
+            properties: {
+                backgroundColor: "black",
+                cursor: "pointer"
+            }
+        });
+        this.sendSurfaceMod = new Modifier({
+            origin: [ 1, 0 ],
+            transform: Transform.translate(0, 0, 9)
+        });
+    };
+    ConversationView.prototype.initConversation = function() {
+        this.scrollview = new VerticalScrollView({
+            startAt: "bottom",
+            direction: Utility.Direction.Y
+        });
+        this.pipe(this.scrollview);
+        this.conversationLightbox = new Lightbox({
             inTransform: Transform.identity,
             inOpacity: 0,
             inOrigin: [ 0, 0 ],
@@ -24481,128 +33840,199 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
             outTransition: true,
             overlap: false
         });
-        if (call) {
-            var url = appSettings.get("firebaseUrl") + "chats/" + appSettings.get("cid") + "/" + call.get("cid");
-            this.collection = new ChatCollection([], {
-                firebase: url
-            });
-        } else {
-            this.collection = new ConversationCollection();
-        }
-        this.scrollview = new VerticalScrollView({
-            startAt: "bottom",
-            direction: Utility.Direction.Y
+        this.conversationLightbox.show(this.scrollview);
+    };
+    ConversationView.prototype.setupLayout = function() {
+        this.headerFooterLayout = new HeaderFooterLayout({
+            headerSize: 50,
+            footerSize: 50
         });
-        this.headerFooterLayout.id.content.add(this.contentLightBox);
-        this.headerFooterLayout.id.footer.add(this.inputSurface);
-        this.pipe(this.scrollview);
+        this.backSurface = new Surface({
+            classes: [ "backGroundSurface" ],
+            size: [ undefined, undefined ]
+        });
+        this.backSurfaceMod = new Modifier({
+            transform: Transform.translate(0, 0, 0)
+        });
+        this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
+        this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
+        this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
+        this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
+        this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
+        this.headerFooterLayout.id.content.add(this.conversationLightbox);
+        //    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
+        this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
+        this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
         this._add(this.headerFooterLayout);
-        this.loadMsg();
-        var playBeepe = _.debounce(function() {
-            this.messageTone.playSound(0, .3);
-        }.bind(this), 300);
-        this.collection.on("all", function(e, model, collection, options) {
-            switch (e) {
-              case "add":
-                this.addMsg(model);
-                playBeepe();
-                // only keep at most 100 messages
-                if (this.collection.size() >= 100) {
-                    this.collection.shift();
-                }
-                break;
-            }
-        }.bind(this));
-        this.inputSurface.on("click", function(e) {
-            var target = $(e.target);
-            if (target.hasClass("send-text-button")) this.addChat(); else if (target.hasClass("menu-toggle-button")) {
-                this.toggleMenuToggleButton();
-            } else if (target.hasClass("menu-end-button")) {
-                this._eventOutput.emit("end-call", $(".someRandomNull"));
-            } else if (target.hasClass("input-msg")) {
-                this.setConversationOn();
-            }
-        }.bind(this));
-        this.inputSurface.on("keyup", function(e) {
-            if (e.keyCode == 13) {
-                this.addChat();
-            }
-        }.bind(this));
-        //        window.scrollview = this.scrollview;
-        window.con = this;
+    };
+    ConversationView.prototype.onResize = function() {
         var resizeTimeout;
         var onResize = function() {
             if (!this.scrollview) return;
             // just in case horizontal resize from wide to narrow
             //        if (!Helpers.isMobile())
             this.scrollview.setVelocity(-99);
-            this.loadMsg();
         };
         //        Engine.on('resize', onResize.bind(this));
-        Engine.on("resize", function(e) {
+        Engine.on("resize", function() {
             //            if (Helpers.isMobile()) return;
+            this.exitSurface.setSize([ window.innerWidth - 225, 50 ]);
+            this.inputSurface.setSize([ window.innerWidth - 100, 50 ]);
             if (resizeTimeout) clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(onResize.bind(this), 300);
+        }.bind(this));
+    };
+    ConversationView.prototype.setupTransition = function() {
+        this.buttonTransition = {
+            method: "wall",
+            period: 200,
+            dampingRatio: 1
+        };
+    };
+    ConversationView.prototype.start = function(appSettings, call) {
+        this.setupcall(appSettings, call);
+        this.cameraSurfaceSetContent();
+        this.audioSurfaceSetContent();
+        this.exitSurface.setContent(Templates.conversationViewHeader(call));
+        if (!Helpers.isDev() && this.call.get("success")) {
+            this.hideCallButton();
+        } else this.showCallButton();
+        this.scrollview.sequenceFrom([]);
+        this.collectionEvents();
+        if (this.collection.size()) {
+            // if locally loaded, then load right away
+            setTimeout(this.loadMsg.bind(this), 400);
+        }
+        if (Helpers.isMobile()) window._disableResize = false;
+    };
+    ConversationView.prototype.stop = function(evt) {
+        this.showCallButton();
+        this.appSettings.save({
+            video: true
+        });
+        this.appSettings.save({
+            audio: true
+        });
+        if (evt.exit) {
+            this.collection.off();
+            this.appSettings.off(this.settingsEvents);
+            if (Helpers.isMobile()) {
+                setTimeout(function() {
+                    window._disableResize = true;
+                }, 500);
+            }
+        }
+    };
+    ConversationView.prototype.collectionEvents = function() {
+        this.collection.on("all", function(e, model, collection, options) {
+            //        console.log(e);
+            switch (e) {
+              case "add":
+                if (!this.synced) break;
+                this.addMsg(model);
+                this.playBeepe();
+                // only keep at most 100 messages
+                if (this.collection.size() >= 100) {
+                    this.collection.shift();
+                }
+                setTimeout(function() {
+                    this.scrollview.scrollToEnd();
+                }.bind(this), 400);
+                this.showConversation();
+                break;
+
+              case "sync":
+                setTimeout(this.loadMsg.bind(this), 400);
+                break;
+            }
+        }.bind(this));
+    };
+    ConversationView.prototype.showCallButton = function() {
+        this.callSurfaceMod.setTransform(Transform.translate(0, 0, 4), this.buttonTransition);
+    };
+    ConversationView.prototype.hideCallButton = function() {
+        this.callSurfaceMod.setTransform(Transform.translate(225, 0, 4), this.buttonTransition);
+    };
+    ConversationView.prototype.buttonsEvents = function() {
+        this.exitSurface.on("click", function() {
+            this.showCallButton();
+            setTimeout(function() {
+                this._eventOutput.emit("callEnd", {
+                    exit: true
+                });
+            }.bind(this), 600);
+        }.bind(this));
+        this.callSurface.on("click", function() {
+            this.hideCallButton();
+            setTimeout(function() {
+                this._eventOutput.emit("outgoingCall", this.call);
+            }.bind(this), 600);
+        }.bind(this));
+        this.endCallSurface.on("click", function() {
+            this.showCallButton();
+            setTimeout(function() {
+                this._eventOutput.emit("callEnd", {
+                    exit: false
+                });
+            }.bind(this), 600);
+        }.bind(this));
+        this.audioSurface.on("click", function() {
+            this.appSettings.save({
+                audio: !this.appSettings.attributes.audio
+            });
+            this.audioSurfaceSetContent();
+        }.bind(this));
+        this.cameraSurface.on("click", function() {
+            this.appSettings.save({
+                video: !this.appSettings.attributes.video
+            });
+            this.cameraSurfaceSetContent();
+        }.bind(this));
+        this.sendSurface.on("click", function() {
+            this.addChat();
+        }.bind(this));
+        this.backSurface.on("click", function() {
+            this._eventOutput.emit("toggleMsg");
+        }.bind(this));
+    };
+    ConversationView.prototype.textingEvents = function() {
+        this.inputSurface.on("keyup", function(e) {
+            if (e.keyCode == 13 && this.inputSurface._currTarget.children[0].value != "") {
+                this.addChat();
+            }
         }.bind(this));
         this._eventInput.on("incomingChat", function(evt) {
             this.addRemote(evt.content);
         }.bind(this));
-    }
-    ConversationView.prototype = Object.create(View.prototype);
-    ConversationView.prototype.constructor = ConversationView;
-    ConversationView.prototype.start = function() {};
-    ConversationView.prototype.stop = function() {
-        this.collection.off();
+        this._eventOutput.on("toggleMsg", function() {
+            // TODO: no toggle for now
+            return;
+            if (this.conversationLightbox._showing) this.conversationLightbox.hide(); else this.conversationLightbox.show(this.scrollview);
+        }.bind(this));
     };
-    ConversationView.prototype.addMsg = function(model) {
+    ConversationView.prototype.createMsgItem = function(model) {
         var surface = new ConversationItemView({
             model: model
         });
         surface.pipe(this._eventOutput);
-        this.scrollview.push(surface);
-        //        this.scrollview.node.splice(this.scrollview.node.array.length-1, 0, surface);
-        //        Engine.defer(this.scrollview.scrollToEnd.bind(this.scrollview));
-        setTimeout(function() {
-            this.scrollview.scrollToEnd();
-        }.bind(this), 300);
-    };
-    ConversationView.prototype.loadMsg = function() {
-        var sequence = this.collection.map(function(item) {
-            var surface = new ConversationItemView({
-                model: item
-            });
-            surface.pipe(this._eventOutput);
-            return surface;
-        }.bind(this));
-        this.scrollview.sequenceFrom(sequence);
-        setTimeout(function() {
-            this.scrollview.scrollToEnd();
-        }.bind(this), 300);
+        return surface;
     };
     ConversationView.prototype.addChat = function() {
         var message = document.getElementsByClassName("input-msg")[0].value;
-        if (!message) return;
+        if (!message || message == "") return;
         document.getElementsByClassName("input-msg")[0].value = "";
         if (this.call) {
+            // TODO: this is for testing
+            if (Helpers.isDev()) return;
             this._eventOutput.emit("sendChat", {
                 contact: this.call,
                 message: message
             });
         } else {
             // TODO: this is for testing
-            //        this.inputSourceLocal = !this.inputSourceLocal;
+            this.inputSourceLocal = !this.inputSourceLocal;
             if (this.inputSourceLocal) this.addLocal(message); else this.addRemote(message);
         }
-    };
-    ConversationView.prototype.addRemote = function(message) {
-        var newMsg = {
-            content: message,
-            source: "remote",
-            type: "text",
-            time: Date.now()
-        };
-        this.setConversationOn();
-        this.collection.add(newMsg);
     };
     ConversationView.prototype.addLocal = function(message) {
         var newMsg = {
@@ -24612,30 +34042,44 @@ require.register("app/views/conversation-view.js", function(exports, require, mo
             from: window._cola_g.cid,
             time: Date.now()
         };
+        if (Helpers.isDev()) {
+            this.collection.create(newMsg);
+            return;
+        }
         this.collection.add(newMsg);
-        this.setConversationOn();
         this._eventOutput.emit("outgoingChat", newMsg);
     };
-    ConversationView.prototype.toggleMenuToggleButton = function() {
-        if ($(".menu-toggle-button").hasClass("fade")) {
-            this.setConversationOn();
-        } else {
-            this.setConversationOff();
+    ConversationView.prototype.addRemote = function(message) {
+        var newMsg = {
+            content: message,
+            source: "remote",
+            type: "text",
+            time: Date.now()
+        };
+        if (Helpers.isDev()) {
+            this.collection.create(newMsg);
+            return;
         }
+        this.collection.add(newMsg);
     };
-    ConversationView.prototype.setConversationOff = function() {
-        $(".menu-toggle-button").addClass("fade");
-        $(".menu-end-button").removeClass("toShow");
-        $(".input-msg").removeClass("short");
-        this.contentLightBox.hide();
-        this._eventOutput.emit("menu-toggle-button", false);
+    ConversationView.prototype.showConversation = function() {
+        if (this.conversationLightbox._showing == false) this.conversationLightbox.show(this.scrollview);
     };
-    ConversationView.prototype.setConversationOn = function() {
-        $(".menu-toggle-button").removeClass("fade");
-        $(".menu-end-button").addClass("toShow");
-        $(".input-msg").addClass("short");
-        if (!this.contentLightBox._showing) this.contentLightBox.show(this.scrollview);
-        this._eventOutput.emit("menu-toggle-button", true);
+    ConversationView.prototype.addMsg = function(model) {
+        this.scrollview.push(this.createMsgItem(model));
+    };
+    ConversationView.prototype.loadMsg = function() {
+        this.synced = true;
+        var sequence = this.collection.map(function(item) {
+            return this.createMsgItem(item);
+        }.bind(this));
+        this.scrollview.sequenceFrom(sequence);
+        var len = this.scrollview.node.array.length;
+        var index = Math.max(len - 15, 0);
+        this.scrollview.scrollTo(index, 0);
+        setTimeout(function() {
+            this.scrollview.scrollToEnd();
+        }.bind(this), 400);
     };
     module.exports = ConversationView;
 }.bind(this));
@@ -24748,28 +34192,26 @@ require.register("app/views/import-contact-view.js", function(exports, require, 
     // Import core Famous dependencies
     var HeaderFooterLayout = require("famous/views/header-footer-layout");
     var Surface = require("famous/surface");
-    var EventHandler = require("famous/event-handler");
-    var UpDownTransform = require("up-down-transform");
-    var SocialView = require("social-view");
+    var View = require("famous/view");
+    var SocialScrollView = require("social-scroll-view");
     function ImportContactView(options) {
-        HeaderFooterLayout.call(this);
+        View.call(this);
         this.collection = options.collection;
-        // Set up event handlers
-        // this.eventInput = new EventHandler();
-        // EventHandler.setInputHandler(this, this.eventInput);
-        // this.eventOutput = new EventHandler();
-        // EventHandler.setOutputHandler(this, this.eventOutput);
         this.header = new Surface({
             content: '<button class="left back-button">Back</button><div>' + options.title + " Contacts</div>",
             classes: [ "header" ],
             size: [ undefined, 50 ],
             properties: {}
         });
-        this.content = new SocialView({
+        this.content = new SocialScrollView({
             collection: this.collection
         });
-        this.id.header.add(this.header);
-        this.id.content.add(this.content);
+        this.layout = new HeaderFooterLayout({
+            headerSize: 50,
+            footerSize: 0
+        });
+        this.layout.id.header.add(this.header);
+        this.layout.id.content.add(this.content);
         this.header.pipe(this._eventOutput);
         this.content.pipe(this._eventOutput);
         this.header.on("click", function(e) {
@@ -24781,9 +34223,9 @@ require.register("app/views/import-contact-view.js", function(exports, require, 
         this.header.on("click", function(e) {
             if ($(e.target).hasClass("back-button")) this._eventOutput.emit("goBack");
         }.bind(this));
-        this.header.pipe(this._eventOutput);
+        this._add(this.layout);
     }
-    ImportContactView.prototype = Object.create(HeaderFooterLayout.prototype);
+    ImportContactView.prototype = Object.create(View.prototype);
     ImportContactView.prototype.constructor = ImportContactView;
     module.exports = ImportContactView;
 }.bind(this));
@@ -24919,7 +34361,7 @@ require.register("app/views/incoming-call-view.js", function(exports, require, m
         this.startRingtone();
         $(".camera").removeClass("blur");
     };
-    IncomingCallView.prototype.stop = function() {
+    IncomingCallView.prototype.stop = function(evt) {
         var button = $(".decline-button");
         if (!this.on) return;
         this.on = false;
@@ -24967,6 +34409,7 @@ require.register("app/views/index.js", function(exports, require, module) {
         AlertView: require("alert-view"),
         CameraView: require("camera-view"),
         ConnectedCallView: require("connected-call-view"),
+        ContactsScrollView: require("contacts-scroll-view"),
         ContactsSectionView: require("contacts-section-view"),
         ConversationView: require("conversation-view"),
         FavoritesSectionView: require("favorites-section-view"),
@@ -24975,7 +34418,8 @@ require.register("app/views/index.js", function(exports, require, module) {
         RecentsSectionView: require("recents-section-view"),
         ChatsSectionView: require("chats-section-view"),
         SettingsSectionView: require("settings-section-view"),
-        SocialView: require("social-view")
+        SocialView: require("social-view"),
+        SocialScrollView: require("social-scroll-view")
     };
 }.bind(this));
 
@@ -25174,7 +34618,10 @@ require.register("app/views/recent-item-view.js", function(exports, require, mod
     function RecentItemView(options) {
         options.leftButtons = [ {
             content: Templates.crossButton(),
-            event: "deleteRecent"
+            event: "deleteItem"
+        }, {
+            content: Templates.editButton(),
+            event: "editContact"
         } ];
         options.rightButton = {
             content: Templates.phoneButton(),
@@ -25183,7 +34630,7 @@ require.register("app/views/recent-item-view.js", function(exports, require, mod
         options.itemButton = {
             classes: [ "contact-item", "recent-item" ],
             content: Templates.recentItemView(options.model),
-            event: "editContact"
+            event: "chatContact"
         };
         ItemView.apply(this, arguments);
         this._eventInput.on("toggleAllRecent", this.onToggleAll.bind(this));
@@ -25248,7 +34695,7 @@ require.register("app/views/recents-section-view.js", function(exports, require,
         });
     };
     RecentsSectionView.prototype.loadItems = function() {
-        this.collection.fetch();
+        //    this.collection.fetch();
         this.scrollview.setPosition(0);
         this.sequence = this.collection.map(function(item) {
             var surface = new RecentItemView({
@@ -25279,14 +34726,18 @@ require.register("app/views/recents-section-view.js", function(exports, require,
     };
     RecentsSectionView.prototype.setMissedOnly = function(miss) {
         var missedOnly = miss == "missed";
-        _.each(this.sequence, function(itemView) {
-            if (!itemView.collapse) return;
-            if (missedOnly) {
-                if (!itemView.model.isMissed()) {
+        if (missedOnly) {
+            _.each(this.sequence, function(itemView) {
+                if (itemView.collapse && !itemView.model.isMissed()) {
                     itemView.collapse();
                 }
-            } else itemView.expand();
-        }.bind(this));
+            }.bind(this));
+        } else {
+            this.scrollview.setVelocity(-1);
+            _.each(this.sequence, function(itemView) {
+                if (itemView.expand) itemView.expand();
+            }.bind(this));
+        }
     };
     module.exports = RecentsSectionView;
 }.bind(this));
@@ -25298,8 +34749,6 @@ require.register("app/views/settings-section-view.js", function(exports, require
     var Surface = require("famous/surface");
     var Scrollview = require("famous/views/scrollview");
     var Templates = require("templates");
-    // Todo: hack, need this for packaging
-    //    var Notify           = require('notify');
     function SettingsSectionView(options) {
         View.call(this);
         this.appSettings = options.model;
@@ -25415,13 +34864,14 @@ require.register("app/views/settings-section-view.js", function(exports, require
                 break;
             }
         }.bind(this));
-        this.appSettings.on({
+        var settingsEvents = {
             "change:camera": onCamera.bind(this),
             "change:audio": onAudio.bind(this),
             "change:video": onVideo.bind(this),
             "change:blur": onBlur.bind(this),
             change: onChange.bind(this)
-        });
+        };
+        this.appSettings.on(settingsEvents);
         function onChange() {
             this.template();
         }
@@ -25455,56 +34905,72 @@ require.register("app/views/settings-section-view.js", function(exports, require
 }.bind(this));
 
 require.register("app/views/social-item-view.js", function(exports, require, module) {
-    // Import core Famous dependencies
-    var View = require("famous/view");
-    var Surface = require("famous/surface");
-    var EventHandler = require("famous/event-handler");
-    var Modifier = require("famous/modifier");
-    function SocialItemView(options, isFirst) {
-        View.call(this);
+    var Templates = require("templates");
+    var RowView = require("row-view");
+    var ItemView = RowView.ItemView;
+    function SocialItemView(options) {
         this.model = options.model;
-        // Set up event handlers
-        // this.eventInput = new EventHandler();
-        // EventHandler.setInputHandler(this, this.eventInput);
-        // this.eventOutput = new EventHandler();
-        // EventHandler.setOutputHandler(this, this.eventOutput);
-        var height = 51;
-        if (isFirst) height = 77;
-        this.surface = new Surface({
-            classes: [ "import-item", "editable" ],
-            size: [ undefined, height ]
-        });
-        //        // Bind click event to load new tweet
-        this.surface.on("click", function(e) {
-            var target = $(e.target);
-            if (target.hasClass("import-source")) {
-                this._eventOutput.emit("goBack", this.model);
-            }
-        }.bind(this));
-        this.template(isFirst);
-        this.surface.pipe(this._eventOutput);
-        this.mod = new Modifier({
-            transform: undefined
-        });
-        this._add(this.mod);
-        this._add(this.surface);
+        options.paddingRight = 40;
+        options.itemButton = {
+            classes: [ "contact-item", "editable" ],
+            content: Templates.socialItemView(options.model),
+            event: "goBack"
+        };
+        ItemView.apply(this, arguments);
     }
-    SocialItemView.prototype = Object.create(View.prototype);
+    SocialItemView.prototype = Object.create(ItemView.prototype);
     SocialItemView.prototype.constructor = SocialItemView;
-    SocialItemView.prototype.template = function(isFirst) {
-        var name;
-        var initial;
-        if (this.model.get("firstname") || this.model.get("lastname")) {
-            name = this.model.get("firstname") + " <b class='import-source'>" + this.model.get("lastname") + "</b>";
-            initial = this.model.get("firstname")[0] + this.model.get("lastname")[0];
-        } else {
-            name = this.model.get("email");
-        }
-        var contact = '<div class="import-source">' + name + "</div>";
-        if (isFirst) contact = '<div class="first-char">' + isFirst + "</div>" + contact;
-        this.surface.setContent(contact);
+    // Overwrite the events functions since there is only one button event in Social-view,
+    SocialItemView.prototype.setupEvent = function() {
+        this.itemSurface.pipe(this._eventOutput);
+    };
+    SocialItemView.prototype.buttonsClickEvents = function() {
+        this.itemSurface.on("click", function() {
+            this._eventOutput.emit(this.options.itemButton.event, this.model);
+        }.bind(this));
     };
     module.exports = SocialItemView;
+}.bind(this));
+
+require.register("app/views/social-scroll-view.js", function(exports, require, module) {
+    // import views
+    var SocialItemView = require("social-item-view");
+    var ContactsScrollView = require("contacts-scroll-view");
+    function SocialScrollView(options) {
+        window.so = this;
+        ContactsScrollView.apply(this, arguments);
+        this._eventOutput.on("goBack", function(ii) {
+            console.log("onGoBack", ii);
+        });
+    }
+    SocialScrollView.prototype = Object.create(ContactsScrollView.prototype);
+    SocialScrollView.prototype.constructor = SocialScrollView;
+    SocialScrollView.prototype.collectionEvents = function() {
+        this.collection.on("all", function(e, model) {
+            console.log(e, model);
+            switch (e) {
+              case "sync":
+                this.renderHeaders();
+                this.createSocialContacts();
+                setTimeout(this.renderScrollView.bind(this), this.scrollview.node ? 0 : 1e3);
+                break;
+            }
+        }.bind(this));
+    };
+    SocialScrollView.prototype.createItem = function(item) {
+        var surface = new SocialItemView({
+            model: item
+        });
+        surface.pipe(this._eventOutput);
+        this._eventInput.pipe(surface);
+        return surface;
+    };
+    SocialScrollView.prototype.createSocialContacts = function() {
+        this.contactSequence = this.collection.map(function(item) {
+            return this.createItem(item);
+        }.bind(this));
+    };
+    module.exports = SocialScrollView;
 }.bind(this));
 
 require.register("app/views/social-view.js", function(exports, require, module) {
@@ -25518,7 +34984,9 @@ require.register("app/views/social-view.js", function(exports, require, module) 
     var GenericSync = require("famous/input/generic-sync");
     var Surface = require("famous/surface");
     // import custom modules
-    var TouchSync = require("custom-touch-sync");
+    var InputSync = require("custom-input-sync");
+    var TouchSync = InputSync.TouchSync;
+    var MouseSync = InputSync.MouseSync;
     // import views
     var SocialItemView = require("social-item-view");
     function SocialView(options) {
@@ -25572,15 +35040,15 @@ require.register("app/views/social-view.js", function(exports, require, module) 
         this.searchSurface.on("keyup", function(e) {
             this.loadContacts(e.target.value);
         }.bind(this));
-        this.abcSurface.on("mousemove", function(e) {
-            this.onAbcTouch(e);
-        }.bind(this));
+        //    this.abcSurface.on('mousemove',function(e){
+        //        this.onAbcTouch(e);
+        //    }.bind(this));
         // abc-bar effect for cellphone
         var mousePosition = [ 0, 0 ];
         var sync = new GenericSync(function() {
             return mousePosition;
         }, {
-            syncClasses: [ TouchSync ]
+            syncClasses: [ MouseSync, TouchSync ]
         });
         this.abcSurface.pipe(sync);
         sync.on("update", function(data) {
@@ -25767,8 +35235,6 @@ require.register("app/main/main-controller.js", function(exports, require, modul
     // import app
     var config = require("config");
     var App = require("app");
-    // Todo: hack, need this for packaging
-    //    var Notify = require('notify');
     var defaultIceConfig = {
         iceServers: [ {
             url: "stun:stun.l.google.com:19302"
@@ -25882,15 +35348,14 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             this._eventOutput.on("connectedCall", onConnectedCall);
             this._eventOutput.on("outGoingCallAccept", onOutGoingCallAccept);
             this._eventOutput.on("editContact", onEditContact);
-            this._eventOutput.on("chatContact", onChatContact);
+            this._eventOutput.on("chatContact", _.debounce(onChatContact, 300));
             this._eventOutput.on("showApp", onShowApp);
             this._eventOutput.on("chatOn", onChatOn);
             this._eventOutput.on("chatOff", onChatOff);
             this._eventOutput.on("loadRecent", onLoadRecent);
             this._eventOutput.on("updateRecent", onUpdateRecent);
             this._eventOutput.on("clearRecent", onClearRecent);
-            this._eventOutput.on("deleteRecent", onDeleteRecent);
-            this._eventOutput.on("deleteContact", onDeleteContact);
+            this._eventOutput.on("deleteItem", onDeleteItem);
             this._eventOutput.on("deleteFavorite", onDeleteFavorite);
             this._eventOutput.on("toggleFavorite", onToggleFavorite);
             this._eventOutput.on("onEngineClick", onEngineClick);
@@ -25904,11 +35369,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             function onToggleFavorite(model) {
                 model.toggleFavorite();
             }
-            function onDeleteRecent(model) {
-                //            model.destroy();
-                model.collection.remove(model);
-            }
-            function onDeleteContact(model) {
+            function onDeleteItem(model) {
                 model.collection.remove(model);
             }
             function onEditContactDone(formContact) {}
@@ -25986,10 +35447,12 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             function onCallEnd(eventData) {
                 this._eventOutput.emit("chatOff");
                 // ligntbox shown object stop
-                var curView = myLightbox.nodes[0].object;
+                // TODO: hack
+                var curView = myLightbox.nodes[0]._child._child._object;
                 if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
-                    curView.stop();
+                    curView.stop(eventData);
                 }
+                if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke("hangup");
                 if (this.chatroom) {
                     var url = "/login?r=" + this.chatroom.objectId;
                     if (this.chatroom.callerName) {
@@ -26005,6 +35468,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             }
             function onChatContact(eventData) {
                 function chatByContact(contact) {
+                    contact = new Contact(contact.omit("success"));
                     contact.set({
                         read: true
                     });
@@ -26033,6 +35497,11 @@ require.register("app/main/main-controller.js", function(exports, require, modul
 
                   case "add-contact":
                     this._eventOutput.emit("editContact");
+                    break;
+
+                  case "chats-edit-contact":
+                    $("body").toggleClass("editing");
+                    this._eventInput.emit("toggleAllChat");
                     break;
 
                   case "recent-edit-contact":
@@ -26069,6 +35538,10 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                     }
                 }
             }
+            // fastclick hack
+            //        $('body').on('click', 'input', function(e) {
+            //            $(e.target).focus();
+            //        }.bind(this));
             function onTriggerBackToNoneEditing(e) {
                 this._eventInput.emit("backToNoneEditing");
             }
@@ -26081,16 +35554,12 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             }
             window.alert = onAlert;
             if (this.chatroom) alert("Please allow Beepe to use your camera/microphone for phone calls.", true);
-            // fastclick hack
-            $("body").on("click", "input", function(e) {
-                $(e.target).focus();
-            }.bind(this));
             this.init();
             window.colabeo = this;
             //            window.myLightbox = myLightbox;
             colabeo.chatsSection = chatsSection;
-            //        colabeo.recentsSection = recentsSection;
-            //        colabeo.contactsSection = contactsSection;
+            colabeo.recentsSection = recentsSection;
+            colabeo.contactsSection = contactsSection;
             colabeo.favoritesSection = favoritesSection;
             //        colabeo.cameraView = cameraView;
             //            colabeo.addContactView = addContactView;
@@ -26104,6 +35573,10 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         }.bind(this));
     }
     MainController.prototype.init = function() {
+        this.phono = $.phono({
+            apiKey: "233f5673a7329a4cb7a5a2d0e5b6696e9ec245f8f7410e0631f4938c4395ca3163db86f7a9eda9d42633a308",
+            onReady: function() {}
+        });
         this.iceServerConfig = defaultIceConfig;
         // get Xirsys ice config
         this.getXirsys();
@@ -26114,6 +35587,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         // remove zombie call after disconnect
         this.listenRef.onDisconnect().remove();
         if (Helpers.isMobile()) {
+            window._disableResize = true;
             $("body").addClass("mobile");
             if (this.appSettings.get("blur") == undefined) this.appSettings.set("blur", false);
         } else {
@@ -26133,7 +35607,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             });
         }.bind(this));
         // TODO: hack for android chrome DATAconnection
-        util.supports.sctp = false;
+        //    util.supports.sctp = false;
         sendMessage("event", {
             data: {
                 action: "syncID",
@@ -26186,6 +35660,33 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             this.appSettings.set($(e.target)[0].id, $(e.target).prop("checked"));
         }.bind(this));
     };
+    MainController.prototype.callByPhono = function(contact) {
+        var number = contact.get("email");
+        this.phono.phone.dial("app:9990036398", {
+            headers: [ {
+                name: "x-numbertodial",
+                value: number
+            } ],
+            onRing: function() {
+                console.log("*******Ringing");
+            }.bind(this),
+            onAnswer: function() {
+                console.log("*******Answered");
+                contact = new Contact(contact.omit("success"));
+                contact.set({
+                    success: true
+                });
+                this._eventOutput.emit("outGoingCallAccept", contact);
+                this._eventOutput.emit("connectedCall", contact);
+            }.bind(this),
+            onHangup: function() {
+                console.log("*******Hungup");
+                this._eventOutput.emit("callEnd", {
+                    exit: true
+                });
+            }.bind(this)
+        });
+    };
     MainController.prototype.setupCallListener = function() {
         this.listenRef.on("child_added", onAdd.bind(this));
         this.listenRef.on("child_changed", onChanged.bind(this));
@@ -26214,7 +35715,9 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         }
         function onChanged(snapshot) {}
         function onRemove(snapshot) {
-            this._eventOutput.emit("callEnd", snapshot);
+            this._eventOutput.emit("callEnd", {
+                exit: false
+            });
             this.exitRoom();
         }
         function onOutgoingCallEnd(call) {
@@ -26245,7 +35748,9 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                 alert("Please allow camera/microphone access for Beepe");
                 return;
             }
-            if (contact.get("cid")) {
+            if (!isNaN(contact.get("email")) && contact.get("email").length == 11) {
+                this.callByPhono(contact);
+            } else if (contact.get("cid")) {
                 callByContact.bind(this)(contact);
             } else {
                 this.lookup(contact, callByContact.bind(this));
@@ -26298,7 +35803,9 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                     }
                 }
                 function onRemove(snapshot) {
-                    this._eventOutput.emit("callEnd", snapshot);
+                    this._eventOutput.emit("callEnd", {
+                        exit: false
+                    });
                     this.exitRoom();
                 }
             }
@@ -26312,7 +35819,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         // Compatibility shim
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
         //        this.startRoom();
-        this.setCamera();
+        if (navigator.getUserMedia) this.setCamera();
     };
     MainController.prototype.initLocalMedia = function(options) {
         var options = _.extend({
@@ -26643,7 +36150,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         for (var i = 0; i < eids.length; i++) {
             var c = eids[i];
             if (c) {
-                callee = {
+                var callee = {
                     provider: c.provider,
                     eid: c.eid,
                     name: contact.get("firstname") + " " + contact.get("lastname"),
@@ -26778,15 +36285,17 @@ require.register("app/main/app.js", function(exports, require, module) {
     var HeaderFooterLayout = require("famous/views/header-footer-layout");
     var EdgeSwapper = require("famous/views/edge-swapper");
     var TabBar = require("famous/widgets/tab-bar");
-    var TitleBar = require("famous/widgets/title-bar");
+    //var TitleBar           = require('famous/widgets/title-bar');
     var Templates = require("templates");
+    var RowView = require("row-view");
+    var HeaderBar = RowView.HeaderBar;
     function App(options) {
         // extend from view
         View.apply(this, arguments);
         // create the layout
         this.layout = new HeaderFooterLayout();
         // create the header
-        this.header = new TitleBar(this.options.header);
+        this.header = new HeaderBar(this.options.header);
         // create the navigation bar
         this.navigation = new TabBar(this.options.navigation);
         // create the content area
@@ -27055,8 +36564,11 @@ require.config({
             firebase: "app/vendor/firebase.js",
             "backbone-firebase": "app/vendor/backbone-firebase.js",
             peer: "app/vendor/peer.js",
-            notify: "app/vendor/notify.js"
+            notify: "app/vendor/notify.js",
+            phono: "app/vendor/phono.js",
+            oauthpopup: "app/vendor/oauthpopup.js"
         },
+        "app/vendor/att.js": {},
         "app/vendor/backbone-firebase.js": {},
         "app/vendor/backbone.js": {
             underscore: "app/vendor/underscore.js"
@@ -27070,6 +36582,7 @@ require.config({
         "app/vendor/notify.js": {},
         "app/vendor/oauthpopup.js": {},
         "app/vendor/peer.js": {},
+        "app/vendor/phono.js": {},
         "app/vendor/underscore.js": {},
         "app/vendor/zepto.js": {},
         "app/custom/helpers/helpers.js": {},
@@ -27201,7 +36714,14 @@ require.config({
         "famous_modules/famous/input/touch-tracker/_git_master/index.js": {
             "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js"
         },
-        "app/custom/custom-touch-sync/touch-sync.js": {
+        "app/custom/custom-input-sync/index.js": {
+            "touch-sync": "app/custom/custom-input-sync/touch-sync.js",
+            "mouse-sync": "app/custom/custom-input-sync/mouse-sync.js"
+        },
+        "app/custom/custom-input-sync/mouse-sync.js": {
+            "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js"
+        },
+        "app/custom/custom-input-sync/touch-sync.js": {
             "famous/input/touch-tracker": "famous_modules/famous/input/touch-tracker/_git_master/index.js",
             "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js"
         },
@@ -27272,20 +36792,17 @@ require.config({
             "famous/group": "famous_modules/famous/group/_git_master/index.js",
             "famous/entity": "famous_modules/famous/entity/_git_master/index.js"
         },
+        "famous_modules/famous/transitions/spring-transition/_git_master/index.js": {
+            "famous/physics/engine": "famous_modules/famous/physics/engine/_git_master/index.js",
+            "famous/physics/forces/spring": "famous_modules/famous/physics/forces/spring/_git_master/index.js",
+            "famous/math/vector": "famous_modules/famous/math/vector/_git_master/index.js"
+        },
         "app/custom/vertical-scroll-view/vertical-scroll-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_master/index.js",
             "famous/engine": "famous_modules/famous/engine/_git_master/index.js"
-        },
-        "famous_modules/famous/input/mouse-sync/_git_master/index.js": {
-            "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js"
-        },
-        "famous_modules/famous/transitions/spring-transition/_git_master/index.js": {
-            "famous/physics/engine": "famous_modules/famous/physics/engine/_git_master/index.js",
-            "famous/physics/forces/spring": "famous_modules/famous/physics/forces/spring/_git_master/index.js",
-            "famous/math/vector": "famous_modules/famous/math/vector/_git_master/index.js"
         },
         "famous_modules/famous/physics/constraints/wall/_git_master/index.js": {
             "famous/physics/constraints/constraint": "famous_modules/famous/physics/constraints/constraint/_git_master/index.js",
@@ -27298,6 +36815,13 @@ require.config({
             "famous/physics/constraints/wall": "famous_modules/famous/physics/constraints/wall/_git_master/index.js",
             "famous/math/vector": "famous_modules/famous/math/vector/_git_master/index.js"
         },
+        "famous_modules/famous/input/mouse-sync/_git_master/index.js": {
+            "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js"
+        },
+        "app/custom/row-view/header-bar.js": {
+            "famous/widgets/title-bar": "famous_modules/famous/widgets/title-bar/_git_master/index.js",
+            "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js"
+        },
         "app/custom/row-view/header-view.js": {
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
             "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js",
@@ -27309,7 +36833,8 @@ require.config({
         "app/custom/row-view/index.js": {
             "row-view": "app/custom/row-view/row-view.js",
             "item-view": "app/custom/row-view/item-view.js",
-            "header-view": "app/custom/row-view/header-view.js"
+            "header-view": "app/custom/row-view/header-view.js",
+            "header-bar": "app/custom/row-view/header-bar.js"
         },
         "app/custom/row-view/item-view.js": {
             "famous/render-node": "famous_modules/famous/render-node/_git_master/index.js",
@@ -27326,7 +36851,8 @@ require.config({
             "famous/engine": "famous_modules/famous/engine/_git_master/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
             templates: "app/custom/templates/templates.js",
-            "row-view": "app/custom/row-view/row-view.js"
+            "row-view": "app/custom/row-view/row-view.js",
+            helpers: "app/custom/helpers/helpers.js"
         },
         "app/custom/row-view/row-view.js": {
             "famous/render-node": "famous_modules/famous/render-node/_git_master/index.js",
@@ -27378,8 +36904,6 @@ require.config({
             "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
             "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js",
-            "famous/transitions/easing": "famous_modules/famous/transitions/easing/_git_master/index.js",
-            "light-box": "app/custom/light-box/light-box.js",
             templates: "app/custom/templates/templates.js",
             models: "app/models/index.js",
             "conversation-view": "app/views/conversation-view.js"
@@ -27388,7 +36912,7 @@ require.config({
             templates: "app/custom/templates/templates.js",
             "row-view": "app/custom/row-view/index.js"
         },
-        "app/views/contacts-section-view.js": {
+        "app/views/contacts-scroll-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
@@ -27396,7 +36920,25 @@ require.config({
             "famous/input/generic-sync": "famous_modules/famous/input/generic-sync/_git_master/index.js",
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
             "famous/transitions/easing": "famous_modules/famous/transitions/easing/_git_master/index.js",
-            "custom-touch-sync": "app/custom/custom-touch-sync/touch-sync.js",
+            "custom-input-sync": "app/custom/custom-input-sync/index.js",
+            templates: "app/custom/templates/templates.js",
+            "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
+            "vertical-scroll-view": "app/custom/vertical-scroll-view/vertical-scroll-view.js",
+            "contact-item-view": "app/views/contact-item-view.js",
+            "row-view": "app/custom/row-view/index.js"
+        },
+        "app/views/contacts-section-view.js": {
+            "contacts-scroll-view": "app/views/contacts-scroll-view.js"
+        },
+        "app/views/contacts-section-view2.js": {
+            "famous/view": "famous_modules/famous/view/_git_master/index.js",
+            "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
+            "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
+            "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js",
+            "famous/input/generic-sync": "famous_modules/famous/input/generic-sync/_git_master/index.js",
+            "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
+            "famous/transitions/easing": "famous_modules/famous/transitions/easing/_git_master/index.js",
+            "custom-input-sync": "app/custom/custom-input-sync/index.js",
             templates: "app/custom/templates/templates.js",
             "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
             "vertical-scroll-view": "app/custom/vertical-scroll-view/vertical-scroll-view.js",
@@ -27411,19 +36953,22 @@ require.config({
         },
         "app/views/conversation-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
-            "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
-            helpers: "app/custom/helpers/helpers.js",
+            "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
+            "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js",
+            "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
+            "famous/views/light-box": "famous_modules/famous/views/light-box/_git_master/index.js",
             "famous/views/scrollview": "famous_modules/famous/views/scrollview/_git_master/index.js",
+            "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js",
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
             "famous/engine": "famous_modules/famous/engine/_git_master/index.js",
-            "famous/transform": "famous_modules/famous/transform/_git_master/index.js",
-            "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
             "famous/audio/sound-player": "app/custom/sound-player/sound-player.js",
-            "light-box": "app/custom/light-box/light-box.js",
+            "famous/transitions/transitionable": "famous_modules/famous/transitions/transitionable/_git_master/index.js",
+            "famous/transitions/wall-transition": "famous_modules/famous/transitions/wall-transition/_git_master/index.js",
             templates: "app/custom/templates/templates.js",
             "vertical-scroll-view": "app/custom/vertical-scroll-view/vertical-scroll-view.js",
+            "conversation-item-view": "app/views/conversation-item-view.js",
             models: "app/models/index.js",
-            "conversation-item-view": "app/views/conversation-item-view.js"
+            helpers: "app/custom/helpers/helpers.js"
         },
         "app/views/favorite-item-view.js": {
             templates: "app/custom/templates/templates.js",
@@ -27441,9 +36986,8 @@ require.config({
         "app/views/import-contact-view.js": {
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
-            "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js",
-            "up-down-transform": "app/custom/up-down-transform/up-down-transform.js",
-            "social-view": "app/views/social-view.js"
+            "famous/view": "famous_modules/famous/view/_git_master/index.js",
+            "social-scroll-view": "app/views/social-scroll-view.js"
         },
         "app/views/incoming-call-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
@@ -27461,6 +37005,7 @@ require.config({
             "alert-view": "app/views/alert-view.js",
             "camera-view": "app/views/camera-view.js",
             "connected-call-view": "app/views/connected-call-view.js",
+            "contacts-scroll-view": "app/views/contacts-scroll-view.js",
             "contacts-section-view": "app/views/contacts-section-view.js",
             "conversation-view": "app/views/conversation-view.js",
             "favorites-section-view": "app/views/favorites-section-view.js",
@@ -27469,7 +37014,8 @@ require.config({
             "recents-section-view": "app/views/recents-section-view.js",
             "chats-section-view": "app/views/chats-section-view.js",
             "settings-section-view": "app/views/settings-section-view.js",
-            "social-view": "app/views/social-view.js"
+            "social-view": "app/views/social-view.js",
+            "social-scroll-view": "app/views/social-scroll-view.js"
         },
         "app/views/outgoing-call-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
@@ -27503,10 +37049,12 @@ require.config({
             templates: "app/custom/templates/templates.js"
         },
         "app/views/social-item-view.js": {
-            "famous/view": "famous_modules/famous/view/_git_master/index.js",
-            "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
-            "famous/event-handler": "famous_modules/famous/event-handler/_git_master/index.js",
-            "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js"
+            templates: "app/custom/templates/templates.js",
+            "row-view": "app/custom/row-view/index.js"
+        },
+        "app/views/social-scroll-view.js": {
+            "social-item-view": "app/views/social-item-view.js",
+            "contacts-scroll-view": "app/views/contacts-scroll-view.js"
         },
         "app/views/social-view.js": {
             "famous/view": "famous_modules/famous/view/_git_master/index.js",
@@ -27517,7 +37065,7 @@ require.config({
             "famous/modifier": "famous_modules/famous/modifier/_git_master/index.js",
             "famous/input/generic-sync": "famous_modules/famous/input/generic-sync/_git_master/index.js",
             "famous/surface": "famous_modules/famous/surface/_git_master/index.js",
-            "custom-touch-sync": "app/custom/custom-touch-sync/touch-sync.js",
+            "custom-input-sync": "app/custom/custom-input-sync/index.js",
             "social-item-view": "app/views/social-item-view.js"
         },
         "app/views/unused-add-favorite-view.js": {
@@ -27552,8 +37100,8 @@ require.config({
             "famous/views/header-footer-layout": "famous_modules/famous/views/header-footer-layout/_git_master/index.js",
             "famous/views/edge-swapper": "famous_modules/famous/views/edge-swapper/_git_master/index.js",
             "famous/widgets/tab-bar": "famous_modules/famous/widgets/tab-bar/_git_master/index.js",
-            "famous/widgets/title-bar": "famous_modules/famous/widgets/title-bar/_git_master/index.js",
-            templates: "app/custom/templates/templates.js"
+            templates: "app/custom/templates/templates.js",
+            "row-view": "app/custom/row-view/index.js"
         },
         "app/main/config.js": {
             "famous/utilities/utility": "famous_modules/famous/utilities/utility/_git_master/index.js"

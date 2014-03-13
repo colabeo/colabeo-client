@@ -22,7 +22,6 @@ var HeaderView = RowView.HeaderView;
 
 function ContactsSection(options) {
 
-    window.con=this
     View.call(this);
 
     this.searchBarSize = 50;

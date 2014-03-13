@@ -21,7 +21,7 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 
 function ContactsScrollView(options) {
-    window.con=this;
+
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;

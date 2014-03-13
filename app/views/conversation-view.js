@@ -55,11 +55,11 @@ ConversationView.prototype.setupBeepeTone = function(){
 
 ConversationView.prototype.setupcall = function(appSettings,call){
     this.appSettings = appSettings;
-
-    this.appSettings.on({
+    this.settingsEvents = {
         'change:video': this._eventOutput.emit('setVideo'),
         'change:audio': this._eventOutput.emit('setAudio')
-    });
+    };
+    this.appSettings.on(this.settingsEvents);
 
     this.call = call;
     
@@ -285,7 +285,7 @@ ConversationView.prototype.stop = function(evt){
     this.appSettings.save({audio : true});
     if (evt.exit) {
         this.collection.off();
-        this.appSettings.off();
+        this.appSettings.off(this.settingsEvents);
         if (Helpers.isMobile()) {
             setTimeout(function() {
                 window._disableResize = true;

@@ -115,13 +115,14 @@ function SettingsSectionView(options) {
         }
     }.bind(this));
 
-    this.appSettings.on({
+    var settingsEvents = {
         'change:camera': onCamera.bind(this),
         'change:audio': onAudio.bind(this),
         'change:video': onVideo.bind(this),
         'change:blur': onBlur.bind(this),
         'change': onChange.bind(this)
-    });
+    };
+    this.appSettings.on(settingsEvents);
 
     function onChange() {
         this.template();

@@ -12,5 +12,6 @@ module.exports = {
     RecentsSectionView: require("recents-section-view"),
     ChatsSectionView: require("chats-section-view"),
     SettingsSectionView: require("settings-section-view"),
-    SocialView: require("social-view")
+    SocialView: require("social-view"),
+    SocialScrollView: require("social-scroll-view")
 }

@@ -126,7 +126,7 @@ ItemView.prototype.setupEvent = function(){
 
 ItemView.prototype.setOptions = function(options){
     _.extend(this.options, options);
-    this.options.nButtons = options.leftButtons.length;
+    this.options.nButtons = (options.leftButtons)? options.leftButtons.length : 0;
 };
 
 ItemView.prototype.setupSurfaces = function(){
@@ -153,16 +153,18 @@ ItemView.prototype.setupSurfaces = function(){
         this.surfaces.add(this['leftButton'+i+'Mod']).add(this['leftButton'+i]);
     }.bind(this));
 
-    this.rightButton = new Surface({
-        content: this.options.rightButton.content,
-        size: [this.options.buttonSizeX, this.options.buttonSizeY]
-    });
-    this.rightButtonMod = new Modifier({
-        origin: this.options._rightEndOrigin,
-        opacity: 0,
-        transform: Transform.translate(-this.options.paddingRight,0,0)
-    });
-    this.surfaces.add(this.rightButtonMod).add(this.rightButton);
+    if (this.options.rightButton){
+        this.rightButton = new Surface({
+            content: this.options.rightButton.content,
+            size: [this.options.buttonSizeX, this.options.buttonSizeY]
+        });
+        this.rightButtonMod = new Modifier({
+            origin: this.options._rightEndOrigin,
+            opacity: 0,
+            transform: Transform.translate(-this.options.paddingRight,0,0)
+        });
+        this.surfaces.add(this.rightButtonMod).add(this.rightButton);
+    }
 
     this.itemSurface = new Surface({
         classes: this.options.itemButton.classes,

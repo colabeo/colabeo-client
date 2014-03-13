@@ -1,21 +1,13 @@
 // Import core Famous dependencies
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
 var Surface            = require('famous/surface');
-var EventHandler       = require('famous/event-handler');
+var View               = require('famous/view');
 
-var UpDownTransform = require('up-down-transform');
-
-var SocialView = require('social-view');
+var SocialScrollView = require('social-scroll-view');
 
 function ImportContactView(options){
-    HeaderFooterLayout.call(this);
+    View.call(this);
     this.collection = options.collection;
-
-    // Set up event handlers
-    // this.eventInput = new EventHandler();
-    // EventHandler.setInputHandler(this, this.eventInput);
-    // this.eventOutput = new EventHandler();
-    // EventHandler.setOutputHandler(this, this.eventOutput);
 
     this.header = new Surface({
         content: '<button class="left back-button">Back</button><div>' + options.title + ' Contacts</div>',
@@ -24,12 +16,17 @@ function ImportContactView(options){
         properties: {
         }
     });
-    this.content = new SocialView({
+    this.content = new SocialScrollView({
         collection: this.collection
     });
 
-    this.id.header.add(this.header);
-    this.id.content.add(this.content);
+    this.layout = new HeaderFooterLayout({
+        headerSize: 50,
+        footerSize: 0
+    });
+
+    this.layout.id.header.add(this.header);
+    this.layout.id.content.add(this.content);
 
     this.header.pipe(this._eventOutput);
     this.content.pipe(this._eventOutput);
@@ -46,10 +43,9 @@ function ImportContactView(options){
             this._eventOutput.emit('goBack');
     }.bind(this));
 
-    this.header.pipe(this._eventOutput);
-
+    this._add(this.layout);
 }
-ImportContactView.prototype = Object.create(HeaderFooterLayout.prototype);
+ImportContactView.prototype = Object.create(View.prototype);
 ImportContactView.prototype.constructor = ImportContactView;
 
 module.exports = ImportContactView;

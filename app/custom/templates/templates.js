@@ -293,6 +293,22 @@ module.exports = {
         ].join('');
     },
 
+    socialItemView:function(model){
+        var name;
+        if (model.get('firstname') || model.get('lastname')) {
+            name = [model.get('firstname'), ' <b>',  model.get('lastname') , '</b>'].join('');
+        } else {
+            name = model.get('email');
+        }
+        var contact = ['<div style = " width: ',
+            window.innerWidth,
+            'px"><div class="source">',
+            name].join('');
+        contact = [contact, '</div></div>'].join('');
+        return contact;
+    },
+
+
     editContactHeader: function(title) {
         return [
             '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>',

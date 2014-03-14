@@ -11,6 +11,8 @@
     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
     "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#master",
     "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
+    "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
+    "famous/input/mouse-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
     "famous/transitions/transitionable": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/transitions/wall-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/views/light-box": "git+ssh://git@github.com:Famous/famous-views.git#modularized",

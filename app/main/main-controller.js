@@ -456,7 +456,7 @@ MainController.prototype.init = function() {
     }.bind(this));
 
     // TODO: hack for android chrome DATAconnection
-//    util.supports.sctp = false;
+    util.supports.sctp = false;
     sendMessage("event", {data: {action:"syncID", id: userId, name: userFullName}});
 
 //        window.addEventListener("message", onMessage.bind(this), false);

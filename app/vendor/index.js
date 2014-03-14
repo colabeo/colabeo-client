@@ -12,5 +12,4 @@ require("firebase");
 require("backbone-firebase");
 require("peer");
 require("notify");
-require("phono");
 require("oauthpopup");

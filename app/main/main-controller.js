@@ -49,6 +49,7 @@ function MainController() {
     EventHandler.setOutputHandler(this, this._eventOutput);
 
     this.loadUser(function(data) {
+
         if (data.chatroom) {
             this.chatroom = data.chatroom;
             data.objectId = 'unknown';
@@ -168,6 +169,8 @@ function MainController() {
         this._eventOutput.on('editContactDone', onEditContactDone);
         this._eventOutput.on('addContactDone', onAddContactDone);
         this._eventOutput.on('triggerBackToNoneEditing',onTriggerBackToNoneEditing.bind(this));
+
+        this.buttonOnclickRespond();
 
         function onDeleteFavorite (model) {
             model.toggleFavorite();
@@ -1105,5 +1108,23 @@ function onMessage(e) {
         sendMessage("event", evt);
     }
 }
+
+MainController.prototype.buttonOnclickRespond = function(){
+    this.activedButton=undefined;
+    $(document).on('mousedown touchstart','button', function(e){
+        this.activedButton=e;
+        $(document).on('mouseover','button', function(ee){
+            if (this.activedButton && this.activedButton.target==ee.target) $(ee.target).addClass('button-active');
+        }.bind(this));
+        $(e.target).addClass('button-active');
+        $(document).on('touchmove','button', function(ee){
+            if (this.activedButton && this.activedButton.target==ee.target) $(ee.target).addClass('button-active');
+            else  $(this.activedButton.target).removeClass('button-active');
+        }.bind(this));
+        $(e.target).addClass('button-active');
+    }.bind(this));
+    $(document).on('mouseup touchend', function(e){$(e.target).removeClass('button-active');this.activedButton=undefined;}.bind(this));
+    $(document).on('mouseout', function(e){$(e.target).removeClass('button-active');}.bind(this));
+};
 
 module.exports = MainController;

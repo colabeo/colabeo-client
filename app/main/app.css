@@ -1209,3 +1209,6 @@ input {
   width: 0px;
   height: 0px;
 }
+.button-active {
+  opacity: 0.5;
+}

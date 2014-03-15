@@ -311,15 +311,15 @@ module.exports = {
 
     editContactHeader: function(title) {
         return [
-            '<button class="left close-button cancel-contact" id="close-button">Cancel</button><div>',
+            '<button class="left close-button cancel-contact touchable" id="close-button">Cancel</button><div>',
             title,
-            '</div><button class="right close-button done-contact">Done</button>'
+            '</div><button class="right close-button done-contact touchable">Done</button>'
         ].join('');
     },
 
     recentsHeader: function() {
         return [
-            '<button class="left edit-button" id="recent-edit-contact"></button>',
+            '<button class="left edit-button touchable" id="recent-edit-contact"></button>',
             '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
             '<label for="all" class="first" id="recent-toggle">all</label>',
             '<input type="radio" id="missed" name="recents-toggle" value="missed">',
@@ -330,12 +330,12 @@ module.exports = {
 
     chatsHeader: function() {
         return [
-            '<button class="left edit-button" id="chats-edit-contact"></button><div>Messages</div>'
+            '<button class="left edit-button touchable" id="chats-edit-contact"></button><div>Messages</div>'
         ].join('');
     },
 
     favoriteHeader: function() {
-        return '<button class="left edit-button" id="favorite-edit-contact"></button><div>Favorites</div>';
+        return '<button class="left edit-button touchable" id="favorite-edit-contact"></button><div>Favorites</div>';
     },
 
     conversationViewHeader: function(callee){
@@ -349,7 +349,7 @@ module.exports = {
         } else {
             name = 'Shana <b> Ho </b>';
         }
-        var content = ['<div><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">',
+        var content = ['<div class="touchable"><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">',
             name,
             '</span></div>'].join('');
         return content;
@@ -368,7 +368,7 @@ module.exports = {
         var html = [
             '<div class="box">',
             '<div class="info">' + appSettings.get('firstname') + " " + appSettings.get('lastname'),
-            '<button class="logout-button">Log Out</button></div>',
+            '<button class="logout-button touchable">Log Out</button></div>',
             '<div class="desc"></div>',
             '<div class="info">ID: ' + appSettings.get('username') + "</div>",
             '<div class="desc"></div>',

@@ -10,7 +10,7 @@ function ImportContactView(options){
     this.collection = options.collection;
 
     this.header = new Surface({
-        content: '<button class="left back-button">Back</button><div>' + options.title + ' Contacts</div>',
+        content: '<button class="left back-button touchable">Back</button><div>' + options.title + ' Contacts</div>',
         classes: ['header'],
         size: [undefined, 50],
         properties: {

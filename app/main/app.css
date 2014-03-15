@@ -1209,6 +1209,6 @@ input {
   width: 0px;
   height: 0px;
 }
-.button-active {
+.touchable-active {
   opacity: 0.5;
 }

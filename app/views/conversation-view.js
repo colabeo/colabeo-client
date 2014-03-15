@@ -91,7 +91,7 @@ ConversationView.prototype.initHeader = function(){
     this.callSurface = new Surface({
         size:[225, 50],
         classes:["conversation-call"],
-        content:'<div><i class="fa fa-phone fa-lg"></i> Call</div>',
+        content:'<div class="touchable"><i class="fa fa-phone fa-lg"></i> Call</div>',
         properties:{
             cursor: "pointer"
         }
@@ -104,7 +104,7 @@ ConversationView.prototype.initHeader = function(){
     this.endCallSurface = new Surface({
         size:[75, 50],
         classes:['conversation-endCall'],
-        content: '<div><i class="fa fa-phone fa-lg"></i></div>',
+        content: '<div class="touchable"><i class="fa fa-phone fa-lg"></i></div>',
         properties:{
             cursor: "pointer"
         }
@@ -143,16 +143,16 @@ ConversationView.prototype.initHeader = function(){
 
 ConversationView.prototype.cameraSurfaceSetContent = function(){
     if (this.appSettings.attributes.video == true) {
-        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg on"></button>');
+        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg on touchable"></button>');
     } else {
-        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg off"></button>');
+        this.cameraSurface.setContent('<button class="fa fa-video-camera fa-lg off touchable"></button>');
     }
 };
 ConversationView.prototype.audioSurfaceSetContent = function(){
     if (this.appSettings.attributes.audio == true) {
-        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg on"></button>');
+        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg on touchable"></button>');
     } else {
-        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg off"></button>');
+        this.audioSurface.setContent('<button class="fa fa-microphone fa-lg off touchable"></button>');
     }
 };
 
@@ -172,7 +172,7 @@ ConversationView.prototype.initFooter = function(){
     this.sendSurface = new Surface({
         size:[100, 50],
         classes:['conversation-input-bar'],
-        content: '<div><button class="send-text-button">Send</button></div>',
+        content: '<div class="touchable"><button class="send-text-button">Send</button></div>',
         properties:{
             backgroundColor: "black",
             cursor: "pointer"

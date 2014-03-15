@@ -21,22 +21,16 @@ module.exports = {
     },
     timeSince: function(time){
         var now = Date.now();
-        var difference = now - time;
-        var minute = 60000;
-        var hour = 60 * minute;
-        var day = 24 * hour;
-
-        if (difference < minute) {
-            return "Just Now"
-        } else if (difference < hour) {
-            var minutes = ~~(difference/minute);
-            return minutes + "m ago";
-        } else if (difference < day) {
-            var hours = ~~(difference/hour);
-            return hours + "h ago";
+        var timeObj = new Date(time);
+        var today = now - now%(3600000*24);
+        if (time >= today) {
+            return (timeObj.toTimeString()).split(' ')[0].substring(0,5);
+        } else if ( today - 3600000 * 24 <= time && time < today){
+            return 'yesterday';
+        } else if ( today - 3600000 * 24 * 7 <= time && time< today - 3600000 * 24){
+            return timeObj.toDateString().split(' ')[0];
         } else {
-            var days = ~~(difference/day);
-            return days + "d ago";
+            return timeObj.toLocaleDateString();
         }
     },
     capitalize: function(string) {

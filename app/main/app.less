@@ -1,15 +1,15 @@
 // Variables
-@color-yellow: #cdbb18;
-@color-red: #c23635;
-@color-grey: #999999;
-@color-white: #ffffff;
-@color-black: #000000;
-@color-blue: #3398cd;
-@color-green: #5db04c;
-
 @opacity-little: 0.88;
 @opacity-half: 0.5;
 @opacity-very: 0.2;
+
+@color-yellow: rgba(205,187,24,@opacity-little); //#cdbb18;
+@color-red: rgba(194,54,53,@opacity-little); //#c23635;
+@color-grey: #999999;
+@color-white: #ffffff;
+@color-black: #000000;
+@color-blue: rgba(51,152,205,@opacity-little); //#3398cd;
+@color-green: rgba(93,176,76,@opacity-little); //#5db04c;
 
 @tranlucent-white-l: rgba(255, 255, 255, @opacity-little);
 @tranlucent-white-h: rgba(255, 255, 255, @opacity-half);
@@ -661,9 +661,15 @@ input {
   color:@color-blue;
   line-height: 50px;
 }
+.edit-button2 .fa-frontground{
+  color:@color-blue;
+}
 .delete-button2 .fa-background{
   color:@color-red;
   line-height: 50px;
+}
+.delete-button2 .fa-frontground{
+  color:@color-red;
 }
 .phone-button .fa-background{
   color:@color-green;

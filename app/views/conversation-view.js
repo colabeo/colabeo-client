@@ -64,6 +64,7 @@ ConversationView.prototype.setupcall = function(appSettings,call){
     this.call = call;
     
     if (!Helpers.isDev()) {
+        if (this.collection) this.collection.off();
         var url = appSettings.get('firebaseUrl') + 'chats/' + appSettings.get('cid')+ '/' + call.get('cid');
         this.collection = new ChatCollection([], {
             firebase: url

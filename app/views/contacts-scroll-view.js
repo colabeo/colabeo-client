@@ -21,7 +21,7 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 
 function ContactsScrollView(options) {
-
+    window.con = this;
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;
@@ -40,6 +40,7 @@ ContactsScrollView.prototype.constructor = ContactsScrollView;
 
 ContactsScrollView.prototype.collectionEvents = function() {
     this.collection.on('all', function(e, model) {
+        console.log('contacts ',e)
         switch(e)
         {
             case 'change':
@@ -54,7 +55,8 @@ ContactsScrollView.prototype.collectionEvents = function() {
                 break;
             case 'sync':
                 this.renderHeaders();
-                setTimeout(this.renderScrollView.bind(this), this.scrollview.node ? 0 : 1000);
+                // prevent collapse animation at init.
+                setTimeout(this.renderScrollView.bind(this), this.scrollview.node.array.length ? 0 : 1000);
                 break;
 
         }
@@ -126,6 +128,7 @@ ContactsScrollView.prototype.setupLayout = function(options) {
 
     this.collection = options.collection;
     this.scrollview = new VerticalScrollView();
+    this.scrollview.sequenceFrom([]);
 
     this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);
     this.headerFooterLayout.id.content.add(this.scrollview);

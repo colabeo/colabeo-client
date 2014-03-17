@@ -24,10 +24,10 @@ function RecentsSectionView(options) {
     });
     this.pipe(this.scrollview);
     this._add(this.scrollview);
-    this.loadItems();
+    this.scrollview.sequenceFrom([]);
 
     this.collection.on('all', function(e, model, collection, options) {
-//        console.log(e, model, collection, options);
+//        console.log('recents ',e);
         switch(e)
         {
             case 'remove':

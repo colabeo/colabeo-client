@@ -2671,3 +2671,6 @@ input {
   width: 0px;
   height: 0px;
 }
+.touchable-active {
+  opacity: 0.5;
+}

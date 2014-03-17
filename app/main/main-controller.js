@@ -252,7 +252,7 @@ function MainController() {
             function onClickNotification() {
                 parent.focus();
             }
-            if (this.appSettings.get('notification')) {
+            if (this.appSettings.get('notification') && !window.colabeoBody) {
                 this.callNotification = new Notify('Incoming Call From', {
                     icon: 'content/ios_icon_x144.png',
                     body: eventData.get('firstname') + ' ' + eventData.get('lastname'),
@@ -396,19 +396,19 @@ function MainController() {
         this.init();
 
 
-        window.colabeo = this;
+//        window.colabeo = this;
 //            window.myLightbox = myLightbox;
-        colabeo.chatsSection = chatsSection;
-        colabeo.recentsSection = recentsSection;
-        colabeo.contactsSection = contactsSection;
-        colabeo.favoritesSection = favoritesSection;
+//        colabeo.chatsSection = chatsSection;
+//        colabeo.recentsSection = recentsSection;
+//        colabeo.contactsSection = contactsSection;
+//        colabeo.favoritesSection = favoritesSection;
 //        colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
-            colabeo.connectedCallView = connectedCallView;
+//            colabeo.connectedCallView = connectedCallView;
 //        colabeo.app = myApp;
 //        colabeo.engine = FamousEngine;
 //        colabeo.social = {};
-        colabeo.app = myApp;
+//        colabeo.app = myApp;
         window._cola_g = {};
         _cola_g.cid = this.appSettings.get('cid');
 
@@ -1151,7 +1151,7 @@ MainController.prototype.buttonOnclickRespond = function(){
     this.activedButton=undefined;
     this.activedClassList='.touchable';
     $(document).on('mousedown touchstart', this.activedClassList, function(e){
-        this.activedButton=$(e.target);
+        this.activedButton=$(e.currentTarget);
         this.activedButton.addClass('touchable-active');
     }.bind(this));
     $(document).on('mouseout', this.activedClassList, function(e){

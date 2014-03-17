@@ -93,7 +93,7 @@ module.exports = {
         return [
             '<span class="fa-stack edit-button2" id="',
             id ,
-            '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+            '"><i class="fa fa-circle-o fa-stack-2x fa-background"></i>',
             '<i class="fa fa-info fa-stack-1x fa-frontground"></i>',
             '</span>'
         ].join('');
@@ -103,7 +103,7 @@ module.exports = {
         return [
             '<span class="fa-stack delete-button2" id="',
             id ,
-            '"><i class="fa fa-circle fa-stack-2x fa-background"></i>',
+            '"><i class="fa fa-circle-o fa-stack-2x fa-background"></i>',
             '<i class="fa fa-times fa-stack-1x fa-frontground"></i>',
             '</span>'
         ].join('');

@@ -137,7 +137,7 @@ function MainController() {
         FamousEngine.pipe(myApp);
 
         // start on the main section
-        myApp.select(myApp.options.sections[1].title);
+        myApp.select(myApp.options.sections[2].title);
 
         var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
         var incomingCallView = new IncomingCallView({collection: this.recentCalls});

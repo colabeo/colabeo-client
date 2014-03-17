@@ -303,10 +303,11 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
-                contact = new Contact(contact.omit('success'));
+                console.log(contact);
                 contact.set({
                     read: true
                 });
+                contact = new Contact(contact.omit('success'));
                 this._eventOutput.emit('connectedCall', contact);
             }
             if (eventData instanceof Contact || eventData instanceof Call) {

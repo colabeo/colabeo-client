@@ -306,7 +306,7 @@ ConversationView.prototype.stop = function(evt){
 
 ConversationView.prototype.collectionEvents = function(){
     this.collection.on('all', function(e,model,collection,options){
-//        console.log(e);
+        console.log(e);
         switch(e){
             case 'add':
                 if (!this.synced) break;
@@ -316,11 +316,12 @@ ConversationView.prototype.collectionEvents = function(){
                 if (this.collection.size()>=100) {
                     this.collection.shift();
                 }
-//                setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
+                setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
                 this.showConversation();
                 break;
             case 'sync':
                 setTimeout(this.loadMsg.bind(this), 400);
+                this._eventOutput.emit('chatRead',this.call);
                 break;
         }
     }.bind(this));
@@ -336,7 +337,7 @@ ConversationView.prototype.hideCallButton = function(){
 ConversationView.prototype.buttonsEvents = function(){
     this.exitSurface.on('click', function(){
         this.showCallButton();
-        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:true});}.bind(this), 600);
+        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:true, chat: this.call});}.bind(this), 600);
     }.bind(this));
 
     this.callSurface.on('click', function(){
@@ -346,7 +347,7 @@ ConversationView.prototype.buttonsEvents = function(){
 
     this.endCallSurface.on('click', function(){
         this.showCallButton();
-        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:false});}.bind(this), 600);
+        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:false, chat: this.call});}.bind(this), 600);
     }.bind(this));
 
     this.audioSurface.on('click', function(){
@@ -441,6 +442,7 @@ ConversationView.prototype.addRemote = function(message){
 ConversationView.prototype.showConversation = function (){
     if (this.conversationLightbox._showing == false)
         this.conversationLightbox.show(this.scrollview);
+    this._eventOutput.emit('chatRead',this.call);
 };
 
 ConversationView.prototype.addMsg = function(model){

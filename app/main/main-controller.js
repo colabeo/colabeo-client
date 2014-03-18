@@ -158,6 +158,7 @@ function MainController() {
         this._eventOutput.on('showApp', onShowApp);
         this._eventOutput.on('chatOn', onChatOn);
         this._eventOutput.on('chatOff', onChatOff);
+        this._eventOutput.on('chatRead', onChatRead);
         this._eventOutput.on('loadRecent', onLoadRecent);
         this._eventOutput.on('updateRecent', onUpdateRecent);
         this._eventOutput.on('clearRecent', onClearRecent);
@@ -303,14 +304,6 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
-                var chat = _(chatsSection.collection.models).find(function(chat) {
-                    return chat.get('cid')==contact.get('cid');
-                });
-                if (chat) {
-                    chat.set({
-                        read: true
-                    });
-                }
                 contact = new Contact(contact.omit('success'));
                 this._eventOutput.emit('connectedCall', contact);
             }
@@ -329,6 +322,17 @@ function MainController() {
 
         function onChatOff() {
             cameraView.turnOff();
+        }
+
+        function onChatRead(contact) {
+            var chat = _(chatsSection.collection.models).find(function(chat) {
+                return chat.get('cid')==contact.get('cid');
+            });
+            if (chat) {
+                chat.set({
+                    read: true
+                });
+            }
         }
 
         FamousEngine.on('click', onEngineClick.bind(this));

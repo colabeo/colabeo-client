@@ -303,7 +303,6 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
-                console.log(contact);
                 contact.set({
                     read: true
                 });
@@ -396,20 +395,21 @@ function MainController() {
 
         this.init();
 
-
-//        window.colabeo = this;
+//        if (Helpers.isDev()){
+//            window.colabeo = this;
 //            window.myLightbox = myLightbox;
-//        colabeo.chatsSection = chatsSection;
-//        colabeo.recentsSection = recentsSection;
-//        colabeo.contactsSection = contactsSection;
-//        colabeo.favoritesSection = favoritesSection;
-//        colabeo.cameraView = cameraView;
+//            colabeo.chatsSection = chatsSection;
+//            colabeo.recentsSection = recentsSection;
+//            colabeo.contactsSection = contactsSection;
+//            colabeo.favoritesSection = favoritesSection;
+//            colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;
 //            colabeo.connectedCallView = connectedCallView;
-//        colabeo.app = myApp;
-//        colabeo.engine = FamousEngine;
-//        colabeo.social = {};
-//        colabeo.app = myApp;
+//            colabeo.app = myApp;
+//            colabeo.engine = FamousEngine;
+//            colabeo.social = {};
+//        }
+
         window._cola_g = {};
         _cola_g.cid = this.appSettings.get('cid');
 

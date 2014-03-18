@@ -21,7 +21,6 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 
 function ContactsScrollView(options) {
-    window.con = this;
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;
@@ -40,7 +39,7 @@ ContactsScrollView.prototype.constructor = ContactsScrollView;
 
 ContactsScrollView.prototype.collectionEvents = function() {
     this.collection.on('all', function(e, model) {
-        console.log('contacts ',e)
+//        console.log('contacts ',e)
         switch(e)
         {
             case 'change':

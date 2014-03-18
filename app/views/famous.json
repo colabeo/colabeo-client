@@ -18,6 +18,7 @@
     "famous/views/light-box": "git+ssh://git@github.com:Famous/famous-views.git#modularized",
     "famous/transitions/spring-transition": "git+ssh://git@github.com:Famous/famous-transitions.git#master",
     "famous/transform": "git+ssh://git@github.com:Famous/famous.git#master",
+    "famous/view-sequence": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/transitions/easing": "git+ssh://git@github.com:Famous/famous-transitions.git#master"
   },
   "local": [

@@ -5,7 +5,6 @@ var ContactsScrollView = require('contacts-scroll-view');
 
 function SocialScrollView(options) {
 
-    window.so = this;
     ContactsScrollView.apply(this, arguments);
     this._eventOutput.on('goBack', function(ii){console.log('onGoBack' , ii)});
 }

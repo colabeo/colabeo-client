@@ -81,7 +81,7 @@ VerticalScrollView.prototype.emptySurfaceResize = function (msg){
             for (var i = 0; i < itemSequence.length; i++){
                 extraHeight -= itemSequence[i].getSize()[1];
                 if (extraHeight <= 0) {
-                    extraHeight = 1;
+                    extraHeight = 0;
                     break;
                 }
             }
@@ -148,13 +148,22 @@ VerticalScrollView.prototype.scrollToEnd = function() {
     // 200ms animation, so avgVelocity = totalPixelsToMove/200ms, so v = 2*avgVelocity
     var v = Math.max(2*totalPixelsToMove/200,0);
     // TODO: hack, so it will never onEdge when scrollToEnd
-    if (this._onEdge==-1 && this.emptySurface.getSize()[1]<=1 && this._springAttached) {
+    if (this._onEdge==-1 && this.emptySurface.getSize()[1]<=0 && this._springAttached) {
             this.scrollTo(1,0);
             setTimeout(function(){this.setVelocity(v)}.bind(this), 300);
     } else {
         Engine.defer(function(){this.setVelocity(v)}.bind(this));
     }
 //    console.log(v)
+};
+
+VerticalScrollView.prototype.jumpToEnd = function() {
+    console.log(this.emptySurface.getSize()[1], this._onEdge)
+    if (this.emptySurface.getSize()[1] != 0 || this._onEdge == 1) return;
+    if (this._onEdge == -1){
+        this.node.index=1;
+    }
+    setTimeout(function(){this.node.index = this.node.array.length - 1;}.bind(this),100)
 };
 
 module.exports = VerticalScrollView;

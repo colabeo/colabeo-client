@@ -4,6 +4,7 @@ var Surface = require('famous/surface');
 var Modifier = require('famous/modifier');
 var Transform          = require('famous/transform');
 var Lightbox            = require('famous/views/light-box');
+var ViewSequence = require('famous/view-sequence');
 var Scrollview = require('famous/views/scrollview');
 var Utility = require('famous/utilities/utility');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
@@ -23,6 +24,7 @@ var ChatCollection = require('models').ChatCollection;
 var Helpers = require('helpers');
 
 function ConversationView(appSettings, call) {
+    window.con = this;
     View.call(this);
     this.setupBeepeTone();
     this.initHeader();
@@ -443,11 +445,12 @@ ConversationView.prototype.loadMsg = function(){
     var sequence = this.collection.map(function(item){
         return this.createMsgItem(item);
     }.bind(this));
+    this.viewSequence = new ViewSequence(sequence);
     this.scrollview.sequenceFrom(sequence);
     var len = this.scrollview.node.array.length;
     var index = Math.max(len-15,0);
     this.scrollview.scrollTo(index,0);
-    setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
+    setTimeout(function(){this.scrollview.jumpToEnd()}.bind(this),400);
 };
 
 module.exports = ConversationView;

@@ -20,7 +20,6 @@ var ImportContactView = require('import-contact-view');
 
 function AddContactView(options) {
     View.call(this);
-    window.addContactView = this;
     this.formObject = {};
     this.socialCollection = {};
     this.socialView = {};

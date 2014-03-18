@@ -55,8 +55,6 @@ function FavoritesSectionView(options) {
         }
     }.bind(this));
 
-    window.fff=this
-
 }
 
 FavoritesSectionView.prototype = Object.create(View.prototype);

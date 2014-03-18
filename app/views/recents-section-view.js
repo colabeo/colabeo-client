@@ -24,7 +24,7 @@ function RecentsSectionView(options) {
     });
     this.pipe(this.scrollview);
     this._add(this.scrollview);
-    this.scrollview.sequenceFrom([]);
+    this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
 //        console.log('recents ',e);

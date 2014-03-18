@@ -55,7 +55,7 @@ ContactsScrollView.prototype.collectionEvents = function() {
             case 'sync':
                 this.renderHeaders();
                 // prevent collapse animation at init.
-                setTimeout(this.renderScrollView.bind(this), this.scrollview.node.array.length ? 0 : 1000);
+                setTimeout(this.renderScrollView.bind(this), this.scrollview.node.array.length > 1 ? 0 : 1000);
                 break;
 
         }

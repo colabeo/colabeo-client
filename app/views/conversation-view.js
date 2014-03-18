@@ -193,6 +193,9 @@ ConversationView.prototype.initConversation = function(){
         direction:Utility.Direction.Y
     });
     this.pipe(this.scrollview);
+    this.mod = new Modifier({
+        opacity: 0.0001
+    });
     this.conversationLightbox = new Lightbox({
         inTransform: Transform.identity,
         inOpacity: 0,
@@ -206,7 +209,7 @@ ConversationView.prototype.initConversation = function(){
         inTransition: true,
         outTransition: true,
         overlap: false});
-    this.conversationLightbox.show(this.scrollview);
+//    this.conversationLightbox.show(this.scrollview);
 };
 
 ConversationView.prototype.setupLayout = function(){
@@ -227,8 +230,9 @@ ConversationView.prototype.setupLayout = function(){
     this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
     this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
     this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
-    this.headerFooterLayout.id.content.add(this.conversationLightbox);
+//    this.headerFooterLayout.id.content.add(this.conversationLightbox);
 //    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
+    this.headerFooterLayout.id.content.add(this.mod).add(this.scrollview);
     this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
     this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
 
@@ -295,6 +299,7 @@ ConversationView.prototype.stop = function(evt){
             }, 500);
         }
     }
+    this.mod.setOpacity(0.0001);
 };
 
 ConversationView.prototype.collectionEvents = function(){
@@ -450,7 +455,13 @@ ConversationView.prototype.loadMsg = function(){
     var len = this.scrollview.node.array.length;
     var index = Math.max(len-15,0);
     this.scrollview.scrollTo(index,0);
-    setTimeout(function(){this.scrollview.jumpToEnd()}.bind(this),400);
+    setTimeout(function(){
+        this.scrollview.jumpToEnd();
+        setTimeout(function(){
+            this.mod.setOpacity(1)
+        }.bind(this),500);
+    }.bind(this),400);
+
 };
 
 module.exports = ConversationView;

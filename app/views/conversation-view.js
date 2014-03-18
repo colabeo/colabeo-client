@@ -23,6 +23,8 @@ var ChatCollection = require('models').ChatCollection;
 
 var Helpers = require('helpers');
 
+var startOpacity = 0.0001;
+
 function ConversationView(appSettings, call) {
     window.con = this;
     View.call(this);
@@ -194,7 +196,7 @@ ConversationView.prototype.initConversation = function(){
     });
     this.pipe(this.scrollview);
     this.mod = new Modifier({
-        opacity: 0.0001
+        opacity: startOpacity
     });
     this.conversationLightbox = new Lightbox({
         inTransform: Transform.identity,
@@ -299,7 +301,7 @@ ConversationView.prototype.stop = function(evt){
             }, 500);
         }
     }
-    this.mod.setOpacity(0.0001);
+    this.mod.setOpacity(startOpacity);
 };
 
 ConversationView.prototype.collectionEvents = function(){
@@ -314,7 +316,7 @@ ConversationView.prototype.collectionEvents = function(){
                 if (this.collection.size()>=100) {
                     this.collection.shift();
                 }
-                setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
+//                setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
                 this.showConversation();
                 break;
             case 'sync':
@@ -452,14 +454,14 @@ ConversationView.prototype.loadMsg = function(){
     }.bind(this));
     this.viewSequence = new ViewSequence(sequence);
     this.scrollview.sequenceFrom(sequence);
-    var len = this.scrollview.node.array.length;
-    var index = Math.max(len-15,0);
-    this.scrollview.scrollTo(index,0);
+//    var len = this.scrollview.node.array.length;
+//    var index = Math.max(len-15,0);
+//    this.scrollview.scrollTo(index,0);
     setTimeout(function(){
         this.scrollview.jumpToEnd();
         setTimeout(function(){
             this.mod.setOpacity(1)
-        }.bind(this),500);
+        }.bind(this),400);
     }.bind(this),400);
 
 };

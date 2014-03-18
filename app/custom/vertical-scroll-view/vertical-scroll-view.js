@@ -161,8 +161,16 @@ VerticalScrollView.prototype.jumpToEnd = function() {
 //    console.log(this.emptySurface.getSize()[1], this._onEdge)
     if (this.emptySurface.getSize()[1] > 1) return;
     if (this._onEdge != 0){
-        this.node.index=1;
+        var len = this.node.array.length;
+        var index = Math.max(len-15,1);
+        this.node.index=index;
     }
+//    setTimeout(function(){
+//        for (var i = index || this.node.index + 1; i< this.node.array.length; i++) {
+//            this.node.index = i;
+//            if (this._onEdge == 1) break
+//        }
+//    }.bind(this),100)
     setTimeout(function(){this.node.index = this.node.array.length - 1;}.bind(this),100)
 };
 

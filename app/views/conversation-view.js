@@ -362,8 +362,8 @@ ConversationView.prototype.buttonsEvents = function(){
 };
 
 ConversationView.prototype.textingEvents = function(){
-    this.inputSurface.on('keyup', function(e){
-        if (e.keyCode == 13 && this.inputSurface._currTarget.children[0].value != ''){
+    this.inputSurface.on('keydown', function(e){
+        if (e.keyCode == 13){
             this.addChat();
         }
     }.bind(this));
@@ -387,7 +387,7 @@ ConversationView.prototype.createMsgItem = function(model){
 
 ConversationView.prototype.addChat = function(){
     var message = document.getElementsByClassName('input-msg')[0].value;
-    if (!message || message == '') return;
+    if (!message || message.replace(/[\s\t\r\n]/g,'') == '') return;
     document.getElementsByClassName('input-msg')[0].value = "";
     if (this.call) {
         // TODO: this is for testing

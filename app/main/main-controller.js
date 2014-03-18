@@ -303,9 +303,14 @@ function MainController() {
 
         function onChatContact(eventData) {
             function chatByContact(contact) {
-                contact.set({
-                    read: true
+                var chat = _(chatsSection.collection.models).find(function(chat) {
+                    return chat.get('cid')==contact.get('cid');
                 });
+                if (chat) {
+                    chat.set({
+                        read: true
+                    });
+                }
                 contact = new Contact(contact.omit('success'));
                 this._eventOutput.emit('connectedCall', contact);
             }

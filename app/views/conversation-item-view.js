@@ -35,8 +35,8 @@ ConversationItemView.prototype = Object.create(View.prototype);
 ConversationItemView.prototype.constructor = ConversationItemView;
 
 ConversationItemView.prototype.event = function(){
-    this.surface.on('click',function(){
-        console.log('surface')
+    this.surface.on('click',function(e){
+        if ($(e.target).hasClass('conversation-item')) return;
         this._eventOutput.emit('toggleMsg');
     }.bind(this));
 };

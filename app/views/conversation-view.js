@@ -3,8 +3,6 @@ var View = require('famous/view');
 var Surface = require('famous/surface');
 var Modifier = require('famous/modifier');
 var Transform          = require('famous/transform');
-var Lightbox            = require('famous/views/light-box');
-var ViewSequence = require('famous/view-sequence');
 var Scrollview = require('famous/views/scrollview');
 var Utility = require('famous/utilities/utility');
 var HeaderFooterLayout = require('famous/views/header-footer-layout');
@@ -194,20 +192,6 @@ ConversationView.prototype.initConversation = function(){
     this.mod = new Modifier({
         opacity: startOpacity
     });
-    this.conversationLightbox = new Lightbox({
-        inTransform: Transform.identity,
-        inOpacity: 0,
-        inOrigin: [0.0, 0.0],
-        outTransform: Transform.identity,
-        outOpacity: 0,
-        outOrigin: [0.0, 0.0],
-        showTransform: Transform.identity,
-        showOpacity: 1,
-        showOrigin: [0.0, 0.0],
-        inTransition: true,
-        outTransition: true,
-        overlap: false});
-//    this.conversationLightbox.show(this.scrollview);
 };
 
 ConversationView.prototype.setupLayout = function(){
@@ -215,21 +199,12 @@ ConversationView.prototype.setupLayout = function(){
         headerSize:50,
         footerSize:50
     });
-    this.backSurface = new Surface({
-        classes:['backGroundSurface'],
-        size:[undefined,undefined]
-    });
-    this.backSurfaceMod = new Modifier({
-        transform:Transform.translate(0,0,0)
-    });
 
     this.headerFooterLayout.id.header.add(this.exitSurfaceMod).add(this.exitSurface);
     this.headerFooterLayout.id.header.add(this.callSurfaceMod).add(this.callSurface);
     this.headerFooterLayout.id.header.add(this.endCallSurfaceMod).add(this.endCallSurface);
     this.headerFooterLayout.id.header.add(this.audioSurfaceMod).add(this.audioSurface);
     this.headerFooterLayout.id.header.add(this.cameraSurfaceMod).add(this.cameraSurface);
-//    this.headerFooterLayout.id.content.add(this.conversationLightbox);
-//    this.headerFooterLayout.id.content.add(this.backSurfaceMod).add(this.backSurface);
     this.headerFooterLayout.id.content.add(this.mod).add(this.scrollview);
     this.headerFooterLayout.id.footer.add(this.inputSurfaceMod).add(this.inputSurface);
     this.headerFooterLayout.id.footer.add(this.sendSurfaceMod).add(this.sendSurface);
@@ -260,6 +235,11 @@ ConversationView.prototype.setupTransition = function(){
     this.buttonTransition = {
         method: 'wall',
         period: 200,
+        dampingRatio: 1
+    };
+    this.chatOpacityTransition = {
+        method: 'wall',
+        period: 300,
         dampingRatio: 1
     }
 };
@@ -360,10 +340,6 @@ ConversationView.prototype.buttonsEvents = function(){
     this.sendSurface.on('click', function(){
         this.addChat();
     }.bind(this));
-
-    this.backSurface.on('click',function(){
-        this._eventOutput.emit('toggleMsg');
-    }.bind(this));
 };
 
 ConversationView.prototype.textingEvents = function(){
@@ -379,9 +355,9 @@ ConversationView.prototype.textingEvents = function(){
 
     this._eventOutput.on('toggleMsg',function(){
         // TODO: no toggle for now
-        return;
-        if(this.conversationLightbox._showing) this.conversationLightbox.hide();
-        else this.conversationLightbox.show(this.scrollview);
+//        return;
+        if(this.mod.getOpacity() == 1) this.mod.setOpacity(startOpacity, this.chatOpacityTransition);
+        else this.mod.setOpacity(1, this.chatOpacityTransition);
     }.bind(this));
 };
 ConversationView.prototype.createMsgItem = function(model){
@@ -437,8 +413,7 @@ ConversationView.prototype.addRemote = function(message){
 };
 
 ConversationView.prototype.showConversation = function (){
-    if (this.conversationLightbox._showing == false)
-        this.conversationLightbox.show(this.scrollview);
+    this.mod.setOpacity(1, this.chatOpacityTransition);
 };
 
 ConversationView.prototype.addMsg = function(model){
@@ -450,7 +425,6 @@ ConversationView.prototype.loadMsg = function(){
     var sequence = this.collection.map(function(item){
         return this.createMsgItem(item);
     }.bind(this));
-    this.viewSequence = new ViewSequence(sequence);
     this.scrollview.sequenceFrom(sequence);
 //    var len = this.scrollview.node.array.length;
 //    var index = Math.max(len-15,0);

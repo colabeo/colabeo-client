@@ -218,13 +218,13 @@ ItemView.prototype.animateLeftButtonsEnd = function(){
 };
 
 ItemView.prototype.animateRightButtons = function(){
-    if (this.pos[0] < 0) {
+    if (this.rightButton && this.pos[0] < 0) {
         this.rightButtonMod.setOpacity(Math.min(-1*this.pos[0]/(0.5*window.innerWidth),1));
     }
 };
 
 ItemView.prototype.animateRightButtonsEnd = function(){
-    this.rightButtonMod.setOpacity(0, this.returnZeroOpacityTransition)
+    if (this.rightButton) this.rightButtonMod.setOpacity(0, this.returnZeroOpacityTransition)
 };
 
 ItemView.prototype.resizeItem = function(){

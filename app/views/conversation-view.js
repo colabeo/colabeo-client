@@ -39,10 +39,6 @@ function ConversationView(appSettings, call) {
     this.textingEvents();
     // TODO: hack, for Dev;
     this.inputSourceLocal=true;
-
-    this._eventInput.on('incomingChat', function(evt){
-        this.addRemote(evt.content);
-    }.bind(this));
 }
 
 ConversationView.prototype = Object.create(View.prototype);

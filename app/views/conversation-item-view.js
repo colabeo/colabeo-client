@@ -6,6 +6,8 @@ var Modifier     = require("famous/modifier");
 // Import app specific dependencies
 var ConversationSurface = require('conversation-surface');
 
+var Helpers = require('helpers');
+
 function ConversationItemView(options){
     View.call(this);
 
@@ -40,13 +42,17 @@ ConversationItemView.prototype.event = function(){
 };
 
 ConversationItemView.prototype.template = function(){
-    var content = this.model.get('content');
+    var content = this.getLink(this.model.get('content'));
     if (this.model.isLocal()) {
         content = '<div class="conversation-item triangle-border right">' + content + '</div>';
     }
     else
         content = '<div class="conversation-item triangle-border left">' + content + '</div>';
     this.surface.setContent(content);
+};
+
+ConversationItemView.prototype.getLink = function(message){
+    return Helpers.linkify(message);
 };
 
 module.exports = ConversationItemView;

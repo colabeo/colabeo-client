@@ -52,7 +52,7 @@ function MainController() {
 
         if (data.chatroom) {
             this.chatroom = data.chatroom;
-            data.objectId = 'unknown';
+            data.objectId = 'dcr' + data.chatroom.objectId;
             data.firstname = data.chatroom.calleeFirstName;
             data.lastname = data.chatroom.calleeLastName;
             data.username = data.chatroom.calleeName;
@@ -287,7 +287,7 @@ function MainController() {
             }
 //            if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke('hangup');
             if (this.chatroom) {
-                var url = '/login?r=' + this.chatroom.objectId;
+                var url = '/login?r=' + this.chatroom.uuid;
                 if (this.chatroom.callerName) {
                     url += '&fn=' + this.chatroom.callerName;
                 }
@@ -958,10 +958,10 @@ MainController.prototype.sendChat = function(chat) {
 }
 
 MainController.prototype.loadUser = function(done) {
-    if (location.pathname == '/call') {
+    if (location.pathname == '/call' || location.pathname.match('/dcr/')) {
         var params = parseQueryString();
-        if (params['r']) {
-            var room = params['r'][0];
+        var room = params['r'] ? params['r'][0] : location.pathname.split('/')[2]
+        if (room) {
             $.ajax({
                 url: '/chatroom?id='+room,
                 type: 'get',
@@ -1050,8 +1050,9 @@ MainController.prototype.setupChatroom = function(contact, eids) {
                 type: 'post',
                 data: {
                     callee : JSON.stringify(callee),
-                    // 0: do nothing 1: chatroom invite 2: beepe invite 3: debug
-                    e: 3
+                    // 0: do nothing 1: chatroom invite 2: missed call
+                    e: 1,
+                    d: 0
                 }
             });
         }

@@ -8,10 +8,12 @@ var Engine           = require('famous/engine');
 var Templates        = require('templates');
 var RecentItemView   = require('recent-item-view');
 
+var RECENT_VIEW_SIZE = 30;
+
 function RecentsSectionView(options) {
 
     View.call(this);
-
+    window.rec=this;
     this.title = Templates.recentsHeader();
     this.navigation = {
         caption: 'Calls',
@@ -27,7 +29,7 @@ function RecentsSectionView(options) {
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
-//        console.log('recents ',e);
+        console.log('recents ',e);
         switch(e)
         {
             case 'remove':
@@ -37,6 +39,9 @@ function RecentsSectionView(options) {
             case 'add':
                 this.addItem(model);
                 this.updateItems();
+                while (this.collection.size()>RECENT_VIEW_SIZE) {
+                    this.collection.pop();
+                }
                 break;
             case 'change':
                 var i = model.collection.indexOf(model);

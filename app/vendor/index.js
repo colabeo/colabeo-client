@@ -13,6 +13,3 @@ require("backbone-firebase");
 require("peer");
 require("notify");
 require("oauthpopup");
-
-require("soundmanager2");
-require("onload");

@@ -297,7 +297,7 @@ ConversationView.prototype.stop = function(evt){
             }, 500);
         }
     }
-    this.mod.setOpacity(startOpacity);
+    if (evt.exit) this.mod.setOpacity(startOpacity);
 };
 
 ConversationView.prototype.collectionEvents = function(){
@@ -314,6 +314,7 @@ ConversationView.prototype.collectionEvents = function(){
                 }
                 setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);
                 this.showConversation();
+                this._eventOutput.emit('chatRead',this.call);
                 break;
             case 'sync':
                 setTimeout(this.loadMsg.bind(this), 400);
@@ -343,7 +344,7 @@ ConversationView.prototype.buttonsEvents = function(){
 
     this.endCallSurface.on('click', function(){
         this.showCallButton();
-        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:false, chat: this.call});}.bind(this), 600);
+        setTimeout(function() {this._eventOutput.emit('callEnd', {exit:false});}.bind(this), 600);
     }.bind(this));
 
     this.audioSurface.on('click', function(){

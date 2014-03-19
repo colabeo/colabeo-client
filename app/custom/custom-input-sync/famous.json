@@ -1,8 +1,8 @@
 {
   "name": "custom-input-sync",
   "dependencies": {
-    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
-    "famous/input/touch-tracker": "git+ssh://git@github.com:Famous/famous-sync.git#master"
+    "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#modularized",
+    "famous/input/touch-tracker": "git+ssh://git@github.com:Famous/famous-sync.git#modularized"
   },
   "main": "index.js",
   "scripts": [

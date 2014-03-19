@@ -8,6 +8,6 @@
     "templates.js"
   ],
   "dependencies": {
-     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master"
+     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#modularized"
   }
 }

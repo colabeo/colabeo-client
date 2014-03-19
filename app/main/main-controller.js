@@ -293,6 +293,7 @@ function MainController() {
                 }
                 window.location = url;
             }
+            if (eventData.chat) this._eventOutput.emit('chatRead',eventData.chat);
         }
 
         function onEditContact(eventData) {

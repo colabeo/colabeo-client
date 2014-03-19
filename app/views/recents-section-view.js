@@ -37,6 +37,9 @@ function RecentsSectionView(options) {
             case 'add':
                 this.addItem(model);
                 this.updateItems();
+                if (this.collection.size()>=100) {
+                    this.collection.shift();
+                }
                 break;
             case 'change':
                 var i = model.collection.indexOf(model);

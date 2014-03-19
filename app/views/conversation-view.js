@@ -438,7 +438,6 @@ ConversationView.prototype.addRemote = function(message){
 ConversationView.prototype.showConversation = function (){
     if (this.conversationLightbox._showing == false)
         this.conversationLightbox.show(this.scrollview);
-    this._eventOutput.emit('chatRead',this.call);
 };
 
 ConversationView.prototype.addMsg = function(model){

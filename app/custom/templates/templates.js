@@ -318,24 +318,35 @@ module.exports = {
     },
 
     recentsHeader: function() {
-        return [
-            '<button class="left edit-button touchable" id="recent-edit-contact"></button>',
+        var content = [
             '<div class="recent-toggle"><input type="radio" id="all" name="recents-toggle" value="all" checked>',
             '<label for="all" class="first" id="recent-toggle">all</label>',
             '<input type="radio" id="missed" name="recents-toggle" value="missed">',
             '<label for="missed" class="last" id="recent-toggle">missed</label></div>',
             '<button class="right clear-button" id="clear-button"></button>'
-        ].join('');
+        ];
+        if (!Helpers.isMobile()) content = ['<button class="left edit-button touchable" id="recent-edit-contact"></button>'].concat(content);
+        return content.join('');
     },
 
     chatsHeader: function() {
-        return [
-            '<button class="left edit-button touchable" id="chats-edit-contact"></button><div>Messages</div>'
-        ].join('');
+        var content = ['<div>Messages</div>'];
+        if (!Helpers.isMobile()) content = ['<button class="left edit-button touchable" id="chats-edit-contact"></button>'].concat(content);
+        return content.join('');
     },
 
     favoriteHeader: function() {
+        if (Helpers.isMobile()) return '<div>Favorites</div>';
         return '<button class="left edit-button touchable" id="favorite-edit-contact"></button><div>Favorites</div>';
+    },
+
+    contactHeader: function(){
+        var content= ['<div>All Contacts</div>',
+            '<button class="right add-contact touchable" id="add-contact">',
+            '<i class="fa fa-plus" id="add-contact"></i>',
+            '</button>'];
+        if (!Helpers.isMobile()) content = ['<button class="left edit-button touchable" id="contact-edit-contact"></button>'].concat(content);
+        return content.join('');
     },
 
     conversationViewHeader: function(callee){
@@ -349,10 +360,9 @@ module.exports = {
         } else {
             name = 'Shana <b> Ho </b>';
         }
-        var content = ['<div class="touchable"><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">',
+        return ['<div class="touchable"><i class="fa fa-chevron-left fa-lg"></i><span class="conversation-callee">',
             name,
             '</span></div>'].join('');
-        return content;
     },
 
     conversationInputBar: function() {

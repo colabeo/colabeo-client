@@ -19,6 +19,7 @@ var VerticalScrollView       = require('vertical-scroll-view');
 var ContactItemView    = require('contact-item-view');
 var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
+var Helpers = require('helpers');
 
 function ContactsScrollView(options) {
     View.call(this);
@@ -126,7 +127,10 @@ ContactsScrollView.prototype.setupLayout = function(options) {
     };
 
     this.collection = options.collection;
-    this.scrollview = new VerticalScrollView();
+    var scrollviewMargin = (Helpers.isMobile())? 500:10000;
+    this.scrollview = new VerticalScrollView({
+        margin: scrollviewMargin
+    });
     this.scrollview.sequenceFrom([]);
 
     this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);

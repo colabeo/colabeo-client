@@ -157,7 +157,7 @@ VerticalScrollView.prototype.scrollToEnd = function() {
 //    console.log(v)
 };
 
-VerticalScrollView.prototype.jumpToEnd = function() {
+VerticalScrollView.prototype.jumpToBottom = function() {
 //    console.log(this.emptySurface.getSize()[1], this._onEdge)
     if (this.emptySurface.getSize()[1] > 1) return;
     if (this._onEdge != 0){
@@ -172,6 +172,14 @@ VerticalScrollView.prototype.jumpToEnd = function() {
 //        }
 //    }.bind(this),100)
     setTimeout(function(){this.node.index = this.node.array.length - 1;}.bind(this),100)
+};
+
+VerticalScrollView.prototype.jumpToEnd = function() {
+    var h = this.getSize()[1];
+    var rowH = 62;
+    var index = Math.max(this.node.array.length - Math.ceil(h/rowH), 0);
+    this.node.index=index;
+    this.setVelocity(0);
 };
 
 module.exports = VerticalScrollView;

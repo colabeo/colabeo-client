@@ -130,6 +130,12 @@ function AddContactView(options) {
                 delete this.formObject[source];
             this.renderContact();
         }
+//        else if (target.hasClass('invite-button')) {
+//            $.oauthpopup({
+//                path: target.attr('href')
+//            });
+//        }
+
     }.bind(this));
 
 //        this.eventOutput.on('importSource', onImportSource);
@@ -174,10 +180,22 @@ AddContactView.prototype.renderContact = function() {
     html += '></div>';
     html += '<div class="form-group small">';
     html += '<input type="email" class="form-control" id="input-email" placeholder="Email" name="email"';
-    if (this.formObject.email)
-        html += ' value="' + this.formObject.email + '"';
-    html += '></div>';
-
+    if (this.formObject.email) {
+        html += ' value="' + this.formObject.email + '">';
+        html += Templates.getEmailInvite(this.formObject);
+        html += '</div>';
+    } else {
+        html += '></div>';
+    }
+    html += '<div class="form-group small">';
+    html += '<input type="phone" class="form-control" id="input-phone" placeholder="Phone" name="phone"';
+    if (this.formObject.phone) {
+        html += ' value="' + this.formObject.phone + '">';
+        html += Templates.getSMSInvite(this.formObject);
+        html += '</div>';
+    } else {
+        html += '></div>';
+    }
     //TODO: this is a hack. we used the same class "import-contact" and id for a target.
     html += '<div class="box">';
     html += '<div class="info import-contact touchable" id="google"><i class="fa fa-google-plus-square fa-lg import-contact" id="google"></i>';
@@ -194,12 +212,12 @@ AddContactView.prototype.renderContact = function() {
     if (this.formObject.facebook) {
         var obj = this.formObject.facebook;
         html += '<span class="import-contact touchable" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-        html += Templates.removeButton('facebook') + '</div>';
+        html += Templates.removeButton('facebook');
+        html += Templates.getFacebookInvite(this.formObject) + '</div>';
     } else {
         html += '<span class="import-contact touchable" id="facebook">  New Facebook Contact</span>';
         html += Templates.nextButton('facebook') + '</div>';
     }
-
     html += '</form>';
 
     this.content.setContent(html);
@@ -226,8 +244,10 @@ AddContactView.prototype.submitForm = function(){
     var formContact = this.getFormObject();
     if (this.title == 'Edit Contact') {
         this.model.set(formContact);
+        this._eventOutput.emit('submitContact', this.model);
     } else {
         this.collection.add(formContact);
+        this._eventOutput.emit('submitContact', new Contact(formContact));
     }
     // trigger contact list redraw
     this.collection.trigger('sync');

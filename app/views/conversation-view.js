@@ -21,7 +21,7 @@ var ChatCollection = require('models').ChatCollection;
 
 var Helpers = require('helpers');
 
-var startOpacity = 0.0001;
+var startOpacity = 1;
 
 function ConversationView(appSettings, call) {
     window.con = this;
@@ -282,7 +282,7 @@ ConversationView.prototype.stop = function(evt){
 
 ConversationView.prototype.collectionEvents = function(){
     this.collection.on('all', function(e,model,collection,options){
-        console.log(e);
+//        console.log(e);
         switch(e){
             case 'add':
                 if (!this.synced) break;
@@ -426,15 +426,16 @@ ConversationView.prototype.loadMsg = function(){
         return this.createMsgItem(item);
     }.bind(this));
     this.scrollview.sequenceFrom(sequence);
+    this.scrollview.jumpToEnd();
 //    var len = this.scrollview.node.array.length;
 //    var index = Math.max(len-15,0);
 //    this.scrollview.scrollTo(index,0);
-    setTimeout(function(){
-        this.scrollview.jumpToEnd();
-        setTimeout(function(){
-            this.mod.setOpacity(1)
-        }.bind(this),400);
-    }.bind(this),400);
+//    setTimeout(function(){
+//        this.scrollview.jumpToEnd();
+//        setTimeout(function(){
+//            this.mod.setOpacity(1)
+//        }.bind(this),400);
+//    }.bind(this),400);
 
 };
 

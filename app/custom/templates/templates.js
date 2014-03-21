@@ -433,5 +433,48 @@ module.exports = {
             options.caption,
             '</div>'
         ].join('');
+    },
+
+    getFacebookInvite: function(contact) {
+        if (!contact.facebook || !contact.dcr || contact.cid) return '';
+        return [
+            '<a class="touchable button invite-button" target="_self" href="',
+            "https://www.facebook.com/dialog/send?",
+            "app_id=648143008577417",
+            "&link=",
+            encodeURI("https://beepe.me/welcome?r="),
+            contact.dcr,
+            "&to=",
+            contact.facebook.id,
+            "&display=popup",
+            "&redirect_uri=",
+            encodeURI("https://beepe.me"),
+            '">Invite</a>'
+        ].join('');
+    },
+    getSMSInvite: function(contact) {
+        if (!Helpers.isMobile() || !contact.phone || !contact.dcr || contact.cid) return '';
+        return [
+            '<a class="touchable button invite-button" target="_blank" href="',
+            "sms:",
+            encodeURI(contact.phone),
+            encodeURI("?body=Hey, call me back on "),
+            encodeURI("https://beepe.me/welcome?r="),
+            contact.dcr,
+            '">Invite</a>'
+        ].join('');
+    },
+    getEmailInvite: function (contact) {
+        if (!contact.email || !contact.dcr || contact.cid) return '';
+        return [
+            '<a class="touchable button invite-button" target="_blank" href="',
+            "mailto:",
+            encodeURI(contact.email),
+            encodeURI("?subject=I just added you on my Beepe contact list"),
+            encodeURI("&body=Now you can call me back on \n\n"),
+            encodeURI("https://beepe.me/welcome?r="),
+            contact.dcr,
+            '">Invite</a>'
+        ].join('');
     }
 };

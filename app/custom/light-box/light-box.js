@@ -47,7 +47,7 @@ LightBox.prototype.setOptions = function(options) {
 };
 
 LightBox.prototype.show = function(renderable, transition, callback) {
-
+    this.curRenderable = renderable;
     if(!renderable) {
         return this.hide(callback);
     }

@@ -8,7 +8,7 @@ var Engine           = require('famous/engine');
 var Templates        = require('templates');
 var RecentItemView   = require('recent-item-view');
 
-var RECENT_VIEW_SIZE = 30;
+var RECENT_VIEW_SIZE = 40;
 
 function RecentsSectionView(options) {
 
@@ -26,28 +26,28 @@ function RecentsSectionView(options) {
     });
     this.pipe(this.scrollview);
     this._add(this.scrollview);
-    this.loadItems();
 
-    this.collection.on('all', function(e, model, collection, options) {
-        console.log('recents ',e);
-        switch(e)
-        {
-            case 'remove':
-                this.scrollview.removeByIndex(options.index);
-                this.updateItems();
-                break;
-            case 'add':
-                this.addItem(model);
-                this.updateItems();
-                while (this.collection.size()>RECENT_VIEW_SIZE) {
-                    this.collection.pop();
-                }
-                break;
-            case 'change':
-                var i = model.collection.indexOf(model);
-                this.sequence[i].updateItem();
-                break;
-        }
+    this.collection.once('sync', function() {
+        this.loadItems();
+        this.collection.on('all', function(e, model, collection, options) {
+//            console.log('recents ',e);
+            switch(e)
+            {
+                case 'remove':
+                    this.scrollview.removeByIndex(options.index);
+                    break;
+                case 'add':
+                    this.addItem(model);
+                    while (this.collection.size()>RECENT_VIEW_SIZE) {
+                        this.collection.pop();
+                    }
+                    break;
+                case 'change':
+                    var i = model.collection.indexOf(model);
+                    this.sequence[i].updateItem();
+                    break;
+            }
+        }.bind(this));
     }.bind(this));
 }
 

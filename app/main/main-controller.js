@@ -414,16 +414,16 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-            window.colabeo = this;
-            colabeo.chatsSection = chatsSection;
-            colabeo.recentsSection = recentsSection;
-            colabeo.contactsSection = contactsSection;
-            colabeo.favoritesSection = favoritesSection;
-            colabeo.cameraView = cameraView;
-            colabeo.addContactView = addContactView;
-            colabeo.app = myApp;
-            colabeo.engine = FamousEngine;
-            colabeo.social = {};
+//            window.colabeo = this;
+//            colabeo.chatsSection = chatsSection;
+//            colabeo.recentsSection = recentsSection;
+//            colabeo.contactsSection = contactsSection;
+//            colabeo.favoritesSection = favoritesSection;
+//            colabeo.cameraView = cameraView;
+//            colabeo.addContactView = addContactView;
+//            colabeo.app = myApp;
+//            colabeo.engine = FamousEngine;
+//            colabeo.social = {};
 //        }
 
         window._cola_g = {};

@@ -24,7 +24,6 @@ var Helpers = require('helpers');
 var startOpacity = 1;
 
 function ConversationView(appSettings, call) {
-    window.con = this;
     View.call(this);
     this.setupBeepeTone();
     this.initHeader();

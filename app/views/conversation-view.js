@@ -426,16 +426,12 @@ ConversationView.prototype.loadMsg = function(){
         return this.createMsgItem(item);
     }.bind(this));
     this.scrollview.sequenceFrom(sequence);
-    this.scrollview.jumpToEnd();
-//    var len = this.scrollview.node.array.length;
-//    var index = Math.max(len-15,0);
-//    this.scrollview.scrollTo(index,0);
-//    setTimeout(function(){
-//        this.scrollview.jumpToEnd();
-//        setTimeout(function(){
-//            this.mod.setOpacity(1)
-//        }.bind(this),400);
-//    }.bind(this),400);
+    setTimeout(function(){
+        this.scrollview.jumpToEnd();
+        setTimeout(function(){
+            this.mod.setOpacity(1)
+        }.bind(this),400);
+    }.bind(this),400);
 
 };
 

@@ -899,7 +899,7 @@ MainController.prototype.setVideo = function() {
 MainController.prototype.lookup = function(data, callback, onFailure) {
     var query = [];
     // TODO: add more providers here in the future
-    ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+    ['email', 'phone', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
         if (data.get(provider)) {
             query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
         }

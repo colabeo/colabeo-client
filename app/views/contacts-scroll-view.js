@@ -22,6 +22,7 @@ var HeaderView = RowView.HeaderView;
 var Helpers = require('helpers');
 
 function ContactsScrollView(options) {
+    window.ccc= this;
     View.call(this);
     this.sortKey = 'lastname';
     this.searchKey = false;
@@ -40,7 +41,7 @@ ContactsScrollView.prototype.constructor = ContactsScrollView;
 
 ContactsScrollView.prototype.collectionEvents = function() {
     this.collection.on('all', function(e, model) {
-//        console.log('contacts ',e)
+        console.log('contacts ',e);
         switch(e)
         {
             case 'change':
@@ -49,6 +50,9 @@ ContactsScrollView.prototype.collectionEvents = function() {
             case 'remove':
                 this.removeItem(model);
                 this.renderHeaders();
+                if (this.collection.length == 0){
+                    this.renderAddSurface();
+                }
                 break;
             case 'add':
                 this.addItem(model);
@@ -141,7 +145,25 @@ ContactsScrollView.prototype.setupLayout = function(options) {
     this._add(this.LayoutMod).add(this.headerFooterLayout);
 };
 
+ContactsScrollView.prototype.renderAddSurface = function() {
+    var firstAdd = '<div class="firstAdd"><div> <i class="fa fa-plus fa-5x" ></i> </div> <div> Your contact list is empty,</div><div> Please add your first contact.</div></div>';
+    var addSurface = new Surface({
+        size: [undefined, undefined]
+    });
+//    addSurface.pipe(this._eventOutput);
+    addSurface.setContent(firstAdd);
+    addSurface.on('click',function(e){
+        if ($(e.target).hasClass('fa-plus'))
+            this._eventOutput.emit('editContact');
+    }.bind(this));
+    this.scrollview.sequenceFrom([addSurface]);
+};
+
 ContactsScrollView.prototype.renderScrollView = function() {
+    if (this.collection.length == 0) {
+        this.renderAddSurface();
+        return;
+    }
     var sequence = this.headerSequence.concat(this.contactSequence);
     var newSequence = arrangeSequence(sequence, sortBy(this.sortKey), searchBy(this.searchKey));
     this.scrollview.sequenceFrom(newSequence);

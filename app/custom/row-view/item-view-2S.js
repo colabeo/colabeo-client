@@ -19,11 +19,7 @@ var Helpers   = require('helpers');
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);
 
-
-
-
 function ItemView(options){
-    window.item=this;
     RowView.apply(this, arguments);
     this.model = options.model;
     this.options = {

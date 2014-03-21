@@ -21,7 +21,7 @@ var ChatCollection = require('models').ChatCollection;
 
 var Helpers = require('helpers');
 
-var startOpacity = 1;
+var startOpacity = 0.0001;
 
 function ConversationView(appSettings, call) {
     View.call(this);

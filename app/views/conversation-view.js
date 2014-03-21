@@ -289,7 +289,7 @@ ConversationView.prototype.collectionEvents = function(){
                 this.addMsg(model);
                 this.playBeepe();
                 // only keep at most 100 messages
-                if (this.collection.size()>=100) {
+                while (this.collection.size()>=100) {
                     this.collection.shift();
                 }
                 setTimeout(function(){this.scrollview.scrollToEnd()}.bind(this),400);

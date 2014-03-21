@@ -528,6 +528,11 @@ input {
   line-height: 50px;
   cursor: pointer;
 }
+.item-view-2S .edit-button2 {
+  float: left;
+  width: 45px;
+  opacity: 0;
+}
 .edit-button2 .fa-background {
   color: rgba(51, 152, 205, 0.88);
   line-height: 50px;
@@ -535,12 +540,21 @@ input {
 .edit-button2 .fa-frontground {
   color: rgba(51, 152, 205, 0.88);
 }
+.item-view-2S .delete-button2 {
+  float: left;
+  width: 45px;
+  opacity: 0;
+}
 .delete-button2 .fa-background {
   color: rgba(194, 54, 53, 0.88);
   line-height: 50px;
 }
 .delete-button2 .fa-frontground {
   color: rgba(194, 54, 53, 0.88);
+}
+.item-view-2S .phone-button {
+  float: right;
+  opacity: 0;
 }
 .phone-button .fa-background {
   color: rgba(93, 176, 76, 0.88);

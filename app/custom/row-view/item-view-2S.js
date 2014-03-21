@@ -19,7 +19,11 @@ var Helpers   = require('helpers');
 Transitionable.registerMethod('wall', WallTransition);
 Transitionable.registerMethod('spring', SpringTransition);
 
+
+
+
 function ItemView(options){
+    window.item=this;
     RowView.apply(this, arguments);
     this.model = options.model;
     this.options = {
@@ -122,7 +126,7 @@ ItemView.prototype.setupEvent = function(){
             this.setEditingOff();
         }
     }.bind(this));
-}
+};
 
 ItemView.prototype.setOptions = function(options){
     _.extend(this.options, options);
@@ -132,39 +136,13 @@ ItemView.prototype.setOptions = function(options){
 ItemView.prototype.setupSurfaces = function(){
 //        var bc = this.model.collection.indexOf(this.model)%2 ? 0.1 : 0.2;
     this.backgroundSurface = new Surface({
-        content: Templates.itemFrame(this.options.paddingLeft, this.options.paddingRight),
+        content: Templates.itemFrame2(this.options.leftButtons, this.options.rightButton, this.options.paddingLeft, this.options.paddingRight),
         size: this.options.size,
         properties: {
             zIndex: -1
         }
     });
     this.surfaces.add(this.backgroundSurface);
-    _(this.options.leftButtons).each(function (b, i){
-        this['leftButton'+i] = new Surface({
-            content: b.content,
-            size: [this.options.buttonSizeX,this.options.buttonSizeY]
-        });
-        this['leftButton'+i+'Mod'] = new Modifier({
-            origin: this.options._leftEndOrigin,
-            opacity: 0,
-            transform:Transform.translate(this.options.paddingLeft + this.options.buttonSizeX * (i) ,0,0)
-        });
-        this['leftButton'+i].pipe(this._eventOutput);
-        this.surfaces.add(this['leftButton'+i+'Mod']).add(this['leftButton'+i]);
-    }.bind(this));
-
-    if (this.options.rightButton){
-        this.rightButton = new Surface({
-            content: this.options.rightButton.content,
-            size: [this.options.buttonSizeX, this.options.buttonSizeY]
-        });
-        this.rightButtonMod = new Modifier({
-            origin: this.options._rightEndOrigin,
-            opacity: 0,
-            transform: Transform.translate(-this.options.paddingRight,0,0)
-        });
-        this.surfaces.add(this.rightButtonMod).add(this.rightButton);
-    }
 
     this.itemSurface = new Surface({
         classes: this.options.itemButton.classes,
@@ -201,30 +179,36 @@ ItemView.prototype.animateItemEnd = function(){
 };
 
 ItemView.prototype.animateLeftButtons = function(){
+    this.leftButtons = _.first(this.getButtons(),this.options.nButtons);
     for (var i = 0; i < this.options.nButtons; i++) {
-        var Opacity = Math.min((this.pos[0] - this.options.buttonSizeX * (i))/(this.options.buttonSizeX), 1);
-        this['leftButton'+i+'Mod'].setOpacity(Opacity);
+         this.leftButtons[i].style.opacity = Math.min((this.pos[0] - this.options.buttonSizeX * (i))/(this.options.buttonSizeX), 1);
     }
 };
 
 ItemView.prototype.animateLeftButtonsEnd = function(){
+    this.leftButtons = _.first(this.getButtons(),this.options.nButtons);
+    if (!this.leftButtons) return;
     for (var i = 0; i < this.options.nButtons; i++) {
         if (this.isEditingMode) {
-            this['leftButton'+i+'Mod'].setOpacity(1, this.returnZeroOpacityTransition);
+            this.leftButtons[i].style.opacity = 1;
         } else {
-            this['leftButton'+i+'Mod'].setOpacity(0, this.returnZeroOpacityTransition);
+            this.leftButtons[i].style.opacity = 0;
         }
     }
 };
 
 ItemView.prototype.animateRightButtons = function(){
-    if (this.rightButton && this.pos[0] < 0) {
-        this.rightButtonMod.setOpacity(Math.min(-1*this.pos[0]/(0.3*window.innerWidth),1));
+    this.rightButton = _.last(this.getButtons());
+    if (this.options.rightButton && this.pos[0] < 0) {
+        this.rightButton.style.opacity = Math.min(-1*this.pos[0]/(0.3*window.innerWidth),1);
     }
 };
 
 ItemView.prototype.animateRightButtonsEnd = function(){
-    if (this.rightButton) this.rightButtonMod.setOpacity(0, this.returnZeroOpacityTransition)
+    this.rightButton = _.last(this.getButtons());
+    if (!this.rightButton) return;
+    if (this.options.rightButton) this.rightButton.style.opacity = 0;
+
 };
 
 ItemView.prototype.resizeItem = function(){
@@ -269,13 +253,6 @@ ItemView.prototype.onToggleAll = function (){
 };
 
 ItemView.prototype.buttonsClickEvents = function() {
-    _(this.options.leftButtons).each(function (b, i) {
-        this['leftButton'+i].on('click', function(b) {
-//            console.log(b.event);
-            this._eventOutput.emit(b.event, this.model);
-        }.bind(this,b));
-    }.bind(this));
-
     this.itemSurface.on('click', function(){
         if (this.pos[0] == 0 && this.pos[1] == 0 && this.isEditingMode == false){
             this._eventOutput.emit(this.options.itemButton.event, this.model);
@@ -283,6 +260,18 @@ ItemView.prototype.buttonsClickEvents = function() {
     }.bind(this));
 
     this._eventInput.on('backToNoneEditing', function(){this.areEditingMode = false}.bind(this))
+};
+
+ItemView.prototype.getButtons = function() {
+    if (!this.buttons && this.backgroundSurface._currTarget){
+        this.buttons = this.backgroundSurface._currTarget.children[0].children;
+        _(_.first(this.buttons,this.options.nButtons)).each(function(b,i){
+            $(b).on('click',function(){
+                this._eventOutput.emit(this.options.leftButtons[i].event,this.model);
+            }.bind(this))
+        }.bind(this));
+    }
+    return this.buttons;
 };
 
 module.exports = ItemView;

@@ -29,7 +29,7 @@ function RecentsSectionView(options) {
     this.loadItems();
 
     this.collection.on('all', function(e, model, collection, options) {
-        console.log('recents ',e);
+//        console.log('recents ',e);
         switch(e)
         {
             case 'remove':

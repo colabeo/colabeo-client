@@ -160,6 +160,24 @@ module.exports = {
         ].join('');
     },
 
+    itemFrame2: function(leftButtons, rightButton, marginLeft, marginRight){
+        var realWidth = window.innerWidth - marginLeft - marginRight;
+        var contentLeftButtons = (leftButtons)? (_(leftButtons).map(function(left){return left.content})).join(''):'';
+        var contentRightButton = (rightButton)? rightButton.content:'';
+
+        return [
+            '<div class="item-frame item-view-2S" style="width: ',
+            realWidth,
+            'px; margin-left: ',
+            marginLeft,
+            'px; margin-right: ',
+            marginRight,
+            'px">',
+            contentLeftButtons,contentRightButton,
+            '</div>'
+        ].join('');
+    },
+
 
 
     recentItemView: function(call) {

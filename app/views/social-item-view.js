@@ -5,7 +5,7 @@ var Utility = require('famous/utilities/utility');
 
 var Templates    = require('templates');
 var RowView    = require('row-view');
-var ItemView = RowView.ItemView;
+var ItemView = RowView.ItemView2S;
 var Helpers   = require('helpers');
 
 function SocialItemView(options) {

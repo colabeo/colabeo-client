@@ -174,12 +174,14 @@ VerticalScrollView.prototype.jumpToBottom = function() {
     setTimeout(function(){this.node.index = this.node.array.length - 1;}.bind(this),100)
 };
 
-VerticalScrollView.prototype.jumpToEnd = function() {
+VerticalScrollView.prototype.jumpToEnd11 = function() {
     var h = this.getSize()[1];
     var rowH = 62;
     var index = Math.max(this.node.array.length - Math.ceil(h/rowH), 0);
     this.node.index=index;
     this.setVelocity(0);
 };
-
+VerticalScrollView.prototype.jumpToEnd = function() {
+    this.node.index = this.node.array.length -1 ;
+};
 module.exports = VerticalScrollView;

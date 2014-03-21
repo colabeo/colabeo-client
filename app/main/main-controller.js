@@ -120,7 +120,7 @@ function MainController() {
 
         // create the App from the template
         var myApp = new App(config);
-        var myLightbox = new LightBox({overlap:true});
+        this.myLightbox = new LightBox({overlap:true});
         var alertLightbox = new LightBox({overlap:true});
         var addContactView = new AddContactView({collection: this.contactCollection});
 
@@ -131,21 +131,21 @@ function MainController() {
         // create a display context and hook in the App
         var mainDisplay = FamousEngine.createContext();
         mainDisplay.add(cameraView);
-        mainDisplay.add(myLightbox);
+        mainDisplay.add(this.myLightbox);
         mainDisplay.add(alertLightbox);
-        myLightbox.show(myApp);
+        this.myLightbox.show(myApp);
         FamousEngine.pipe(myApp);
 
         // start on the main section
         myApp.select(myApp.options.sections[2].title);
 
-        var outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
-        var incomingCallView = new IncomingCallView({collection: this.recentCalls});
-        var connectedCallView = new ConnectedCallView({collection: this.recentCalls});
-        outgoingCallView.pipe(this._eventOutput);
-        incomingCallView.pipe(this._eventOutput);
-        connectedCallView.pipe(this._eventOutput);
-        this.pipe(connectedCallView._eventInput);
+        this.outgoingCallView = new OutgoingCallView({collection: this.recentCalls});
+        this.incomingCallView = new IncomingCallView({collection: this.recentCalls});
+        this.connectedCallView = new ConnectedCallView({collection: this.recentCalls});
+        this.outgoingCallView.pipe(this._eventOutput);
+        this.incomingCallView.pipe(this._eventOutput);
+        this.connectedCallView.pipe(this._eventOutput);
+        this.pipe(this.connectedCallView._eventInput);
 
         // events handling
         this._eventOutput.on('callEnd', onCallEnd);
@@ -156,6 +156,7 @@ function MainController() {
         this._eventOutput.on('editContact', onEditContact);
         this._eventOutput.on('chatContact', _.debounce(onChatContact,300));
         this._eventOutput.on('showApp', onShowApp);
+        this._eventOutput.on('submitContact', onSubmitContact);
         this._eventOutput.on('chatOn', onChatOn);
         this._eventOutput.on('chatOff', onChatOff);
         this._eventOutput.on('chatRead', onChatRead);
@@ -213,11 +214,11 @@ function MainController() {
                 callback = eventData;
             }
             $('.camera').addClass('blur');
-            myLightbox.show(myApp, true, callback);
+            this.myLightbox.show(myApp, true, callback);
         }
 
         function onOutGoingCallAccept(callee) {
-            outgoingCallView.accept(callee);
+            this.outgoingCallView.accept(callee);
         }
 
         function onConnectedCall(eventData) {
@@ -228,8 +229,8 @@ function MainController() {
             } else {
                 call = eventData
             }
-            connectedCallView.start(this.appSettings, call);
-            myLightbox.show(connectedCallView, true, callback);
+            this.connectedCallView.start(this.appSettings, call);
+            this.myLightbox.show(this.connectedCallView, true, callback);
             if (call.get('success')) {
                 if (!this.localStream){
                     alert("Please allow camera/microphone access for Beepe");
@@ -240,8 +241,8 @@ function MainController() {
         }
 
         function onOutgoingCall(eventData) {
-            outgoingCallView.start(eventData, this.appSettings);
-            myLightbox.show(outgoingCallView, true);
+            this.outgoingCallView.start(eventData, this.appSettings);
+            this.myLightbox.show(this.outgoingCallView, true);
         }
 
         function onIncomingCall(eventData) {
@@ -264,16 +265,16 @@ function MainController() {
                 this.callNotification.show();
             }
 
-            var curView = myLightbox.nodes[0].get();
-            if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView)
+            var curView = this.myLightbox.curRenderable;
+            if (curView instanceof IncomingCallView)
                 return;
             if (curView instanceof OutgoingCallView) {
-                outgoingCallView.accept(eventData);
+                this.outgoingCallView.accept(eventData);
                 this._eventOutput.emit('incomingCallAnswer', eventData);
             }
             else {
-                incomingCallView.start(eventData);
-                myLightbox.show(incomingCallView, true);
+                this.incomingCallView.start(eventData);
+                this.myLightbox.show(this.incomingCallView, true);
             }
         }
 
@@ -281,7 +282,7 @@ function MainController() {
             this._eventOutput.emit('chatOff');
             // ligntbox shown object stop
             // TODO: hack
-            var curView = myLightbox.nodes[0]._child._child._object;
+            var curView = this.myLightbox.curRenderable;
             if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
                 curView.stop(eventData);
             }
@@ -300,7 +301,7 @@ function MainController() {
             if (eventData instanceof Contact || eventData instanceof Call) addContactView.setContact(eventData);
             else addContactView.setContact(undefined);
             addContactView.renderContact();
-            myLightbox.show(addContactView, true);
+            this.myLightbox.show(addContactView, true);
         }
 
         function onChatContact(eventData) {
@@ -312,7 +313,7 @@ function MainController() {
                 if (eventData.get('cid')) {
                     chatByContact.bind(this)(eventData);
                 } else {
-                    this.lookup(eventData, chatByContact.bind(this));
+                    this.lookup(eventData, chatByContact.bind(this), this.onUserNotFound.bind(this));
                 }
             }
         }
@@ -334,6 +335,13 @@ function MainController() {
                     read: true
                 });
             }
+        }
+
+        function onSubmitContact(contact) {
+            if (contact.get('cid') || contact.get('dcr')) return;
+            this.lookup(contact, null, function(contact, query) {
+                this.setupChatroom(contact, query);
+            }.bind(this));
         }
 
         FamousEngine.on('click', onEngineClick.bind(this));
@@ -406,18 +414,16 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-//            window.colabeo = this;
-//            window.myLightbox = myLightbox;
-//            colabeo.chatsSection = chatsSection;
-//            colabeo.recentsSection = recentsSection;
-//            colabeo.contactsSection = contactsSection;
-//            colabeo.favoritesSection = favoritesSection;
-//            colabeo.cameraView = cameraView;
-//            colabeo.addContactView = addContactView;
-//            colabeo.connectedCallView = connectedCallView;
-//            colabeo.app = myApp;
-//            colabeo.engine = FamousEngine;
-//            colabeo.social = {};
+            window.colabeo = this;
+            colabeo.chatsSection = chatsSection;
+            colabeo.recentsSection = recentsSection;
+            colabeo.contactsSection = contactsSection;
+            colabeo.favoritesSection = favoritesSection;
+            colabeo.cameraView = cameraView;
+            colabeo.addContactView = addContactView;
+            colabeo.app = myApp;
+            colabeo.engine = FamousEngine;
+            colabeo.social = {};
 //        }
 
         window._cola_g = {};
@@ -580,7 +586,13 @@ MainController.prototype.setupCallListener = function() {
         this._eventOutput.emit('incomingCall', call);
     }
     function onChanged(snapshot){
-
+        // this solves multiple beepe incoming call problem
+        var refCallState = snapshot.val()['state'];
+        if (refCallState == "answered") {
+            var curView = this.myLightbox.curRenderable;
+            if (curView instanceof IncomingCallView)
+                curView.stop();
+        }
     }
     function onRemove(snapshot){
         this._eventOutput.emit('callEnd', {exit: false});
@@ -623,7 +635,7 @@ MainController.prototype.setupCallListener = function() {
         if (contact.get('cid')) {
             callByContact.bind(this)(contact);
         } else {
-            this.lookup(contact, callByContact.bind(this));
+            this.lookup(contact, callByContact.bind(this), this.onUserNotFound.bind(this));
         }
 
         function callByContact(contact) {
@@ -884,7 +896,7 @@ MainController.prototype.setVideo = function() {
     }
 };
 
-MainController.prototype.lookup = function(data, callback) {
+MainController.prototype.lookup = function(data, callback, onFailure) {
     var query = [];
     // TODO: add more providers here in the future
     ['email', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
@@ -905,8 +917,7 @@ MainController.prototype.lookup = function(data, callback) {
                 if (callback) callback(data);
             }
             else {
-                this.setupChatroom(data, query);
-                alert('The user you are reaching is not a beepe user. Invite him to beepe.me.');
+                if (onFailure) onFailure(data, query);
             }
         }.bind(this));
     } else {
@@ -1033,7 +1044,7 @@ MainController.prototype.loadContact = function(source, done) {
     });
 };
 
-MainController.prototype.setupChatroom = function(contact, eids) {
+MainController.prototype.setupChatroom = function(contact, eids, callback) {
     for (var i = 0; i < eids.length; i++) {
         var c = eids[i];
         if (c) {
@@ -1053,6 +1064,13 @@ MainController.prototype.setupChatroom = function(contact, eids) {
                     // 0: do nothing 1: chatroom invite 2: missed call
                     e: 1,
                     d: 0
+                },
+                success: function(data) {
+                    contact.set({dcr: data.chatid});
+                    if (callback) callback(contact);
+                },
+                error: function() {
+
                 }
             });
         }
@@ -1183,6 +1201,18 @@ MainController.prototype.buttonOnclickRespond = function(){
             }.bind(this),200);
         }
     }.bind(this));
+};
+
+MainController.prototype.onUserNotFound = function(contact, query){
+    alert('The user you are reaching is not a Beepe user. Please send an invite.');
+    if (contact.get('dcr')) {
+        this._eventOutput.emit('editContact', contact);
+    } else {
+        this.setupChatroom(contact, query, function() {
+            this._eventOutput.emit('editContact', contact);
+        }.bind(this));
+    }
+    this.outgoingCallView.stopCalltone();
 };
 
 module.exports = MainController;

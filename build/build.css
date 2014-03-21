@@ -1535,7 +1535,8 @@ body {
   margin: 0px;
   z-index: 9999;
 }
-button {
+button,
+a.button {
   outline: none;
   border: none;
   cursor: pointer;
@@ -2113,6 +2114,13 @@ input {
   border-radius: 22px;
   text-align: center;
   color: #ffffff;
+}
+.add-contact-view .box .info .invite-button {
+  float: right;
+}
+.add-contact-view .invite-button {
+  font-size: 18px;
+  text-decoration: none;
 }
 .editing .add-button {
   width: 22px;

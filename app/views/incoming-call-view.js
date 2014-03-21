@@ -88,7 +88,7 @@ function IncomingCallView(options) {
     this.footer.on('click', function(e) {
         var target = $(e.target);
         if (target.hasClass("decline-button")) {
-            this.stop();
+            this.stop(target);
         }
         else if (target.hasClass("answer-button")) {
             this.accept();
@@ -150,8 +150,7 @@ IncomingCallView.prototype.start = function(eventData) {
     $('.camera').removeClass('blur');
 }
 
-IncomingCallView.prototype.stop = function(evt) {
-    var button = $('.decline-button');
+IncomingCallView.prototype.stop = function(button) {
     if (!this.on) return;
     this.on = false;
     if (button) {

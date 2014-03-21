@@ -283,7 +283,9 @@ function MainController() {
             // ligntbox shown object stop
             // TODO: hack
             var curView = this.myLightbox.curRenderable;
-            if (curView instanceof IncomingCallView || curView instanceof ConnectedCallView) {
+            if (curView instanceof IncomingCallView){
+                curView.stop();
+            } else if (curView instanceof ConnectedCallView) {
                 curView.stop(eventData);
             }
 //            if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke('hangup');

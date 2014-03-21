@@ -575,6 +575,9 @@ input {
 .fa-lg {
   line-height: 0.9em;
 }
+.fa-phone.contact-icon {
+  color: #a7a7a7;
+}
 .fa-envelope {
   color: #a7a7a7;
 }

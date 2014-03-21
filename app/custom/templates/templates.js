@@ -251,6 +251,7 @@ module.exports = {
             window.innerWidth,
             'px"><div class="source">',
             name].join('');
+        if (model.attributes.phone) contact = [contact , '<i class="fa fa-phone contact-icon"></i>'].join('');
         if (model.attributes.email) contact = [contact , '<i class="fa fa-envelope contact-icon"></i>'].join('');
         if (model.attributes.facebook) contact = [contact , '<i class="fa fa-facebook-square contact-icon"></i>'].join('');
         if (model.attributes.google) contact = [contact , '<i class="fa fa-google-plus-square contact-icon"></i>'].join('');

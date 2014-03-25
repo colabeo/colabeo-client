@@ -60,18 +60,18 @@ ItemView.prototype.constructor = ItemView;
 
 ItemView.prototype.setupEvent = function(){
 
+    this.pos = new Transitionable([0,0]);
     var sync = new GenericSync(function(){
-        return this.pos;
+        return this.pos.get();
     }.bind(this), {
             syncClasses:[MouseSync,TouchSync]
         }
     );
     this.itemSurface.pipe(sync);
     this.itemSurface.pipe(this._eventOutput);
-    this.pos = [0,0];
 
     sync.on('start', function() {
-        this.pos = this.isEditingMode? [this.options.nButtons*this.options.buttonSizeX, 0] : [0,0];
+        this.pos.set(this.isEditingMode? [this.options.nButtons*this.options.buttonSizeX, 0] : [0,0]);
         this._directionChosen = false;
         this.clickTimeout = setTimeout(function(){
             this.itemSurface.setProperties({backgroundColor: 'rgba(255,255,255,0.1)'});
@@ -84,10 +84,10 @@ ItemView.prototype.setupEvent = function(){
             delete this.clickTimeout;
         }
         this.itemSurface.setProperties({backgroundColor: 'transparent'});
-        this.pos = data.p;  // the displacement from the start touch point.
+        this.pos.set(data.p);  // the displacement from the start touch point.
         if( Helpers.isMobile() && !this._directionChosen ) {
-            var diffX = this.isEditingMode? Math.abs( this.pos[0] - this.options.nButtons*this.options.buttonSizeX ) : Math.abs( this.pos[0] ),
-                diffY = Math.abs( this.pos[1] );
+            var diffX = this.isEditingMode? Math.abs( this.pos.get()[0] - this.options.nButtons*this.options.buttonSizeX ) : Math.abs( this.pos.get()[0] ),
+                diffY = Math.abs( this.pos.get()[1] );
             this.direction = diffX > diffY ? Utility.Direction.X : Utility.Direction.Y;
             this._directionChosen = true;
             if (this.direction == Utility.Direction.X) {
@@ -110,14 +110,14 @@ ItemView.prototype.setupEvent = function(){
         setTimeout(function(){
             this.itemSurface.setProperties({backgroundColor: 'transparent'});
         }.bind(this),300);
-        this.pos = data.p;
+        this.pos.set(data.p);
         if ( Helpers.isMobile() && this.direction != Utility.Direction.X) return;
-        if (this.pos[0] > this.options.nButtons*this.options.buttonSizeX){
+        if (this.pos.get()[0] > this.options.nButtons*this.options.buttonSizeX){
             this.toggleEditing();
         } else {
             this.setEditingOff();
         }
-        if (this.pos[0] < -0.3 * window.innerWidth) {
+        if (this.pos.get()[0] < -0.3 * window.innerWidth) {
             this._eventOutput.emit(this.options.rightButton.event, this.model);
             this.setEditingOff();
         }
@@ -161,7 +161,7 @@ ItemView.prototype.updateItem = function(){
 };
 
 ItemView.prototype.animateItem = function(){
-    this.itemMod.setTransform(Transform.translate(this.pos[0], 0, 0));
+    this.itemMod.setTransform(Transform.translate(this.pos.get()[0], 0, 0));
 };
 
 ItemView.prototype.animateItemEnd = function(){
@@ -177,7 +177,7 @@ ItemView.prototype.animateItemEnd = function(){
 ItemView.prototype.animateLeftButtons = function(){
     this.leftButtons = _.first(this.getButtons(),this.options.nButtons);
     for (var i = 0; i < this.options.nButtons; i++) {
-         this.leftButtons[i].style.opacity = Math.min((this.pos[0] - this.options.buttonSizeX * (i))/(this.options.buttonSizeX), 1);
+         this.leftButtons[i].style.opacity = Math.min((this.pos.get()[0] - this.options.buttonSizeX * (i))/(this.options.buttonSizeX), 1);
     }
 };
 
@@ -195,8 +195,8 @@ ItemView.prototype.animateLeftButtonsEnd = function(){
 
 ItemView.prototype.animateRightButtons = function(){
     this.rightButton = _.last(this.getButtons());
-    if (this.options.rightButton && this.pos[0] < 0) {
-        this.rightButton.style.opacity = Math.min(-1*this.pos[0]/(0.3*window.innerWidth),1);
+    if (this.options.rightButton && this.pos.get()[0] < 0) {
+        this.rightButton.style.opacity = Math.min(-1*this.pos.get()[0]/(0.3*window.innerWidth),1);
     }
 };
 
@@ -250,7 +250,7 @@ ItemView.prototype.onToggleAll = function (){
 
 ItemView.prototype.buttonsClickEvents = function() {
     this.itemSurface.on('click', function(){
-        if (this.pos[0] == 0 && this.pos[1] == 0 && this.isEditingMode == false){
+        if (this.pos.get()[0] == 0 && this.pos.get()[1] == 0 && this.isEditingMode == false){
             this._eventOutput.emit(this.options.itemButton.event, this.model);
         }
     }.bind(this));

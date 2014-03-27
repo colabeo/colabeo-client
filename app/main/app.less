@@ -599,6 +599,9 @@ input {
 //  -webkit-transition: padding 0.3s;
 //  -o-transition: padding 0.3s;
 }
+.contact-section-search-bar.search-mode{
+  padding-right: 100px;
+}
 
 .contact-section-search-bar div{
   border-radius: 5px;
@@ -623,7 +626,7 @@ input {
 
 .contact-section-search-bar div .cancel{
   opacity: 0;
-  z-index: -1;
+  z-index: 3;
   color: @button-color;
   position: absolute;
   right: 10px;
@@ -631,6 +634,7 @@ input {
   padding-right: 10px;
   background: transparent;
   cursor: pointer;
+  display: none;
 //  -webkit-transition: opacity 0.3s;
 //  -o-transition: opacity 0.3s;
 }

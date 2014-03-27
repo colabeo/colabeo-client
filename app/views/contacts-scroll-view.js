@@ -21,9 +21,17 @@ var RowView   = require('row-view');
 var HeaderView = RowView.HeaderView;
 var Helpers = require('helpers');
 
+var SortKey;
+var ItemView;
+
 function ContactsScrollView(options) {
     View.call(this);
-    this.sortKey = 'lastname';
+
+    SortKey = options.sortKey || 'lastname';
+    this.sortKey = SortKey;
+    ItemView = options.itemView || ContactItemView;
+
+
     this.searchKey = false;
     this.abcArray = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#';
 
@@ -78,6 +86,27 @@ ContactsScrollView.prototype.prepareSequences = function() {
     }.bind(this));
 };
 
+function refactorScrollviewEmptySurfaceResize (){
+    if (!this.emptySurface) return;
+    setTimeout(doResize.bind(this),300);
+    function doResize() {
+        var extraHeight = this.getSize()[1];
+        if (this.node)
+        var firstChar = _.chain(this.node.array)
+            .filter(function(i){return i instanceof ItemView})
+            .map(function(i){return i.model.get(SortKey)[0] || '#'}.bind(this))
+            .map(function(i){return (/^[a-zA-Z]+$/.test(i))? i.toUpperCase():'#'})
+            .value();
+        var lastGroupLength = _.filter(firstChar,function(i){return i == _.last(firstChar)}).length;
+        var itemView = _.find(this.node.array, function(i){return i instanceof  ItemView});
+        var itemHeight = (itemView)? itemView.getSize()[1]:0;
+        var headerView = _.find(_.clone(this.node.array).reverse(), function(i){return i instanceof  HeaderView});
+        var headerHeight = (headerView)? headerView.getSize()[1]:0;
+        extraHeight = extraHeight - headerHeight - lastGroupLength * itemHeight;
+        this.emptySurface.setSize([undefined, extraHeight]);
+    }
+}
+
 ContactsScrollView.prototype.setupLayout = function(options) {
     this.searchBarSize = 50;
     this.abcSurfaceWidth = 30;
@@ -91,13 +120,12 @@ ContactsScrollView.prototype.setupLayout = function(options) {
 
     this.searchSurface = new Surface({
         size: [undefined, this.searchBarSize],
-        classes: ['contact-section-search-bar'],
-        content: '<div><i class="fa fa-search"></i>   ' +
-            '<input type="text" class="search-contact" placeholder = "Search" ><span class="cancel">cancel</span></input></div></div>',
+        content: ['<div class="contact-section-search-bar"><div><i class="fa fa-search"></i>   ' ,
+            '<input type="text" class="search-contact" placeholder = "Search" ><span class="cancel">cancel</span></input></div></div>'].join(''),
         properties:{
             backgroundColor: 'rgba(15,15,15,0.9)',
-            color: 'white',
-            zIndex: 10
+            color: 'white'
+//            zIndex: 10
         }
     });
     this.searchSurfaceMod = new Modifier({
@@ -134,6 +162,7 @@ ContactsScrollView.prototype.setupLayout = function(options) {
     this.scrollview = new VerticalScrollView({
         margin: scrollviewMargin
     });
+    this.scrollview.emptySurfaceResize = refactorScrollviewEmptySurfaceResize;
     this.scrollview.sequenceFrom([]);
 
     this.headerFooterLayout.id.header.add(this.searchSurfaceMod).add(this.searchSurface);
@@ -283,8 +312,11 @@ ContactsScrollView.prototype.searchOnFocus = function(e){
         this.abcSurface.setContent('');
         this.scrollview.scrollTo(0,0);
         this.LayoutMod.setTransform(Transform.translate(0,-50,0), this.searhBarTransition);
-        this.searchSurface._currTarget.children[0].children[2].style.opacity = 1;
-        this.searchSurface._currTarget.style.paddingRight = "100px";
+//        $('.cancel').css('opacity',1);
+        this.searchSurface._currTarget.children[0].children[0].children[2].style.opacity = 1;
+        this.searchSurface._currTarget.children[0].children[0].children[2].style.display = 'inline';
+        this.searchSurface._currTarget.children[0].style.paddingRight = "100px";
+//        $('.contact-section-search-bar').addClass('search-mode');
         this.renderScrollView();
     }
 };
@@ -292,8 +324,11 @@ ContactsScrollView.prototype.searchOnFocus = function(e){
 ContactsScrollView.prototype.searchOnCancel = function(){
     this.abcSurface.setContent(Templates.abcButtons());
     this.LayoutMod.setTransform(Transform.translate(0,0,0), this.searhBarTransition)
-    this.searchSurface._currTarget.children[0].children[2].style.opacity = 0;
-    this.searchSurface._currTarget.style.paddingRight = "10px";
+//    $('.cancel').css('opacity',0);
+    this.searchSurface._currTarget.children[0].children[0].children[2].style.opacity = 0;
+    this.searchSurface._currTarget.children[0].children[0].children[2].style.display = 'none';
+    this.searchSurface._currTarget.children[0].style.paddingRight = "10px";
+//    $('.contact-section-search-bar').removeClass('search-mode');
     document.getElementsByClassName('search-contact')[0].value = '';
     this.searchKey=this.getSearchKey();
     this.renderScrollView();
@@ -313,7 +348,7 @@ ContactsScrollView.prototype.renderHeaders = function(){
 ContactsScrollView.prototype.getSearchKey = function() {
     if ($(document.activeElement).hasClass('search-contact')) return document.activeElement.value;
     else return false;
-}
+};
 
 // TODO: search bar there is something blocking the seach input when focus
 module.exports = ContactsScrollView;

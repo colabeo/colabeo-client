@@ -512,6 +512,10 @@ MainController.prototype.setupSettingsListener = function() {
         else if (source == 'google') {
             url = "/connect/google/profile%20email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.login%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me";
         }
+        else {
+            url = '/connect/' + source;
+        }
+
 
         if (url) {
 //                if (Helpers.isMobile()) {
@@ -901,7 +905,7 @@ MainController.prototype.setVideo = function() {
 MainController.prototype.lookup = function(data, callback, onFailure) {
     var query = [];
     // TODO: add more providers here in the future
-    ['email', 'phone', 'facebook', 'google', 'linkedin', 'github', 'yammer'].map(function(provider){
+    ['email', 'phone', 'facebook', 'google', 'twitter', 'linkedin', 'github', 'yammer'].map(function(provider){
         if (data.get(provider)) {
             query.push({provider: provider, eid: data.get(provider).id || data.get(provider)});
         }

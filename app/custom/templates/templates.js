@@ -255,6 +255,10 @@ module.exports = {
         if (model.attributes.email) contact = [contact , '<i class="fa fa-envelope contact-icon"></i>'].join('');
         if (model.attributes.facebook) contact = [contact , '<i class="fa fa-facebook-square contact-icon"></i>'].join('');
         if (model.attributes.google) contact = [contact , '<i class="fa fa-google-plus-square contact-icon"></i>'].join('');
+        if (model.attributes.twitter) contact = [contact , '<i class="fa fa-twitter-square contact-icon"></i>'].join('');
+        if (model.attributes.linkedin) contact = [contact , '<i class="fa fa-linkedin-square contact-icon"></i>'].join('');
+        if (model.attributes.github) contact = [contact , '<i class="fa fa-github-square contact-icon"></i>'].join('');
+        if (model.attributes.yammer) contact = [contact , '<i class="fa fa-yammer-todo contact-icon"></i>'].join('');
         contact = [contact, '</div></div>'].join('');
         return contact;
     },
@@ -416,6 +420,8 @@ module.exports = {
             this.toggleSwitch("facebook", appSettings.get('linkAccounts').facebook) + '</div>',
             '<div class="info">Google ',
             this.toggleSwitch("google", appSettings.get('linkAccounts').google) + '</div>',
+            '<div class="info">Twitter ',
+            this.toggleSwitch("twitter", appSettings.get('linkAccounts').twitter) + '</div>',
             '<div class="info">Linkedin ',
             this.toggleSwitch("linkedin", appSettings.get('linkAccounts').linkedin) + '</div>',
             '<div class="info">Github ',
@@ -495,5 +501,20 @@ module.exports = {
             contact.dcr,
             '">Invite</a>'
         ].join('');
+    },
+    addSocialContact: function (formObject, source) {
+        var icon = 'fa-' + source + '-square';
+        if (source=='google') icon = 'fa-google-plus-square';
+        var html = '<div class="info import-contact touchable" id="' + source + '">' +
+            '<i class="fa ' + icon + ' fa-lg import-contact" id="' + source + '"></i>';
+        if (formObject[source]) {
+            var obj = formObject[source];
+            html += '<span class="import-contact touchable" id="' + source + '">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
+            html += this.removeButton(source) + '</div>';
+        } else {
+            html += '<span class="import-contact touchable" id="' + source + '">  New ' + Helpers.capitalize(source) + ' Contact</span>';
+            html += this.nextButton(source) + '</div>';
+        }
+        return html;
     }
 };

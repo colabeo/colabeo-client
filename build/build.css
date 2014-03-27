@@ -2044,7 +2044,16 @@ input {
   color: #a7a7a7;
 }
 .fa-facebook-square {
-  color: rgba(51, 152, 205, 0.88);
+  color: #3b5998;
+}
+.fa-linkedin-square {
+  color: #0e76a8;
+}
+.fa-twitter-square {
+  color: #55acee;
+}
+.fa-github-square {
+  color: #55acee;
 }
 .fa-google-plus-square {
   color: #bf4335;

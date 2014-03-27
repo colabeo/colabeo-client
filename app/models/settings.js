@@ -8,6 +8,7 @@ module.exports = Backbone.Model.extend({
         linkAccounts: {
             facebook: false,
             google: false,
+            twitter: false,
             linkedin: false,
             github: false,
             yammer: false

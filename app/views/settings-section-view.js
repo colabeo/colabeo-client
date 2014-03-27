@@ -75,19 +75,15 @@ function SettingsSectionView(options) {
                 this.appSettings.save({blur : JSON.parse($("#blur").prop('checked'))});
                 break;
             case "facebook":
-                if (JSON.parse($("#facebook").prop('checked')))
-                    this._eventOutput.emit('onSocialLink', e.target.id);
-                else
-                    window.location = "/disconnect/facebook";
-                break;
             case "google":
-                if (JSON.parse($("#google").prop('checked')))
-                    this._eventOutput.emit('onSocialLink', e.target.id);
-                else
-                    window.location = "/disconnect/google";
-                break;
             case "linkedin":
             case "github":
+            case "twitter":
+                if (JSON.parse($("#" + e.target.id).prop('checked')))
+                    this._eventOutput.emit('onSocialLink', e.target.id);
+                else
+                    window.location = "/disconnect/" + e.target.id;
+                break;
             case "yammer":
                 alert("Coming Soon.");
                 break;

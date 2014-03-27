@@ -372,6 +372,11 @@ module.exports = {
         return content.join('');
     },
 
+    dialHeader: function(){
+        var content= '<div>Keypad</div>';
+        return content;
+    },
+
     conversationViewHeader: function(callee){
         var name;
         if (callee){

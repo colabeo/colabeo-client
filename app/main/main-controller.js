@@ -31,6 +31,7 @@ var FavoritesSectionView = Views.FavoritesSectionView;
 var ChatsSectionView   = Views.ChatsSectionView;
 var RecentsSectionView   = Views.RecentsSectionView;
 var ContactsSectionView  = Views.ContactsSectionView;
+var DialSectionView  = Views.DialSectionView;
 var SettingsSectionView  = Views.SettingsSectionView;
 
 // import app
@@ -97,6 +98,9 @@ function MainController() {
         var contactsSection = new ContactsSectionView({
             collection: this.contactCollection
         });
+        var dialSection = new DialSectionView({
+            collection: this.contactCollection
+        });
         var settingsSection = new SettingsSectionView({
             model: this.appSettings
         });
@@ -108,6 +112,8 @@ function MainController() {
         this._eventInput.pipe(recentsSection);
         contactsSection.pipe(this._eventOutput);
         this._eventInput.pipe(contactsSection);
+        dialSection.pipe(this._eventOutput);
+        this._eventInput.pipe(dialSection);
         settingsSection.pipe(this._eventOutput);
 
         // Config and initialize app
@@ -115,6 +121,7 @@ function MainController() {
             chatsSection,
             recentsSection,
             contactsSection,
+            dialSection,
             settingsSection
         ];
 
@@ -420,6 +427,7 @@ function MainController() {
 //            colabeo.chatsSection = chatsSection;
 //            colabeo.recentsSection = recentsSection;
 //            colabeo.contactsSection = contactsSection;
+//            colabeo.dialSection = dialSection;
 //            colabeo.favoritesSection = favoritesSection;
 //            colabeo.cameraView = cameraView;
 //            colabeo.addContactView = addContactView;

@@ -373,8 +373,23 @@ module.exports = {
     },
 
     dialHeader: function(){
-        var content= '<div>Keypad</div>';
+        return '<div></div>';
+    },
+    dialNumber: function(num, abc){
+        var content = ['<div class="dial-number">',num].join('');
+        if (abc) {
+            content = [content, '<div class="dial-number-abc">',abc,'</div>'].join('');
+        }
+        content = [content, '</div>'].join('');
         return content;
+    },
+    dialOutputView:function(num){
+        return ['<div class="dial-output-view">',num,'</div>'].join('');
+    },
+    dialOutputViewButton: function(){
+        return ['<div class="dial-output-view-button">',
+            '<i class="fa fa-plus add-button"></i>',
+            '<i class="fa fa-caret-square-o-left delete-num-button"></i></div>'].join('')
     },
 
     conversationViewHeader: function(callee){

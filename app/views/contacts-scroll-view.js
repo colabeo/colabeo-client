@@ -350,5 +350,4 @@ ContactsScrollView.prototype.getSearchKey = function() {
     else return false;
 };
 
-// TODO: search bar there is something blocking the seach input when focus
 module.exports = ContactsScrollView;

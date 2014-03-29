@@ -2,6 +2,7 @@
   "name": "views",
   "dependencies": {
     "famous/views/header-footer-layout": "git+ssh://git@github.com:Famous/famous-views.git#master",
+    "famous/render-node": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/surface": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/engine": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/event-handler": "git+ssh://git@github.com:Famous/famous.git#master",
@@ -9,6 +10,7 @@
     "famous/views/edge-swapper": "git+ssh://git@github.com:Famous/famous-views.git#master",
     "famous/modifier": "git+ssh://git@github.com:Famous/famous.git#master",
     "famous/utilities/utility": "git+ssh://git@github.com:Famous/famous-utilities.git#master",
+    "famous/views/grid-layout": "git+ssh://git@github.com:Famous/famous-views.git#master",
     "famous/views/scrollview": "git+ssh://git@github.com:Famous/famous-views.git#master",
     "famous/input/generic-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
     "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",

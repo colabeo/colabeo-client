@@ -3,6 +3,7 @@ module.exports = Backbone.Model.extend({
         firstname: "John",
         lastname: "Doe",
         email: "",
+        phone: "",
         pictureUrl: "",
         cid: "testcid"
     },

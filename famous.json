@@ -21,7 +21,19 @@
   "files": [
     "content/audio/beep.mp3",
     "content/audio/calltone.mp3",
-    "content/audio/ringtone.mp3"
+    "content/audio/ringtone.mp3",
+    "content/audio/dtmf0.mp3",
+    "content/audio/dtmf1.mp3",
+    "content/audio/dtmf2.mp3",
+    "content/audio/dtmf3.mp3",
+    "content/audio/dtmf4.mp3",
+    "content/audio/dtmf5.mp3",
+    "content/audio/dtmf6.mp3",
+    "content/audio/dtmf7.mp3",
+    "content/audio/dtmf8.mp3",
+    "content/audio/dtmf9.mp3",
+    "content/audio/dtmfpound.mp3",
+    "content/audio/dtmfstar.mp3"
   ],
   "private": true
 }

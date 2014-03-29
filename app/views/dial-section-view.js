@@ -136,13 +136,13 @@ function _initEvent(){
 }
 
 DialSection.prototype.onPressNumber = function(num){
-    this.inputNumbers.push(num);
+    this.inputNumbers.unshift(num);
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
 };
 
 DialSection.prototype.onDeleteDial = function(){
-    this.inputNumbers.pop();
+    this.inputNumbers.shift();
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
 };

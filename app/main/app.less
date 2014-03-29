@@ -823,13 +823,23 @@ input {
   top: 13px;
   left: -1px;
 }
+
+.dial-output-view-surface{
+  border-bottom: solid 1px @color-grey;
+}
 .dial-output-view{
-  padding-right: 70px;
-  font-size: 50px;
+  width: 60%;
   line-height: 75px;
+  text-align: center;
+  margin: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  direction: rtl;
 }
 .dial-output-view-button{
-  padding:0px 40px 0px 40px;
+  padding-right: 10%;
+  padding-left: 10%;
   font-size: 25px;
 }
 

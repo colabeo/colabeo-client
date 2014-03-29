@@ -43,9 +43,11 @@ function _initDialOutputView(){
 
     this.outputSurface = new Surface({
         size:[undefined,75],
+        classes:['dial-output-view-surface'],
         content:Templates.dialOutputView(),
         properties:{
             zIndex: "3",
+            fontSize: "50px",
             backgroundColor:"black",
             textAlign: "right"
         }
@@ -177,6 +179,18 @@ DialSection.prototype.showDialOutputViewButtons = function(){
 
 DialSection.prototype.showOutputNumbers = function(){
     this.outputSurface.setContent(Templates.dialOutputView(this.inputNumbers.join('')));
+    this.setOutputViewFontSize(this.inputNumbers.length);
+};
+
+DialSection.prototype.setOutputViewFontSize = function(msgLength){
+    var totalWidth = this.outputSurface.getSize(true)[0];
+    var max = 50;
+    var min = 30;
+    var fontSize = totalWidth / msgLength;  // this an estimate the font size, but accurate enough.
+    if (fontSize > max) fontSize = max;
+    if (fontSize < min) fontSize = min;
+
+    this.outputSurface.setProperties({fontSize:fontSize+"px"});
 };
 
 module.exports = DialSection;

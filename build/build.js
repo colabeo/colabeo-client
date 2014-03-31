@@ -36433,7 +36433,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         }.bind(this));
     };
     MainController.prototype.callByPhono = function(contact) {
-        var number = contact.get("email");
+        var number = contact.get("phone");
         this.phono.phone.dial("app:9990036398", {
             headers: [ {
                 name: "x-numbertodial",

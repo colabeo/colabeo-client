@@ -184,8 +184,10 @@ module.exports = {
         var name;
         if (call.get('firstname') || call.get('lastname')) {
             name = call.get('firstname') + " <b>" + call.get('lastname') + "</b>";
-        } else {
+        } else if (call.get('email')){
             name = call.get('email');
+        } else {
+            name = call.get('phone');
         }
         var icon = '';
         var missed = '';
@@ -218,8 +220,11 @@ module.exports = {
             name = contact.get('firstname') + " <b>" + contact.get('lastname') + "</b>";
             if (contact.get('firstname')) initial = contact.get('firstname')[0];
             if (contact.get('lastname')) initial +=  contact.get('lastname')[0];
-        } else {
+        } else if (contact.get('email')){
             name = contact.get('email');
+            if (name) initial = name[0];
+        } else {
+            name = contact.get('phone');
             if (name) initial = name[0];
         }
         return [
@@ -244,8 +249,10 @@ module.exports = {
         var name;
         if (model.get('firstname') || model.get('lastname')) {
             name = [model.get('firstname'), ' <b>',  model.get('lastname') , '</b>'].join('');
-        } else {
+        } else if (model.get('email')){
             name = model.get('email');
+        } else {
+            name = model.get('phone');
         }
         var contact = ['<div style = " width: ',
             window.innerWidth,
@@ -270,8 +277,11 @@ module.exports = {
             name = contact.get('firstname') + " <b>" + contact.get('lastname') + "</b>";
             if (contact.get('firstname')) initial = contact.get('firstname')[0];
             if (contact.get('lastname')) initial +=  contact.get('lastname')[0];
-        } else {
+        } else if (contact.get('email')){
             name = contact.get('email');
+            if (name) initial = name[0];
+        } else {
+            name = contact.get('phone');
             if (name) initial = name[0];
         }
 
@@ -320,8 +330,10 @@ module.exports = {
         var name;
         if (model.get('firstname') || model.get('lastname')) {
             name = [model.get('firstname'), ' <b>',  model.get('lastname') , '</b>'].join('');
-        } else {
+        } else if (model.get('email')){
             name = model.get('email');
+        } else {
+            name = model.get('phone');
         }
         var contact = ['<div style = " width: ',
             window.innerWidth,

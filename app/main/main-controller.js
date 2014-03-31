@@ -295,7 +295,8 @@ function MainController() {
             } else if (curView instanceof ConnectedCallView) {
                 curView.stop(eventData);
             }
-            if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke('hangup');
+            if (this.phono && this.phono.phone && this.phono.phone.calls)
+                _.chain(this.phono.phone.calls).values().invoke('hangup');
             if (this.chatroom) {
                 var url = '/login?r=' + this.chatroom.uuid;
                 if (this.chatroom.callerName) {
@@ -423,7 +424,7 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-//            window.colabeo = this;
+            window.colabeo = this;
 //            colabeo.chatsSection = chatsSection;
 //            colabeo.recentsSection = recentsSection;
 //            colabeo.contactsSection = contactsSection;
@@ -615,6 +616,8 @@ MainController.prototype.setupCallListener = function() {
     function onOutgoingCallEnd(call) {
         if (this.callRef) this.callRef.remove();
         this.exitRoom();
+        if (this.phono && this.phono.phone && this.phono.phone.calls)
+            _.chain(this.phono.phone.calls).values().invoke('hangup');
     }
     function onIncomingCallEnd(call) {
         if (this.listenRef) this.listenRef.remove();

@@ -136,9 +136,11 @@ OutgoingCallView.prototype.template = function() {
     this.footer.setContent(html);
 };
 
-OutgoingCallView.prototype.startCalltone = function() {
-    this.calltone.playSound(0, 1);
-    this.calltoneRepeat = setInterval(function(){this.calltone.playSound(0, 1)}.bind(this), 2500);
+OutgoingCallView.prototype.startCalltone = function(silent) {
+    if (!silent) {
+        this.calltone.playSound(0, 1);
+        this.calltoneRepeat = setInterval(function(){this.calltone.playSound(0, 1)}.bind(this), 2500);
+    }
     this.footerLightBox.show(this.footer);
     this.headerLightBox.show(this.header);
 };
@@ -163,6 +165,7 @@ OutgoingCallView.prototype.start = function(eventData, appSettings) {
         firstname: data.get('firstname'),
         lastname: data.get('lastname'),
         email: data.get('email'),
+        phone: data.get('phone'),
 //        facebook: data.get('facebook'),
         pictureUrl: false,
         type: 'outgoing',
@@ -170,7 +173,8 @@ OutgoingCallView.prototype.start = function(eventData, appSettings) {
         cid: data.get('cid')
     };
     this.collection.create(newCall);
-    this.startCalltone();
+    var silentCalltone = !isNaN(data.get('phone')) && data.get('phone').length==11;
+    this.startCalltone(silentCalltone);
     $('.camera').removeClass('blur');
 }
 

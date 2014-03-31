@@ -35230,11 +35230,13 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
         html = '<div class="box">' + videoButton + endButton + audioButton + "</div>";
         this.footer.setContent(html);
     };
-    OutgoingCallView.prototype.startCalltone = function() {
-        this.calltone.playSound(0, 1);
-        this.calltoneRepeat = setInterval(function() {
+    OutgoingCallView.prototype.startCalltone = function(silent) {
+        if (!silent) {
             this.calltone.playSound(0, 1);
-        }.bind(this), 2500);
+            this.calltoneRepeat = setInterval(function() {
+                this.calltone.playSound(0, 1);
+            }.bind(this), 2500);
+        }
         this.footerLightBox.show(this.footer);
         this.headerLightBox.show(this.header);
     };
@@ -35257,6 +35259,7 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
             firstname: data.get("firstname"),
             lastname: data.get("lastname"),
             email: data.get("email"),
+            phone: data.get("phone"),
             //        facebook: data.get('facebook'),
             pictureUrl: false,
             type: "outgoing",
@@ -35264,7 +35267,8 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
             cid: data.get("cid")
         };
         this.collection.create(newCall);
-        this.startCalltone();
+        var silentCalltone = !isNaN(data.get("phone")) && data.get("phone").length == 11;
+        this.startCalltone(silentCalltone);
         $(".camera").removeClass("blur");
     };
     OutgoingCallView.prototype.stop = function(button) {
@@ -36326,7 +36330,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             if (this.chatroom) alert("Please allow Beepe to use your camera/microphone for phone calls.", true);
             this.init();
             //        if (Helpers.isDev()){
-            //            window.colabeo = this;
+            window.colabeo = this;
             //            colabeo.chatsSection = chatsSection;
             //            colabeo.recentsSection = recentsSection;
             //            colabeo.contactsSection = contactsSection;
@@ -36502,6 +36506,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
         function onOutgoingCallEnd(call) {
             if (this.callRef) this.callRef.remove();
             this.exitRoom();
+            if (this.phono && this.phono.phone && this.phono.phone.calls) _.chain(this.phono.phone.calls).values().invoke("hangup");
         }
         function onIncomingCallEnd(call) {
             if (this.listenRef) this.listenRef.remove();

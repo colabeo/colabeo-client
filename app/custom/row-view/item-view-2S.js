@@ -64,7 +64,7 @@ ItemView.prototype.setupEvent = function(){
     var sync = new GenericSync(function(){
         return this.pos.get();
     }.bind(this), {
-            syncClasses:[MouseSync,TouchSync]
+            syncClasses:[Helpers.deviceSync()]
         }
     );
     this.itemSurface.pipe(sync);

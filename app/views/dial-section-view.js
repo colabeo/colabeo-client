@@ -13,6 +13,9 @@ var Call              = Models.Call;
 var DialItemView = require('dial-item-view');
 var Templates = require('templates');
 
+var HeaderSize = 75;
+var ButtonSize = 75;
+
 function DialSection(options) {
 
     View.call(this);
@@ -42,7 +45,7 @@ function _initDialOutputView(){
     });
 
     this.outputSurface = new Surface({
-        size:[undefined,75],
+        size:[undefined, HeaderSize],
         classes:['dial-output-view-surface'],
         content:Templates.dialOutputView(),
         properties:{
@@ -87,6 +90,7 @@ function _initNumbers(){
         if (this.numbers[i] == ' ') {this.numbersSurfaces.push(''); continue;}
         var num = new DialItemView({
             name: this.numbers[i],
+            buttonSize: ButtonSize,
             abc : this.ABC[i-1],
             tone: ['content/audio/numberTone', this.numbers[i]].join(''),
             float: 0.75 - (i % 3) / 4
@@ -97,24 +101,27 @@ function _initNumbers(){
 
     this.numbersSurfaces.push('');
 
-    this.callButton = new RenderNode();
+    this.callButton = new View();
     this.callSurface = new Surface({
+        size:[ButtonSize, ButtonSize],
         content: Templates.phoneButton('dial-call')
     });
     this.callSurface.pipe(this._eventOutput);
-    this.callSurfaceMod = new Modifier();
-    this.callButton.add(this.callSurfaceMod).add(this.callSurface);
+    this.callSurfaceMod = new Modifier({
+        origin:[0.5,0.5]
+    });
+    this.callButton._add(this.callSurfaceMod).add(this.callSurface);
     this.numbersSurfaces.push(this.callButton);
 
     this.numbersSurfaces.push('');
 
     this.contentLayout.sequenceFrom(this.numbersSurfaces);
-    this.callSurfaceMod.setTransform(Transform.translate(0,10,0));
+//    this.callSurfaceMod.setTransform(Transform.translate(0,10,0));
 }
 
 function _initLayout(){
     this.layout = new HeaderFooterLayout({
-        headerSize: 25,
+        headerSize: HeaderSize - 50,
         footerSize: 0
     });
     this.layout.id.header.add(this.dialOutputViewMod).add(this.dialOutputView);

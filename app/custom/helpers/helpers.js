@@ -1,3 +1,6 @@
+var MouseSync = require('famous/input/mouse-sync');
+var TouchSync = require('famous/input/touch-sync');
+
 module.exports = {
     timeAgo: function(time){
         var now = Date.now();
@@ -42,6 +45,9 @@ module.exports = {
     }),
     isMobile: _.memoize(function() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+    }),
+    deviceSync: _.memoize(function(){
+        return (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent))? TouchSync:MouseSync;
     }),
     linkify: function(text) {
         var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;

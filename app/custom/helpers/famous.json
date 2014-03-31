@@ -1,6 +1,9 @@
 {
   "name": "helpers",
-  "dependencies": {},
+  "dependencies": {
+    "famous/input/touch-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master",
+    "famous/input/mouse-sync": "git+ssh://git@github.com:Famous/famous-sync.git#master"
+  },
   "main": "helpers.js",
   "scripts": [
     "helpers.js"

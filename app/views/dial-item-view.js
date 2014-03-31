@@ -70,7 +70,7 @@ function _event(){
     var sync = new GenericSync(function(){
         return this.pos.get();
     }.bind(this), {
-            syncClasses:[MouseSync,TouchSync]
+            syncClasses:[Helpers.deviceSync()]
         }
     );
     this.numberSurface.pipe(sync);

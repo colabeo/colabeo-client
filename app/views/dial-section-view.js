@@ -133,6 +133,29 @@ function _initLayout(){
 function _initEvent(){
     this._eventOutput.on('pressNumber', this.onPressNumber.bind(this));
     this.callSurface.on('click', this.onSendCall.bind(this));
+
+    var timeout;
+    this.startDelete = 800;
+
+    this.repeat = function () {
+        this.onDeleteDial();
+        console.log('hold',this.startDelete);
+        timeout = setTimeout(this.repeat, this.startDelete);
+        this.startDelete = 50;
+    }.bind(this);
+
+    this.dialOutputViewButtons.on('mousedown',function() {
+        this.repeat();
+    }.bind(this));
+    this.dialOutputViewButtons.on('mouseup',function() {
+        clearTimeout(timeout);
+        this.startDelete = 800;
+    }.bind(this));
+    this.dialOutputViewButtons.on('mouseleave',function() {
+        clearTimeout(timeout);
+        this.startDelete = 1000;
+    }.bind(this));
+
     this.dialOutputViewButtons.on('click', function(e){
         if ($(e.target).hasClass('add-button')) {
             this.onAddContact();
@@ -140,6 +163,7 @@ function _initEvent(){
             this.onDeleteDial();
         }
     }.bind(this));
+
 }
 
 DialSection.prototype.onPressNumber = function(num){
@@ -150,6 +174,12 @@ DialSection.prototype.onPressNumber = function(num){
 
 DialSection.prototype.onDeleteDial = function(){
     this.inputNumbers.shift();
+    this.showDialOutputViewButtons();
+    this.showOutputNumbers();
+};
+
+DialSection.prototype.onClearDial = function(){
+    this.inputNumbers=[];
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
 };
@@ -169,6 +199,7 @@ DialSection.prototype.setTemplateCall = function(){
 DialSection.prototype.onSendCall = function(){
     this.setTemplateCall();
     this._eventOutput.emit('callByPhone', this.templateCall);
+    this.onDeleteDial();
 };
 
 DialSection.prototype.onAddContact = function(){

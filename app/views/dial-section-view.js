@@ -163,7 +163,6 @@ function _initEvent(){
             this.onDeleteDial();
         }
     }.bind(this));
-
 }
 
 DialSection.prototype.onPressNumber = function(num){
@@ -198,8 +197,8 @@ DialSection.prototype.setTemplateCall = function(){
 
 DialSection.prototype.onSendCall = function(){
     this.setTemplateCall();
-    this._eventOutput.emit('callByPhone', this.templateCall);
-    this.onDeleteDial();
+    this._eventOutput.emit('outgoingCall', this.templateCall);
+    this.onClearDial();
 };
 
 DialSection.prototype.onAddContact = function(){

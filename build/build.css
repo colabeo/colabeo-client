@@ -1938,6 +1938,9 @@ input {
   font-size: 20px;
   line-height: 30px;
 }
+.contact-section-search-bar.search-mode {
+  padding-right: 100px;
+}
 .contact-section-search-bar div {
   border-radius: 5px;
   background: rgba(185, 185, 185, 0.2);
@@ -1959,7 +1962,7 @@ input {
 }
 .contact-section-search-bar div .cancel {
   opacity: 0;
-  z-index: -1;
+  z-index: 3;
   color: rgba(51, 152, 205, 0.88);
   position: absolute;
   right: 10px;
@@ -1967,6 +1970,7 @@ input {
   padding-right: 10px;
   background: transparent;
   cursor: pointer;
+  display: none;
 }
 .contact-icon {
   float: right;
@@ -2103,6 +2107,61 @@ input {
   text-align: center;
   font-weight: bolder;
   height: 3.7037037037037037%;
+}
+/* dial */
+.dial-number {
+  font-size: 22px;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+  text-align: center;
+  line-height: 25px;
+  padding-top: 10px;
+  cursor: pointer;
+}
+.thin-border {
+  border: thin solid rgba(255, 255, 255, 0.2);
+}
+.dial-number .dial-number-abc {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.88);
+}
+#dial-call {
+  font-size: 42px;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  padding-top: 10px;
+}
+.dial-output-view-surface {
+  border-bottom: solid 1px #999999;
+}
+.dial-output-view {
+  width: 60%;
+  line-height: 75px;
+  text-align: center;
+  margin: auto;
+  unicode-bidi: bidi-override;
+  direction: rtl;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.dial-output-view-button {
+  padding-right: 10%;
+  padding-left: 10%;
+  font-size: 25px;
+}
+.dial-output-view-button .add-button {
+  float: left;
+  color: rgba(51, 152, 205, 0.88);
+}
+.dial-output-view-button .delete-num-button {
+  color: rgba(51, 152, 205, 0.88);
+  float: right;
+  cursor: pointer;
 }
 /* settings */
 .logout-button {

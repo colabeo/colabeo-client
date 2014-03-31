@@ -168,7 +168,7 @@ DialSection.prototype.setTemplateCall = function(){
 
 DialSection.prototype.onSendCall = function(){
     this.setTemplateCall();
-    this._eventOutput.emit('callByPhone', this.templateCall);
+    this._eventOutput.emit('outgoingCall', this.templateCall);
 };
 
 DialSection.prototype.onAddContact = function(){

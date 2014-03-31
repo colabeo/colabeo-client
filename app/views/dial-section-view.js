@@ -151,7 +151,7 @@ DialSection.prototype.setTemplateCall = function(){
     this.templateCall = new Call({
         firstname:'',
         lastname:'',
-        phone: this.inputNumbers.join('')
+        phone: _.clone(this.inputNumbers).reverse().join('')
     });
     var index = _.chain(this.collection.models)
                  .map(function(i){return i.get('phone')})
@@ -161,7 +161,6 @@ DialSection.prototype.setTemplateCall = function(){
 
 DialSection.prototype.onSendCall = function(){
     this.setTemplateCall();
-    console.log('call ', this.inputNumbers.join(''));
     this._eventOutput.emit('callByPhone', this.templateCall);
 };
 

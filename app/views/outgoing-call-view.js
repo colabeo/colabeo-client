@@ -193,8 +193,8 @@ OutgoingCallView.prototype.start = function(eventData, appSettings) {
         cid: data.get('cid')
     };
     this.collection.create(newCall);
-    var silentCalltone = !isNaN(data.get('phone')) && data.get('phone').length==11;
-    this.startCalltone(silentCalltone);
+//    var silentCalltone = !isNaN(data.get('phone')) && data.get('phone').length==11;
+    this.startCalltone();
     $('.camera').removeClass('blur');
 }
 

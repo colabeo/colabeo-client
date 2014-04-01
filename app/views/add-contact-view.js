@@ -203,31 +203,10 @@ AddContactView.prototype.renderContact = function() {
 
     html += Templates.addSocialContact(this.formObject, 'google');
     html += Templates.addSocialContact(this.formObject, 'facebook');
-    html += Templates.addSocialContact(this.formObject, 'twitter');
-    html += Templates.addSocialContact(this.formObject, 'linkedin');
-    html += Templates.addSocialContact(this.formObject, 'github');
+//    html += Templates.addSocialContact(this.formObject, 'twitter');
+//    html += Templates.addSocialContact(this.formObject, 'linkedin');
+//    html += Templates.addSocialContact(this.formObject, 'github');
 //    html += Templates.addSocialContact(this.formObject, 'yammer');
-//
-//    html += '<div class="info import-contact touchable" id="google"><i class="fa fa-google-plus-square fa-lg import-contact" id="google"></i>';
-//    if (this.formObject.google) {
-//        var obj = this.formObject.google;
-//        html += '<span class="import-contact touchable" id="google">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-//        html += Templates.removeButton('google') + '</div>';
-//    } else {
-//        html += '<span class="import-contact touchable" id="google">  New Google Contact</span>';
-//        html += Templates.nextButton('google') + '</div>';
-//    }
-//
-//    html += '<div class="info import-contact touchable" id="facebook"><i class="fa fa-facebook-square fa-lg import-contact" id="facebook"></i>';
-//    if (this.formObject.facebook) {
-//        var obj = this.formObject.facebook;
-//        html += '<span class="import-contact touchable" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-//        html += Templates.removeButton('facebook');
-//        html += Templates.getFacebookInvite(this.formObject) + '</div>';
-//    } else {
-//        html += '<span class="import-contact touchable" id="facebook">  New Facebook Contact</span>';
-//        html += Templates.nextButton('facebook') + '</div>';
-//    }
 
     html += '</div></form>';
 

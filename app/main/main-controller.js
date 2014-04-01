@@ -157,7 +157,7 @@ function MainController() {
         // events handling
         this._eventOutput.on('callEnd', onCallEnd);
         this._eventOutput.on('incomingCall', onIncomingCall);
-        this._eventOutput.on('outgoingCall', onOutgoingCall);
+//        this._eventOutput.on('outgoingCall', onOutgoingCall);
         this._eventOutput.on('connectedCall', onConnectedCall);
         this._eventOutput.on('outGoingCallAccept', onOutGoingCallAccept);
         this._eventOutput.on('editContact', onEditContact);
@@ -246,11 +246,11 @@ function MainController() {
                 }
             }
         }
-
-        function onOutgoingCall(eventData) {
-            this.outgoingCallView.start(eventData, this.appSettings);
-            this.myLightbox.show(this.outgoingCallView, true);
-        }
+//
+//        function onOutgoingCall(eventData) {
+//            this.outgoingCallView.start(eventData, this.appSettings);
+//            this.myLightbox.show(this.outgoingCallView, true);
+//        }
 
         function onIncomingCall(eventData) {
             function onShowNotification() {
@@ -548,6 +548,7 @@ MainController.prototype.setupSettingsListener = function() {
 };
 MainController.prototype.callByPhono = function(contact) {
     var number = contact.get('phone');
+    this.outgoingCallView.stopCalltone();
     this.phono.phone.dial("app:9990036398", {
         headers: [
             {
@@ -641,16 +642,22 @@ MainController.prototype.setupCallListener = function() {
             this.callNotification.myNotify.close();
     }
     function onOutgoingCall(contact) {
+        this.outgoingCallView.start(contact, this.appSettings);
+        this.myLightbox.show(this.outgoingCallView, true);
         if (!this.localStream){
             alert("Please allow camera/microphone access for Beepe");
             return;
         }
-        if (!isNaN(contact.get('phone')) && contact.get('phone').length==11) {
+        if (contact.get('phoneOnly')) {
             this.callByPhono(contact);
         }
-        else if (contact.get('cid')) {
+        else if (contact.get('cid') && contact.get('cid')!= 'testcid') {
             callByContact.bind(this)(contact);
-        } else {
+        }
+        else if (!isNaN(contact.get('phone')) && contact.get('phone').length==11) {
+            this.lookup(contact, callByContact.bind(this),this.callByPhono.bind(this));
+        }
+        else {
             this.lookup(contact, callByContact.bind(this), this.onUserNotFound.bind(this));
         }
 

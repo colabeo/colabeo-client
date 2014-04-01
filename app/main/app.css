@@ -181,7 +181,18 @@ button.button {
 }
 .outgoing-call-view .caller-info {
   font-size: 24px;
-  margin: 0px 20px;
+  margin: 0px 0px;
+  line-height: 40px;
+  display: inline-block;
+  color: rgba(93, 176, 76, 0.88);
+  cursor: pointer;
+}
+.outgoing-call-view .caller-info i {
+  margin: 0px 5px;
+}
+.outgoing-call-view .caller-info.phone-only {
+  color: #999999;
+  cursor: none;
 }
 .outgoing-call-view-buttons .box {
   width: 330px;
@@ -683,6 +694,13 @@ input {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+.dial-output-view-match-contact {
+  width: 60%;
+  text-align: center;
+  margin: auto;
+  font-size: 20px;
+  color: rgba(51, 152, 205, 0.88);
 }
 .dial-output-view-button {
   padding-right: 10%;

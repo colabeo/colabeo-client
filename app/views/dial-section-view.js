@@ -133,33 +133,35 @@ function _initEvent(){
     this._eventOutput.on('pressNumber', this.onPressNumber.bind(this));
     this.callSurface.on('click', this.onSendCall.bind(this));
 
-    var timeout;
+    this.timeout;
     this.startDelete = 800;
 
     this.repeat = function () {
         this.onDeleteDial();
         console.log('hold',this.startDelete);
-        timeout = setTimeout(this.repeat, this.startDelete);
+        this.timeout = setTimeout(this.repeat, this.startDelete);
         this.startDelete = 50;
     }.bind(this);
 
-    this.dialOutputViewButtons.on('mousedown',function() {
-        this.repeat();
+    this.dialOutputViewButtons.on('mousedown',function(e) {
+        if ($(e.target).hasClass('delete-num-button')) this.repeat();
     }.bind(this));
-    this.dialOutputViewButtons.on('mouseup',function() {
-        clearTimeout(timeout);
-        this.startDelete = 800;
+    this.dialOutputViewButtons.on('mouseup',function(e) {
+        if ($(e.target).hasClass('delete-num-button')) {
+            clearTimeout(this.timeout);
+            this.startDelete = 800;
+        }
     }.bind(this));
-    this.dialOutputViewButtons.on('mouseleave',function() {
-        clearTimeout(timeout);
-        this.startDelete = 1000;
+    this.dialOutputViewButtons.on('mouseleave',function(e) {
+        if ($(e.target).hasClass('delete-num-button')) {
+            clearTimeout(this.timeout);
+            this.startDelete = 800;
+        }
     }.bind(this));
 
     this.dialOutputViewButtons.on('click', function(e){
         if ($(e.target).hasClass('add-button')) {
             this.onAddContact();
-        } else if ($(e.target).hasClass('delete-num-button')) {
-            this.onDeleteDial();
         }
     }.bind(this));
 }
@@ -168,18 +170,21 @@ DialSection.prototype.onPressNumber = function(num){
     this.inputNumbers.unshift(num);
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
+    this.setTemplateCall();
 };
 
 DialSection.prototype.onDeleteDial = function(){
     this.inputNumbers.shift();
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
+    this.setTemplateCall();
 };
 
 DialSection.prototype.onClearDial = function(){
     this.inputNumbers=[];
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
+    this.setTemplateCall();
 };
 
 DialSection.prototype.setTemplateCall = function(){
@@ -195,18 +200,19 @@ DialSection.prototype.setTemplateCall = function(){
 };
 
 DialSection.prototype.onSendCall = function(){
-    this.setTemplateCall();
     this._eventOutput.emit('outgoingCall', this.templateCall);
     this.onClearDial();
 };
 
 DialSection.prototype.onAddContact = function(){
-    this.setTemplateCall();
     this._eventOutput.emit('editContact', this.templateCall);
 };
 
 DialSection.prototype.showDialOutputViewButtons = function(){
-    if (this.inputNumbers.length == 0) this.dialOutputViewButtonsLightBox.hide();
+    if (this.inputNumbers.length == 0) {
+        this.dialOutputViewButtonsLightBox.hide();
+        clearTimeout(this.timeout);
+    }
     else if (this.inputNumbers.length > 0 && this.dialOutputViewButtonsLightBox._showing == false){
         this.dialOutputViewButtonsLightBox.show(this.dialOutputViewButtons);
     }

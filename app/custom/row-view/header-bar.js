@@ -38,7 +38,10 @@ HeaderBar.prototype.expand = function (callback) {
 HeaderBar.prototype.show = function(title) {
     if (!title) title = this.curTitle;
     else this.curTitle = title;
-    TitleBar.prototype.show.apply(this, [title]);
+    if (title != '<div></div>')
+        TitleBar.prototype.show.apply(this, [title]);
+    else
+        this.lightbox.hide();
     this.headerResize = false;
 };
 

@@ -2135,9 +2135,6 @@ input {
   height: 100%;
   padding-top: 10px;
 }
-.dial-output-view-surface {
-  border-bottom: solid 1px #999999;
-}
 .dial-output-view {
   width: 60%;
   line-height: 75px;

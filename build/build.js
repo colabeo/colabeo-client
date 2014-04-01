@@ -32190,7 +32190,7 @@ require.register("app/custom/row-view/header-bar.js", function(exports, require,
     //};
     HeaderBar.prototype.show = function(title) {
         if (!title) title = this.curTitle; else this.curTitle = title;
-        TitleBar.prototype.show.apply(this, [ title ]);
+        if (title != "<div></div>") TitleBar.prototype.show.apply(this, [ title ]); else this.lightbox.hide();
         this.headerResize = false;
     };
     HeaderBar.prototype.hide = function() {
@@ -34651,8 +34651,7 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
             properties: {
                 zIndex: "3",
                 fontSize: "50px",
-                backgroundColor: "black",
-                textAlign: "right"
+                backgroundColor: "transparent"
             }
         });
         this.dialOutputViewButtons = new Surface({
@@ -34676,6 +34675,7 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
         });
         this.dialOutputView._add(this.outputSurface);
         this.dialOutputView._add(this.dialOutputViewButtonsLightBox);
+        $(".header").css("display", "none");
     }
     function _initNumbers() {
         this.inputNumbers = [];
@@ -36096,7 +36096,8 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             this._eventInput.pipe(dialSection);
             settingsSection.pipe(this._eventOutput);
             // Config and initialize app
-            config.sections = [ chatsSection, recentsSection, contactsSection, dialSection, settingsSection ];
+            config.sections = [ chatsSection, recentsSection, contactsSection, settingsSection ];
+            if (!Helpers.isMobile()) config.sections.splice(3, 0, dialSection);
             // create the App from the template
             var myApp = new App(config);
             this.myLightbox = new LightBox({

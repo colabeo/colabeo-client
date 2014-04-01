@@ -72,8 +72,22 @@ function _initDialOutputView(){
         showOrigin: [0.9,0.5]
     });
 
+    this.matchContact = new Surface({
+        size:[undefined,20],
+        properties:{
+        }
+    });
+    this.matchContactLightBox = new LightBox({
+        inTransform: Transform.translate(0,HeaderSize-15,0),
+        inTransition: {duration: 200},
+        outTransform: Transform.translate(0,HeaderSize-15,0),
+        outTransition: {duration: 300},
+        showTransform: Transform.translate(0,HeaderSize-15,0)
+    });
+
     this.dialOutputView._add(this.outputSurface);
     this.dialOutputView._add(this.dialOutputViewButtonsLightBox);
+    this.dialOutputView._add(this.matchContactLightBox);
 }
 
 function _initNumbers(){
@@ -115,7 +129,6 @@ function _initNumbers(){
     this.numbersSurfaces.push('');
 
     this.contentLayout.sequenceFrom(this.numbersSurfaces);
-//    this.callSurfaceMod.setTransform(Transform.translate(0,10,0));
 }
 
 function _initLayout(){
@@ -125,7 +138,6 @@ function _initLayout(){
     });
     this.layout.id.header.add(this.dialOutputViewMod).add(this.dialOutputView);
     this.layout.id.content.add(this.contentLayout);
-//    this.layout.id.footer.add(this.callSurfaceMod).add(this.callSurface);
     this._add(this.layout);
 }
 
@@ -185,9 +197,11 @@ DialSection.prototype.onClearDial = function(){
     this.showDialOutputViewButtons();
     this.showOutputNumbers();
     this.setTemplateCall();
+    this.matchContactLightBox.hide();
 };
 
 DialSection.prototype.setTemplateCall = function(){
+    if (this.inputNumbers.length == 0) return
     this.templateCall = new Call({
         firstname:'',
         lastname:'',
@@ -196,7 +210,11 @@ DialSection.prototype.setTemplateCall = function(){
     var index = _.chain(this.collection.models)
                  .map(function(i){return i.get('phone')})
                  .indexOf(this.templateCall.get('phone')).value();
-    if (index >= 0) this.templateCall =  this.collection.models[index];
+    if (index >= 0) {
+        this.templateCall =  this.collection.models[index];
+        this.showMatchContact();
+        this.matchContactLightBox.show(this.matchContact);
+    } else {this.matchContactLightBox.hide();}
 };
 
 DialSection.prototype.onSendCall = function(){
@@ -221,6 +239,11 @@ DialSection.prototype.showDialOutputViewButtons = function(){
 DialSection.prototype.showOutputNumbers = function(){
     this.outputSurface.setContent(Templates.dialOutputView(this.inputNumbers.join('')));
     this.setOutputViewFontSize(this.inputNumbers.length);
+};
+
+DialSection.prototype.showMatchContact = function(){
+//    this.matchContact.setContent(Templates.dialOutputViewMatchContact('shana'));
+    this.matchContact.setContent(Templates.dialOutputViewMatchContact(this.templateCall));
 };
 
 DialSection.prototype.setOutputViewFontSize = function(msgLength){

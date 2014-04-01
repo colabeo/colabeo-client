@@ -398,6 +398,17 @@ module.exports = {
     dialOutputView:function(num){
         return ['<div class="dial-output-view">',num,'</div>'].join('');
     },
+    dialOutputViewMatchContact:function(model){
+        var name;
+        if (model.get('firstname') || model.get('lastname')) {
+            name = model.get('firstname') + " <b>" + model.get('lastname') + "</b>";
+        } else if (model.get('email')){
+            name = model.get('email');
+        } else {
+            name = model.get('phone');
+        }
+        return ['<div class="dial-output-view-match-contact">',name,'</div>'].join('');
+    },
     dialOutputViewButton: function(){
         return ['<div class="dial-output-view-button">',
             '<i class="fa fa-plus add-button"></i>',

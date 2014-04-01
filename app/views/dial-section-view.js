@@ -74,7 +74,6 @@ function _initDialOutputView(){
 
     this.dialOutputView._add(this.outputSurface);
     this.dialOutputView._add(this.dialOutputViewButtonsLightBox);
-    $('.header').css('display','none');
 }
 
 function _initNumbers(){

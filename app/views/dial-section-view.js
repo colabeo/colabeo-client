@@ -51,8 +51,7 @@ function _initDialOutputView(){
         properties:{
             zIndex: "3",
             fontSize: "50px",
-            backgroundColor:"black",
-            textAlign: "right"
+            backgroundColor:"transparent"
         }
     });
 
@@ -75,6 +74,7 @@ function _initDialOutputView(){
 
     this.dialOutputView._add(this.outputSurface);
     this.dialOutputView._add(this.dialOutputViewButtonsLightBox);
+    $('.header').css('display','none');
 }
 
 function _initNumbers(){

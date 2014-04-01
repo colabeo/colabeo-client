@@ -158,7 +158,7 @@ require.register("famous_modules/famous/polyfills/_git_master/classList.js", fun
     /*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/
     if (typeof document !== "undefined" && !("classList" in document.createElement("a"))) {
         (function(view) {
-            "use strict";
+            //"use strict";
             var classListProp = "classList", protoProp = "prototype", elemCtrProto = (view.HTMLElement || view.Element)[protoProp], objCtr = Object, strTrim = String[protoProp].trim || function() {
                 return this.replace(/^\s+|\s+$/g, "");
             }, arrIndexOf = Array[protoProp].indexOf || function(item) {
@@ -2269,7 +2269,7 @@ require.register("app/vendor/backbone-firebase.js", function(exports, require, m
     /**
      * Backbone Firebase Adapter.
      */
-    "use strict";
+    //"use strict";
     (function() {
         var _ = window._;
         var Backbone = window.Backbone;
@@ -7971,7 +7971,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
     var Handlebars = function() {
         // handlebars/safe-string.js
         var __module4__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             // Build out our basic SafeString type
             function SafeString(string) {
@@ -7985,7 +7985,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/utils.js
         var __module3__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             /*jshint -W004 */
             var SafeString = __dependency1__;
@@ -8060,7 +8060,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module4__);
         // handlebars/exception.js
         var __module5__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             var errorProps = [ "description", "fileName", "lineNumber", "message", "name", "number", "stack" ];
             function Exception(message, node) {
@@ -8085,7 +8085,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/base.js
         var __module2__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Utils = __dependency1__;
             var Exception = __dependency2__;
@@ -8271,7 +8271,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module3__, __module5__);
         // handlebars/runtime.js
         var __module6__ = function(__dependency1__, __dependency2__, __dependency3__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Utils = __dependency1__;
             var Exception = __dependency2__;
@@ -8401,7 +8401,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module3__, __module5__, __module2__);
         // handlebars.runtime.js
         var __module1__ = function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             /*globals Handlebars: true */
             var base = __dependency1__;
@@ -8431,7 +8431,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module2__, __module4__, __module5__, __module3__, __module6__);
         // handlebars/compiler/ast.js
         var __module7__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             var Exception = __dependency1__;
             function LocationInfo(locInfo) {
@@ -8617,7 +8617,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module5__);
         // handlebars/compiler/parser.js
         var __module9__ = function() {
-            "use strict";
+            //"use strict";
             var __exports__;
             /* jshint ignore:start */
             /* Jison generated parser */
@@ -9964,7 +9964,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }();
         // handlebars/compiler/base.js
         var __module8__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var parser = __dependency1__;
             var AST = __dependency2__;
@@ -9982,7 +9982,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module9__, __module7__);
         // handlebars/compiler/compiler.js
         var __module10__ = function(__dependency1__) {
-            "use strict";
+            //"use strict";
             var __exports__ = {};
             var Exception = __dependency1__;
             function Compiler() {}
@@ -10373,7 +10373,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module5__);
         // handlebars/compiler/javascript-compiler.js
         var __module11__ = function(__dependency1__, __dependency2__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             var COMPILER_REVISION = __dependency1__.COMPILER_REVISION;
             var REVISION_CHANGES = __dependency1__.REVISION_CHANGES;
@@ -11155,7 +11155,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
         }(__module2__, __module5__);
         // handlebars.js
         var __module0__ = function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__) {
-            "use strict";
+            //"use strict";
             var __exports__;
             /*globals Handlebars: true */
             var Handlebars = __dependency1__;
@@ -11194,7 +11194,7 @@ require.register("app/vendor/handlebars.js", function(exports, require, module) 
 
 require.register("app/vendor/notify.js", function(exports, require, module) {
     (function(root, factory) {
-        "use strict";
+        //"use strict";
         if (typeof define === "function" && define.amd) {
             // AMD environment
             define("notify", [], function() {
@@ -11205,7 +11205,7 @@ require.register("app/vendor/notify.js", function(exports, require, module) {
             root.Notify = factory(root, document);
         }
     })(this, function(w, d) {
-        "use strict";
+        //"use strict";
         function Notify(title, options) {
             this.title = typeof title === "string" ? title : null;
             this.options = {
@@ -28985,8 +28985,10 @@ require.register("app/custom/templates/templates.js", function(exports, require,
             var name;
             if (call.get("firstname") || call.get("lastname")) {
                 name = call.get("firstname") + " <b>" + call.get("lastname") + "</b>";
-            } else {
+            } else if (call.get("email")) {
                 name = call.get("email");
+            } else {
+                name = call.get("phone");
             }
             var icon = "";
             var missed = "";
@@ -29002,8 +29004,11 @@ require.register("app/custom/templates/templates.js", function(exports, require,
                 name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
                 if (contact.get("firstname")) initial = contact.get("firstname")[0];
                 if (contact.get("lastname")) initial += contact.get("lastname")[0];
-            } else {
+            } else if (contact.get("email")) {
                 name = contact.get("email");
+                if (name) initial = name[0];
+            } else {
+                name = contact.get("phone");
                 if (name) initial = name[0];
             }
             return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial ', contact.get("read") ? "" : "unread", '">', initial, "</div>", name, '<div class="call-time">', Helpers.timeSince(contact.get("time")), "</div>", '<div class="message">', contact.get("content"), "</div></div>" ].join("");
@@ -29012,8 +29017,10 @@ require.register("app/custom/templates/templates.js", function(exports, require,
             var name;
             if (model.get("firstname") || model.get("lastname")) {
                 name = [ model.get("firstname"), " <b>", model.get("lastname"), "</b>" ].join("");
-            } else {
+            } else if (model.get("email")) {
                 name = model.get("email");
+            } else {
+                name = model.get("phone");
             }
             var contact = [ '<div style = " width: ', window.innerWidth, 'px"><div class="source">', name ].join("");
             if (model.attributes.phone) contact = [ contact, '<i class="fa fa-phone contact-icon"></i>' ].join("");
@@ -29034,8 +29041,11 @@ require.register("app/custom/templates/templates.js", function(exports, require,
                 name = contact.get("firstname") + " <b>" + contact.get("lastname") + "</b>";
                 if (contact.get("firstname")) initial = contact.get("firstname")[0];
                 if (contact.get("lastname")) initial += contact.get("lastname")[0];
-            } else {
+            } else if (contact.get("email")) {
                 name = contact.get("email");
+                if (name) initial = name[0];
+            } else {
+                name = contact.get("phone");
                 if (name) initial = name[0];
             }
             return [ '<div style = " width: ', window.innerWidth, 'px"><div class="source"><div class="initial">', initial, "</div>", name, "</div></div>" ].join("");
@@ -29052,8 +29062,10 @@ require.register("app/custom/templates/templates.js", function(exports, require,
             var name;
             if (model.get("firstname") || model.get("lastname")) {
                 name = [ model.get("firstname"), " <b>", model.get("lastname"), "</b>" ].join("");
-            } else {
+            } else if (model.get("email")) {
                 name = model.get("email");
+            } else {
+                name = model.get("phone");
             }
             var contact = [ '<div style = " width: ', window.innerWidth, 'px"><div class="source">', name ].join("");
             contact = [ contact, "</div></div>" ].join("");
@@ -34716,6 +34728,25 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
     function _initEvent() {
         this._eventOutput.on("pressNumber", this.onPressNumber.bind(this));
         this.callSurface.on("click", this.onSendCall.bind(this));
+        var timeout;
+        this.startDelete = 800;
+        this.repeat = function() {
+            this.onDeleteDial();
+            console.log("hold", this.startDelete);
+            timeout = setTimeout(this.repeat, this.startDelete);
+            this.startDelete = 50;
+        }.bind(this);
+        this.dialOutputViewButtons.on("mousedown", function() {
+            this.repeat();
+        }.bind(this));
+        this.dialOutputViewButtons.on("mouseup", function() {
+            clearTimeout(timeout);
+            this.startDelete = 800;
+        }.bind(this));
+        this.dialOutputViewButtons.on("mouseleave", function() {
+            clearTimeout(timeout);
+            this.startDelete = 1e3;
+        }.bind(this));
         this.dialOutputViewButtons.on("click", function(e) {
             if ($(e.target).hasClass("add-button")) {
                 this.onAddContact();
@@ -34734,6 +34765,11 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
         this.showDialOutputViewButtons();
         this.showOutputNumbers();
     };
+    DialSection.prototype.onClearDial = function() {
+        this.inputNumbers = [];
+        this.showDialOutputViewButtons();
+        this.showOutputNumbers();
+    };
     DialSection.prototype.setTemplateCall = function() {
         this.templateCall = new Call({
             firstname: "",
@@ -34748,6 +34784,7 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
     DialSection.prototype.onSendCall = function() {
         this.setTemplateCall();
         this._eventOutput.emit("outgoingCall", this.templateCall);
+        this.onClearDial();
     };
     DialSection.prototype.onAddContact = function() {
         this.setTemplateCall();

@@ -82,6 +82,15 @@ function OutgoingCallView(options){
             this.stop(target);
         }
     }.bind(this));
+
+    this.header.on('click', function(e){
+        var target = $(e.target);
+        if (target.hasClass("touchable")) {
+            var call = _.clone(this.model);
+            call.set({phoneOnly: true});
+            this._eventOutput.emit('outgoingCall',call);
+        }
+    }.bind(this));
 }
 
 
@@ -100,8 +109,19 @@ OutgoingCallView.prototype.template = function() {
         var initial = this.model.get('firstname')[0] + this.model.get('lastname')[0];
         html += '<div class="initial">'+initial+'</div>';
     }
+    if (this.model.get('phone')) {
+        var phoneNumber = this.model.get('phone');
+        html += '<div class="caller-info ';
+        if (this.model.get('phoneOnly')){
+            html += 'phone-only'
+        } else { html += 'touchable'}
+        html += '">' +
+            '<i class="fa fa-phone"></i> '
+            + phoneNumber[0] + '(' + phoneNumber.slice(1,4) + ') ' + phoneNumber.slice(4,7) + '-' + phoneNumber.slice(7,11)
+            + '</div>';
+    }
 
-    html += '<div class="caller-info"></div>';
+//    html += '<div class="caller-info"></div>';
 
     this.header.setContent(html);
 

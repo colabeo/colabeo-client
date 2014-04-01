@@ -261,9 +261,21 @@ button.button {
 
 .outgoing-call-view .caller-info {
   font-size: 24px;
-  margin: 0px 20px;
+  margin: 0px 0px;
+  line-height: 40px;
+  display: inline-block;
+  color: @color-green;
+  cursor: pointer;
 }
 
+.outgoing-call-view .caller-info i{
+  margin: 0px 5px;
+}
+
+.outgoing-call-view .caller-info.phone-only {
+  color: @color-grey;
+  cursor: none;
+}
 .outgoing-call-view-buttons .box {
   width: 330px;
   height: 100%;

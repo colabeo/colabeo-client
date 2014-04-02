@@ -1773,8 +1773,7 @@ require.register("app/models/call.js", function(exports, require, module) {
             lastname: "Doe",
             email: "",
             phone: "",
-            pictureUrl: "",
-            cid: "testcid"
+            pictureUrl: ""
         },
         isMissed: function() {
             return !this.get("success") && this.get("type") == "incoming";
@@ -29107,6 +29106,17 @@ require.register("app/custom/templates/templates.js", function(exports, require,
         dialOutputView: function(num) {
             return [ '<div class="dial-output-view">', num, "</div>" ].join("");
         },
+        dialOutputViewMatchContact: function(model) {
+            var name;
+            if (model.get("firstname") || model.get("lastname")) {
+                name = model.get("firstname") + " <b>" + model.get("lastname") + "</b>";
+            } else if (model.get("email")) {
+                name = model.get("email");
+            } else {
+                name = model.get("phone");
+            }
+            return [ '<div class="dial-output-view-match-contact">', name, "</div>" ].join("");
+        },
         dialOutputViewButton: function() {
             return [ '<div class="dial-output-view-button">', '<i class="fa fa-plus add-button"></i>', '<i class="fa fa-caret-square-o-left delete-num-button"></i></div>' ].join("");
         },
@@ -32981,31 +32991,10 @@ require.register("app/views/add-contact-view.js", function(exports, require, mod
         html += '<div class="box">';
         html += Templates.addSocialContact(this.formObject, "google");
         html += Templates.addSocialContact(this.formObject, "facebook");
-        html += Templates.addSocialContact(this.formObject, "twitter");
-        html += Templates.addSocialContact(this.formObject, "linkedin");
-        html += Templates.addSocialContact(this.formObject, "github");
+        //    html += Templates.addSocialContact(this.formObject, 'twitter');
+        //    html += Templates.addSocialContact(this.formObject, 'linkedin');
+        //    html += Templates.addSocialContact(this.formObject, 'github');
         //    html += Templates.addSocialContact(this.formObject, 'yammer');
-        //
-        //    html += '<div class="info import-contact touchable" id="google"><i class="fa fa-google-plus-square fa-lg import-contact" id="google"></i>';
-        //    if (this.formObject.google) {
-        //        var obj = this.formObject.google;
-        //        html += '<span class="import-contact touchable" id="google">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-        //        html += Templates.removeButton('google') + '</div>';
-        //    } else {
-        //        html += '<span class="import-contact touchable" id="google">  New Google Contact</span>';
-        //        html += Templates.nextButton('google') + '</div>';
-        //    }
-        //
-        //    html += '<div class="info import-contact touchable" id="facebook"><i class="fa fa-facebook-square fa-lg import-contact" id="facebook"></i>';
-        //    if (this.formObject.facebook) {
-        //        var obj = this.formObject.facebook;
-        //        html += '<span class="import-contact touchable" id="facebook">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-        //        html += Templates.removeButton('facebook');
-        //        html += Templates.getFacebookInvite(this.formObject) + '</div>';
-        //    } else {
-        //        html += '<span class="import-contact touchable" id="facebook">  New Facebook Contact</span>';
-        //        html += Templates.nextButton('facebook') + '</div>';
-        //    }
         html += "</div></form>";
         this.content.setContent(html);
         var html = Templates.editContactHeader(this.title);
@@ -34673,9 +34662,24 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
             showTransform: Transform.translate(0, 35, 0),
             showOrigin: [ .9, .5 ]
         });
+        this.matchContact = new Surface({
+            size: [ undefined, 20 ],
+            properties: {}
+        });
+        this.matchContactLightBox = new LightBox({
+            inTransform: Transform.translate(0, HeaderSize - 15, 0),
+            inTransition: {
+                duration: 200
+            },
+            outTransform: Transform.translate(0, HeaderSize - 15, 0),
+            outTransition: {
+                duration: 300
+            },
+            showTransform: Transform.translate(0, HeaderSize - 15, 0)
+        });
         this.dialOutputView._add(this.outputSurface);
         this.dialOutputView._add(this.dialOutputViewButtonsLightBox);
-        $(".header").css("display", "none");
+        this.dialOutputView._add(this.matchContactLightBox);
     }
     function _initNumbers() {
         this.inputNumbers = [];
@@ -34722,36 +34726,37 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
         });
         this.layout.id.header.add(this.dialOutputViewMod).add(this.dialOutputView);
         this.layout.id.content.add(this.contentLayout);
-        //    this.layout.id.footer.add(this.callSurfaceMod).add(this.callSurface);
         this._add(this.layout);
     }
     function _initEvent() {
         this._eventOutput.on("pressNumber", this.onPressNumber.bind(this));
         this.callSurface.on("click", this.onSendCall.bind(this));
-        var timeout;
+        this.timeout;
         this.startDelete = 800;
         this.repeat = function() {
             this.onDeleteDial();
             console.log("hold", this.startDelete);
-            timeout = setTimeout(this.repeat, this.startDelete);
+            this.timeout = setTimeout(this.repeat, this.startDelete);
             this.startDelete = 50;
         }.bind(this);
-        this.dialOutputViewButtons.on("mousedown", function() {
-            this.repeat();
+        this.dialOutputViewButtons.on("mousedown", function(e) {
+            if ($(e.target).hasClass("delete-num-button")) this.repeat();
         }.bind(this));
-        this.dialOutputViewButtons.on("mouseup", function() {
-            clearTimeout(timeout);
-            this.startDelete = 800;
+        this.dialOutputViewButtons.on("mouseup", function(e) {
+            if ($(e.target).hasClass("delete-num-button")) {
+                clearTimeout(this.timeout);
+                this.startDelete = 800;
+            }
         }.bind(this));
-        this.dialOutputViewButtons.on("mouseleave", function() {
-            clearTimeout(timeout);
-            this.startDelete = 1e3;
+        this.dialOutputViewButtons.on("mouseleave", function(e) {
+            if ($(e.target).hasClass("delete-num-button")) {
+                clearTimeout(this.timeout);
+                this.startDelete = 800;
+            }
         }.bind(this));
         this.dialOutputViewButtons.on("click", function(e) {
             if ($(e.target).hasClass("add-button")) {
                 this.onAddContact();
-            } else if ($(e.target).hasClass("delete-num-button")) {
-                this.onDeleteDial();
             }
         }.bind(this));
     }
@@ -34759,18 +34764,23 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
         this.inputNumbers.unshift(num);
         this.showDialOutputViewButtons();
         this.showOutputNumbers();
+        this.setTemplateCall();
     };
     DialSection.prototype.onDeleteDial = function() {
         this.inputNumbers.shift();
         this.showDialOutputViewButtons();
         this.showOutputNumbers();
+        this.setTemplateCall();
     };
     DialSection.prototype.onClearDial = function() {
         this.inputNumbers = [];
         this.showDialOutputViewButtons();
         this.showOutputNumbers();
+        this.setTemplateCall();
+        this.matchContactLightBox.hide();
     };
     DialSection.prototype.setTemplateCall = function() {
+        if (this.inputNumbers.length == 0) return;
         this.templateCall = new Call({
             firstname: "",
             lastname: "",
@@ -34779,25 +34789,36 @@ require.register("app/views/dial-section-view.js", function(exports, require, mo
         var index = _.chain(this.collection.models).map(function(i) {
             return i.get("phone");
         }).indexOf(this.templateCall.get("phone")).value();
-        if (index >= 0) this.templateCall = this.collection.models[index];
+        if (index >= 0) {
+            this.templateCall = this.collection.models[index];
+            this.showMatchContact();
+            this.matchContactLightBox.show(this.matchContact);
+        } else {
+            this.matchContactLightBox.hide();
+        }
     };
     DialSection.prototype.onSendCall = function() {
-        this.setTemplateCall();
         this._eventOutput.emit("outgoingCall", this.templateCall);
         this.onClearDial();
     };
     DialSection.prototype.onAddContact = function() {
-        this.setTemplateCall();
         this._eventOutput.emit("editContact", this.templateCall);
     };
     DialSection.prototype.showDialOutputViewButtons = function() {
-        if (this.inputNumbers.length == 0) this.dialOutputViewButtonsLightBox.hide(); else if (this.inputNumbers.length > 0 && this.dialOutputViewButtonsLightBox._showing == false) {
+        if (this.inputNumbers.length == 0) {
+            this.dialOutputViewButtonsLightBox.hide();
+            clearTimeout(this.timeout);
+        } else if (this.inputNumbers.length > 0 && this.dialOutputViewButtonsLightBox._showing == false) {
             this.dialOutputViewButtonsLightBox.show(this.dialOutputViewButtons);
         }
     };
     DialSection.prototype.showOutputNumbers = function() {
         this.outputSurface.setContent(Templates.dialOutputView(this.inputNumbers.join("")));
         this.setOutputViewFontSize(this.inputNumbers.length);
+    };
+    DialSection.prototype.showMatchContact = function() {
+        //    this.matchContact.setContent(Templates.dialOutputViewMatchContact('shana'));
+        this.matchContact.setContent(Templates.dialOutputViewMatchContact(this.templateCall));
     };
     DialSection.prototype.setOutputViewFontSize = function(msgLength) {
         var totalWidth = this.outputSurface.getSize(true)[0];
@@ -35225,6 +35246,16 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
                 this.stop(target);
             }
         }.bind(this));
+        this.header.on("click", function(e) {
+            var target = $(e.target);
+            if (target.hasClass("touchable")) {
+                var call = _.clone(this.model);
+                call.set({
+                    phoneOnly: true
+                });
+                this._eventOutput.emit("outgoingCall", call);
+            }
+        }.bind(this));
     }
     OutgoingCallView.prototype = Object.create(View.prototype);
     OutgoingCallView.prototype.constructor = OutgoingCallView;
@@ -35236,7 +35267,17 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
             var initial = this.model.get("firstname")[0] + this.model.get("lastname")[0];
             html += '<div class="initial">' + initial + "</div>";
         }
-        html += '<div class="caller-info"></div>';
+        if (this.model.get("phone")) {
+            var phoneNumber = this.model.get("phone");
+            html += '<div class="caller-info ';
+            if (this.model.get("phoneOnly")) {
+                html += "phone-only";
+            } else {
+                html += "touchable";
+            }
+            html += '">' + '<i class="fa fa-phone"></i> ' + phoneNumber[0] + "(" + phoneNumber.slice(1, 4) + ") " + phoneNumber.slice(4, 7) + "-" + phoneNumber.slice(7, 11) + "</div>";
+        }
+        //    html += '<div class="caller-info"></div>';
         this.header.setContent(html);
         var videoButton = Templates.toggleButton({
             id: "video",
@@ -35304,8 +35345,8 @@ require.register("app/views/outgoing-call-view.js", function(exports, require, m
             cid: data.get("cid")
         };
         this.collection.create(newCall);
-        var silentCalltone = !isNaN(data.get("phone")) && data.get("phone").length == 11;
-        this.startCalltone(silentCalltone);
+        //    var silentCalltone = !isNaN(data.get('phone')) && data.get('phone').length==11;
+        this.startCalltone();
         $(".camera").removeClass("blur");
     };
     OutgoingCallView.prototype.stop = function(button) {
@@ -35571,10 +35612,12 @@ require.register("app/views/settings-section-view.js", function(exports, require
               case "linkedin":
               case "github":
               case "twitter":
-                if (JSON.parse($("#" + e.target.id).prop("checked"))) this._eventOutput.emit("onSocialLink", e.target.id); else window.location = "/disconnect/" + e.target.id;
-                break;
-
-              case "yammer":
+              //                if (JSON.parse($("#" + e.target.id).prop('checked')))
+                //                    this._eventOutput.emit('onSocialLink', e.target.id);
+                //                else
+                //                    window.location = "/disconnect/" + e.target.id;
+                //                break;
+                case "yammer":
                 alert("Coming Soon.");
                 break;
             }
@@ -36137,7 +36180,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             // events handling
             this._eventOutput.on("callEnd", onCallEnd);
             this._eventOutput.on("incomingCall", onIncomingCall);
-            this._eventOutput.on("outgoingCall", onOutgoingCall);
+            //        this._eventOutput.on('outgoingCall', onOutgoingCall);
             this._eventOutput.on("connectedCall", onConnectedCall);
             this._eventOutput.on("outGoingCallAccept", onOutGoingCallAccept);
             this._eventOutput.on("editContact", onEditContact);
@@ -36208,10 +36251,11 @@ require.register("app/main/main-controller.js", function(exports, require, modul
                     }
                 }
             }
-            function onOutgoingCall(eventData) {
-                this.outgoingCallView.start(eventData, this.appSettings);
-                this.myLightbox.show(this.outgoingCallView, true);
-            }
+            //
+            //        function onOutgoingCall(eventData) {
+            //            this.outgoingCallView.start(eventData, this.appSettings);
+            //            this.myLightbox.show(this.outgoingCallView, true);
+            //        }
             function onIncomingCall(eventData) {
                 function onShowNotification() {}
                 function onCloseNotification() {
@@ -36476,6 +36520,7 @@ require.register("app/main/main-controller.js", function(exports, require, modul
     };
     MainController.prototype.callByPhono = function(contact) {
         var number = contact.get("phone");
+        this.outgoingCallView.stopCalltone();
         this.phono.phone.dial("app:9990036398", {
             headers: [ {
                 name: "x-numbertodial",
@@ -36566,14 +36611,18 @@ require.register("app/main/main-controller.js", function(exports, require, modul
             if (this.callNotification && this.callNotification.myNotify) this.callNotification.myNotify.close();
         }
         function onOutgoingCall(contact) {
+            this.outgoingCallView.start(contact, this.appSettings);
+            this.myLightbox.show(this.outgoingCallView, true);
             if (!this.localStream) {
                 alert("Please allow camera/microphone access for Beepe");
                 return;
             }
-            if (!isNaN(contact.get("phone")) && contact.get("phone").length == 11) {
+            if (contact.get("phoneOnly")) {
                 this.callByPhono(contact);
-            } else if (contact.get("cid")) {
+            } else if (contact.get("cid") && contact.get("cid") != "testcid") {
                 callByContact.bind(this)(contact);
+            } else if (!isNaN(contact.get("phone")) && contact.get("phone").length == 11) {
+                this.lookup(contact, callByContact.bind(this), this.callByPhono.bind(this));
             } else {
                 this.lookup(contact, callByContact.bind(this), this.onUserNotFound.bind(this));
             }

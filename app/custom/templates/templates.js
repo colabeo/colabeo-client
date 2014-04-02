@@ -506,7 +506,7 @@ module.exports = {
     getFacebookInvite: function(contact) {
         if (!contact.facebook || !contact.dcr || contact.cid) return '';
         return [
-            '<a class="touchable button invite-button" target="_self" href="',
+            '<a class="touchable button invite-button" target="_blank" href="',
             "https://www.facebook.com/dialog/send?",
             "app_id=648143008577417",
             "&link=",
@@ -514,9 +514,9 @@ module.exports = {
             contact.dcr,
             "&to=",
             contact.facebook.id,
-            "&display=iframe",
+            "&display=popup",
             "&redirect_uri=",
-            encodeURI("https://beepe.me"),
+            encodeURI("https://beepe.me/invitation"),
             '">Invite</a>'
         ].join('');
     },

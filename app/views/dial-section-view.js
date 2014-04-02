@@ -150,8 +150,9 @@ function _initEvent(){
 
     this.repeat = function () {
         this.onDeleteDial();
-        console.log('hold',this.startDelete);
         this.timeout = setTimeout(this.repeat, this.startDelete);
+        //TODO: any better way to clearTimeout?
+        if (this.inputNumbers.length == 0) clearTimeout(this.timeout);
         this.startDelete = 50;
     }.bind(this);
 
@@ -229,7 +230,6 @@ DialSection.prototype.onAddContact = function(){
 DialSection.prototype.showDialOutputViewButtons = function(){
     if (this.inputNumbers.length == 0) {
         this.dialOutputViewButtonsLightBox.hide();
-        clearTimeout(this.timeout);
     }
     else if (this.inputNumbers.length > 0 && this.dialOutputViewButtonsLightBox._showing == false){
         this.dialOutputViewButtonsLightBox.show(this.dialOutputViewButtons);

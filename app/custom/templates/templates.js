@@ -504,7 +504,7 @@ module.exports = {
     },
 
     getFacebookInvite: function(contact) {
-        if (!contact.facebook || !contact.dcr || contact.cid) return '';
+        if (!contact.facebook || !contact.dcr) return '';
         return [
             '<a class="touchable button invite-button" target="_blank" href="',
             "https://www.facebook.com/dialog/send?",
@@ -521,7 +521,7 @@ module.exports = {
         ].join('');
     },
     getSMSInvite: function(contact) {
-        if (!Helpers.isMobile() || !contact.phone || !contact.dcr || contact.cid) return '';
+        if (!Helpers.isMobile() || !contact.phone || !contact.dcr) return '';
         return [
             '<a class="touchable button invite-button" target="_blank" href="',
             "sms:",
@@ -533,7 +533,7 @@ module.exports = {
         ].join('');
     },
     getEmailInvite: function (contact) {
-        if (!contact.email || !contact.dcr || contact.cid) return '';
+        if (!contact.email || !contact.dcr) return '';
         return [
             '<a class="touchable button invite-button" target="_blank" href="',
             "mailto:",

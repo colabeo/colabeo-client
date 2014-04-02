@@ -78,7 +78,7 @@ module.exports = {
 
     phoneButton: function(id) {
         return [
-            '<span class="fa-stack fa-lg phone-button" id="',
+            '<span class="fa-stack fa-lg phone-button touchable" id="',
             id ,
             '"><i class="fa fa-square fa-stack-2x fa-background"></i>',
             '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>',
@@ -411,8 +411,8 @@ module.exports = {
     },
     dialOutputViewButton: function(){
         return ['<div class="dial-output-view-button">',
-            '<i class="fa fa-plus add-button"></i>',
-            '<i class="fa fa-caret-square-o-left delete-num-button"></i></div>'].join('')
+            '<i class="fa fa-plus add-button touchable"></i>',
+            '<i class="fa fa-caret-square-o-left delete-num-button touchable"></i></div>'].join('')
     },
 
     conversationViewHeader: function(callee){
@@ -444,7 +444,7 @@ module.exports = {
         var html = [
             '<div class="box">',
             '<div class="info">' + appSettings.get('firstname') + " " + appSettings.get('lastname'),
-            '<button class="logout-button">Log Out</button></div>',
+            '<button class="logout-button touchable">Log Out</button></div>',
             '<div class="desc"></div>',
             '<div class="info">ID: ' + appSettings.get('username') + "</div>",
             '<div class="desc"></div>',

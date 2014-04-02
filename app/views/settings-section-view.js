@@ -91,24 +91,24 @@ function SettingsSectionView(options) {
     }.bind(this));
 
     this.surface.on('click', function(e){
-        switch (e.target.className)
-        {
-//                case "call-button":
-//                    this.eventOutput.emit('outgoingCall');
-//                    break;
-//                case "incoming-button":
-//                    this.eventOutput.emit('imcomingCall');
-//                    break;
-            case "connected-button":
-                this._eventOutput.emit('connectedCall', 'o9ycaGmnq0');
-                break;
-            case "conversations-button":
-                this._eventOutput.emit('conversations');
-                break;
-            case "logout-button":
-                window.location = "/logout";
-                break;
+        if ($(e.target).hasClass('logout-button')) {
+            window.location = "/logout";
         }
+//        switch (e.target.className)
+//        {
+////                case "call-button":
+////                    this.eventOutput.emit('outgoingCall');
+////                    break;
+////                case "incoming-button":
+////                    this.eventOutput.emit('imcomingCall');
+////                    break;
+//            case "connected-button":
+//                this._eventOutput.emit('connectedCall', 'o9ycaGmnq0');
+//                break;
+//            case "conversations-button":
+//                this._eventOutput.emit('conversations');
+//                break;
+//        }
     }.bind(this));
 
     var settingsEvents = {

@@ -159,10 +159,10 @@ function _initEvent(){
         if ($(e.target).hasClass('delete-num-button')) this.repeat();
     }.bind(this));
     this.dialOutputViewButtons.on('mouseup',function(e) {
-        if ($(e.target).hasClass('delete-num-button')) {
+//        if ($(e.target).hasClass('delete-num-button')) {
             clearTimeout(this.timeout);
             this.startDelete = 800;
-        }
+//        }
     }.bind(this));
     this.dialOutputViewButtons.on('mouseleave',function(e) {
         if ($(e.target).hasClass('delete-num-button')) {

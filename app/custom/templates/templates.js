@@ -553,7 +553,9 @@ module.exports = {
         if (formObject[source]) {
             var obj = formObject[source];
             html += '<span class="import-contact touchable" id="' + source + '">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-            html += this.removeButton(source) + '</div>';
+            html += this.removeButton(source);
+            if (source=='facebook') html += this.getFacebookInvite(formObject);
+            html += '</div>';
         } else {
             html += '<span class="import-contact touchable" id="' + source + '">  New ' + Helpers.capitalize(source) + ' Contact</span>';
             html += this.nextButton(source) + '</div>';

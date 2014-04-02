@@ -151,7 +151,6 @@ function _initEvent(){
     this.repeat = function () {
         this.onDeleteDial();
         this.timeout = setTimeout(this.repeat, this.startDelete);
-        //TODO: any better way to clearTimeout?
         if (this.inputNumbers.length == 0) clearTimeout(this.timeout);
         this.startDelete = 50;
     }.bind(this);

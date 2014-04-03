@@ -76,14 +76,14 @@ function SettingsSectionView(options) {
                 break;
             case "facebook":
             case "google":
+                if (JSON.parse($("#" + e.target.id).prop('checked')))
+                    this._eventOutput.emit('onSocialLink', e.target.id);
+                else
+                    window.location = "/disconnect/" + e.target.id;
+                break;
             case "linkedin":
             case "github":
             case "twitter":
-//                if (JSON.parse($("#" + e.target.id).prop('checked')))
-//                    this._eventOutput.emit('onSocialLink', e.target.id);
-//                else
-//                    window.location = "/disconnect/" + e.target.id;
-//                break;
             case "yammer":
                 alert("Coming Soon.");
                 break;

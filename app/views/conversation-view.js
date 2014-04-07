@@ -185,11 +185,13 @@ ConversationView.prototype.initFooter = function(){
 ConversationView.prototype.initConversation = function(){
     this.scrollview = new VerticalScrollView({
         startAt:'bottom',
-        direction:Utility.Direction.Y
+        direction:Utility.Direction.Y,
+        margin: 500
     });
-    this.pipe(this.scrollview);
+    Engine.pipe(this.scrollview);
     this.mod = new Modifier({
-        opacity: startOpacity
+        opacity: startOpacity,
+        transform: Transform.rotateZ(Math.PI)
     });
 };
 

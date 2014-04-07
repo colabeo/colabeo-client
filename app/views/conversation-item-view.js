@@ -1,7 +1,9 @@
 // import famous modules
 var View         = require('famous/view');
+var RenderNode = require('famous/render-node');
 var EventHandler = require('famous/event-handler');
 var Modifier     = require("famous/modifier");
+var Transform          = require('famous/transform');
 
 // Import app specific dependencies
 var ConversationSurface = require('conversation-surface');
@@ -9,7 +11,7 @@ var ConversationSurface = require('conversation-surface');
 var Helpers = require('helpers');
 
 function ConversationItemView(options){
-    View.call(this);
+    View.apply(this, arguments);
 
     this.model = options.model;
 
@@ -24,11 +26,17 @@ function ConversationItemView(options){
             zIndex: 2
         }
     });
+    this.surfaceMod = new Modifier();
+    this.renderNode = new RenderNode();
+    this.renderNodeMod = new Modifier({
+        transform: Transform.rotateZ(Math.PI)
+    });
 
     this.template();
     this.event();
     this.surface.pipe(this._eventOutput);
-    this._add(this.surface);
+    this.renderNode.add(this.surfaceMod).add(this.surface);
+    this._node.add(this.renderNodeMod).add(this.renderNode);
 }
 
 ConversationItemView.prototype = Object.create(View.prototype);
@@ -55,4 +63,9 @@ ConversationItemView.prototype.getLink = function(message){
     return Helpers.linkify(message);
 };
 
+ConversationItemView.prototype.getSize = function(node){
+//    console.log(this._node, this._node.getSize, this.options.size)
+//    debugger
+    Object.getPrototypeOf (ConversationItemView.prototype).getSize.apply(this, arguments);
+};
 module.exports = ConversationItemView;

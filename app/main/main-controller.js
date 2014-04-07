@@ -121,9 +121,10 @@ function MainController() {
             chatsSection,
             recentsSection,
             contactsSection,
+            dialSection,
             settingsSection
         ];
-        if (!Helpers.isMobile()) config.sections.splice(3,0,dialSection);
+//        if (!Helpers.isMobile()) config.sections.splice(3,0,dialSection);
 
         // create the App from the template
         var myApp = new App(config);

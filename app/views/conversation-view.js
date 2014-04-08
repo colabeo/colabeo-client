@@ -52,9 +52,13 @@ ConversationView.prototype.setupBeepeTone = function(){
 
 ConversationView.prototype.setupcall = function(appSettings,call){
     this.appSettings = appSettings;
+
+    var onSetVideo = function(){this._eventOutput.emit('setVideo')}.bind(this);
+    var onSetAudio = function(){this._eventOutput.emit('setAudio')}.bind(this);
+
     this.settingsEvents = {
-        'change:video': this._eventOutput.emit('setVideo'),
-        'change:audio': this._eventOutput.emit('setAudio')
+        'change:video': onSetVideo,
+        'change:audio': onSetAudio
     };
     this.appSettings.on(this.settingsEvents);
 

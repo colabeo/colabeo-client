@@ -1,5 +1,5 @@
 // Generic Backbone Model
-module.exports = Backbone.Model.extend({
+var Settings = Backbone.Model.extend({
     // if url changed, need new name for the localstorage
     localStorage: new Backbone.LocalStorage("colabeo-settings-1"),
     defaults: {
@@ -25,4 +25,22 @@ module.exports = Backbone.Model.extend({
         pPort: 9000,
         pSecure: true
     }
+});
+module.exports = Settings;
+module.exports.getAppSettings =_.memoize(function(data) {
+    if (data) {
+        this.appSettings = new Settings({
+            id: data.objectId
+        });
+        this.appSettings.fetch();
+        this.appSettings.save({
+            cid: data.objectId,
+            email: data.email || "",
+            firstname: data.firstname || data.username || "",
+            lastname: data.lastname || "",
+            username: data.username || ""
+        });
+        this.appSettings.me = data;
+    }
+    return this.appSettings;
 });

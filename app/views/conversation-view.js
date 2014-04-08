@@ -18,6 +18,7 @@ var ConversationItemView   = require('conversation-item-view');
 
 var ConversationCollection = require('models').ConversationCollection;
 var ChatCollection = require('models').ChatCollection;
+var Settings = require('models').Settings;
 
 var Helpers = require('helpers');
 
@@ -386,11 +387,13 @@ ConversationView.prototype.addChat = function(){
 };
 
 ConversationView.prototype.addLocal = function(message){
+    var appSettings = Settings.getAppSettings();
+    var cid = appSettings.get('cid'); // window._cola_g.cid;
     var newMsg = {
         content:message,
         source:'local',
         type:'text',
-        from: window._cola_g.cid,
+        from: cid,
         time:Date.now()
     };
     if (Helpers.isDev()) {

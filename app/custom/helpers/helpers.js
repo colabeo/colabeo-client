@@ -46,6 +46,9 @@ module.exports = {
     isMobile: _.memoize(function() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
     }),
+    isIPhone: _.memoize(function() {
+        return /iPhone/i.test(navigator.userAgent);
+    }),
     deviceSync: _.memoize(function(){
         return (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent))? TouchSync:MouseSync;
     }),

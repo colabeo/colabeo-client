@@ -6,6 +6,7 @@ var Modifier = require('famous/modifier');
 var Transform = require('famous/transform');
 var LightBox     = require('famous/views/light-box');
 var RenderNode = require('famous/render-node');
+var Helpers      = require('helpers');
 
 var Models            = require("models");
 var Call              = Models.Call;
@@ -218,7 +219,11 @@ DialSection.prototype.setTemplateCall = function(){
 };
 
 DialSection.prototype.onSendCall = function(){
-    this._eventOutput.emit('outgoingCall', this.templateCall);
+    if (Helpers.isIPhone()) {
+        if (this.templateCall.get('phone')) window.open("tel:"+this.templateCall.get('phone'));
+    } else {
+        this._eventOutput.emit('outgoingCall', this.templateCall);
+    }
     this.onClearDial();
 };
 
@@ -255,5 +260,75 @@ DialSection.prototype.setOutputViewFontSize = function(msgLength){
 
     this.outputSurface.setProperties({fontSize:fontSize+"px"});
 };
+
+DialSection.prototype.keycodeToEvent = function(keycode) {
+    var map = {}
+    if (keycode == 8) {
+        // backspace
+        return "delete";
+    }
+    if (keycode == 13) {
+        // enter
+        return "call";
+    }
+    else if ((keycode >= 48 && keycode <= 57) || (keycode >= 65 && keycode <= 90)) {
+        // 0-9 A-Z
+        var char = String.fromCharCode(keycode);
+        switch (char) {
+            case "1":
+                return "1";
+            case "2":
+            case "A":
+            case "B":
+            case "C":
+                return "2";
+            case "3":
+            case "D":
+            case "E":
+            case "F":
+                return "3";
+            case "4":
+            case "G":
+            case "H":
+            case "I":
+                return "4";
+            case "5":
+            case "J":
+            case "K":
+            case "L":
+                return "5";
+            case "6":
+            case "M":
+            case "N":
+            case "O":
+                return "6";
+            case "7":
+            case "P":
+            case "Q":
+            case "R":
+            case "S":
+                return "3";
+            case "8":
+            case "T":
+            case "U":
+            case "V":
+                return "8";
+            case "9":
+            case "W":
+            case "X":
+            case "Y":
+            case "Z":
+                return "9";
+            case "0":
+                return "0";
+            case "*":
+                return "*";
+            case "#":
+                return "#";
+        }
+    }
+    else
+        return ""
+}
 
 module.exports = DialSection;

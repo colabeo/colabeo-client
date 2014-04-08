@@ -76,6 +76,7 @@ function SettingsSectionView(options) {
                 break;
             case "facebook":
             case "google":
+            case "twitter":
                 if (JSON.parse($("#" + e.target.id).prop('checked')))
                     this._eventOutput.emit('onSocialLink', e.target.id);
                 else
@@ -83,7 +84,6 @@ function SettingsSectionView(options) {
                 break;
             case "linkedin":
             case "github":
-            case "twitter":
             case "yammer":
                 alert("Coming Soon.");
                 break;

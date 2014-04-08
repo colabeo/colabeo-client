@@ -59,20 +59,7 @@ function MainController() {
             data.username = data.chatroom.calleeName;
         }
         // Set up models and collections
-        this.appSettings = new Settings({
-            id: data.objectId
-        });
-        this.appSettings.fetch();
-        this.appSettings.save({
-            cid: data.objectId,
-            email: data.email || "",
-            firstname: data.firstname || data.username || "",
-            lastname: data.lastname || "",
-            username: data.username || ""
-        });
-
-        this.appSettings.me = data;
-        this.appSettings = this.appSettings;
+        this.appSettings = Settings.getAppSettings(data);
 
         this.contactCollection = new ContactCollection([], {
             firebase: this.appSettings.get('firebaseUrl') + 'users/' + this.appSettings.get('cid')+'/contacts'
@@ -438,8 +425,8 @@ function MainController() {
 //            colabeo.social = {};
 //        }
 
-        window._cola_g = {};
-        _cola_g.cid = this.appSettings.get('cid');
+//        window._cola_g = {};
+//        _cola_g.cid = this.appSettings.get('cid');
 
 
     }.bind(this));
@@ -551,30 +538,38 @@ MainController.prototype.callByPhono = function(contact) {
     var number = contact.get('phone');
     this.outgoingCallView.stopCalltone();
     this.outgoingCallView.setPhoneOnly();
-    this.phono.phone.dial("app:9990036398", {
-        headers: [
-            {
-                name:"x-numbertodial",
-                value: number
-            }
-        ],
-        onRing: function() {
-            console.log("*******Ringing");
-        }.bind(this),
-        onAnswer: function() {
-            console.log("*******Answered");
-            contact = new Contact(contact.omit('success'));
-            contact.set({
-                success: true
-            });
-            this._eventOutput.emit('outGoingCallAccept', contact);
-            this._eventOutput.emit('connectedCall', contact);
-        }.bind(this),
-        onHangup: function() {
-            console.log("*******Hungup");
-            this._eventOutput.emit('callEnd', {exit: true});
-        }.bind(this)
-    });
+    if (Helpers.isMobile()) {
+        window.open("tel:"+number);
+    } else {
+        if (!this.localStream){
+            alert("Please allow camera/microphone access for Beepe");
+            return;
+        }
+        this.phono.phone.dial("app:9990036398", {
+            headers: [
+                {
+                    name:"x-numbertodial",
+                    value: number
+                }
+            ],
+            onRing: function() {
+                console.log("*******Ringing");
+            }.bind(this),
+            onAnswer: function() {
+                console.log("*******Answered");
+                contact = new Contact(contact.omit('success'));
+                contact.set({
+                    success: true
+                });
+                this._eventOutput.emit('outGoingCallAccept', contact);
+                this._eventOutput.emit('connectedCall', contact);
+            }.bind(this),
+            onHangup: function() {
+                console.log("*******Hungup");
+                this._eventOutput.emit('callEnd', {exit: true});
+            }.bind(this)
+        });
+    }
 };
 
 MainController.prototype.setupCallListener = function() {
@@ -651,14 +646,10 @@ MainController.prototype.setupCallListener = function() {
     function onOutgoingCall(contact) {
         this.outgoingCallView.start(contact, this.appSettings);
         this.myLightbox.show(this.outgoingCallView, true);
-        if (!this.localStream){
-            alert("Please allow camera/microphone access for Beepe");
-            return;
-        }
         if (contact.get('cid') && contact.get('cid')!= 'testcid') {
             callByContact.bind(this)(contact);
         }
-        else if (!isNaN(contact.get('phone')) && contact.get('phone').length==11) {
+        else if (!isNaN(contact.get('phone'))) {
             this.lookup(contact, callByContact.bind(this),this.callByPhono.bind(this));
         }
         else {
@@ -666,6 +657,10 @@ MainController.prototype.setupCallListener = function() {
         }
 
         function callByContact(contact) {
+            if (!this.localStream){
+                alert("Please allow camera/microphone access for Beepe");
+                return;
+            }
             var id = contact.get('cid');
             var provider = contact.get('provider');
             if (!id) return;

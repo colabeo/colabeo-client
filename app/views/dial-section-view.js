@@ -184,11 +184,14 @@ function _initEvent(){
 }
 
 function _initKeyBoardEvent(){
-    Engine.on('keyup',function(e){
+    $(document).bind("keydown",function(e){
         if (!$('.dial-number').length) return;
         var ii =this.keycodeToEvent(e.keyCode);
         if (ii == "call"){this.onSendCall()}
-        else if (ii == 'delete'){this.onDeleteDial()}
+        else if (ii == 'delete'){
+            e.preventDefault();
+            this.onDeleteDial();
+        }
         else {
             this.num['key'+ii].press();
         }

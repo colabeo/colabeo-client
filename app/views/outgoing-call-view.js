@@ -86,9 +86,7 @@ function OutgoingCallView(options){
     this.header.on('click', function(e){
         var target = $(e.target);
         if (target.hasClass("touchable")) {
-            var call = _.clone(this.model);
-            call.set({phoneOnly: true});
-            this._eventOutput.emit('outgoingCall',call);
+            this._eventOutput.emit('outgoingPhoneCall',this.model);
         }
     }.bind(this));
 }
@@ -96,6 +94,10 @@ function OutgoingCallView(options){
 
 OutgoingCallView.prototype = Object.create(View.prototype);
 OutgoingCallView.prototype.constructor = OutgoingCallView;
+
+OutgoingCallView.prototype.setPhoneOnly = function() {
+    $('.caller-info').removeClass('touchable').addClass('phone-only');
+}
 
 OutgoingCallView.prototype.template = function() {
     this.model = this.collection.models[0];
@@ -112,9 +114,7 @@ OutgoingCallView.prototype.template = function() {
     if (this.model.get('phone')) {
         var phoneNumber = this.model.get('phone');
         html += '<div class="caller-info ';
-        if (this.model.get('phoneOnly')){
-            html += 'phone-only'
-        } else { html += 'touchable'}
+        html += 'touchable';
         html += '">' +
             '<i class="fa fa-phone"></i> '
             + phoneNumber[0] + '(' + phoneNumber.slice(1,4) + ') ' + phoneNumber.slice(4,7) + '-' + phoneNumber.slice(7,11)

@@ -425,7 +425,7 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-            window.colabeo = this;
+//            window.colabeo = this;
 //            colabeo.chatsSection = chatsSection;
 //            colabeo.recentsSection = recentsSection;
 //            colabeo.contactsSection = contactsSection;
@@ -550,6 +550,7 @@ MainController.prototype.setupSettingsListener = function() {
 MainController.prototype.callByPhono = function(contact) {
     var number = contact.get('phone');
     this.outgoingCallView.stopCalltone();
+    this.outgoingCallView.setPhoneOnly();
     this.phono.phone.dial("app:9990036398", {
         headers: [
             {
@@ -584,6 +585,7 @@ MainController.prototype.setupCallListener = function() {
     this._eventOutput.on('incomingCallEnd', onIncomingCallEnd.bind(this));
     this._eventOutput.on('incomingCallAnswer', onIncomingCallAnswer.bind(this));
     this._eventOutput.on('outgoingCall', onOutgoingCall.bind(this));
+    this._eventOutput.on('outgoingPhoneCall', onOutgoingPhoneCall.bind(this));
     this._eventOutput.on('sync', onSync.bind(this));
     function onAdd(snapshot) {
         var f = snapshot.val().firstname || snapshot.val().person.split(' ')[0];
@@ -642,6 +644,10 @@ MainController.prototype.setupCallListener = function() {
         if (this.callNotification && this.callNotification.myNotify)
             this.callNotification.myNotify.close();
     }
+    function onOutgoingPhoneCall(contact) {
+        if (this.callRef) this.callRef.remove();
+        this.callByPhono(contact);
+    }
     function onOutgoingCall(contact) {
         this.outgoingCallView.start(contact, this.appSettings);
         this.myLightbox.show(this.outgoingCallView, true);
@@ -649,10 +655,7 @@ MainController.prototype.setupCallListener = function() {
             alert("Please allow camera/microphone access for Beepe");
             return;
         }
-        if (contact.get('phoneOnly')) {
-            this.callByPhono(contact);
-        }
-        else if (contact.get('cid') && contact.get('cid')!= 'testcid') {
+        if (contact.get('cid') && contact.get('cid')!= 'testcid') {
             callByContact.bind(this)(contact);
         }
         else if (!isNaN(contact.get('phone')) && contact.get('phone').length==11) {

@@ -78,7 +78,7 @@ module.exports = {
 
     phoneButton: function(id) {
         return [
-            '<span class="fa-stack fa-lg phone-button" id="',
+            '<span class="fa-stack fa-lg phone-button touchable" id="',
             id ,
             '"><i class="fa fa-square fa-stack-2x fa-background"></i>',
             '<i class="fa fa-phone fa-stack-1x fa-frontground"></i>',
@@ -411,8 +411,8 @@ module.exports = {
     },
     dialOutputViewButton: function(){
         return ['<div class="dial-output-view-button">',
-            '<i class="fa fa-plus add-button"></i>',
-            '<i class="fa fa-caret-square-o-left delete-num-button"></i></div>'].join('')
+            '<i class="fa fa-plus add-button touchable"></i>',
+            '<i class="fa fa-caret-square-o-left delete-num-button touchable"></i></div>'].join('')
     },
 
     conversationViewHeader: function(callee){
@@ -444,7 +444,7 @@ module.exports = {
         var html = [
             '<div class="box">',
             '<div class="info">' + appSettings.get('firstname') + " " + appSettings.get('lastname'),
-            '<button class="logout-button">Log Out</button></div>',
+            '<button class="logout-button touchable">Log Out</button></div>',
             '<div class="desc"></div>',
             '<div class="info">ID: ' + appSettings.get('username') + "</div>",
             '<div class="desc"></div>',
@@ -504,9 +504,9 @@ module.exports = {
     },
 
     getFacebookInvite: function(contact) {
-        if (!contact.facebook || !contact.dcr || contact.cid) return '';
+        if (!contact.facebook || !contact.dcr) return '';
         return [
-            '<a class="touchable button invite-button" target="_self" href="',
+            '<a class="touchable button invite-button" target="_blank" href="',
             "https://www.facebook.com/dialog/send?",
             "app_id=648143008577417",
             "&link=",
@@ -516,12 +516,12 @@ module.exports = {
             contact.facebook.id,
             "&display=popup",
             "&redirect_uri=",
-            encodeURI("https://beepe.me"),
+            encodeURI("https://beepe.me/invitation"),
             '">Invite</a>'
         ].join('');
     },
     getSMSInvite: function(contact) {
-        if (!Helpers.isMobile() || !contact.phone || !contact.dcr || contact.cid) return '';
+        if (!Helpers.isMobile() || !contact.phone || !contact.dcr) return '';
         return [
             '<a class="touchable button invite-button" target="_blank" href="',
             "sms:",
@@ -533,7 +533,7 @@ module.exports = {
         ].join('');
     },
     getEmailInvite: function (contact) {
-        if (!contact.email || !contact.dcr || contact.cid) return '';
+        if (!contact.email || !contact.dcr) return '';
         return [
             '<a class="touchable button invite-button" target="_blank" href="',
             "mailto:",
@@ -553,7 +553,9 @@ module.exports = {
         if (formObject[source]) {
             var obj = formObject[source];
             html += '<span class="import-contact touchable" id="' + source + '">  ' + obj.firstname + ' ' + obj.lastname +'</span>';
-            html += this.removeButton(source) + '</div>';
+            html += this.removeButton(source);
+            if (source=='facebook') html += this.getFacebookInvite(formObject);
+            html += '</div>';
         } else {
             html += '<span class="import-contact touchable" id="' + source + '">  New ' + Helpers.capitalize(source) + ' Contact</span>';
             html += this.nextButton(source) + '</div>';

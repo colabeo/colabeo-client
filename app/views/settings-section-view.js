@@ -76,14 +76,14 @@ function SettingsSectionView(options) {
                 break;
             case "facebook":
             case "google":
+                if (JSON.parse($("#" + e.target.id).prop('checked')))
+                    this._eventOutput.emit('onSocialLink', e.target.id);
+                else
+                    window.location = "/disconnect/" + e.target.id;
+                break;
             case "linkedin":
             case "github":
             case "twitter":
-//                if (JSON.parse($("#" + e.target.id).prop('checked')))
-//                    this._eventOutput.emit('onSocialLink', e.target.id);
-//                else
-//                    window.location = "/disconnect/" + e.target.id;
-//                break;
             case "yammer":
                 alert("Coming Soon.");
                 break;
@@ -91,24 +91,24 @@ function SettingsSectionView(options) {
     }.bind(this));
 
     this.surface.on('click', function(e){
-        switch (e.target.className)
-        {
-//                case "call-button":
-//                    this.eventOutput.emit('outgoingCall');
-//                    break;
-//                case "incoming-button":
-//                    this.eventOutput.emit('imcomingCall');
-//                    break;
-            case "connected-button":
-                this._eventOutput.emit('connectedCall', 'o9ycaGmnq0');
-                break;
-            case "conversations-button":
-                this._eventOutput.emit('conversations');
-                break;
-            case "logout-button":
-                window.location = "/logout";
-                break;
+        if ($(e.target).hasClass('logout-button')) {
+            window.location = "/logout";
         }
+//        switch (e.target.className)
+//        {
+////                case "call-button":
+////                    this.eventOutput.emit('outgoingCall');
+////                    break;
+////                case "incoming-button":
+////                    this.eventOutput.emit('imcomingCall');
+////                    break;
+//            case "connected-button":
+//                this._eventOutput.emit('connectedCall', 'o9ycaGmnq0');
+//                break;
+//            case "conversations-button":
+//                this._eventOutput.emit('conversations');
+//                break;
+//        }
     }.bind(this));
 
     var settingsEvents = {

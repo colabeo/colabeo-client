@@ -6,6 +6,8 @@ var Modifier = require('famous/modifier');
 var Transform = require('famous/transform');
 var LightBox     = require('famous/views/light-box');
 var RenderNode = require('famous/render-node');
+var Engine = require('famous/engine');
+
 var Helpers      = require('helpers');
 
 var Models            = require("models");
@@ -32,6 +34,7 @@ function DialSection(options) {
     _initNumbers.call(this);
     _initLayout.call(this);
     _initEvent.call(this);
+    _initKeyBoardEvent.call(this);
 
 }
 
@@ -99,18 +102,19 @@ function _initNumbers(){
     this.numbers=['1','2','3','4','5','6','7','8','9','*','0','#'];
     this.ABC = ['ABC','DEF','GHI','JKL','MNO','PQRS','TUV','WXYZ'];
     this.numbersSurfaces = [];
+    this.num={};
     for (var i = 0; i < this.numbers.length; i++){
 
         if (this.numbers[i] == ' ') {this.numbersSurfaces.push(''); continue;}
-        var num = new DialItemView({
+        this.num['key'+this.numbers[i]] = new DialItemView({
             name: this.numbers[i],
             buttonSize: ButtonSize,
             abc : this.ABC[i-1],
             tone: ['content/audio/numberTone', this.numbers[i]].join(''),
             float: 0.75 - (i % 3) / 4
         });
-        num.pipe(this._eventOutput);
-        this.numbersSurfaces.push(num);
+        this.num['key'+this.numbers[i]].pipe(this._eventOutput);
+        this.numbersSurfaces.push(this.num['key'+this.numbers[i]]);
     }
 
     this.numbersSurfaces.push('');
@@ -175,6 +179,18 @@ function _initEvent(){
     this.dialOutputViewButtons.on('click', function(e){
         if ($(e.target).hasClass('add-button')) {
             this.onAddContact();
+        }
+    }.bind(this));
+}
+
+function _initKeyBoardEvent(){
+    Engine.on('keyup',function(e){
+        if (!$('.dial-number').length) return;
+        var ii =this.keycodeToEvent(e.keyCode);
+        if (ii == "call"){this.onSendCall()}
+        else if (ii == 'delete'){this.onDeleteDial()}
+        else {
+            this.num['key'+ii].press();
         }
     }.bind(this));
 }
@@ -307,7 +323,7 @@ DialSection.prototype.keycodeToEvent = function(keycode) {
             case "Q":
             case "R":
             case "S":
-                return "3";
+                return "7";
             case "8":
             case "T":
             case "U":

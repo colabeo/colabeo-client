@@ -75,22 +75,32 @@ function _event(){
     );
     this.numberSurface.pipe(sync);
 
-    sync.on('start', function() {
-        this.pos.set([0,0]);
-        setTimeout(function(){
-            this.numberSurface.setProperties({backgroundColor: 'rgba(255,255,255,0.1)'});
-        }.bind(this),100);
-        this.startRingtone();
-    }.bind(this));
+    sync.on('start', this.pressStart.bind(this));
 
-    sync.on('end', function() {
-        this.stopRingtone();
-        setTimeout(function(){
-            this.numberSurface.setProperties({backgroundColor: 'transparent'});
-        }.bind(this),100);
-        this.pressNumber();
-    }.bind(this));
+    sync.on('end', this.pressEnd.bind(this));
 }
+
+
+DialItemView.prototype.pressStart = function() {
+    this.pos.set([0,0]);
+    setTimeout(function(){
+        this.numberSurface.setProperties({backgroundColor: 'rgba(255,255,255,0.1)'});
+    }.bind(this),100);
+    this.startRingtone();
+};
+
+DialItemView.prototype.pressEnd = function() {
+    this.stopRingtone();
+    setTimeout(function(){
+        this.numberSurface.setProperties({backgroundColor: 'transparent'});
+    }.bind(this),100);
+    this.pressNumber();
+};
+
+DialItemView.prototype.press = function() {
+    this.pressStart();
+    setTimeout(this.pressEnd.bind(this), 300);
+};
 
 DialItemView.prototype.startRingtone = function() {
     this.ringtone.playSound(0, 1);

@@ -82,8 +82,8 @@ function SettingsSectionView(options) {
                 else
                     window.location = "/disconnect/" + e.target.id;
                 break;
-            case "linkedin":
             case "github":
+            case "linkedin":
             case "yammer":
                 alert("Coming Soon.");
                 break;

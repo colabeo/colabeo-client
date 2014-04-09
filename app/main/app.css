@@ -1328,3 +1328,7 @@ input {
 .touchable {
   cursor: pointer;
 }
+.inviteLink {
+  -webkit-user-select: initial;
+  margin-top: 20px;
+}

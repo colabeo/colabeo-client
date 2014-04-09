@@ -1,4 +1,6 @@
 // import views
+var Surface          = require('famous/surface');
+
 var SocialItemView    = require('social-item-view');
 
 var ContactsScrollView = require('contacts-scroll-view');
@@ -40,6 +42,13 @@ SocialScrollView.prototype.createSocialContacts = function (){
     this.contactSequence = this.collection.map(function(item){
         return this.createItem(item);
     }.bind(this))
+};
+
+SocialScrollView.prototype.renderAddSurface = function() {
+    var emptySurface = new Surface({
+        size: [undefined, undefined]
+    });
+    this.scrollview.sequenceFrom([emptySurface]);
 };
 
 module.exports = SocialScrollView;

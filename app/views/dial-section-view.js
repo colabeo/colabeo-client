@@ -186,7 +186,7 @@ function _initEvent(){
 function _initKeyBoardEvent(){
     Engine.on('keyup',function(e){
         if (!$('.dial-number').length) return;
-        var ii =this.keycodeToEvent(e.keyCode);
+        var ii =this.keycodeToEvent(e);
         if (ii == "call"){this.onSendCall()}
         else if (ii == 'delete'){this.onDeleteDial()}
         else {
@@ -277,8 +277,8 @@ DialSection.prototype.setOutputViewFontSize = function(msgLength){
     this.outputSurface.setProperties({fontSize:fontSize+"px"});
 };
 
-DialSection.prototype.keycodeToEvent = function(keycode) {
-    var map = {}
+DialSection.prototype.keycodeToEvent = function(event) {
+    var keycode = event.keyCode;
     if (keycode == 8) {
         // backspace
         return "delete";
@@ -298,7 +298,6 @@ DialSection.prototype.keycodeToEvent = function(keycode) {
             case "B":
             case "C":
                 return "2";
-            case "3":
             case "D":
             case "E":
             case "F":
@@ -324,7 +323,6 @@ DialSection.prototype.keycodeToEvent = function(keycode) {
             case "R":
             case "S":
                 return "7";
-            case "8":
             case "T":
             case "U":
             case "V":
@@ -337,14 +335,14 @@ DialSection.prototype.keycodeToEvent = function(keycode) {
                 return "9";
             case "0":
                 return "0";
-            case "*":
-                return "*";
-            case "#":
-                return "#";
+            case "3":
+                return (event.shiftKey)? "#" : "3";
+            case "8":
+                return (event.shiftKey)? "*" : "8";
         }
     }
     else
         return ""
-}
+};
 
 module.exports = DialSection;

@@ -184,4 +184,15 @@ VerticalScrollView.prototype.jumpToEnd0 = function() {
 VerticalScrollView.prototype.jumpToEnd1 = function() {
     this.node.index = this.node.array.length -1 ;
 };
+
+VerticalScrollView.prototype.attachAgent = function() {
+    if(this._springAttached) this.physicsEngine.attach([this.spring], this.particle);
+    else this.physicsEngine.attach([this.drag, this.friction], this.particle);
+};
+
+VerticalScrollView.prototype.detachAgent = function() {
+    this._springAttached = false;
+    this.physicsEngine.detachAll();
+};
+
 module.exports = VerticalScrollView;

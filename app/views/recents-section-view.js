@@ -91,17 +91,26 @@ RecentsSectionView.prototype.clearAll = function(){
 RecentsSectionView.prototype.setMissedOnly = function(miss){
     var missedOnly = (miss == 'missed');
     if (missedOnly) {
-        _.each(this.sequence, function(itemView){
-            if (itemView.collapse && !itemView.model.isMissed()) {
-                itemView.collapse();
-            }
-        }.bind(this));
+        // detach the spring before collapse
+        this.scrollview.detachAgent();
+        setTimeout(function(){
+            this.scrollview.scrollTo(0,0);
+            this.scrollview.attachAgent();
+        }.bind(this),100);
+
+        setTimeout(function(){
+            _.each(this.sequence, function(itemView){
+                if (itemView.collapse && !itemView.model.isMissed()) {
+                    itemView.collapse();
+                }
+            }.bind(this));
+        }.bind(this), 200)
     } else {
-        this.scrollview.setVelocity(-1);
         _.each(this.sequence, function(itemView){
             if (itemView.expand) itemView.expand();
         }.bind(this));
     }
+    setTimeout(function(){this.scrollview.emptySurfaceResize()}.bind(this),300);
 };
 
 module.exports = RecentsSectionView;

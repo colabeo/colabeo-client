@@ -263,8 +263,8 @@ module.exports = {
         if (model.attributes.facebook) contact = [contact , '<i class="fa fa-facebook-square contact-icon"></i>'].join('');
         if (model.attributes.google) contact = [contact , '<i class="fa fa-google-plus-square contact-icon"></i>'].join('');
         if (model.attributes.twitter) contact = [contact , '<i class="fa fa-twitter-square contact-icon"></i>'].join('');
-        if (model.attributes.linkedin) contact = [contact , '<i class="fa fa-linkedin-square contact-icon"></i>'].join('');
         if (model.attributes.github) contact = [contact , '<i class="fa fa-github-square contact-icon"></i>'].join('');
+        if (model.attributes.linkedin) contact = [contact , '<i class="fa fa-linkedin-square contact-icon"></i>'].join('');
         if (model.attributes.yammer) contact = [contact , '<i class="fa fa-yammer-todo contact-icon"></i>'].join('');
         contact = [contact, '</div></div>'].join('');
         return contact;
@@ -543,6 +543,19 @@ module.exports = {
             encodeURI("https://beepe.me/welcome?r="),
             contact.dcr,
             '">Invite</a>'
+        ].join('');
+    },
+    getInvite: function (contact) {
+        if (!contact.dcr) return '';
+        return [
+            '<div class="inviteLink">',
+            '<h3>Start chatting now.<br>Send this invitation URL to ',
+            contact.firstname || contact.lastname,
+            '.</h3>',
+            'URL:<br>',
+            encodeURI("https://beepe.me/welcome?r="),
+            contact.dcr,
+            '</div>'
         ].join('');
     },
     addSocialContact: function (formObject, source) {

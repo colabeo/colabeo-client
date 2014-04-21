@@ -336,10 +336,11 @@ function MainController() {
         }
 
         function onSubmitContact(contact) {
-            if (contact.get('cid') || contact.get('dcr')) return;
-            this.lookup(contact, null, function(contact, query) {
-                this.setupChatroom(contact, query);
-            }.bind(this));
+            if (!contact.get('dcr')) {
+                this.lookup(contact, null, function(contact, query) {
+                    this.setupChatroom(contact, query);
+                }.bind(this));
+            }
         }
 
         FamousEngine.on('click', onEngineClick.bind(this));
@@ -937,6 +938,9 @@ MainController.prototype.lookup = function(data, callback, onFailure) {
                 console.log(data);
                 data.set({cid: cid});
                 if (callback) callback(data);
+                if (!data.get('dcr')) {
+                    this.setupChatroom(data, query);
+                }
             }
             else {
                 if (onFailure) onFailure(data, query);

@@ -237,8 +237,9 @@ AddContactView.prototype.submitForm = function(){
         this.model.set(formContact);
         this._eventOutput.emit('submitContact', this.model);
     } else {
-        this.collection.add(formContact);
-        this._eventOutput.emit('submitContact', new Contact(formContact));
+        var contactObj = this.collection.create(formContact);
+        var contact = this.collection.findWhere({id: contactObj.id})
+        this._eventOutput.emit('submitContact', contact);
     }
     // trigger contact list redraw
     this.collection.trigger('sync');

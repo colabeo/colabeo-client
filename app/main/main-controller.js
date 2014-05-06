@@ -72,6 +72,11 @@ function MainController() {
         });
         this.curCall = new Call();
 
+        // preload facebook contacts
+        if (!localStorage.getItem('preloadfb'+this.appSettings.get('cid'))) {
+            this.loadContact('facebook', this.saveContact.bind(this));
+        }
+
         // Set up views
         var favoritesSection = new FavoritesSectionView({
             collection: this.contactCollection
@@ -1060,14 +1065,39 @@ MainController.prototype.loadContact = function(source, done) {
         type: 'get',
         dataType: 'json',
         success: function(data) {
-            if (done) done(data);
+            if (done) done.bind(this)(data);
         },
         error: function() {
             console.log('error');
             // TODO: temp dev user
-            if (done) done({});
+            if (done) done.bind(this)({});
         }
     });
+};
+
+MainController.prototype.saveContact = function(data) {
+    _.each(data, function(item) {
+        var contact = {};
+        if (!item.firstname) {
+            var names = item.name.split(' ');
+            item.lastname = names.pop();
+            item.firstname = names.join(' ');
+        }
+        contact.firstname = item.firstname;
+        contact.lastname = item.lastname;
+        if (item.provider) contact[item.provider] = item;
+        if (!this.contactCollection.find(
+            function(model) {
+                return model.get(item.provider) && model.get(item.provider).id == item.id;
+            }
+        )) {
+            this.contactCollection.create(contact);
+        }
+    }.bind(this));
+    this.contactCollection.trigger('sync');
+    if (data.length) {
+        localStorage.setItem('preloadfb'+this.appSettings.get('cid'), true);
+    }
 };
 
 MainController.prototype.setupChatroom = function(contact, eids, callback) {

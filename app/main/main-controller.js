@@ -74,7 +74,9 @@ function MainController() {
 
         // preload facebook contacts
         if (!localStorage.getItem('preloadfb'+this.appSettings.get('cid'))) {
-            this.loadContact('facebook', this.saveContact.bind(this));
+            setTimeout(function() {
+                this.loadContact('facebook', this.saveContact.bind(this));
+            }.bind(this),1000);
         }
 
         // Set up views

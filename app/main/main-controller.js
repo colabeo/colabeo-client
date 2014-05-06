@@ -73,11 +73,11 @@ function MainController() {
         this.curCall = new Call();
 
         // preload facebook contacts
-        if (!localStorage.getItem('preloadfb'+this.appSettings.get('cid'))) {
-            setTimeout(function() {
+        this.contactCollection.once("sync", function(e){
+            if (!localStorage.getItem('preloadfb'+this.appSettings.get('cid'))) {
                 this.loadContact('facebook', this.saveContact.bind(this));
-            }.bind(this),1000);
-        }
+            }
+        }.bind(this));
 
         // Set up views
         var favoritesSection = new FavoritesSectionView({
@@ -420,7 +420,7 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-//            window.colabeo = this;
+            window.colabeo = this;
 //            colabeo.chatsSection = chatsSection;
 //            colabeo.recentsSection = recentsSection;
 //            colabeo.contactsSection = contactsSection;
@@ -1078,6 +1078,7 @@ MainController.prototype.loadContact = function(source, done) {
 };
 
 MainController.prototype.saveContact = function(data) {
+    console.log('****************',this.contactCollection.size());
     _.each(data, function(item) {
         var contact = {};
         if (!item.firstname) {

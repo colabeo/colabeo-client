@@ -102,7 +102,7 @@ function refactorScrollviewEmptySurfaceResize (){
         var itemHeight = (itemView)? itemView.getSize()[1]:0;
         var headerView = _.find(_.clone(this.node.array).reverse(), function(i){return i instanceof  HeaderView});
         var headerHeight = (headerView)? headerView.getSize()[1]:0;
-        extraHeight = extraHeight - headerHeight - lastGroupLength * itemHeight;
+        extraHeight = Math.max(0,extraHeight - headerHeight - lastGroupLength * itemHeight);
         this.emptySurface.setSize([undefined, extraHeight]);
     }
 }

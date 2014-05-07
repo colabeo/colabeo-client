@@ -434,7 +434,7 @@ function MainController() {
         this.init();
 
 //        if (Helpers.isDev()){
-            window.colabeo = this;
+//            window.colabeo = this;
 //            colabeo.chatsSection = chatsSection;
 //            colabeo.recentsSection = recentsSection;
 //            colabeo.contactsSection = contactsSection;

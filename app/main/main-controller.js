@@ -563,6 +563,12 @@ MainController.prototype.callByPhono = function(contact) {
     if (Helpers.isMobile()) {
         window.open("tel:"+number);
     } else {
+        var nFriendsRequired = 5;
+        var friendsCount = this.contactCollection.filter(function(m){return m.get('cid')}).length;
+        if ( friendsCount < nFriendsRequired) {
+            alert("To unlock phone number calling feature, please invite " + nFriendsRequired + " friends to join Beepe.<br>Current Beepe Friends: " + friendsCount);
+            return;
+        }
         if (!this.localStream){
             alert("Please allow camera/microphone access for Beepe");
             return;

@@ -3,14 +3,19 @@ var Contact = require('contact');
 module.exports = Backbone.Collection.extend({
     model: Contact,
     parse: function(response){
-        var n = response.map(function(item){
+        var n = [];
+        response.map(function(item){
             if (!item.firstname) {
-                var names = item.name.split(' ');
-                item.lastname = names.pop();
-                item.firstname = names.join(' ');
+                if (item.name) {
+                    var names = item.name.split(' ');
+                    item.lastname = names.pop();
+                    item.firstname = names.join(' ');
+                } else {
+                    return;
+                }
             }
-            return item;
-        });
+            n.push(item);
+        }.bind(this));
         return n;
     },
     searchContact: function(keyword) {

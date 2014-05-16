@@ -995,9 +995,9 @@ MainController.prototype.sendChat = function(chat) {
     fromRef.push(chatObj);
     var recentsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + id +'/chats/' + userId);
     var newChat = {
-        firstname: this.appSettings.get('firstname'),
-        lastname: this.appSettings.get('lastname'),
-        email: this.appSettings.get('email'),
+        firstname: this.appSettings.get('firstname')||'',
+        lastname: this.appSettings.get('lastname')||'',
+        email: this.appSettings.get('email')||'',
         pictureUrl: false,
         time: Firebase.ServerValue.TIMESTAMP,
         cid: this.appSettings.get('cid'),
@@ -1008,9 +1008,9 @@ MainController.prototype.sendChat = function(chat) {
     recentsRef.set(newChat);
     var chatsRef = new Firebase(this.appSettings.get('firebaseUrl') + 'history/' + userId +'/chats/' + id);
     var newChat = {
-        firstname: chat.contact.get('firstname'),
-        lastname: chat.contact.get('lastname'),
-        email: chat.contact.get('email'),
+        firstname: chat.contact.get('firstname')||'',
+        lastname: chat.contact.get('lastname')||'',
+        email: chat.contact.get('email')||'',
         pictureUrl: false,
         time: Firebase.ServerValue.TIMESTAMP,
         cid: id,

@@ -204,8 +204,8 @@ AddContactView.prototype.renderContact = function() {
     html += Templates.addSocialContact(this.formObject, 'google');
     html += Templates.addSocialContact(this.formObject, 'facebook');
     html += Templates.addSocialContact(this.formObject, 'twitter');
+    html += Templates.addSocialContact(this.formObject, 'linkedin');
 //    html += Templates.addSocialContact(this.formObject, 'github');
-//    html += Templates.addSocialContact(this.formObject, 'linkedin');
 //    html += Templates.addSocialContact(this.formObject, 'yammer');
 
     html += Templates.getInvite(this.formObject);
